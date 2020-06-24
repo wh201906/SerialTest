@@ -25,6 +25,10 @@ public:
 
 private slots:
     void refreshPortsInfo();
+    void on_portTable_cellDoubleClicked(int row, int column);
+
+    void on_advancedBox_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;

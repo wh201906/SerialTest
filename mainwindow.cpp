@@ -11,6 +11,36 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
 
     refreshPortsInfo();
+//    port->setPort();
+//    port->setParity();
+//    port->setBaudRate();
+//    port->setDataBits();
+//    port->setPortName();
+//    port->setStopBits();
+    port->setFlowControl(QSerialPort::NoFlowControl);
+    ui->flowControlBox->addItem("NoFlowControl");
+    ui->flowControlBox->addItem("HardwareControl");
+    ui->flowControlBox->addItem("SoftwareControl");
+    ui->flowControlBox->setItemData(0, QSerialPort::NoFlowControl);
+    ui->flowControlBox->setItemData(1, QSerialPort::HardwareControl);
+    ui->flowControlBox->setItemData(2, QSerialPort::SoftwareControl);
+    ui->parityBox->addItem("NoParity");
+    ui->parityBox->addItem("EvenParity");
+    ui->parityBox->addItem("OddParity");
+    ui->parityBox->addItem("SpaceParity");
+    ui->parityBox->addItem("MarkParity");
+    ui->parityBox->setItemData(0, QSerialPort::NoParity);
+    ui->parityBox->setItemData(1, QSerialPort::EvenParity);
+    ui->parityBox->setItemData(2, QSerialPort::OddParity);
+    ui->parityBox->setItemData(3, QSerialPort::SpaceParity);
+    ui->parityBox->setItemData(4, QSerialPort::MarkParity);
+    ui->stopBitsBox->addItem("1");
+    ui->stopBitsBox->addItem("1.5");
+    ui->stopBitsBox->addItem("2");
+    ui->stopBitsBox->setItemData(0, QSerialPort::OneStop);
+    ui->stopBitsBox->setItemData(1, QSerialPort::OneAndHalfStop);
+    ui->stopBitsBox->setItemData(2, QSerialPort::TwoStop);
+    on_advancedBox_clicked(false);
 
 }
 
@@ -24,6 +54,7 @@ void MainWindow::refreshPortsInfo()
     QStringList labels;
     labels << "PortName" << "Description" << "Manufacturer" << "SerialNumber" << "IsBusy" << "IsNull" << "SystemLocation" << "VendorID" << "ProductID" << "BaudRates";
     ui->portTable->clear();
+    ui->portBox->clear();
     ui->portTable->setColumnCount(10);
     ui->portTable->setHorizontalHeaderLabels(labels);
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
@@ -31,6 +62,7 @@ void MainWindow::refreshPortsInfo()
     for(int i = 0; i < ports.size(); i++)
     {
         ui->portTable->setItem(i, 0, new QTableWidgetItem(ports[i].portName()));
+        ui->portBox->addItem(ports[i].portName());
         ui->portTable->setItem(i, 1, new QTableWidgetItem(ports[i].description()));
         ui->portTable->setItem(i, 2, new QTableWidgetItem(ports[i].manufacturer()));
         ui->portTable->setItem(i, 3, new QTableWidgetItem(ports[i].serialNumber()));
@@ -48,4 +80,22 @@ void MainWindow::refreshPortsInfo()
         }
         ui->portTable->setItem(i, 9, new QTableWidgetItem(baudRates));
     }
+}
+
+void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
+{
+    ui->portBox->setCurrentIndex(row);
+    ui->funcTab->setCurrentIndex(1);
+}
+
+void MainWindow::on_advancedBox_clicked(bool checked)
+{
+    ui->dataBitsLabel->setVisible(checked);
+    ui->dataBitsBox->setVisible(checked);
+    ui->stopBitsLabel->setVisible(checked);
+    ui->stopBitsBox->setVisible(checked);
+    ui->parityLabel->setVisible(checked);
+    ui->parityBox->setVisible(checked);
+    ui->flowControlLabel->setVisible(checked);
+    ui->flowControlBox->setVisible(checked);
 }
