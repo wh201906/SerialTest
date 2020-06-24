@@ -9,15 +9,26 @@ MainWindow::MainWindow(QWidget *parent)
     port = new QSerialPort();
     info = new QSerialPortInfo();
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
+    connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
+    connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
 
     refreshPortsInfo();
-//    port->setPort();
-//    port->setParity();
-//    port->setBaudRate();
-//    port->setDataBits();
-//    port->setPortName();
-//    port->setStopBits();
-    port->setFlowControl(QSerialPort::NoFlowControl);
+    initUI();
+
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::readData()
+{
+    ui->receivedEdit->append(port->readAll());
+}
+
+void MainWindow::initUI()
+{
     ui->flowControlBox->addItem("NoFlowControl");
     ui->flowControlBox->addItem("HardwareControl");
     ui->flowControlBox->addItem("SoftwareControl");
@@ -40,13 +51,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stopBitsBox->setItemData(0, QSerialPort::OneStop);
     ui->stopBitsBox->setItemData(1, QSerialPort::OneAndHalfStop);
     ui->stopBitsBox->setItemData(2, QSerialPort::TwoStop);
+    ui->dataBitsBox->addItem("5");
+    ui->dataBitsBox->addItem("6");
+    ui->dataBitsBox->addItem("7");
+    ui->dataBitsBox->addItem("8");
+    ui->dataBitsBox->setItemData(0, QSerialPort::Data5);
+    ui->dataBitsBox->setItemData(1, QSerialPort::Data6);
+    ui->dataBitsBox->setItemData(2, QSerialPort::Data7);
+    ui->dataBitsBox->setItemData(3, QSerialPort::Data8);
+    ui->dataBitsBox->setCurrentIndex(3);
     on_advancedBox_clicked(false);
-
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::refreshPortsInfo()
@@ -85,7 +99,6 @@ void MainWindow::refreshPortsInfo()
 void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
 {
     ui->portBox->setCurrentIndex(row);
-    ui->funcTab->setCurrentIndex(1);
 }
 
 void MainWindow::on_advancedBox_clicked(bool checked)
@@ -99,3 +112,32 @@ void MainWindow::on_advancedBox_clicked(bool checked)
     ui->flowControlLabel->setVisible(checked);
     ui->flowControlBox->setVisible(checked);
 }
+
+void MainWindow::on_openButton_clicked()
+{
+    port->setPortName(ui->portBox->currentText());
+    port->setBaudRate(ui->baudRateBox->currentText().toInt());
+    port->setDataBits((QSerialPort::DataBits)ui->dataBitsBox->currentData().toInt());
+    port->setStopBits((QSerialPort::StopBits)ui->stopBitsBox->currentData().toInt());
+    port->setParity((QSerialPort::Parity)ui->parityBox->currentData().toInt());
+    port->setFlowControl((QSerialPort::FlowControl)ui->flowControlBox->currentData().toInt());
+    port->open(QSerialPort::ReadWrite);
+
+}
+
+void MainWindow::on_closeButton_clicked()
+{
+    port->close();
+}
+
+void MainWindow::stateUpdate()
+{
+
+}
+
+void MainWindow::on_sendButton_clicked()
+{
+    ui->sendedEdit->append(ui->sendEdit->text());
+    port->write((ui->sendEdit->text() + "\r\n").toLatin1());
+}
+

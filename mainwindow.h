@@ -29,9 +29,19 @@ private slots:
 
     void on_advancedBox_clicked(bool checked);
 
+    void on_openButton_clicked();
+
+    void on_closeButton_clicked();
+
+    void readData();
+    void on_sendButton_clicked();
+
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
     QSerialPortInfo* info;
+    void initUI();
+    void stateUpdate();
 };
 #endif // MAINWINDOW_H
