@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -52,7 +52,11 @@
            </layout>
           </item>
           <item>
-           <widget class="QTableWidget" name="portTable"/>
+           <widget class="QTableWidget" name="portTable">
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

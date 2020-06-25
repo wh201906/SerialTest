@@ -8,10 +8,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     port = new QSerialPort();
     info = new QSerialPortInfo();
+    portLabel = new QLabel();
+    stateLabel = new QLabel();
+    baudRateLabel = new QLabel();
+    dataBitsLabel = new QLabel();
+    stopBitsLabel = new QLabel();
+    parityLabel = new QLabel();
+    portState = false;
+
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
-
+    connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
     refreshPortsInfo();
     initUI();
 
@@ -60,7 +68,17 @@ void MainWindow::initUI()
     ui->dataBitsBox->setItemData(2, QSerialPort::Data7);
     ui->dataBitsBox->setItemData(3, QSerialPort::Data8);
     ui->dataBitsBox->setCurrentIndex(3);
+
+    statusBar()->addWidget(portLabel, 1);
+    statusBar()->addWidget(stateLabel, 1);
+    statusBar()->addWidget(baudRateLabel, 1);
+    statusBar()->addWidget(dataBitsLabel, 1);
+    statusBar()->addWidget(stopBitsLabel, 1);
+    statusBar()->addWidget(parityLabel, 1);
+
     on_advancedBox_clicked(false);
+    stateUpdate();
+//    qDebug() << port->isOpen() << port->isReadable() << port->isWritable() << port->error();
 }
 
 void MainWindow::refreshPortsInfo()
@@ -121,22 +139,70 @@ void MainWindow::on_openButton_clicked()
     port->setStopBits((QSerialPort::StopBits)ui->stopBitsBox->currentData().toInt());
     port->setParity((QSerialPort::Parity)ui->parityBox->currentData().toInt());
     port->setFlowControl((QSerialPort::FlowControl)ui->flowControlBox->currentData().toInt());
-    port->open(QSerialPort::ReadWrite);
-
+    if(port->isOpen())
+    {
+        QMessageBox::warning(this, "Error", "The port has been opened.");
+        return;
+    }
+    if(!port->open(QSerialPort::ReadWrite))
+    {
+        QMessageBox::warning(this, "Error", "Cannot open the serial port.");
+        return;
+    }
+    portState = true;
+    stateUpdate();
 }
 
 void MainWindow::on_closeButton_clicked()
 {
     port->close();
+    portState = false;
+    stateUpdate();
 }
 
 void MainWindow::stateUpdate()
 {
+    QString paritys[5] = {"NoParity", "EvenParity", "OddParity", "SpaceParity", "MarkParity"};
+    portLabel->setText("Port: " + port->portName());
+    if(portState)
+    {
+        stateLabel->setText("State: √");
+        baudRateLabel->setText("BaudRate: " + QString::number(port->baudRate()));
+        dataBitsLabel->setText("DataBits: " + QString::number(port->dataBits()));
+        stopBitsLabel->setText("StopBits: " + QString::number((port->stopBits() == QSerialPort::OneAndHalfStop) ? 1.5 : port->stopBits()));
+        parityLabel->setText("Parity: " + paritys[(int)port->parity()]);
+    }
+    else
+    {
+        stateLabel->setText("State: X");
+        baudRateLabel->setText("BaudRate: ");
+        dataBitsLabel->setText("DataBits: ");
+        stopBitsLabel->setText("StopBits: ");
+        parityLabel->setText("Parity: ");
+    }
+
+
+}
+
+void MainWindow::onErrorOccurred(QSerialPort::SerialPortError error)
+{
+    qDebug() << error;
+    if(error != QSerialPort::NoError && portState)
+    {
+        portState = false;
+        stateUpdate();
+        port->close();
+    }
 
 }
 
 void MainWindow::on_sendButton_clicked()
 {
+    if(!portState)
+    {
+        QMessageBox::warning(this, "Error", "No port is opened.");
+        return;
+    }
     ui->sendedEdit->append(ui->sendEdit->text());
     port->write((ui->sendEdit->text() + "\r\n").toLatin1());
 }
