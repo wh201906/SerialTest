@@ -16,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent)
     parityLabel = new QLabel();
     portState = false;
 
+    rawReceivedData = new QByteArray();
+    rawSendedData = new QByteArray();
+
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
@@ -32,7 +35,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::readData()
 {
-    ui->receivedEdit->append(port->readAll());
+    QByteArray newData = port->readAll();
+    rawReceivedData->append(newData);
+    ui->receivedEdit->append(ui->receivedHexBox->isChecked() ? newData.toHex() : newData);
+    // extra space?
 }
 
 void MainWindow::initUI()
@@ -207,3 +213,19 @@ void MainWindow::on_sendButton_clicked()
     port->write((ui->sendEdit->text() + "\r\n").toLatin1());
 }
 
+
+void MainWindow::on_sendedHexBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::Checked)
+        ui->sendedEdit->setText(rawSendedData->toHex());
+    else
+        ui->sendedEdit->setText(*rawSendedData);
+}
+
+void MainWindow::on_receivedHexBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::Checked)
+        ui->receivedEdit->setText(rawReceivedData->toHex());
+    else
+        ui->receivedEdit->setText(*rawReceivedData);
+}

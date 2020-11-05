@@ -40,6 +40,10 @@ private slots:
 
 
     void onErrorOccurred(QSerialPort::SerialPortError error);
+    void on_sendedHexBox_stateChanged(int arg1);
+
+    void on_receivedHexBox_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -47,6 +51,7 @@ private:
     void initUI();
     void stateUpdate();
     bool portState;
+
     QLabel* portLabel;
     QLabel* stateLabel;
     QLabel* baudRateLabel;
@@ -54,5 +59,10 @@ private:
     QLabel* stopBitsLabel;
     QLabel* parityLabel;
 
+    QByteArray* rawReceivedData;
+    QByteArray* rawSendedData;
+
+    bool isReadDataHex = false;
+    bool isWriteDataHex = false;
 };
 #endif // MAINWINDOW_H
