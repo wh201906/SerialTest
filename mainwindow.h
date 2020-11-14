@@ -48,6 +48,8 @@ private slots:
 
     void on_sendedButton_clicked();
 
+    void on_suffixCharEdit_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;

@@ -161,6 +161,7 @@ void MainWindow::on_openButton_clicked()
     }
     portState = true;
     stateUpdate();
+    refreshPortsInfo();
 }
 
 void MainWindow::on_closeButton_clicked()
@@ -168,6 +169,7 @@ void MainWindow::on_closeButton_clicked()
     port->close();
     portState = false;
     stateUpdate();
+    refreshPortsInfo();
 }
 
 void MainWindow::stateUpdate()
@@ -224,8 +226,10 @@ void MainWindow::on_sendButton_clicked()
         data = ui->sendEdit->text().toLatin1();
     if(ui->suffixCRLFButton->isChecked())
         data += "\r\n";
-    else if(ui->suffixEndCharButton->isChecked())
-        data += ui->suffixEndCharEdit->text().toLatin1();
+    else if(ui->suffixCharButton->isChecked())
+        data += ui->suffixCharEdit->text().toLatin1();
+    else if(ui->suffixByteButton->isChecked())
+        data += QByteArray::fromHex(ui->suffixByteEdit->text().toLatin1());
     rawSendedData->append(data);
     syncEditWithData();
     port->write(data);
@@ -269,4 +273,9 @@ void MainWindow::on_sendedButton_clicked()
     rawSendedData->clear();
     TxLabel->setText("Tx: " + QString::number(rawSendedData->size()));
     syncEditWithData();
+}
+
+void MainWindow::on_suffixCharEdit_textChanged(const QString &arg1)
+{
+    ui->suffixByteEdit->setText(arg1.toLatin1().toHex());
 }
