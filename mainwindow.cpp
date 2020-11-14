@@ -222,6 +222,10 @@ void MainWindow::on_sendButton_clicked()
         data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
     else
         data = ui->sendEdit->text().toLatin1();
+    if(ui->suffixCRLFButton->isChecked())
+        data += "\r\n";
+    else if(ui->suffixEndCharButton->isChecked())
+        data += ui->suffixEndCharEdit->text().toLatin1();
     rawSendedData->append(data);
     syncEditWithData();
     port->write(data);
