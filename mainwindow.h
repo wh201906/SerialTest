@@ -44,6 +44,10 @@ private slots:
 
     void on_receivedHexBox_stateChanged(int arg1);
 
+    void on_receivedClearButton_clicked();
+
+    void on_sendedButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -58,11 +62,14 @@ private:
     QLabel* dataBitsLabel;
     QLabel* stopBitsLabel;
     QLabel* parityLabel;
+    QLabel* TxLabel;
+    QLabel* RxLabel;
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
 
-    bool isReadDataHex = false;
-    bool isWriteDataHex = false;
+    bool isReceivedDataHex = false;
+    bool isSendedDataHex = false;
+    void syncEditWithData();
 };
 #endif // MAINWINDOW_H

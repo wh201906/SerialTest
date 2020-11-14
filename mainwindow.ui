@@ -389,9 +389,6 @@
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QLineEdit" name="sendEdit">
-            <property name="placeholderText">
-             <string>fff</string>
-            </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
             </property>

@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     dataBitsLabel = new QLabel();
     stopBitsLabel = new QLabel();
     parityLabel = new QLabel();
+    TxLabel = new QLabel();
+    RxLabel = new QLabel();
     portState = false;
 
     rawReceivedData = new QByteArray();
@@ -37,8 +39,8 @@ void MainWindow::readData()
 {
     QByteArray newData = port->readAll();
     rawReceivedData->append(newData);
-    ui->receivedEdit->append(ui->receivedHexBox->isChecked() ? newData.toHex() : newData);
-    // extra space?
+    syncEditWithData();
+    RxLabel->setText("Rx: " + QString::number(rawReceivedData->size()));
 }
 
 void MainWindow::initUI()
@@ -81,6 +83,8 @@ void MainWindow::initUI()
     statusBar()->addWidget(dataBitsLabel, 1);
     statusBar()->addWidget(stopBitsLabel, 1);
     statusBar()->addWidget(parityLabel, 1);
+    statusBar()->addWidget(RxLabel, 1);
+    statusBar()->addWidget(TxLabel, 1);
 
     on_advancedBox_clicked(false);
     stateUpdate();
@@ -177,6 +181,8 @@ void MainWindow::stateUpdate()
         dataBitsLabel->setText("DataBits: " + QString::number(port->dataBits()));
         stopBitsLabel->setText("StopBits: " + QString::number((port->stopBits() == QSerialPort::OneAndHalfStop) ? 1.5 : port->stopBits()));
         parityLabel->setText("Parity: " + paritys[(int)port->parity()]);
+        RxLabel->setText("Rx: " + QString::number(rawReceivedData->size()));
+        TxLabel->setText("Tx: " + QString::number(rawSendedData->size()));
     }
     else
     {
@@ -185,6 +191,8 @@ void MainWindow::stateUpdate()
         dataBitsLabel->setText("DataBits: ");
         stopBitsLabel->setText("StopBits: ");
         parityLabel->setText("Parity: ");
+        RxLabel->setText("Rx: 0");
+        TxLabel->setText("Tx: 0");
     }
 
 
@@ -204,28 +212,57 @@ void MainWindow::onErrorOccurred(QSerialPort::SerialPortError error)
 
 void MainWindow::on_sendButton_clicked()
 {
+    QByteArray data;
     if(!portState)
     {
         QMessageBox::warning(this, "Error", "No port is opened.");
         return;
     }
-    ui->sendedEdit->append(ui->sendEdit->text());
-    port->write((ui->sendEdit->text() + "\r\n").toLatin1());
+    if(isSendedDataHex)
+        data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
+    else
+        data = ui->sendEdit->text().toLatin1();
+    rawSendedData->append(data);
+    syncEditWithData();
+    port->write(data);
+    TxLabel->setText("Tx: " + QString::number(rawSendedData->size()));
 }
 
 
 void MainWindow::on_sendedHexBox_stateChanged(int arg1)
 {
-    if(arg1 == Qt::Checked)
-        ui->sendedEdit->setText(rawSendedData->toHex());
-    else
-        ui->sendedEdit->setText(*rawSendedData);
+    isSendedDataHex = (arg1 == Qt::Checked);
+    syncEditWithData();
 }
 
 void MainWindow::on_receivedHexBox_stateChanged(int arg1)
 {
-    if(arg1 == Qt::Checked)
-        ui->receivedEdit->setText(rawReceivedData->toHex());
+    isReceivedDataHex = (arg1 == Qt::Checked);
+    syncEditWithData();
+}
+
+void MainWindow::syncEditWithData()
+{
+    if(isReceivedDataHex)
+        ui->receivedEdit->setText(rawReceivedData->toHex(' '));
     else
         ui->receivedEdit->setText(*rawReceivedData);
+    if(isSendedDataHex)
+        ui->sendedEdit->setText(rawSendedData->toHex(' '));
+    else
+        ui->sendedEdit->setText(*rawSendedData);
+}
+
+void MainWindow::on_receivedClearButton_clicked()
+{
+    rawReceivedData->clear();
+    RxLabel->setText("Rx: " + QString::number(rawReceivedData->size()));
+    syncEditWithData();
+}
+
+void MainWindow::on_sendedButton_clicked()
+{
+    rawSendedData->clear();
+    TxLabel->setText("Tx: " + QString::number(rawSendedData->size()));
+    syncEditWithData();
 }
