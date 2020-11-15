@@ -40,7 +40,7 @@ void MainWindow::readData()
     QByteArray newData = port->readAll();
     rawReceivedData->append(newData);
     syncEditWithData();
-    RxLabel->setText("Rx: " + QString::number(rawReceivedData->size()));
+    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
 }
 
 void MainWindow::initUI()
@@ -183,8 +183,8 @@ void MainWindow::stateUpdate()
         dataBitsLabel->setText("DataBits: " + QString::number(port->dataBits()));
         stopBitsLabel->setText("StopBits: " + QString::number((port->stopBits() == QSerialPort::OneAndHalfStop) ? 1.5 : port->stopBits()));
         parityLabel->setText("Parity: " + paritys[(int)port->parity()]);
-        RxLabel->setText("Rx: " + QString::number(rawReceivedData->size()));
-        TxLabel->setText("Tx: " + QString::number(rawSendedData->size()));
+        RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
+        TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
     }
     else
     {
@@ -233,7 +233,7 @@ void MainWindow::on_sendButton_clicked()
     rawSendedData->append(data);
     syncEditWithData();
     port->write(data);
-    TxLabel->setText("Tx: " + QString::number(rawSendedData->size()));
+    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
 }
 
 
@@ -264,18 +264,25 @@ void MainWindow::syncEditWithData()
 void MainWindow::on_receivedClearButton_clicked()
 {
     rawReceivedData->clear();
-    RxLabel->setText("Rx: " + QString::number(rawReceivedData->size()));
+    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
     syncEditWithData();
 }
 
 void MainWindow::on_sendedButton_clicked()
 {
     rawSendedData->clear();
-    TxLabel->setText("Tx: " + QString::number(rawSendedData->size()));
+    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
     syncEditWithData();
 }
 
 void MainWindow::on_suffixCharEdit_textChanged(const QString &arg1)
 {
     ui->suffixByteEdit->setText(arg1.toLatin1().toHex());
+}
+
+void MainWindow::on_suffixByteEdit_textChanged(const QString &arg1)
+{
+    QByteArray newChar = QByteArray::fromHex(arg1.toLatin1());
+    if(newChar.length() == 1 && newChar.at(0) >= 0x20 && newChar.at(0) <= 0x7F)
+        ui->suffixCharEdit->setText(newChar);
 }

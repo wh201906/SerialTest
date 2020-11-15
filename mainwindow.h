@@ -50,6 +50,8 @@ private slots:
 
     void on_suffixCharEdit_textChanged(const QString &arg1);
 
+    void on_suffixByteEdit_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
