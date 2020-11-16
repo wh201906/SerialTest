@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QLabel>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -46,11 +47,15 @@ private slots:
 
     void on_receivedClearButton_clicked();
 
-    void on_sendedButton_clicked();
+    void on_sendedClearButton_clicked();
 
     void on_suffixCharEdit_textChanged(const QString &arg1);
 
     void on_suffixByteEdit_textChanged(const QString &arg1);
+
+    void on_sendEdit_textChanged(const QString &arg1);
+
+    void on_repeatBox_stateChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;
@@ -71,6 +76,8 @@ private:
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
+
+    QTimer* repeatTimer;
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;

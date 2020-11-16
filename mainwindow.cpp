@@ -21,10 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
 
+    repeatTimer = new QTimer();
+
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
     connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
+    connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
     refreshPortsInfo();
     initUI();
 
@@ -268,7 +271,7 @@ void MainWindow::on_receivedClearButton_clicked()
     syncEditWithData();
 }
 
-void MainWindow::on_sendedButton_clicked()
+void MainWindow::on_sendedClearButton_clicked()
 {
     rawSendedData->clear();
     TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
@@ -285,4 +288,21 @@ void MainWindow::on_suffixByteEdit_textChanged(const QString &arg1)
     QByteArray newChar = QByteArray::fromHex(arg1.toLatin1());
     if(newChar.length() == 1 && newChar.at(0) >= 0x20 && newChar.at(0) <= 0x7F)
         ui->suffixCharEdit->setText(newChar);
+}
+
+void MainWindow::on_sendEdit_textChanged(const QString &arg1)
+{
+    repeatTimer->stop();
+    ui->repeatBox->setChecked(false);
+}
+
+void MainWindow::on_repeatBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::Checked)
+    {
+        repeatTimer->setInterval(ui->repeatDelayEdit->text().toInt());
+        repeatTimer->start();
+    }
+    else
+        repeatTimer->stop();
 }
