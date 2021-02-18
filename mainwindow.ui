@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -252,6 +252,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="receivedLatestBox">
+            <property name="text">
+             <string>Follow latest data</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -280,7 +287,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QTextEdit" name="receivedEdit">
+         <widget class="QPlainTextEdit" name="receivedEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -289,6 +296,9 @@
           </property>
           <property name="focusPolicy">
            <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
           </property>
           <property name="readOnly">
            <bool>true</bool>
@@ -343,7 +353,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QTextEdit" name="sendedEdit">
+         <widget class="QPlainTextEdit" name="sendedEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -352,6 +362,9 @@
           </property>
           <property name="focusPolicy">
            <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
           </property>
           <property name="readOnly">
            <bool>true</bool>

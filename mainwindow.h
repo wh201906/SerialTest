@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QTimer>
+#include <QScrollBar>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -26,6 +27,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void onRxSliderValueChanged(int value);
+    void onRxSliderMoved(int value);
 private slots:
     void refreshPortsInfo();
     void on_portTable_cellDoubleClicked(int row, int column);
@@ -64,6 +68,10 @@ private:
     void initUI();
     void stateUpdate();
     bool portState;
+
+    QScrollBar* RxSlider;
+    int currRxSliderPos = 0;
+    int userRequiredRxSliderPos = 0;
 
     QLabel* portLabel;
     QLabel* stateLabel;

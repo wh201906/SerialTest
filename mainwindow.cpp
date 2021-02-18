@@ -28,6 +28,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
     connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
     connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
+
+    RxSlider = ui->receivedEdit->verticalScrollBar();
+    connect(RxSlider, &QScrollBar::valueChanged, this, &MainWindow::onRxSliderValueChanged);
+    connect(RxSlider, &QScrollBar::sliderMoved, this, &MainWindow::onRxSliderMoved);
+
     refreshPortsInfo();
     initUI();
 
@@ -38,11 +43,38 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::onRxSliderValueChanged(int value)
+{
+
+    qDebug() << "valueChanged" << value;
+    if(userRequiredRxSliderPos == value)
+        currRxSliderPos = value;
+    else
+        RxSlider->setSliderPosition(currRxSliderPos);
+}
+
+void MainWindow::onRxSliderMoved(int value)
+{
+    // slider is moved by user
+    qDebug() << "sliderMoved" << value;
+    userRequiredRxSliderPos = value;
+}
+
 void MainWindow::readData()
 {
     QByteArray newData = port->readAll();
     rawReceivedData->append(newData);
     syncEditWithData();
+    if(ui->receivedLatestBox->isChecked())
+    {
+        userRequiredRxSliderPos = RxSlider->maximum();
+        RxSlider->setSliderPosition(RxSlider->maximum());
+    }
+    else
+    {
+        userRequiredRxSliderPos = currRxSliderPos;
+        RxSlider->setSliderPosition(currRxSliderPos);
+    }
     RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
 }
 
@@ -254,14 +286,16 @@ void MainWindow::on_receivedHexBox_stateChanged(int arg1)
 
 void MainWindow::syncEditWithData()
 {
+    RxSlider->blockSignals(true);
     if(isReceivedDataHex)
-        ui->receivedEdit->setText(rawReceivedData->toHex(' '));
+        ui->receivedEdit->setPlainText(rawReceivedData->toHex(' '));
     else
-        ui->receivedEdit->setText(*rawReceivedData);
+        ui->receivedEdit->setPlainText(*rawReceivedData);
     if(isSendedDataHex)
-        ui->sendedEdit->setText(rawSendedData->toHex(' '));
+        ui->sendedEdit->setPlainText(rawSendedData->toHex(' '));
     else
-        ui->sendedEdit->setText(*rawSendedData);
+        ui->sendedEdit->setPlainText(*rawSendedData);
+    RxSlider->blockSignals(false);
 }
 
 void MainWindow::on_receivedClearButton_clicked()
