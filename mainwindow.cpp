@@ -124,6 +124,8 @@ void MainWindow::initUI()
     on_advancedBox_clicked(false);
     stateUpdate();
 //    qDebug() << port->isOpen() << port->isReadable() << port->isWritable() << port->error();
+
+    dockInit();
 }
 
 void MainWindow::refreshPortsInfo()
@@ -339,4 +341,31 @@ void MainWindow::on_repeatBox_stateChanged(int arg1)
     }
     else
         repeatTimer->stop();
+}
+
+void MainWindow::dockInit()
+{
+    setDockNestingEnabled(true);
+    QDockWidget* dock;
+    QWidget* widget;
+    int count = ui->funcTab->count();
+    qDebug() << "dock count" << count;
+    for(int i = 0; i < count; i++)
+    {
+        dock = new QDockWidget(ui->funcTab->tabText(0), this);
+        qDebug() << "dock name" << ui->funcTab->tabText(0);
+        dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);// movable is necessary, otherwise the dock cannot be dragged
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        widget = ui->funcTab->widget(0);
+        dock->setWidget(widget);
+        addDockWidget(Qt::BottomDockWidgetArea, dock);
+        if(!dockList.isEmpty())
+            tabifyDockWidget(dockList[0], dock);
+        dockList.append(dock);
+    }
+    ui->funcTab->setVisible(false);
+    ui->centralwidget->setVisible(false);
+    dockList[0]->setVisible(true);
+    dockList[0]->raise();
 }

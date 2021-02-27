@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QScrollBar>
+#include <QDockWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -87,8 +88,11 @@ private:
 
     QTimer* repeatTimer;
 
+    QList<QDockWidget*> dockList;
+
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
     void syncEditWithData();
+    void dockInit();
 };
 #endif // MAINWINDOW_H
