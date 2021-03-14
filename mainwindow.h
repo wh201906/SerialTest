@@ -12,6 +12,7 @@
 #include <QTimer>
 #include <QScrollBar>
 #include <QDockWidget>
+#include <QSettings>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -89,6 +90,7 @@ private:
     QTimer* repeatTimer;
 
     QList<QDockWidget*> dockList;
+    QSettings* settings;
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;

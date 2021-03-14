@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(RxSlider, &QScrollBar::valueChanged, this, &MainWindow::onRxSliderValueChanged);
     connect(RxSlider, &QScrollBar::sliderMoved, this, &MainWindow::onRxSliderMoved);
 
+    settings = new QSettings("preference.ini", QSettings::IniFormat);
+
     refreshPortsInfo();
     initUI();
 
@@ -130,12 +132,8 @@ void MainWindow::initUI()
 
 void MainWindow::refreshPortsInfo()
 {
-    QStringList labels;
-    labels << "PortName" << "Description" << "Manufacturer" << "SerialNumber" << "IsBusy" << "IsNull" << "SystemLocation" << "VendorID" << "ProductID" << "BaudRates";
-    ui->portTable->clear();
+    ui->portTable->clearContents();
     ui->portBox->clear();
-    ui->portTable->setColumnCount(10);
-    ui->portTable->setHorizontalHeaderLabels(labels);
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
     ui->portTable->setRowCount(ports.size());
     for(int i = 0; i < ports.size(); i++)

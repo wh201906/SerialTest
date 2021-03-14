@@ -56,6 +56,56 @@
             <property name="editTriggers">
              <set>QAbstractItemView::NoEditTriggers</set>
             </property>
+            <column>
+             <property name="text">
+              <string>PortName</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Description</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Manufacturer</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>SerialNumber</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>IsBusy</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>IsNull</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>SystemLocation</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>VendorID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>ProductID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>BaudRates</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>
