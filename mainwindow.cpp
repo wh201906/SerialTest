@@ -161,7 +161,46 @@ void MainWindow::refreshPortsInfo()
 
 void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
 {
+    QStringList preferences = settings->childGroups();
+    QStringList::iterator it;
     ui->portBox->setCurrentIndex(row);
+
+    // search preference by <vendorID>-<productID>
+    QString id = ui->portTable->item(row, 7)->text();  // vendor id
+    id += "-";
+    id += ui->portTable->item(row, 8)->text(); // product id
+    for(it = preferences.begin(); it != preferences.end(); it++)
+    {
+        if(*it == id)
+        {
+            loadPreference(id);
+            break;
+        }
+    }
+    if(it != preferences.end())
+        return;
+
+    // search preference by PortName
+    id = ui->portTable->item(row, 0)->text();
+    for(it = preferences.begin(); it != preferences.end(); it++)
+    {
+        if(*it == id)
+        {
+            loadPreference(id);
+            break;
+        }
+    }
+}
+
+void MainWindow::loadPreference(const QString& id)
+{
+    settings->beginGroup(id);
+    ui->baudRateBox->setEditText(settings->value("BaudRate").toString());
+    ui->dataBitsBox->setCurrentIndex(settings->value("DataBitsID").toInt());
+    ui->stopBitsBox->setCurrentIndex(settings->value("StopBitsID").toInt());
+    ui->parityBox->setCurrentIndex(settings->value("ParityID").toInt());
+    ui->flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
+    settings->endGroup();
 }
 
 void MainWindow::on_advancedBox_clicked(bool checked)
@@ -197,7 +236,26 @@ void MainWindow::on_openButton_clicked()
     portState = true;
     stateUpdate();
     refreshPortsInfo();
+    savePreference(port->portName());
 }
+
+void MainWindow::savePreference(const QString& portName)
+{
+    QSerialPortInfo info(portName);
+    QString id;
+    if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
+        id = QString::number(info.vendorIdentifier()) + "-" + QString::number(info.productIdentifier());
+    else
+        id = portName;
+    settings->beginGroup(id);
+    settings->setValue("BaudRate", ui->baudRateBox->currentText());
+    settings->setValue("DataBitsID", ui->dataBitsBox->currentIndex());
+    settings->setValue("StopBitsID", ui->stopBitsBox->currentIndex());
+    settings->setValue("ParityID", ui->parityBox->currentIndex());
+    settings->setValue("FlowControlID", ui->flowControlBox->currentIndex());
+    settings->endGroup();
+}
+
 
 void MainWindow::on_closeButton_clicked()
 {

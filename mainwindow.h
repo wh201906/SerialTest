@@ -96,5 +96,7 @@ private:
     bool isSendedDataHex = false;
     void syncEditWithData();
     void dockInit();
+    void loadPreference(const QString &id);
+    void savePreference(const QString &portName);
 };
 #endif // MAINWINDOW_H
