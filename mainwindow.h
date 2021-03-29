@@ -13,6 +13,7 @@
 #include <QScrollBar>
 #include <QDockWidget>
 #include <QSettings>
+#include <QClipboard>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -62,6 +63,10 @@ private slots:
     void on_sendEdit_textChanged(const QString &arg1);
 
     void on_repeatBox_stateChanged(int arg1);
+
+    void on_receivedCopyButton_clicked();
+
+    void on_sendedCopyButton_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -425,3 +425,13 @@ void MainWindow::dockInit()
     dockList[0]->setVisible(true);
     dockList[0]->raise();
 }
+
+void MainWindow::on_receivedCopyButton_clicked()
+{
+    QApplication::clipboard()->setText(ui->receivedEdit->toPlainText());
+}
+
+void MainWindow::on_sendedCopyButton_clicked()
+{
+    QApplication::clipboard()->setText(ui->sendedEdit->toPlainText());
+}
