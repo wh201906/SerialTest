@@ -267,15 +267,16 @@ void MainWindow::on_closeButton_clicked()
 
 void MainWindow::stateUpdate()
 {
-    QString paritys[5] = {"NoParity", "EvenParity", "OddParity", "SpaceParity", "MarkParity"};
+    QString stopbits[4] = {"", "OneStop", "TwoStop", "OneAndHalfStop"};
+    QString parities[6] = {"NoParity", "", "EvenParity", "OddParity", "SpaceParity", "MarkParity"};
     portLabel->setText("Port: " + port->portName());
     if(portState)
     {
         stateLabel->setText("State: √");
         baudRateLabel->setText("BaudRate: " + QString::number(port->baudRate()));
         dataBitsLabel->setText("DataBits: " + QString::number(port->dataBits()));
-        stopBitsLabel->setText("StopBits: " + QString::number((port->stopBits() == QSerialPort::OneAndHalfStop) ? 1.5 : port->stopBits()));
-        parityLabel->setText("Parity: " + paritys[(int)port->parity()]);
+        stopBitsLabel->setText("StopBits: " + stopbits[(int)port->stopBits()]);
+        parityLabel->setText("Parity: " + parities[(int)port->parity()]);
         RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
         TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
     }
@@ -378,7 +379,7 @@ void MainWindow::on_suffixCharEdit_textChanged(const QString &arg1)
 void MainWindow::on_suffixByteEdit_textChanged(const QString &arg1)
 {
     QByteArray newChar = QByteArray::fromHex(arg1.toLatin1());
-    if(newChar.length() == 1 && newChar.at(0) >= 0x20 && newChar.at(0) <= 0x7F)
+    if(newChar.length() == 1 && newChar.at(0) >= 0x20 && newChar.at(0) < 0x7F)
         ui->suffixCharEdit->setText(newChar);
 }
 
