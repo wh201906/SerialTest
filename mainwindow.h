@@ -68,6 +68,10 @@ private slots:
 
     void on_sendedCopyButton_clicked();
 
+    void on_receivedExportButton_clicked();
+
+    void on_sendedExportButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;

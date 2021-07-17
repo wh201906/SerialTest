@@ -355,6 +355,13 @@
                </spacer>
               </item>
               <item>
+               <widget class="QPushButton" name="receivedExportButton">
+                <property name="text">
+                 <string>Export</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="receivedCopyButton">
                 <property name="text">
                  <string>Copy All</string>
@@ -430,6 +437,13 @@
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="sendedExportButton">
+                <property name="text">
+                 <string>Export</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="sendedCopyButton">

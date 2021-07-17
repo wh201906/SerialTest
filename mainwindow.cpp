@@ -1,6 +1,9 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QFileDialog>
+#include <QDateTime>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -49,10 +52,7 @@ void MainWindow::onRxSliderValueChanged(int value)
 {
 
     qDebug() << "valueChanged" << value;
-    if(userRequiredRxSliderPos == value)
-        currRxSliderPos = value;
-    else
-        RxSlider->setSliderPosition(currRxSliderPos);
+    currRxSliderPos = value;
 }
 
 void MainWindow::onRxSliderMoved(int value)
@@ -235,7 +235,7 @@ void MainWindow::on_openButton_clicked()
     }
     portState = true;
     stateUpdate();
-    refreshPortsInfo();
+    // refreshPortsInfo(); // this takes a lot of time
     savePreference(port->portName());
 }
 
@@ -262,7 +262,7 @@ void MainWindow::on_closeButton_clicked()
     port->close();
     portState = false;
     stateUpdate();
-    refreshPortsInfo();
+    // refreshPortsInfo(); // this takes a lot of time
 }
 
 void MainWindow::stateUpdate()
@@ -290,8 +290,6 @@ void MainWindow::stateUpdate()
         RxLabel->setText("Rx: 0");
         TxLabel->setText("Tx: 0");
     }
-
-
 }
 
 void MainWindow::onErrorOccurred(QSerialPort::SerialPortError error)
@@ -435,4 +433,40 @@ void MainWindow::on_receivedCopyButton_clicked()
 void MainWindow::on_sendedCopyButton_clicked()
 {
     QApplication::clipboard()->setText(ui->sendedEdit->toPlainText());
+}
+
+void MainWindow::on_receivedExportButton_clicked()
+{
+    bool flag = true;
+    QString fileName, selection;
+    fileName = QFileDialog::getSaveFileName(this, tr("Export received data"), QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
+    if(fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    flag &= file.open(QFile::WriteOnly | QFile::Text);
+    selection = ui->receivedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
+    if(selection.isEmpty())
+        flag &= file.write(ui->receivedEdit->toPlainText().toUtf8()) != -1;
+    else
+        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+    file.close();
+    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
+}
+
+void MainWindow::on_sendedExportButton_clicked()
+{
+    bool flag = true;
+    QString fileName, selection;
+    fileName = QFileDialog::getSaveFileName(this, tr("Export sended data"), QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
+    if(fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    flag &= file.open(QFile::WriteOnly | QFile::Text);
+    selection = ui->sendedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
+    if(selection.isEmpty())
+        flag &= file.write(ui->sendedEdit->toPlainText().toUtf8()) != -1;
+    else
+        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+    file.close();
+    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 }
