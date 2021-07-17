@@ -103,9 +103,14 @@ private:
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
-    void syncEditWithData();
     void dockInit();
     void loadPreference(const QString &id);
     void savePreference(const QString &portName);
+    void appendReceivedData(QByteArray &data);
+    void syncReceivedEditWithData();
+    void syncSendedEditWithData();
+
+    static const char hexTable[513];
+    QByteArray toHEX(const QByteArray &array);
 };
 #endif // MAINWINDOW_H

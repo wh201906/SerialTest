@@ -65,8 +65,7 @@ void MainWindow::onRxSliderMoved(int value)
 void MainWindow::readData()
 {
     QByteArray newData = port->readAll();
-    rawReceivedData->append(newData);
-    syncEditWithData();
+    appendReceivedData(newData);
     if(ui->receivedLatestBox->isChecked())
     {
         userRequiredRxSliderPos = RxSlider->maximum();
@@ -277,8 +276,6 @@ void MainWindow::stateUpdate()
         dataBitsLabel->setText("DataBits: " + QString::number(port->dataBits()));
         stopBitsLabel->setText("StopBits: " + stopbits[(int)port->stopBits()]);
         parityLabel->setText("Parity: " + parities[(int)port->parity()]);
-        RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
-        TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
     }
     else
     {
@@ -287,9 +284,9 @@ void MainWindow::stateUpdate()
         dataBitsLabel->setText("DataBits: ");
         stopBitsLabel->setText("StopBits: ");
         parityLabel->setText("Parity: ");
-        RxLabel->setText("Rx: 0");
-        TxLabel->setText("Tx: 0");
     }
+    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
+    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
 }
 
 void MainWindow::onErrorOccurred(QSerialPort::SerialPortError error)
@@ -323,7 +320,7 @@ void MainWindow::on_sendButton_clicked()
     else if(ui->suffixByteButton->isChecked())
         data += QByteArray::fromHex(ui->suffixByteEdit->text().toLatin1());
     rawSendedData->append(data);
-    syncEditWithData();
+    syncSendedEditWithData();
     port->write(data);
     TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
 }
@@ -332,41 +329,69 @@ void MainWindow::on_sendButton_clicked()
 void MainWindow::on_sendedHexBox_stateChanged(int arg1)
 {
     isSendedDataHex = (arg1 == Qt::Checked);
-    syncEditWithData();
+    syncSendedEditWithData();
 }
 
 void MainWindow::on_receivedHexBox_stateChanged(int arg1)
 {
     isReceivedDataHex = (arg1 == Qt::Checked);
-    syncEditWithData();
+    syncReceivedEditWithData();
 }
 
-void MainWindow::syncEditWithData()
+void MainWindow::syncReceivedEditWithData()
 {
     RxSlider->blockSignals(true);
     if(isReceivedDataHex)
-        ui->receivedEdit->setPlainText(rawReceivedData->toHex(' '));
+        ui->receivedEdit->setPlainText(toHEX(*rawReceivedData));
     else
         ui->receivedEdit->setPlainText(*rawReceivedData);
+    RxSlider->blockSignals(false);
+//    qDebug() << toHEX(*rawReceivedData);
+}
+
+void MainWindow::syncSendedEditWithData()
+{
     if(isSendedDataHex)
-        ui->sendedEdit->setPlainText(rawSendedData->toHex(' '));
+        ui->sendedEdit->setPlainText(toHEX(*rawSendedData));
     else
         ui->sendedEdit->setPlainText(*rawSendedData);
-    RxSlider->blockSignals(false);
+}
+
+void MainWindow::appendReceivedData(QByteArray& data)
+{
+    QTextCursor cursor;
+    int pos;
+    pos = RxSlider->sliderPosition();
+    rawReceivedData->append(data);
+
+    // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have a empty line
+    // just ignore one of them
+    // data.chop() will affect the variable in the caller function, but it doesn't matter.
+    if(!data.isEmpty() && *(data.end() - 1) == '\r')
+        data.chop(1);
+
+    cursor = ui->receivedEdit->textCursor();
+    ui->receivedEdit->moveCursor(QTextCursor::End);
+    if(isReceivedDataHex)
+        ui->receivedEdit->insertPlainText(toHEX(data));
+    else
+        ui->receivedEdit->insertPlainText(data);
+    ui->receivedEdit->setTextCursor(cursor);
+    RxSlider->setSliderPosition(pos);
 }
 
 void MainWindow::on_receivedClearButton_clicked()
 {
     rawReceivedData->clear();
     RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
-    syncEditWithData();
+    syncReceivedEditWithData();
 }
 
 void MainWindow::on_sendedClearButton_clicked()
 {
     rawSendedData->clear();
     TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
-    syncEditWithData();
+    syncSendedEditWithData();
 }
 
 void MainWindow::on_suffixCharEdit_textChanged(const QString &arg1)
@@ -469,4 +494,41 @@ void MainWindow::on_sendedExportButton_clicked()
         flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
+
 }
+
+QByteArray MainWindow::toHEX(const QByteArray& array)
+{
+    if(array.isEmpty())
+        return QByteArray();
+    QByteArray hex(3 * array.size(), Qt::Uninitialized);
+    char* hexData = hex.data();
+    const uchar *data = (const uchar *)array.data();
+    for(qsizetype i = 0, o = 0; i < array.size(); ++i)
+    {
+        hexData[o++] = hexTable[data[i] * 2];
+        hexData[o++] = hexTable[data[i] * 2 + 1];
+        hexData[o++] = ' ';
+    }
+    return hex;
+}
+
+const char MainWindow::hexTable[256 * 2 + 1] =
+{
+    "000102030405060708090A0B0C0D0E0F"
+    "101112131415161718191A1B1C1D1E1F"
+    "202122232425262728292A2B2C2D2E2F"
+    "303132333435363738393A3B3C3D3E3F"
+    "404142434445464748494A4B4C4D4E4F"
+    "505152535455565758595A5B5C5D5E5F"
+    "606162636465666768696A6B6C6D6E6F"
+    "707172737475767778797A7B7C7D7E7F"
+    "808182838485868788898A8B8C8D8E8F"
+    "909192939495969798999A9B9C9D9E9F"
+    "A0A1A2A3A4A5A6A7A8A9AAABACADAEAF"
+    "B0B1B2B3B4B5B6B7B8B9BABBBCBDBEBF"
+    "C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF"
+    "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF"
+    "E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
+    "F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF"
+};
