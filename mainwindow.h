@@ -72,6 +72,7 @@ private slots:
 
     void on_sendedExportButton_clicked();
 
+    void onTopBoxClicked(bool checked);
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -92,6 +93,7 @@ private:
     QLabel* parityLabel;
     QLabel* TxLabel;
     QLabel* RxLabel;
+    QCheckBox* onTopBox;
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;

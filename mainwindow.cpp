@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     parityLabel = new QLabel();
     TxLabel = new QLabel();
     RxLabel = new QLabel();
+    onTopBox = new QCheckBox(tr("On Top"));
     portState = false;
 
     rawReceivedData = new QByteArray();
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
     connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
     connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
+    connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
 
     RxSlider = ui->receivedEdit->verticalScrollBar();
     connect(RxSlider, &QScrollBar::valueChanged, this, &MainWindow::onRxSliderValueChanged);
@@ -46,6 +48,12 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::onTopBoxClicked(bool checked)
+{
+    setWindowFlag(Qt::WindowStaysOnTopHint, checked);
+    show();
 }
 
 void MainWindow::onRxSliderValueChanged(int value)
@@ -121,6 +129,7 @@ void MainWindow::initUI()
     statusBar()->addWidget(parityLabel, 1);
     statusBar()->addWidget(RxLabel, 1);
     statusBar()->addWidget(TxLabel, 1);
+    statusBar()->addWidget(onTopBox, 1);
 
     on_advancedBox_clicked(false);
     stateUpdate();
@@ -142,11 +151,10 @@ void MainWindow::refreshPortsInfo()
         ui->portTable->setItem(i, 1, new QTableWidgetItem(ports[i].description()));
         ui->portTable->setItem(i, 2, new QTableWidgetItem(ports[i].manufacturer()));
         ui->portTable->setItem(i, 3, new QTableWidgetItem(ports[i].serialNumber()));
-        ui->portTable->setItem(i, 4, new QTableWidgetItem(ports[i].isBusy() ? "Yes" : "No"));
-        ui->portTable->setItem(i, 5, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
-        ui->portTable->setItem(i, 6, new QTableWidgetItem(ports[i].systemLocation()));
-        ui->portTable->setItem(i, 7, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
-        ui->portTable->setItem(i, 8, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
+        ui->portTable->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
+        ui->portTable->setItem(i, 5, new QTableWidgetItem(ports[i].systemLocation()));
+        ui->portTable->setItem(i, 6, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
+        ui->portTable->setItem(i, 7, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
 
         QList<qint32> baudRateList = ports[i].standardBaudRates();
         QString baudRates = "";
