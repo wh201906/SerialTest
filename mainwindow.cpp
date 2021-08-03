@@ -146,15 +146,15 @@ void MainWindow::refreshPortsInfo()
     ui->portTable->setRowCount(ports.size());
     for(int i = 0; i < ports.size(); i++)
     {
-        ui->portTable->setItem(i, 0, new QTableWidgetItem(ports[i].portName()));
+        ui->portTable->setItem(i, HPortName, new QTableWidgetItem(ports[i].portName()));
         ui->portBox->addItem(ports[i].portName());
-        ui->portTable->setItem(i, 1, new QTableWidgetItem(ports[i].description()));
-        ui->portTable->setItem(i, 2, new QTableWidgetItem(ports[i].manufacturer()));
-        ui->portTable->setItem(i, 3, new QTableWidgetItem(ports[i].serialNumber()));
-        ui->portTable->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
-        ui->portTable->setItem(i, 5, new QTableWidgetItem(ports[i].systemLocation()));
-        ui->portTable->setItem(i, 6, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
-        ui->portTable->setItem(i, 7, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
+        ui->portTable->setItem(i, HDescription, new QTableWidgetItem(ports[i].description()));
+        ui->portTable->setItem(i, HManufacturer, new QTableWidgetItem(ports[i].manufacturer()));
+        ui->portTable->setItem(i, HSerialNumber, new QTableWidgetItem(ports[i].serialNumber()));
+        ui->portTable->setItem(i, HIsNull, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
+        ui->portTable->setItem(i, HSystemLocation, new QTableWidgetItem(ports[i].systemLocation()));
+        ui->portTable->setItem(i, HVendorID, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
+        ui->portTable->setItem(i, HProductID, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
 
         QList<qint32> baudRateList = ports[i].standardBaudRates();
         QString baudRates = "";
@@ -162,7 +162,7 @@ void MainWindow::refreshPortsInfo()
         {
             baudRates += QString::number(baudRateList[j]) + ", ";
         }
-        ui->portTable->setItem(i, 9, new QTableWidgetItem(baudRates));
+        ui->portTable->setItem(i, HBaudRates, new QTableWidgetItem(baudRates));
     }
 }
 
@@ -173,9 +173,9 @@ void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
     ui->portBox->setCurrentIndex(row);
 
     // search preference by <vendorID>-<productID>
-    QString id = ui->portTable->item(row, 7)->text();  // vendor id
+    QString id = ui->portTable->item(row, HVendorID)->text();  // vendor id
     id += "-";
-    id += ui->portTable->item(row, 8)->text(); // product id
+    id += ui->portTable->item(row, HProductID)->text(); // product id
     for(it = preferences.begin(); it != preferences.end(); it++)
     {
         if(*it == id)
@@ -188,7 +188,7 @@ void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
         return;
 
     // search preference by PortName
-    id = ui->portTable->item(row, 0)->text();
+    id = ui->portTable->item(row, HPortName)->text();
     for(it = preferences.begin(); it != preferences.end(); it++)
     {
         if(*it == id)

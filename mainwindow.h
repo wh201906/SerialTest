@@ -114,5 +114,18 @@ private:
 
     static const char hexTable[513];
     QByteArray toHEX(const QByteArray &array);
+
+    enum tableHeader
+    {
+        HPortName = 0,
+        HDescription,
+        HManufacturer,
+        HSerialNumber,
+        HIsNull,
+        HSystemLocation,
+        HVendorID,
+        HProductID,
+        HBaudRates
+    };
 };
 #endif // MAINWINDOW_H
