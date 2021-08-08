@@ -73,6 +73,8 @@ private slots:
     void on_sendedExportButton_clicked();
 
     void onTopBoxClicked(bool checked);
+
+    void onStateButtonClicked();
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -86,7 +88,7 @@ private:
     int userRequiredRxSliderPos = 0;
 
     QLabel* portLabel;
-    QLabel* stateLabel;
+    QPushButton* stateButton;
     QLabel* baudRateLabel;
     QLabel* dataBitsLabel;
     QLabel* stopBitsLabel;

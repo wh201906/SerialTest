@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     port = new QSerialPort();
     info = new QSerialPortInfo();
     portLabel = new QLabel();
-    stateLabel = new QLabel();
+    stateButton = new QPushButton();
     baudRateLabel = new QLabel();
     dataBitsLabel = new QLabel();
     stopBitsLabel = new QLabel();
@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
     connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
+    connect(stateButton, &QPushButton::clicked, this, &MainWindow::onStateButtonClicked);
 
     RxSlider = ui->receivedEdit->verticalScrollBar();
     connect(RxSlider, &QScrollBar::valueChanged, this, &MainWindow::onRxSliderValueChanged);
@@ -50,6 +51,28 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::onStateButtonClicked()
+{
+    qDebug() << port->portName();
+    if(port->portName().isEmpty())
+    {
+        QMessageBox::warning(this, "Error", "Plz connect to a port first");
+        return;
+    }
+    if(portState)
+    {
+        port->close();
+        portState = false;
+    }
+    else
+    {
+        portState = port->open(QSerialPort::ReadWrite);
+        if(!portState)
+            QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
+    }
+    stateUpdate();
+}
+
 void MainWindow::onTopBoxClicked(bool checked)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint, checked);
@@ -58,15 +81,14 @@ void MainWindow::onTopBoxClicked(bool checked)
 
 void MainWindow::onRxSliderValueChanged(int value)
 {
-
-    qDebug() << "valueChanged" << value;
+    // qDebug() << "valueChanged" << value;
     currRxSliderPos = value;
 }
 
 void MainWindow::onRxSliderMoved(int value)
 {
     // slider is moved by user
-    qDebug() << "sliderMoved" << value;
+    // qDebug() << "sliderMoved" << value;
     userRequiredRxSliderPos = value;
 }
 
@@ -121,8 +143,10 @@ void MainWindow::initUI()
     ui->dataBitsBox->setItemData(3, QSerialPort::Data8);
     ui->dataBitsBox->setCurrentIndex(3);
 
+    stateButton->setMinimumHeight(1);
+    stateButton->setStyleSheet("*{text-align:left;}");
     statusBar()->addWidget(portLabel, 1);
-    statusBar()->addWidget(stateLabel, 1);
+    statusBar()->addWidget(stateButton, 1);
     statusBar()->addWidget(baudRateLabel, 1);
     statusBar()->addWidget(dataBitsLabel, 1);
     statusBar()->addWidget(stopBitsLabel, 1);
@@ -237,7 +261,7 @@ void MainWindow::on_openButton_clicked()
     }
     if(!port->open(QSerialPort::ReadWrite))
     {
-        QMessageBox::warning(this, "Error", "Cannot open the serial port.");
+        QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
         return;
     }
     portState = true;
@@ -279,7 +303,7 @@ void MainWindow::stateUpdate()
     portLabel->setText("Port: " + port->portName());
     if(portState)
     {
-        stateLabel->setText("State: √");
+        stateButton->setText("State: √");
         baudRateLabel->setText("BaudRate: " + QString::number(port->baudRate()));
         dataBitsLabel->setText("DataBits: " + QString::number(port->dataBits()));
         stopBitsLabel->setText("StopBits: " + stopbits[(int)port->stopBits()]);
@@ -287,7 +311,7 @@ void MainWindow::stateUpdate()
     }
     else
     {
-        stateLabel->setText("State: X");
+        stateButton->setText("State: X");
         baudRateLabel->setText("BaudRate: ");
         dataBitsLabel->setText("DataBits: ");
         stopBitsLabel->setText("StopBits: ");
