@@ -105,6 +105,7 @@ private:
     QByteArray* rawSendedData;
     QByteArray* plotBuf;
     quint64 plotCounter;
+    bool processingOutput = false;
 
     QTimer* repeatTimer;
 

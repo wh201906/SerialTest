@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     repeatTimer = new QTimer();
 
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
-    connect(port, &QSerialPort::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
+    connect(port, &QSerialPort::readyRead, this, &MainWindow::readData);
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
     connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
     connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
@@ -100,6 +100,9 @@ void MainWindow::onRxSliderMoved(int value)
 
 void MainWindow::readData()
 {
+    if(processingOutput)
+        return;
+    processingOutput = true;
     QByteArray newData = port->readAll();
     if(newData.isEmpty())
         return;
@@ -125,7 +128,7 @@ void MainWindow::readData()
             dataList = ((QString)(plotBuf->left(i))).split(ui->plot_dataSpEdit->text());
             plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
             plotCounter++;
-            for(i = 0; i < ui->plot_dataNumBox->value(); i++)
+            for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
             {
                 ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
             }
@@ -133,6 +136,7 @@ void MainWindow::readData()
         ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
     }
     QApplication::processEvents();
+    processingOutput = false;
 }
 
 void MainWindow::initUI()
