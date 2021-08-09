@@ -192,6 +192,7 @@ void MainWindow::refreshPortsInfo()
 
 void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
 {
+    Q_UNUSED(column);
     QStringList preferences = settings->childGroups();
     QStringList::iterator it;
     ui->portBox->setCurrentIndex(row);
@@ -410,6 +411,7 @@ void MainWindow::appendReceivedData(QByteArray& data)
         ui->receivedEdit->insertPlainText(data);
     ui->receivedEdit->setTextCursor(cursor);
     RxSlider->setSliderPosition(pos);
+    QApplication::processEvents();
 }
 
 void MainWindow::on_receivedClearButton_clicked()
@@ -440,6 +442,7 @@ void MainWindow::on_suffixByteEdit_textChanged(const QString &arg1)
 
 void MainWindow::on_sendEdit_textChanged(const QString &arg1)
 {
+    Q_UNUSED(arg1);
     repeatTimer->stop();
     ui->repeatBox->setChecked(false);
 }
@@ -564,3 +567,10 @@ const char MainWindow::hexTable[256 * 2 + 1] =
     "E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
     "F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF"
 };
+
+void MainWindow::on_checkBox_stateChanged(int arg1)
+{
+    ui->widget->view = arg1 == Qt::Checked;
+    ui->widget->update();
+}
+

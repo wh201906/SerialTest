@@ -15,6 +15,8 @@
 #include <QSettings>
 #include <QClipboard>
 
+#include "plotwidget.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
@@ -75,6 +77,8 @@ private slots:
     void onTopBoxClicked(bool checked);
 
     void onStateButtonClicked();
+    void on_checkBox_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
