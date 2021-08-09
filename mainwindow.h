@@ -75,6 +75,10 @@ private slots:
     void onTopBoxClicked(bool checked);
 
     void onStateButtonClicked();
+    void on_plot_dataNumBox_valueChanged(int arg1);
+
+    void on_plot_clearButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -99,6 +103,8 @@ private:
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
+    QByteArray* plotBuf;
+    quint64 plotCounter;
 
     QTimer* repeatTimer;
 
@@ -129,5 +135,6 @@ private:
         HProductID,
         HBaudRates
     };
+    void setupPlot();
 };
 #endif // MAINWINDOW_H

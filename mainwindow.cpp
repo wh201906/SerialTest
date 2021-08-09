@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    qsrand(QTime::currentTime().msecsSinceStartOfDay());
     port = new QSerialPort();
     info = new QSerialPortInfo();
     portLabel = new QLabel();
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
+    plotBuf = new QByteArray();
 
     repeatTimer = new QTimer();
 
@@ -44,6 +46,10 @@ MainWindow::MainWindow(QWidget *parent)
     refreshPortsInfo();
     initUI();
 
+    ui->qcpWidget->axisRect()->setupFullAxesBox(true);
+    ui->qcpWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
+    on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
+    plotCounter = 0;
 }
 
 MainWindow::~MainWindow()
@@ -107,6 +113,24 @@ void MainWindow::readData()
         RxSlider->setSliderPosition(currRxSliderPos);
     }
     RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
+    if(ui->plot_realTimeBox->isChecked())
+    {
+        int i;
+        QStringList dataList;
+        plotBuf->append(newData);
+        while((i = plotBuf->indexOf(ui->plot_frameSpEdit->text())) != -1)
+        {
+            dataList = ((QString)(plotBuf->left(i))).split(ui->plot_dataSpEdit->text());
+            plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
+            plotCounter++;
+            for(i = 0; i < ui->plot_dataNumBox->value(); i++)
+            {
+                ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
+            }
+        }
+        ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
+    }
+    // QApplication::processEvents(); // this might lead to a crash
 }
 
 void MainWindow::initUI()
@@ -192,6 +216,7 @@ void MainWindow::refreshPortsInfo()
 
 void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
 {
+    Q_UNUSED(column);
     QStringList preferences = settings->childGroups();
     QStringList::iterator it;
     ui->portBox->setCurrentIndex(row);
@@ -389,18 +414,25 @@ void MainWindow::syncSendedEditWithData()
         ui->sendedEdit->setPlainText(*rawSendedData);
 }
 
+// TODO:
+// split sync process, add processEvents()
+// void MainWindow::syncEditWithData()
+
 void MainWindow::appendReceivedData(QByteArray& data)
 {
     QTextCursor cursor;
     int pos;
+    bool chopped = false;
     pos = RxSlider->sliderPosition();
     rawReceivedData->append(data);
 
     // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have a empty line
     // just ignore one of them
-    // data.chop() will affect the variable in the caller function, but it doesn't matter.
     if(!data.isEmpty() && *(data.end() - 1) == '\r')
+    {
         data.chop(1);
+        chopped = true;
+    }
 
     cursor = ui->receivedEdit->textCursor();
     ui->receivedEdit->moveCursor(QTextCursor::End);
@@ -408,6 +440,8 @@ void MainWindow::appendReceivedData(QByteArray& data)
         ui->receivedEdit->insertPlainText(toHEX(data));
     else
         ui->receivedEdit->insertPlainText(data);
+    if(chopped)
+        data.append('\r'); // undo data.chop(1);
     ui->receivedEdit->setTextCursor(cursor);
     RxSlider->setSliderPosition(pos);
 }
@@ -440,6 +474,7 @@ void MainWindow::on_suffixByteEdit_textChanged(const QString &arg1)
 
 void MainWindow::on_sendEdit_textChanged(const QString &arg1)
 {
+    Q_UNUSED(arg1);
     repeatTimer->stop();
     ui->repeatBox->setChecked(false);
 }
@@ -564,3 +599,28 @@ const char MainWindow::hexTable[256 * 2 + 1] =
     "E0E1E2E3E4E5E6E7E8E9EAEBECEDEEEF"
     "F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF"
 };
+
+void MainWindow::on_plot_dataNumBox_valueChanged(int arg1)
+{
+    int delta = arg1 - ui->qcpWidget->graphCount();
+    if(delta > 0)
+    {
+        for(int i = 0; i < delta; i++)
+            ui->qcpWidget->addGraph()->setPen(QColor(rand() % 235 + 10, rand() % 235 + 10, rand() % 235 + 10));
+    }
+    else if(delta < 0)
+    {
+        delta = -delta;
+        for(int i = 0; i < delta; i++)
+            ui->qcpWidget->removeGraph(ui->qcpWidget->graphCount() - 1);
+    }
+}
+
+
+void MainWindow::on_plot_clearButton_clicked()
+{
+    plotCounter = 0;
+    ui->qcpWidget->clearGraphs();
+    on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
+}
+
