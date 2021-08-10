@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->qcpWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
     on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
     plotCounter = 0;
+    connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &MainWindow::onQCPLegendDoubleClick);
 }
 
 MainWindow::~MainWindow()
@@ -625,9 +626,40 @@ void MainWindow::on_plot_dataNumBox_valueChanged(int arg1)
 
 void MainWindow::on_plot_clearButton_clicked()
 {
+    int num;
     plotCounter = 0;
-    ui->qcpWidget->clearGraphs();
-    on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
+    num = ui->qcpWidget->graphCount();
+    for(int i = 0; i < num; i++)
+        ui->qcpWidget->graph(i)->data()->clear(); // use data()->clear() rather than data().clear()
     ui->qcpWidget->replot();
+}
+
+
+void MainWindow::on_plot_legendCheckBox_stateChanged(int arg1)
+{
+    ui->qcpWidget->legend->setVisible(arg1 == Qt::Checked);
+}
+
+
+void MainWindow::on_plot_advancedBox_stateChanged(int arg1)
+{
+    ui->plot_advancedWidget->setVisible(arg1 == Qt::Checked);
+}
+
+void MainWindow::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
+{
+    // Rename a graph by double clicking on its legend item
+    Q_UNUSED(legend)
+    if(item)  // only react if item was clicked (user could have clicked on border padding of legend where there is no item, then item is 0)
+    {
+        QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
+        bool ok;
+        QString newName = QInputDialog::getText(this, tr("Legend:"), tr("New graph name:"), QLineEdit::Normal, plItem->plottable()->name(), &ok);
+        if(ok)
+        {
+            plItem->plottable()->setName(newName);
+            ui->qcpWidget->replot();
+        }
+    }
 }
 

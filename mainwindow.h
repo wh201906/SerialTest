@@ -15,6 +15,8 @@
 #include <QSettings>
 #include <QClipboard>
 
+#include "qcustomplot.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui
 {
@@ -79,6 +81,11 @@ private slots:
 
     void on_plot_clearButton_clicked();
 
+    void on_plot_legendCheckBox_stateChanged(int arg1);
+
+    void on_plot_advancedBox_stateChanged(int arg1);
+
+    void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
