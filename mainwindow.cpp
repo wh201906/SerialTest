@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
     plotBuf = new QByteArray();
+    plotTracer = new QCPItemTracer(ui->qcpWidget);
 
     repeatTimer = new QTimer();
 
@@ -47,10 +48,19 @@ MainWindow::MainWindow(QWidget *parent)
     initUI();
 
     ui->qcpWidget->axisRect()->setupFullAxesBox(true);
-    ui->qcpWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes);
+    ui->qcpWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectLegend | QCP::iSelectPlottables);
+    ui->qcpWidget->legend->setSelectableParts(QCPLegend::spItems);
     on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
     plotCounter = 0;
     connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &MainWindow::onQCPLegendDoubleClick);
+    plotTracer->setStyle(QCPItemTracer::tsCrosshair);
+    plotTracer->setBrush(Qt::red);
+    plotTracer->setInterpolating(false);
+    plotTracer->setVisible(false);
+    plotTracer->setGraph(ui->qcpWidget->graph(plotSelectedId));
+    plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(ui->qcpWidget->graph(plotSelectedId))->plottable()->name();
+    ui->qcpWidget->replot();
+    connect(ui->qcpWidget, &QCustomPlot::selectionChangedByUser, this, &MainWindow::onQCPSelectionChanged);
 }
 
 MainWindow::~MainWindow()
@@ -187,6 +197,7 @@ void MainWindow::initUI()
     statusBar()->addWidget(onTopBox, 1);
 
     on_advancedBox_clicked(false);
+    on_plot_advancedBox_stateChanged(Qt::Unchecked);
     stateUpdate();
 //    qDebug() << port->isOpen() << port->isReadable() << port->isWritable() << port->error();
 
@@ -610,10 +621,15 @@ const char MainWindow::hexTable[256 * 2 + 1] =
 void MainWindow::on_plot_dataNumBox_valueChanged(int arg1)
 {
     int delta = arg1 - ui->qcpWidget->graphCount();
+    QCPGraph* currGraph;
     if(delta > 0)
     {
         for(int i = 0; i < delta; i++)
-            ui->qcpWidget->addGraph()->setPen(QColor(rand() % 235 + 10, rand() % 235 + 10, rand() % 235 + 10));
+        {
+            currGraph = ui->qcpWidget->addGraph();
+            currGraph->setPen(QColor(rand() % 235 + 10, rand() % 235 + 10, rand() % 235 + 10));
+            currGraph->setSelectable(QCP::stWhole);
+        }
     }
     else if(delta < 0)
     {
@@ -638,6 +654,7 @@ void MainWindow::on_plot_clearButton_clicked()
 void MainWindow::on_plot_legendCheckBox_stateChanged(int arg1)
 {
     ui->qcpWidget->legend->setVisible(arg1 == Qt::Checked);
+    ui->qcpWidget->replot();
 }
 
 
@@ -663,3 +680,72 @@ void MainWindow::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem
     }
 }
 
+void MainWindow::onQCPMouseMoved(QMouseEvent *event)
+{
+    if(ui->plot_tracerCheckBox->isChecked())
+    {
+        qDebug() << event->pos();
+        double x = ui->qcpWidget->xAxis->pixelToCoord(event->pos().x());
+        plotTracer->setGraphKey(x);
+        plotTracer->updatePosition();
+
+        double xValue = plotTracer->position->key();
+        double yValue = plotTracer->position->value();
+        ui->plot_tracerCheckBox->setText((plotSelectedName + "(%2, %3)").arg(xValue).arg(yValue));
+        ui->qcpWidget->replot();
+    }
+}
+
+
+
+void MainWindow::on_plot_tracerCheckBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::Checked)
+    {
+        connect(ui->qcpWidget, &QCustomPlot::mouseMove, this, &MainWindow::onQCPMouseMoved);
+        plotTracer->setVisible(true);
+    }
+    else
+    {
+        disconnect(ui->qcpWidget, &QCustomPlot::mouseMove, this, &MainWindow::onQCPMouseMoved);
+        plotTracer->setVisible(false);
+        ui->plot_tracerCheckBox->setText(tr("Tracer"));
+    }
+    ui->qcpWidget->replot();
+}
+
+
+void MainWindow::on_plot_fitXButton_clicked()
+{
+    ui->qcpWidget->xAxis->rescale(true);
+    ui->qcpWidget->replot();
+}
+
+
+void MainWindow::on_plot_fitYButton_clicked()
+{
+    ui->qcpWidget->yAxis->rescale(true);
+    ui->qcpWidget->replot();
+}
+
+void MainWindow::onQCPSelectionChanged()
+{
+    // Copied from official interaction demo
+    // A legendItem and a plottable cannot be both selected by user.
+    // synchronize selection of graphs with selection of corresponding legend items:
+    QCPGraph *graph;
+    for(int i = 0; i < ui->qcpWidget->graphCount(); ++i)
+    {
+        graph = ui->qcpWidget->graph(i);
+        QCPPlottableLegendItem *item = ui->qcpWidget->legend->itemWithPlottable(graph);
+        if(item->selected() || graph->selected())
+        {
+            plotSelectedId = i;
+            item->setSelected(true);
+            graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+        }
+    }
+    graph = ui->qcpWidget->graph(plotSelectedId);
+    plotTracer->setGraph(graph);
+    plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(graph)->plottable()->name();
+}

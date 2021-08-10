@@ -86,6 +86,14 @@ private slots:
     void on_plot_advancedBox_stateChanged(int arg1);
 
     void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+    void onQCPMouseMoved(QMouseEvent *event);
+    void on_plot_tracerCheckBox_stateChanged(int arg1);
+
+    void on_plot_fitXButton_clicked();
+
+    void on_plot_fitYButton_clicked();
+
+    void onQCPSelectionChanged();
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -112,6 +120,9 @@ private:
     QByteArray* rawSendedData;
     QByteArray* plotBuf;
     quint64 plotCounter;
+    QCPItemTracer* plotTracer;
+    int plotSelectedId = 0;
+    QString plotSelectedName;
     bool processingOutput = false;
 
     QTimer* repeatTimer;

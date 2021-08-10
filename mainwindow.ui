@@ -722,12 +722,30 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="plot_fitXButton">
+            <property name="text">
+             <string>Fit X</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="plot_fitYButton">
+            <property name="text">
+             <string>Fit Y</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QCheckBox" name="plot_advancedBox">
             <property name="text">
              <string>Advanced</string>
             </property>
-            <property name="checked">
-             <bool>true</bool>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="plot_tracerCheckBox">
+            <property name="text">
+             <string>Tracer</string>
             </property>
            </widget>
           </item>
