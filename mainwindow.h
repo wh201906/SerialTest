@@ -123,7 +123,6 @@ private:
     QCPItemTracer* plotTracer;
     int plotSelectedId = 0;
     QString plotSelectedName;
-    bool processingOutput = false;
 
     QTimer* repeatTimer;
 
