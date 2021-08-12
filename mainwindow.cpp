@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
-    plotBuf = new QByteArray();
+    plotBuf = new QString();
     plotTracer = new QCPItemTracer(ui->qcpWidget);
 
     repeatTimer = new QTimer();
@@ -51,6 +51,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->qcpWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectLegend | QCP::iSelectPlottables);
     ui->qcpWidget->legend->setSelectableParts(QCPLegend::spItems);
     on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
+    on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
+    on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
     plotCounter = 0;
     connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &MainWindow::onQCPLegendDoubleClick);
     plotTracer->setStyle(QCPItemTracer::tsCrosshair);
@@ -114,6 +116,7 @@ void MainWindow::readData()
     QByteArray newData = port->readAll();
     if(newData.isEmpty())
         return;
+    rawReceivedData->append(newData);
     appendReceivedData(newData);
     if(ui->receivedLatestBox->isChecked())
     {
@@ -131,9 +134,9 @@ void MainWindow::readData()
         int i;
         QStringList dataList;
         plotBuf->append(newData);
-        while((i = plotBuf->indexOf(ui->plot_frameSpEdit->text())) != -1)
+        while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
         {
-            dataList = ((QString)(plotBuf->left(i))).split(ui->plot_dataSpEdit->text());
+            dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
             plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
             plotCounter++;
             for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
@@ -434,11 +437,10 @@ void MainWindow::syncSendedEditWithData()
 
 void MainWindow::appendReceivedData(QByteArray& data)
 {
-    QTextCursor cursor;
-    int pos;
+    int cursorPos;
+    int sliderPos;
     bool chopped = false;
-    pos = RxSlider->sliderPosition();
-    rawReceivedData->append(data);
+    sliderPos = RxSlider->sliderPosition();
 
     // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have a empty line
     // just ignore one of them
@@ -448,7 +450,7 @@ void MainWindow::appendReceivedData(QByteArray& data)
         chopped = true;
     }
 
-    cursor = ui->receivedEdit->textCursor();
+    cursorPos = ui->receivedEdit->textCursor().position();
     ui->receivedEdit->moveCursor(QTextCursor::End);
     if(isReceivedDataHex)
         ui->receivedEdit->insertPlainText(toHEX(data));
@@ -456,8 +458,8 @@ void MainWindow::appendReceivedData(QByteArray& data)
         ui->receivedEdit->insertPlainText(data);
     if(chopped)
         data.append('\r'); // undo data.chop(1);
-    ui->receivedEdit->setTextCursor(cursor);
-    RxSlider->setSliderPosition(pos);
+    ui->receivedEdit->textCursor().setPosition(cursorPos);
+    RxSlider->setSliderPosition(sliderPos);
 }
 
 void MainWindow::on_receivedClearButton_clicked()
@@ -745,3 +747,27 @@ void MainWindow::onQCPSelectionChanged()
     plotTracer->setGraph(graph);
     plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(graph)->plottable()->name();
 }
+
+void MainWindow::on_plot_frameSpTypeBox_currentIndexChanged(int index)
+{
+    ui->plot_frameSpEdit->setVisible(index != 2);
+    if(index == 0)
+        plotFrameSeparator = ui->plot_frameSpEdit->text();
+    else if(index == 1)
+        plotFrameSeparator = QByteArray::fromHex(ui->plot_frameSpEdit->text().toLatin1());
+    else if(index == 2)
+        plotFrameSeparator = "\r\n";
+}
+
+
+void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
+{
+    ui->plot_dataSpEdit->setVisible(index != 2);
+    if(index == 0)
+        plotDataSeparator = ui->plot_dataSpEdit->text();
+    else if(index == 1)
+        plotDataSeparator = QByteArray::fromHex(ui->plot_dataSpEdit->text().toLatin1());
+    else if(index == 2)
+        plotDataSeparator = "\r\n";
+}
+

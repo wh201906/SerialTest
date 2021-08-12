@@ -94,6 +94,11 @@ private slots:
     void on_plot_fitYButton_clicked();
 
     void onQCPSelectionChanged();
+
+    void on_plot_frameSpTypeBox_currentIndexChanged(int index);
+
+    void on_plot_dataSpTypeBox_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -118,11 +123,13 @@ private:
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
-    QByteArray* plotBuf;
+    QString* plotBuf;
     quint64 plotCounter;
     QCPItemTracer* plotTracer;
     int plotSelectedId = 0;
     QString plotSelectedName;
+    QString plotFrameSeparator;
+    QString plotDataSeparator;
 
     QTimer* repeatTimer;
 

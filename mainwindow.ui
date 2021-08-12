@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>807</width>
+    <width>895</width>
     <height>600</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -787,6 +787,28 @@
             </widget>
            </item>
            <item>
+            <widget class="QComboBox" name="plot_frameSpTypeBox">
+             <property name="currentIndex">
+              <number>2</number>
+             </property>
+             <item>
+              <property name="text">
+               <string>String</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Hex</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>\r\n</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
             <widget class="QLineEdit" name="plot_frameSpEdit">
              <property name="text">
               <string>&gt;</string>
@@ -798,6 +820,25 @@
              <property name="text">
               <string>Data Spliter:</string>
              </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="plot_dataSpTypeBox">
+             <item>
+              <property name="text">
+               <string>String</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Hex</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>\r\n</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item>
