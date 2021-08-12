@@ -130,6 +130,7 @@ private:
     QString plotSelectedName;
     QString plotFrameSeparator;
     QString plotDataSeparator;
+    int hexCounter = 0;
 
     QTimer* repeatTimer;
 
@@ -144,9 +145,6 @@ private:
     void appendReceivedData(QByteArray &data);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
-
-    static const char hexTable[513];
-    QByteArray toHEX(const QByteArray &array);
 
     enum tableHeader
     {
