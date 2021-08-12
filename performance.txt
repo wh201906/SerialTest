@@ -1,0 +1,7 @@
+Receive ~10M bytes@921600
+sequence:30 0d 0a 39 0d 0a
+Memory usage:
+updateRxEdit+plot: ~915.8MB
+updateRxEdit only: ~848.5MB
+plot only: ~72.8MB
+all off(receive in rawReceivedData): ~18.5MB

@@ -80,22 +80,23 @@ void MainWindow::updateRxUI()
         return;
     if(ui->receivedRealtimeBox->isChecked())
         appendReceivedData(*RxUIBuf);
-
-    int i;
-    QStringList dataList;
-    plotBuf->append(*RxUIBuf);
-    while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
+    if(ui->plot_enaBox->isChecked())
     {
-        dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
-        plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
-        plotCounter++;
-        for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+        int i;
+        QStringList dataList;
+        plotBuf->append(*RxUIBuf);
+        while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
         {
-            ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
+            dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
+            plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
+            plotCounter++;
+            for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+            {
+                ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
+            }
         }
+        ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
     }
-    ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
-
     RxUIBuf->clear();
 }
 
