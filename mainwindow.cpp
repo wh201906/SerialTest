@@ -25,16 +25,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
+    RxUIBuf = new QByteArray();
     plotBuf = new QString();
     plotTracer = new QCPItemTracer(ui->qcpWidget);
 
     repeatTimer = new QTimer();
+    updateUITimer = new QTimer();
+    updateUITimer->setInterval(2);
 
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
     connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
     connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
+    connect(updateUITimer, &QTimer::timeout, this, &MainWindow::updateRxUI);
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
     connect(stateButton, &QPushButton::clicked, this, &MainWindow::onStateButtonClicked);
 
@@ -70,6 +74,31 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::updateRxUI()
+{
+    if(RxUIBuf->isEmpty())
+        return;
+    if(ui->receivedRealtimeBox->isChecked())
+        appendReceivedData(*RxUIBuf);
+
+    int i;
+    QStringList dataList;
+    plotBuf->append(*RxUIBuf);
+    while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
+    {
+        dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
+        plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
+        plotCounter++;
+        for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+        {
+            ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
+        }
+    }
+    ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
+
+    RxUIBuf->clear();
+}
+
 void MainWindow::onStateButtonClicked()
 {
     qDebug() << port->portName();
@@ -81,12 +110,16 @@ void MainWindow::onStateButtonClicked()
     if(portState)
     {
         port->close();
+        updateUITimer->stop();
+        updateRxUI();
         portState = false;
     }
     else
     {
         portState = port->open(QSerialPort::ReadWrite);
-        if(!portState)
+        if(portState)
+            updateUITimer->start();
+        else
             QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
     }
     stateUpdate();
@@ -117,7 +150,6 @@ void MainWindow::readData()
     if(newData.isEmpty())
         return;
     rawReceivedData->append(newData);
-    appendReceivedData(newData);
     if(ui->receivedLatestBox->isChecked())
     {
         userRequiredRxSliderPos = RxSlider->maximum();
@@ -129,23 +161,7 @@ void MainWindow::readData()
         RxSlider->setSliderPosition(currRxSliderPos);
     }
     RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
-    if(ui->plot_realTimeBox->isChecked())
-    {
-        int i;
-        QStringList dataList;
-        plotBuf->append(newData);
-        while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
-        {
-            dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
-            plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
-            plotCounter++;
-            for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
-            {
-                ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
-            }
-        }
-        ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
-    }
+    RxUIBuf->append(newData);
     QApplication::processEvents();
 }
 
@@ -307,8 +323,9 @@ void MainWindow::on_openButton_clicked()
         return;
     }
     portState = true;
+    updateUITimer->start();
     stateUpdate();
-    // refreshPortsInfo(); // this takes a lot of time
+    refreshPortsInfo();
     savePreference(port->portName());
 }
 
@@ -333,9 +350,11 @@ void MainWindow::savePreference(const QString& portName)
 void MainWindow::on_closeButton_clicked()
 {
     port->close();
+    updateUITimer->stop();
+    updateRxUI();
     portState = false;
     stateUpdate();
-    // refreshPortsInfo(); // this takes a lot of time
+    refreshPortsInfo();
 }
 
 void MainWindow::stateUpdate()
@@ -371,6 +390,8 @@ void MainWindow::onErrorOccurred(QSerialPort::SerialPortError error)
         portState = false;
         stateUpdate();
         port->close();
+        updateUITimer->stop();
+        updateRxUI();
     }
 
 }
@@ -745,3 +766,8 @@ void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
         plotDataSeparator = "\r\n";
 }
 
+
+void MainWindow::on_receivedUpdateButton_clicked()
+{
+    updateRxUI();
+}

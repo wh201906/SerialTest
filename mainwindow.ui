@@ -350,6 +350,23 @@
                </spacer>
               </item>
               <item>
+               <widget class="QCheckBox" name="receivedRealtimeBox">
+                <property name="text">
+                 <string>Realtime</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="receivedUpdateButton">
+                <property name="text">
+                 <string>Update</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="receivedExportButton">
                 <property name="text">
                  <string>Export</string>
@@ -654,23 +671,6 @@
            <widget class="QPushButton" name="plot_clearButton">
             <property name="text">
              <string>Clear</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="plot_realTimeBox">
-            <property name="text">
-             <string>RealTime</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="plot_refreshButton">
-            <property name="text">
-             <string>Refresh</string>
             </property>
            </widget>
           </item>

@@ -99,6 +99,10 @@ private slots:
 
     void on_plot_dataSpTypeBox_currentIndexChanged(int index);
 
+    void updateRxUI();
+
+    void on_receivedUpdateButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -123,6 +127,7 @@ private:
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
+    QByteArray* RxUIBuf;
     QString* plotBuf;
     quint64 plotCounter;
     QCPItemTracer* plotTracer;
@@ -133,6 +138,7 @@ private:
     int hexCounter = 0;
 
     QTimer* repeatTimer;
+    QTimer* updateUITimer;
 
     QList<QDockWidget*> dockList;
     QSettings* settings;
