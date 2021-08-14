@@ -103,6 +103,7 @@ private slots:
 
     void on_receivedUpdateButton_clicked();
 
+    void onXAxisChangedByUser(const QCPRange &newRange);
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -135,6 +136,7 @@ private:
     QString plotSelectedName;
     QString plotFrameSeparator;
     QString plotDataSeparator;
+    double plotXAxisWidth;
     int hexCounter = 0;
 
     QTimer* repeatTimer;

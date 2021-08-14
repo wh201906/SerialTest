@@ -67,11 +67,18 @@ MainWindow::MainWindow(QWidget *parent)
     plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(ui->qcpWidget->graph(plotSelectedId))->plottable()->name();
     ui->qcpWidget->replot();
     connect(ui->qcpWidget, &QCustomPlot::selectionChangedByUser, this, &MainWindow::onQCPSelectionChanged);
+    connect(ui->qcpWidget->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, &MainWindow::onXAxisChangedByUser);
+    plotXAxisWidth = ui->qcpWidget->xAxis->range().size();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::onXAxisChangedByUser(const QCPRange &newRange)
+{
+    plotXAxisWidth = newRange.size();
 }
 
 void MainWindow::updateRxUI()
@@ -94,6 +101,12 @@ void MainWindow::updateRxUI()
             {
                 ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
             }
+        }
+        if(ui->plot_latestBox->isChecked())
+        {
+            ui->qcpWidget->xAxis->blockSignals(true);
+            ui->qcpWidget->xAxis->setRange(plotCounter, plotXAxisWidth, Qt::AlignRight);
+            ui->qcpWidget->xAxis->blockSignals(false);
         }
         ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
     }
@@ -544,7 +557,6 @@ void MainWindow::dockInit()
     QDockWidget* dock;
     QWidget* widget;
     int count = ui->funcTab->count();
-    qDebug() << "dock count" << count;
     for(int i = 0; i < count; i++)
     {
         dock = new QDockWidget(ui->funcTab->tabText(0), this);
@@ -770,5 +782,5 @@ void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
 
 void MainWindow::on_receivedUpdateButton_clicked()
 {
-    updateRxUI();
+    syncReceivedEditWithData();
 }

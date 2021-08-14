@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>895</width>
+    <width>920</width>
     <height>600</height>
    </rect>
   </property>
@@ -332,7 +332,7 @@
               <item>
                <widget class="QCheckBox" name="receivedLatestBox">
                 <property name="text">
-                 <string>Follow latest data</string>
+                 <string>Show latest</string>
                 </property>
                </widget>
               </item>
@@ -671,6 +671,13 @@
            <widget class="QCheckBox" name="plot_enaBox">
             <property name="text">
              <string>Enable</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="plot_latestBox">
+            <property name="text">
+             <string>Show latest</string>
             </property>
            </widget>
           </item>
