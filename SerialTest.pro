@@ -1,4 +1,8 @@
 QT       += core gui serialport printsupport
+android {
+    QT += bluetooth
+    message(Using bluetooth on android)
+}
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -39,3 +43,15 @@ VERSION = 0.0.1
 QMAKE_TARGET_PRODUCT = "SerialTest"
 QMAKE_TARGET_DESCRIPTION = "SerialTest"
 QMAKE_TARGET_COMPANY = "wh201906"
+
+DISTFILES += \
+    android/AndroidManifest.xml \
+    android/build.gradle \
+    android/gradle.properties \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew \
+    android/gradlew.bat \
+    android/res/values/libs.xml
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
