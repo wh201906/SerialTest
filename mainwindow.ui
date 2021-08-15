@@ -699,17 +699,17 @@
            <widget class="QComboBox" name="plot_XTypeBox">
             <item>
              <property name="text">
-              <string>time</string>
+              <string>Count</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>count</string>
+              <string>First data</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>first data</string>
+              <string>Time</string>
              </property>
             </item>
            </widget>

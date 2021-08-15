@@ -104,6 +104,9 @@ private slots:
     void on_receivedUpdateButton_clicked();
 
     void onXAxisChangedByUser(const QCPRange &newRange);
+    void on_plot_XTypeBox_currentIndexChanged(int index);
+
+    void onQCPAxisDoubleClick(QCPAxis *axis);
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -137,6 +140,9 @@ private:
     QString plotFrameSeparator;
     QString plotDataSeparator;
     double plotXAxisWidth;
+    QSharedPointer<QCPAxisTickerTime> plotTimeTicker = QSharedPointer<QCPAxisTickerTime>(new QCPAxisTickerTime);
+    QSharedPointer<QCPAxisTicker> plotDefaultTicker;
+    QTime plotTime;
     int hexCounter = 0;
 
     QTimer* repeatTimer;

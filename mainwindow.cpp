@@ -28,10 +28,12 @@ MainWindow::MainWindow(QWidget *parent)
     RxUIBuf = new QByteArray();
     plotBuf = new QString();
     plotTracer = new QCPItemTracer(ui->qcpWidget);
+    plotDefaultTicker = ui->qcpWidget->xAxis->ticker();
+    plotTime = QTime::currentTime();
 
     repeatTimer = new QTimer();
     updateUITimer = new QTimer();
-    updateUITimer->setInterval(2);
+    updateUITimer->setInterval(1);
 
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
     connect(port, &QSerialPort::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
@@ -59,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
     plotCounter = 0;
     connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &MainWindow::onQCPLegendDoubleClick);
+    connect(ui->qcpWidget, &QCustomPlot::axisDoubleClick, this, &MainWindow::onQCPAxisDoubleClick);
     plotTracer->setStyle(QCPItemTracer::tsCrosshair);
     plotTracer->setBrush(Qt::red);
     plotTracer->setInterpolating(false);
@@ -69,6 +72,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->qcpWidget, &QCustomPlot::selectionChangedByUser, this, &MainWindow::onQCPSelectionChanged);
     connect(ui->qcpWidget->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, &MainWindow::onXAxisChangedByUser);
     plotXAxisWidth = ui->qcpWidget->xAxis->range().size();
+    plotTimeTicker->setTimeFormat("%h:%m:%s.%z");
+    plotTimeTicker->setTickCount(5);
 }
 
 MainWindow::~MainWindow()
@@ -83,6 +88,7 @@ void MainWindow::onXAxisChangedByUser(const QCPRange &newRange)
 
 void MainWindow::updateRxUI()
 {
+    double currKey;
     if(RxUIBuf->isEmpty())
         return;
     if(ui->receivedRealtimeBox->isChecked())
@@ -97,15 +103,30 @@ void MainWindow::updateRxUI()
             dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
             plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
             plotCounter++;
-            for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+            if(ui->plot_XTypeBox->currentIndex() == 0)
             {
-                ui->qcpWidget->graph(i)->addData(plotCounter, dataList[i].toDouble());
+                currKey = plotCounter;
+                for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                    ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
             }
+            else if(ui->plot_XTypeBox->currentIndex() == 1)
+            {
+                currKey = dataList[0].toDouble();
+                for(i = 1; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                    ui->qcpWidget->graph(i - 1)->addData(currKey, dataList[i].toDouble());
+            }
+            else if(ui->plot_XTypeBox->currentIndex() == 2)
+            {
+                currKey = plotTime.msecsTo(QTime::currentTime()) / 1000.0;
+                for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                    ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
+            }
+
         }
         if(ui->plot_latestBox->isChecked())
         {
             ui->qcpWidget->xAxis->blockSignals(true);
-            ui->qcpWidget->xAxis->setRange(plotCounter, plotXAxisWidth, Qt::AlignRight);
+            ui->qcpWidget->xAxis->setRange(currKey, plotXAxisWidth, Qt::AlignRight);
             ui->qcpWidget->xAxis->blockSignals(false);
         }
         ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
@@ -626,6 +647,8 @@ void MainWindow::on_sendedExportButton_clicked()
 
 void MainWindow::on_plot_dataNumBox_valueChanged(int arg1)
 {
+    if(ui->plot_XTypeBox->currentIndex() == 1) // use first data as X
+        arg1--;
     int delta = arg1 - ui->qcpWidget->graphCount();
     QCPGraph* currGraph;
     if(delta > 0)
@@ -650,6 +673,7 @@ void MainWindow::on_plot_clearButton_clicked()
 {
     int num;
     plotCounter = 0;
+    plotTime = QTime::currentTime();
     num = ui->qcpWidget->graphCount();
     for(int i = 0; i < num; i++)
         ui->qcpWidget->graph(i)->data()->clear(); // use data()->clear() rather than data().clear()
@@ -684,6 +708,14 @@ void MainWindow::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem
             ui->qcpWidget->replot();
         }
     }
+}
+
+void MainWindow::onQCPAxisDoubleClick(QCPAxis *axis)
+{
+    if(axis == ui->qcpWidget->xAxis)
+        on_plot_fitXButton_clicked();
+    else if(axis == ui->qcpWidget->yAxis)
+        on_plot_fitYButton_clicked();
 }
 
 void MainWindow::onQCPMouseMoved(QMouseEvent *event)
@@ -784,3 +816,25 @@ void MainWindow::on_receivedUpdateButton_clicked()
 {
     syncReceivedEditWithData();
 }
+
+void MainWindow::on_plot_XTypeBox_currentIndexChanged(int index)
+{
+    if(index == 1 && ui->plot_dataNumBox->value() == 1) // use first data as X axis
+    {
+        ui->plot_dataNumBox->setValue(2);
+        ui->plot_dataNumBox->setMinimum(2);
+    }
+    else
+    {
+        ui->plot_dataNumBox->setMinimum(1);
+    }
+    if(index == 2)
+    {
+        ui->qcpWidget->xAxis->setTicker(plotTimeTicker);
+    }
+    else
+    {
+        ui->qcpWidget->xAxis->setTicker(plotDefaultTicker);
+    }
+}
+
