@@ -2,8 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSerialPort>
-#include <QSerialPortInfo>
+
 #include <QDebug>
 #include <QList>
 #include <QPushButton>
@@ -14,6 +13,17 @@
 #include <QDockWidget>
 #include <QSettings>
 #include <QClipboard>
+
+#include <QSerialPort>
+#include <QSerialPortInfo>
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#include <QBluetoothDeviceDiscoveryAgent>
+#include <QBluetoothUuid>
+#else
+
+#endif
 
 #include "qcustomplot.h"
 
@@ -35,6 +45,7 @@ public:
 public slots:
     void onRxSliderValueChanged(int value);
     void onRxSliderMoved(int value);
+    void deviceDiscovered(const QBluetoothDeviceInfo &device);
 private slots:
     void refreshPortsInfo();
     void on_portTable_cellDoubleClicked(int row, int column);
@@ -173,5 +184,9 @@ private:
         HBaudRates
     };
     void setupPlot();
+
+#ifdef Q_OS_ANDROID
+    QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+#endif
 };
 #endif // MAINWINDOW_H

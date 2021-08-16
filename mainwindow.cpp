@@ -3,6 +3,9 @@
 
 #include <QFileDialog>
 #include <QDateTime>
+#ifdef Q_OS_ANDROID
+#include <QBluetoothLocalDevice>
+#endif
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,6 +52,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(RxSlider, &QScrollBar::sliderMoved, this, &MainWindow::onRxSliderMoved);
 
     settings = new QSettings("preference.ini", QSettings::IniFormat);
+
+#ifdef Q_OS_ANDROID
+    discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &MainWindow::deviceDiscovered);
+#endif
 
     refreshPortsInfo();
     initUI();
@@ -251,13 +259,43 @@ void MainWindow::initUI()
     stateUpdate();
 //    qDebug() << port->isOpen() << port->isReadable() << port->isWritable() << port->error();
 
+#ifndef Q_OS_ANDROID
     dockInit();
+#endif
+}
+
+void MainWindow::deviceDiscovered(const QBluetoothDeviceInfo &device)
+{
+    qDebug() << device.name()
+             << device.address()
+             << device.isValid()
+             << device.rssi()
+             << device.majorDeviceClass()
+             << device.minorDeviceClass()
+             << device.serviceClasses()
+             << device.manufacturerData();
 }
 
 void MainWindow::refreshPortsInfo()
 {
     ui->portTable->clearContents();
     ui->portBox->clear();
+    QBluetoothLocalDevice device;
+    qDebug() << device.connectedDevices();
+#ifdef Q_OS_ANDROID
+    QtAndroid::PermissionResult r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
+    if(r == QtAndroid::PermissionResult::Denied)
+    {
+        QtAndroid::requestPermissionsSync(QStringList() << "android.permission.ACCESS_FINE_LOCATION");
+        r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
+        if(r == QtAndroid::PermissionResult::Denied)
+        {
+            qDebug() << "failed to request";
+        }
+    }
+    qDebug() << "has permission";
+    discoveryAgent->start();
+#else
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
     ui->portTable->setRowCount(ports.size());
     for(int i = 0; i < ports.size(); i++)
@@ -280,6 +318,7 @@ void MainWindow::refreshPortsInfo()
         }
         ui->portTable->setItem(i, HBaudRates, new QTableWidgetItem(baudRates));
     }
+#endif
 }
 
 void MainWindow::on_portTable_cellDoubleClicked(int row, int column)

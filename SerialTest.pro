@@ -1,6 +1,6 @@
 QT       += core gui serialport printsupport
 android {
-    QT += bluetooth
+    QT += bluetooth androidextras
     message(Using bluetooth on android)
 }
 
