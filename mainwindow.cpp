@@ -1,11 +1,12 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QFileDialog>
 #include <QDateTime>
 #ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
 #include <QAndroidJniEnvironment>
+#else
+#include <QFileDialog>
 #endif
 
 MainWindow::MainWindow(QWidget *parent)
@@ -13,19 +14,36 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    qsrand(QTime::currentTime().msecsSinceStartOfDay());
-    port = new QSerialPort();
-    info = new QSerialPortInfo();
-    portLabel = new QLabel();
-    stateButton = new QPushButton();
+#ifdef Q_OS_ANDROID
+    BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+    IODevice = BTSocket;
+    connect(BTSocket, &QBluetoothSocket::connected, this, &MainWindow::onBTConnectionChanged);
+    connect(BTSocket, &QBluetoothSocket::disconnected, this, &MainWindow::onBTConnectionChanged);
+    connect(BTSocket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this, &MainWindow::onBTConnectionChanged);
+    BTdiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &MainWindow::BTdeviceDiscovered);
+    connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::BTdiscoverFinished);
+    connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::BTdiscoverFinished);
+#else
+    serialPort = new QSerialPort();
+    IODevice = serialPort;
+    connect(serialPort, &QSerialPort::errorOccurred, this, &MainWindow::onSerialErrorOccurred);
+    serialPortInfo = new QSerialPortInfo();
+
     baudRateLabel = new QLabel();
     dataBitsLabel = new QLabel();
     stopBitsLabel = new QLabel();
     parityLabel = new QLabel();
+    onTopBox = new QCheckBox(tr("On Top"));
+    connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
+
+    settings = new QSettings("preference.ini", QSettings::IniFormat);
+#endif
+    portLabel = new QLabel();
+    stateButton = new QPushButton();
     TxLabel = new QLabel();
     RxLabel = new QLabel();
-    onTopBox = new QCheckBox(tr("On Top"));
-    portState = false;
+    IODeviceState = false;
 
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
@@ -40,30 +58,17 @@ MainWindow::MainWindow(QWidget *parent)
     updateUITimer->setInterval(1);
 
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
-    connect(port, &QSerialPort::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
-    connect(port, &QSerialPort::errorOccurred, this, &MainWindow::onErrorOccurred);
+
+    connect(IODevice, &QIODevice::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
+
     connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
     connect(updateUITimer, &QTimer::timeout, this, &MainWindow::updateRxUI);
-    connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
     connect(stateButton, &QPushButton::clicked, this, &MainWindow::onStateButtonClicked);
 
     RxSlider = ui->receivedEdit->verticalScrollBar();
     connect(RxSlider, &QScrollBar::valueChanged, this, &MainWindow::onRxSliderValueChanged);
     connect(RxSlider, &QScrollBar::sliderMoved, this, &MainWindow::onRxSliderMoved);
-
-    settings = new QSettings("preference.ini", QSettings::IniFormat);
-
-#ifdef Q_OS_ANDROID
-    discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &MainWindow::deviceDiscovered);
-    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::discoverFinished);
-    connect(discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::discoverFinished);
-    BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
-    connect(BTSocket, &QBluetoothSocket::connected, this, &MainWindow::onBTConnectionChanged);
-    connect(BTSocket, &QBluetoothSocket::disconnected, this, &MainWindow::onBTConnectionChanged);
-
-#endif
 
     refreshPortsInfo();
     initUI();
@@ -96,127 +101,49 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::onXAxisChangedByUser(const QCPRange &newRange)
-{
-    plotXAxisWidth = newRange.size();
-}
-
-void MainWindow::updateRxUI()
-{
-    double currKey;
-    if(RxUIBuf->isEmpty())
-        return;
-    if(ui->receivedRealtimeBox->isChecked())
-        appendReceivedData(*RxUIBuf);
-    if(ui->plot_enaBox->isChecked())
-    {
-        int i;
-        QStringList dataList;
-        plotBuf->append(*RxUIBuf);
-        while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
-        {
-            dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
-            plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
-            plotCounter++;
-            if(ui->plot_XTypeBox->currentIndex() == 0)
-            {
-                currKey = plotCounter;
-                for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
-                    ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
-            }
-            else if(ui->plot_XTypeBox->currentIndex() == 1)
-            {
-                currKey = dataList[0].toDouble();
-                for(i = 1; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
-                    ui->qcpWidget->graph(i - 1)->addData(currKey, dataList[i].toDouble());
-            }
-            else if(ui->plot_XTypeBox->currentIndex() == 2)
-            {
-                currKey = plotTime.msecsTo(QTime::currentTime()) / 1000.0;
-                for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
-                    ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
-            }
-
-        }
-        if(ui->plot_latestBox->isChecked())
-        {
-            ui->qcpWidget->xAxis->blockSignals(true);
-            ui->qcpWidget->xAxis->setRange(currKey, plotXAxisWidth, Qt::AlignRight);
-            ui->qcpWidget->xAxis->blockSignals(false);
-        }
-        ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
-    }
-    RxUIBuf->clear();
-}
-
 void MainWindow::onStateButtonClicked()
 {
-    qDebug() << port->portName();
-    if(port->portName().isEmpty())
+    QString portName;
+#ifdef Q_OS_ANDROID
+    portName = BTSocket->peerName();
+#else
+    portName = serialPort->portName();
+#endif
+    if(portName.isEmpty())
     {
         QMessageBox::warning(this, "Error", "Plz connect to a port first");
         return;
     }
-    if(portState)
+    if(IODeviceState)
     {
-        port->close();
-        updateUITimer->stop();
-        updateRxUI();
-        portState = false;
+        IODevice->close();
+        onIODeviceDisconnected();
     }
     else
     {
-        portState = port->open(QSerialPort::ReadWrite);
-        if(portState)
-            updateUITimer->start();
+        IODeviceState = IODevice->open(QIODevice::ReadWrite);
+        if(IODeviceState)
+            onIODeviceConnected();
         else
             QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
     }
-    stateUpdate();
-}
-
-void MainWindow::onTopBoxClicked(bool checked)
-{
-    setWindowFlag(Qt::WindowStaysOnTopHint, checked);
-    show();
-}
-
-void MainWindow::onRxSliderValueChanged(int value)
-{
-    // qDebug() << "valueChanged" << value;
-    currRxSliderPos = value;
-}
-
-void MainWindow::onRxSliderMoved(int value)
-{
-    // slider is moved by user
-    // qDebug() << "sliderMoved" << value;
-    userRequiredRxSliderPos = value;
-}
-
-void MainWindow::readData()
-{
-    QByteArray newData = port->readAll();
-    if(newData.isEmpty())
-        return;
-    rawReceivedData->append(newData);
-    if(ui->receivedLatestBox->isChecked())
-    {
-        userRequiredRxSliderPos = RxSlider->maximum();
-        RxSlider->setSliderPosition(RxSlider->maximum());
-    }
-    else
-    {
-        userRequiredRxSliderPos = currRxSliderPos;
-        RxSlider->setSliderPosition(currRxSliderPos);
-    }
-    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
-    RxUIBuf->append(newData);
-    QApplication::processEvents();
 }
 
 void MainWindow::initUI()
 {
+    statusBar()->addWidget(portLabel, 1);
+    statusBar()->addWidget(stateButton, 1);
+    statusBar()->addWidget(RxLabel, 1);
+    statusBar()->addWidget(TxLabel, 1);
+#ifdef Q_OS_ANDROID
+    ui->advancedBox->setVisible(false);
+    ui->portTable->hideColumn(HManufacturer);
+    ui->portTable->hideColumn(HSerialNumber);
+    ui->portTable->hideColumn(HIsNull);
+    ui->portTable->hideColumn(HVendorID);
+    ui->portTable->hideColumn(HProductID);
+    ui->portTable->hideColumn(HBaudRates);
+#else
     ui->flowControlBox->addItem("NoFlowControl");
     ui->flowControlBox->addItem("HardwareControl");
     ui->flowControlBox->addItem("SoftwareControl");
@@ -249,51 +176,21 @@ void MainWindow::initUI()
     ui->dataBitsBox->setItemData(3, QSerialPort::Data8);
     ui->dataBitsBox->setCurrentIndex(3);
 
-    stateButton->setMinimumHeight(1);
-    stateButton->setStyleSheet("*{text-align:left;}");
-    statusBar()->addWidget(portLabel, 1);
-    statusBar()->addWidget(stateButton, 1);
     statusBar()->addWidget(baudRateLabel, 1);
     statusBar()->addWidget(dataBitsLabel, 1);
     statusBar()->addWidget(stopBitsLabel, 1);
     statusBar()->addWidget(parityLabel, 1);
-    statusBar()->addWidget(RxLabel, 1);
-    statusBar()->addWidget(TxLabel, 1);
     statusBar()->addWidget(onTopBox, 1);
+    dockInit();
+#endif
+
+    stateButton->setMinimumHeight(1);
+    stateButton->setStyleSheet("*{text-align:left;}");
+
 
     on_advancedBox_clicked(false);
     on_plot_advancedBox_stateChanged(Qt::Unchecked);
     stateUpdate();
-//    qDebug() << port->isOpen() << port->isReadable() << port->isWritable() << port->error();
-
-#ifndef Q_OS_ANDROID
-    dockInit();
-#endif
-}
-
-void MainWindow::discoverFinished()
-{
-    ui->refreshPortsButton->setText(tr("Refresh"));
-}
-
-void MainWindow::deviceDiscovered(const QBluetoothDeviceInfo &device)
-{
-    QString address = device.address().toString();
-    QString name = device.name();
-    int i = ui->portTable->rowCount();
-    ui->portTable->setRowCount(i + 1);
-    ui->portTable->setItem(i, HPortName, new QTableWidgetItem(name));
-    ui->portTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
-    ui->portTable->setItem(i, HDescription, new QTableWidgetItem("Discovered"));
-    ui->portBox->addItem(address);
-    qDebug() << name
-             << address
-             << device.isValid()
-             << device.rssi()
-             << device.majorDeviceClass()
-             << device.minorDeviceClass()
-             << device.serviceClasses()
-             << device.manufacturerData();
 }
 
 void MainWindow::refreshPortsInfo()
@@ -334,7 +231,7 @@ void MainWindow::refreshPortsInfo()
         ui->portBox->addItem(address);
     }
 
-    discoveryAgent->start();
+    BTdiscoveryAgent->start();
 #else
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
     ui->portTable->setRowCount(ports.size());
@@ -398,17 +295,6 @@ void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
 #endif
 }
 
-void MainWindow::loadPreference(const QString& id)
-{
-    settings->beginGroup(id);
-    ui->baudRateBox->setEditText(settings->value("BaudRate").toString());
-    ui->dataBitsBox->setCurrentIndex(settings->value("DataBitsID").toInt());
-    ui->stopBitsBox->setCurrentIndex(settings->value("StopBitsID").toInt());
-    ui->parityBox->setCurrentIndex(settings->value("ParityID").toInt());
-    ui->flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
-    settings->endGroup();
-}
-
 void MainWindow::on_advancedBox_clicked(bool checked)
 {
     ui->dataBitsLabel->setVisible(checked);
@@ -421,142 +307,93 @@ void MainWindow::on_advancedBox_clicked(bool checked)
     ui->flowControlBox->setVisible(checked);
 }
 
-void MainWindow::onBTConnectionChanged()
-{
-    qDebug() << "BTState:" << BTSocket->isOpen();
-}
-
 void MainWindow::on_openButton_clicked()
 {
 #ifdef Q_OS_ANDROID
     BTSocket->connectToService(QBluetoothAddress(ui->portBox->currentText()), QBluetoothUuid::SerialPort);
-#endif
-    port->setPortName(ui->portBox->currentText());
-    port->setBaudRate(ui->baudRateBox->currentText().toInt());
-    port->setDataBits((QSerialPort::DataBits)ui->dataBitsBox->currentData().toInt());
-    port->setStopBits((QSerialPort::StopBits)ui->stopBitsBox->currentData().toInt());
-    port->setParity((QSerialPort::Parity)ui->parityBox->currentData().toInt());
-    port->setFlowControl((QSerialPort::FlowControl)ui->flowControlBox->currentData().toInt());
-    if(port->isOpen())
+#else
+    serialPort->setPortName(ui->portBox->currentText());
+    serialPort->setBaudRate(ui->baudRateBox->currentText().toInt());
+    serialPort->setDataBits((QSerialPort::DataBits)ui->dataBitsBox->currentData().toInt());
+    serialPort->setStopBits((QSerialPort::StopBits)ui->stopBitsBox->currentData().toInt());
+    serialPort->setParity((QSerialPort::Parity)ui->parityBox->currentData().toInt());
+    serialPort->setFlowControl((QSerialPort::FlowControl)ui->flowControlBox->currentData().toInt());
+    if(serialPort->isOpen())
     {
         QMessageBox::warning(this, "Error", "The port has been opened.");
         return;
     }
-    if(!port->open(QSerialPort::ReadWrite))
+    if(!serialPort->open(QSerialPort::ReadWrite))
     {
         QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
         return;
     }
-    portState = true;
-    updateUITimer->start();
-    stateUpdate();
-    refreshPortsInfo();
-    savePreference(port->portName());
+    onIODeviceConnected();
+    savePreference(serialPort->portName());
+#endif
 }
-
-void MainWindow::savePreference(const QString& portName)
-{
-    QSerialPortInfo info(portName);
-    QString id;
-    if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
-        id = QString::number(info.vendorIdentifier()) + "-" + QString::number(info.productIdentifier());
-    else
-        id = portName;
-    settings->beginGroup(id);
-    settings->setValue("BaudRate", ui->baudRateBox->currentText());
-    settings->setValue("DataBitsID", ui->dataBitsBox->currentIndex());
-    settings->setValue("StopBitsID", ui->stopBitsBox->currentIndex());
-    settings->setValue("ParityID", ui->parityBox->currentIndex());
-    settings->setValue("FlowControlID", ui->flowControlBox->currentIndex());
-    settings->endGroup();
-}
-
 
 void MainWindow::on_closeButton_clicked()
 {
-    port->close();
-    updateUITimer->stop();
-    updateRxUI();
-    portState = false;
-    stateUpdate();
-    refreshPortsInfo();
+    IODevice->close();
+    onIODeviceDisconnected();
 }
 
 void MainWindow::stateUpdate()
 {
+
+    QString portName;
+#ifdef Q_OS_ANDROID
+    portName = BTSocket->peerName();
+#else
+    portName = serialPort->portName();
     QString stopbits[4] = {"", "OneStop", "TwoStop", "OneAndHalfStop"};
     QString parities[6] = {"NoParity", "", "EvenParity", "OddParity", "SpaceParity", "MarkParity"};
-    portLabel->setText("Port: " + port->portName());
-    if(portState)
+    if(IODeviceState)
     {
-        stateButton->setText("State: √");
-        baudRateLabel->setText("BaudRate: " + QString::number(port->baudRate()));
-        dataBitsLabel->setText("DataBits: " + QString::number(port->dataBits()));
-        stopBitsLabel->setText("StopBits: " + stopbits[(int)port->stopBits()]);
-        parityLabel->setText("Parity: " + parities[(int)port->parity()]);
+        baudRateLabel->setText("BaudRate: " + QString::number(serialPort->baudRate()));
+        dataBitsLabel->setText("DataBits: " + QString::number(serialPort->dataBits()));
+        stopBitsLabel->setText("StopBits: " + stopbits[(int)serialPort->stopBits()]);
+        parityLabel->setText("Parity: " + parities[(int)serialPort->parity()]);
     }
     else
     {
-        stateButton->setText("State: X");
         baudRateLabel->setText("BaudRate: ");
         dataBitsLabel->setText("DataBits: ");
         stopBitsLabel->setText("StopBits: ");
         parityLabel->setText("Parity: ");
     }
+#endif
+    if(IODeviceState)
+        stateButton->setText("State: √");
+    else
+        stateButton->setText("State: X");
+    portLabel->setText("Port: " + portName);
     RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
     TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
 }
 
-void MainWindow::onErrorOccurred(QSerialPort::SerialPortError error)
+void MainWindow::onIODeviceConnected()
 {
-    qDebug() << error;
-    if(error != QSerialPort::NoError && portState)
-    {
-        portState = false;
-        stateUpdate();
-        port->close();
-        updateUITimer->stop();
-        updateRxUI();
-    }
-
+    qDebug() << "IODevice Connected";
+    IODeviceState = true;
+    updateUITimer->start();
+    stateUpdate();
+    refreshPortsInfo();
 }
 
-void MainWindow::on_sendButton_clicked()
+void MainWindow::onIODeviceDisconnected()
 {
-    QByteArray data;
-    if(!portState)
-    {
-        QMessageBox::warning(this, "Error", "No port is opened.");
-        return;
-    }
-    if(isSendedDataHex)
-        data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
-    else
-        data = ui->sendEdit->text().toLatin1();
-    if(ui->suffixCRLFButton->isChecked())
-        data += "\r\n";
-    else if(ui->suffixCharButton->isChecked())
-        data += ui->suffixCharEdit->text().toLatin1();
-    else if(ui->suffixByteButton->isChecked())
-        data += QByteArray::fromHex(ui->suffixByteEdit->text().toLatin1());
-    rawSendedData->append(data);
-    syncSendedEditWithData();
-    port->write(data);
-    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
+    qDebug() << "IODevice Disconnected";
+    IODeviceState = false;
+    updateUITimer->stop();
+    stateUpdate();
+    refreshPortsInfo();
+    updateRxUI();
 }
 
-
-void MainWindow::on_sendedHexBox_stateChanged(int arg1)
-{
-    isSendedDataHex = (arg1 == Qt::Checked);
-    syncSendedEditWithData();
-}
-
-void MainWindow::on_receivedHexBox_stateChanged(int arg1)
-{
-    isReceivedDataHex = (arg1 == Qt::Checked);
-    syncReceivedEditWithData();
-}
+// Rx/Tx Data
+// **********************************************************************************************************************************************
 
 void MainWindow::syncReceivedEditWithData()
 {
@@ -618,6 +455,79 @@ void MainWindow::appendReceivedData(QByteArray& data)
     RxSlider->setSliderPosition(sliderPos);
 }
 
+void MainWindow::readData()
+{
+    QByteArray newData = IODevice->readAll();
+    if(newData.isEmpty())
+        return;
+    rawReceivedData->append(newData);
+    if(ui->receivedLatestBox->isChecked())
+    {
+        userRequiredRxSliderPos = RxSlider->maximum();
+        RxSlider->setSliderPosition(RxSlider->maximum());
+    }
+    else
+    {
+        userRequiredRxSliderPos = currRxSliderPos;
+        RxSlider->setSliderPosition(currRxSliderPos);
+    }
+    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
+    RxUIBuf->append(newData);
+    QApplication::processEvents();
+}
+
+void MainWindow::on_sendButton_clicked()
+{
+    QByteArray data;
+    if(!IODeviceState)
+    {
+        QMessageBox::warning(this, "Error", "No port is opened.");
+        return;
+    }
+    if(isSendedDataHex)
+        data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
+    else
+        data = ui->sendEdit->text().toLatin1();
+    if(ui->suffixCRLFButton->isChecked())
+        data += "\r\n";
+    else if(ui->suffixCharButton->isChecked())
+        data += ui->suffixCharEdit->text().toLatin1();
+    else if(ui->suffixByteButton->isChecked())
+        data += QByteArray::fromHex(ui->suffixByteEdit->text().toLatin1());
+    rawSendedData->append(data);
+    syncSendedEditWithData();
+    IODevice->write(data);
+    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
+}
+
+// Rx/Tx UI
+// **********************************************************************************************************************************************
+
+void MainWindow::onRxSliderValueChanged(int value)
+{
+    // qDebug() << "valueChanged" << value;
+    currRxSliderPos = value;
+}
+
+void MainWindow::onRxSliderMoved(int value)
+{
+    // slider is moved by user
+    // qDebug() << "sliderMoved" << value;
+    userRequiredRxSliderPos = value;
+}
+
+void MainWindow::on_sendedHexBox_stateChanged(int arg1)
+{
+    isSendedDataHex = (arg1 == Qt::Checked);
+    syncSendedEditWithData();
+}
+
+void MainWindow::on_receivedHexBox_stateChanged(int arg1)
+{
+    isReceivedDataHex = (arg1 == Qt::Checked);
+    syncReceivedEditWithData();
+}
+
 void MainWindow::on_receivedClearButton_clicked()
 {
     rawReceivedData->clear();
@@ -660,32 +570,6 @@ void MainWindow::on_repeatBox_stateChanged(int arg1)
     }
     else
         repeatTimer->stop();
-}
-
-void MainWindow::dockInit()
-{
-    setDockNestingEnabled(true);
-    QDockWidget* dock;
-    QWidget* widget;
-    int count = ui->funcTab->count();
-    for(int i = 0; i < count; i++)
-    {
-        dock = new QDockWidget(ui->funcTab->tabText(0), this);
-        qDebug() << "dock name" << ui->funcTab->tabText(0);
-        dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);// movable is necessary, otherwise the dock cannot be dragged
-        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
-        dock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        widget = ui->funcTab->widget(0);
-        dock->setWidget(widget);
-        addDockWidget(Qt::BottomDockWidgetArea, dock);
-        if(!dockList.isEmpty())
-            tabifyDockWidget(dockList[0], dock);
-        dockList.append(dock);
-    }
-    ui->funcTab->setVisible(false);
-    ui->centralwidget->setVisible(false);
-    dockList[0]->setVisible(true);
-    dockList[0]->raise();
 }
 
 void MainWindow::on_receivedCopyButton_clicked()
@@ -735,6 +619,67 @@ void MainWindow::on_sendedExportButton_clicked()
 
 }
 
+void MainWindow::on_receivedUpdateButton_clicked()
+{
+    syncReceivedEditWithData();
+}
+
+// plot related
+// **********************************************************************************************************************************************
+
+void MainWindow::onXAxisChangedByUser(const QCPRange &newRange)
+{
+    plotXAxisWidth = newRange.size();
+}
+
+void MainWindow::updateRxUI()
+{
+    double currKey;
+    if(RxUIBuf->isEmpty())
+        return;
+    if(ui->receivedRealtimeBox->isChecked())
+        appendReceivedData(*RxUIBuf);
+    if(ui->plot_enaBox->isChecked())
+    {
+        int i;
+        QStringList dataList;
+        plotBuf->append(*RxUIBuf);
+        while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
+        {
+            dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
+            plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
+            plotCounter++;
+            if(ui->plot_XTypeBox->currentIndex() == 0)
+            {
+                currKey = plotCounter;
+                for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                    ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
+            }
+            else if(ui->plot_XTypeBox->currentIndex() == 1)
+            {
+                currKey = dataList[0].toDouble();
+                for(i = 1; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                    ui->qcpWidget->graph(i - 1)->addData(currKey, dataList[i].toDouble());
+            }
+            else if(ui->plot_XTypeBox->currentIndex() == 2)
+            {
+                currKey = plotTime.msecsTo(QTime::currentTime()) / 1000.0;
+                for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                    ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
+            }
+
+        }
+        if(ui->plot_latestBox->isChecked())
+        {
+            ui->qcpWidget->xAxis->blockSignals(true);
+            ui->qcpWidget->xAxis->setRange(currKey, plotXAxisWidth, Qt::AlignRight);
+            ui->qcpWidget->xAxis->blockSignals(false);
+        }
+        ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
+    }
+    RxUIBuf->clear();
+}
+
 void MainWindow::on_plot_dataNumBox_valueChanged(int arg1)
 {
     if(ui->plot_XTypeBox->currentIndex() == 1) // use first data as X
@@ -745,8 +690,9 @@ void MainWindow::on_plot_dataNumBox_valueChanged(int arg1)
     {
         for(int i = 0; i < delta; i++)
         {
+            QRandomGenerator* randGen = QRandomGenerator::global();
             currGraph = ui->qcpWidget->addGraph();
-            currGraph->setPen(QColor(rand() % 235 + 10, rand() % 235 + 10, rand() % 235 + 10));
+            currGraph->setPen(QColor(randGen->bounded(10, 235), randGen->bounded(10, 235), randGen->bounded(10, 235)));
             currGraph->setSelectable(QCP::stWhole);
         }
     }
@@ -757,7 +703,6 @@ void MainWindow::on_plot_dataNumBox_valueChanged(int arg1)
             ui->qcpWidget->removeGraph(ui->qcpWidget->graphCount() - 1);
     }
 }
-
 
 void MainWindow::on_plot_clearButton_clicked()
 {
@@ -770,13 +715,11 @@ void MainWindow::on_plot_clearButton_clicked()
     ui->qcpWidget->replot();
 }
 
-
 void MainWindow::on_plot_legendCheckBox_stateChanged(int arg1)
 {
     ui->qcpWidget->legend->setVisible(arg1 == Qt::Checked);
     ui->qcpWidget->replot();
 }
-
 
 void MainWindow::on_plot_advancedBox_stateChanged(int arg1)
 {
@@ -824,8 +767,6 @@ void MainWindow::onQCPMouseMoved(QMouseEvent *event)
     }
 }
 
-
-
 void MainWindow::on_plot_tracerCheckBox_stateChanged(int arg1)
 {
     if(arg1 == Qt::Checked)
@@ -842,13 +783,11 @@ void MainWindow::on_plot_tracerCheckBox_stateChanged(int arg1)
     ui->qcpWidget->replot();
 }
 
-
 void MainWindow::on_plot_fitXButton_clicked()
 {
     ui->qcpWidget->xAxis->rescale(true);
     ui->qcpWidget->replot();
 }
-
 
 void MainWindow::on_plot_fitYButton_clicked()
 {
@@ -889,7 +828,6 @@ void MainWindow::on_plot_frameSpTypeBox_currentIndexChanged(int index)
         plotFrameSeparator = "\r\n";
 }
 
-
 void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
 {
     ui->plot_dataSpEdit->setVisible(index != 2);
@@ -899,12 +837,6 @@ void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
         plotDataSeparator = QByteArray::fromHex(ui->plot_dataSpEdit->text().toLatin1());
     else if(index == 2)
         plotDataSeparator = "\r\n";
-}
-
-
-void MainWindow::on_receivedUpdateButton_clicked()
-{
-    syncReceivedEditWithData();
 }
 
 void MainWindow::on_plot_XTypeBox_currentIndexChanged(int index)
@@ -927,4 +859,113 @@ void MainWindow::on_plot_XTypeBox_currentIndexChanged(int index)
         ui->qcpWidget->xAxis->setTicker(plotDefaultTicker);
     }
 }
+
+// platform specific
+// **********************************************************************************************************************************************
+
+#ifdef Q_OS_ANDROID
+void MainWindow::BTdiscoverFinished()
+{
+    ui->refreshPortsButton->setText(tr("Refresh"));
+}
+
+void MainWindow::BTdeviceDiscovered(const QBluetoothDeviceInfo &device)
+{
+    QString address = device.address().toString();
+    QString name = device.name();
+    int i = ui->portTable->rowCount();
+    ui->portTable->setRowCount(i + 1);
+    ui->portTable->setItem(i, HPortName, new QTableWidgetItem(name));
+    ui->portTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
+    ui->portTable->setItem(i, HDescription, new QTableWidgetItem("Discovered"));
+    ui->portBox->addItem(address);
+    qDebug() << name
+             << address
+             << device.isValid()
+             << device.rssi()
+             << device.majorDeviceClass()
+             << device.minorDeviceClass()
+             << device.serviceClasses()
+             << device.manufacturerData();
+}
+
+void MainWindow::onBTConnectionChanged()
+{
+    if(BTSocket->isOpen())
+        onIODeviceConnected();
+    else
+        onIODeviceDisconnected();
+}
+#else
+
+void MainWindow::dockInit()
+{
+    setDockNestingEnabled(true);
+    QDockWidget* dock;
+    QWidget* widget;
+    int count = ui->funcTab->count();
+    for(int i = 0; i < count; i++)
+    {
+        dock = new QDockWidget(ui->funcTab->tabText(0), this);
+        qDebug() << "dock name" << ui->funcTab->tabText(0);
+        dock->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);// movable is necessary, otherwise the dock cannot be dragged
+        dock->setAllowedAreas(Qt::AllDockWidgetAreas);
+        dock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        widget = ui->funcTab->widget(0);
+        dock->setWidget(widget);
+        addDockWidget(Qt::BottomDockWidgetArea, dock);
+        if(!dockList.isEmpty())
+            tabifyDockWidget(dockList[0], dock);
+        dockList.append(dock);
+    }
+    ui->funcTab->setVisible(false);
+    ui->centralwidget->setVisible(false);
+    dockList[0]->setVisible(true);
+    dockList[0]->raise();
+}
+
+void MainWindow::onTopBoxClicked(bool checked)
+{
+    setWindowFlag(Qt::WindowStaysOnTopHint, checked);
+    show();
+}
+
+void MainWindow::onSerialErrorOccurred(QSerialPort::SerialPortError error)
+{
+    qDebug() << error;
+    if(error != QSerialPort::NoError && IODeviceState)
+    {
+        onIODeviceDisconnected();
+    }
+
+}
+
+void MainWindow::savePreference(const QString& portName)
+{
+    QSerialPortInfo info(portName);
+    QString id;
+    if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
+        id = QString::number(info.vendorIdentifier()) + "-" + QString::number(info.productIdentifier());
+    else
+        id = portName;
+    settings->beginGroup(id);
+    settings->setValue("BaudRate", ui->baudRateBox->currentText());
+    settings->setValue("DataBitsID", ui->dataBitsBox->currentIndex());
+    settings->setValue("StopBitsID", ui->stopBitsBox->currentIndex());
+    settings->setValue("ParityID", ui->parityBox->currentIndex());
+    settings->setValue("FlowControlID", ui->flowControlBox->currentIndex());
+    settings->endGroup();
+}
+
+void MainWindow::loadPreference(const QString& id)
+{
+    settings->beginGroup(id);
+    ui->baudRateBox->setEditText(settings->value("BaudRate").toString());
+    ui->dataBitsBox->setCurrentIndex(settings->value("DataBitsID").toInt());
+    ui->stopBitsBox->setCurrentIndex(settings->value("StopBitsID").toInt());
+    ui->parityBox->setCurrentIndex(settings->value("ParityID").toInt());
+    ui->flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
+    settings->endGroup();
+}
+#endif
 

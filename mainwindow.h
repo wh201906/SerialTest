@@ -10,12 +10,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QScrollBar>
-#include <QDockWidget>
-#include <QSettings>
 #include <QClipboard>
-
-#include <QSerialPort>
-#include <QSerialPortInfo>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -23,7 +18,10 @@
 #include <QBluetoothUuid>
 #include <QBluetoothSocket>
 #else
-
+#include <QSerialPort>
+#include <QSerialPortInfo>
+#include <QSettings>
+#include <QDockWidget>
 #endif
 
 #include "qcustomplot.h"
@@ -46,10 +44,14 @@ public:
 public slots:
     void onRxSliderValueChanged(int value);
     void onRxSliderMoved(int value);
-    void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void discoverFinished();
+#ifdef Q_OS_ANDROID
+    void BTdeviceDiscovered(const QBluetoothDeviceInfo &device);
+    void BTdiscoverFinished();
+#endif
+
 private slots:
     void refreshPortsInfo();
+
     void on_portTable_cellDoubleClicked(int row, int column);
 
     void on_advancedBox_clicked(bool checked);
@@ -59,10 +61,9 @@ private slots:
     void on_closeButton_clicked();
 
     void readData();
+
     void on_sendButton_clicked();
 
-
-    void onErrorOccurred(QSerialPort::SerialPortError error);
     void on_sendedHexBox_stateChanged(int arg1);
 
     void on_receivedHexBox_stateChanged(int arg1);
@@ -87,9 +88,8 @@ private slots:
 
     void on_sendedExportButton_clicked();
 
-    void onTopBoxClicked(bool checked);
-
     void onStateButtonClicked();
+
     void on_plot_dataNumBox_valueChanged(int arg1);
 
     void on_plot_clearButton_clicked();
@@ -99,7 +99,9 @@ private slots:
     void on_plot_advancedBox_stateChanged(int arg1);
 
     void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+
     void onQCPMouseMoved(QMouseEvent *event);
+
     void on_plot_tracerCheckBox_stateChanged(int arg1);
 
     void on_plot_fitXButton_clicked();
@@ -117,17 +119,30 @@ private slots:
     void on_receivedUpdateButton_clicked();
 
     void onXAxisChangedByUser(const QCPRange &newRange);
+
     void on_plot_XTypeBox_currentIndexChanged(int index);
 
     void onQCPAxisDoubleClick(QCPAxis *axis);
+
+
+#ifdef Q_OS_ANDROID
     void onBTConnectionChanged();
+#else
+    void onTopBoxClicked(bool checked);
+
+    void onSerialErrorOccurred(QSerialPort::SerialPortError error);
+#endif
+
+    void onIODeviceConnected();
+
+    void onIODeviceDisconnected();
 private:
     Ui::MainWindow *ui;
-    QSerialPort* port;
-    QSerialPortInfo* info;
     void initUI();
     void stateUpdate();
-    bool portState;
+    bool IODeviceState;
+
+    QIODevice* IODevice;
 
     QScrollBar* RxSlider;
     int currRxSliderPos = 0;
@@ -135,13 +150,8 @@ private:
 
     QLabel* portLabel;
     QPushButton* stateButton;
-    QLabel* baudRateLabel;
-    QLabel* dataBitsLabel;
-    QLabel* stopBitsLabel;
-    QLabel* parityLabel;
     QLabel* TxLabel;
     QLabel* RxLabel;
-    QCheckBox* onTopBox;
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
@@ -162,14 +172,8 @@ private:
     QTimer* repeatTimer;
     QTimer* updateUITimer;
 
-    QList<QDockWidget*> dockList;
-    QSettings* settings;
-
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
-    void dockInit();
-    void loadPreference(const QString &id);
-    void savePreference(const QString &portName);
     void appendReceivedData(QByteArray &data);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
@@ -189,8 +193,26 @@ private:
     void setupPlot();
 
 #ifdef Q_OS_ANDROID
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    QBluetoothDeviceDiscoveryAgent *BTdiscoveryAgent;
     QBluetoothSocket* BTSocket;
+#else
+    QSerialPort* serialPort;
+    QSerialPortInfo* serialPortInfo;
+
+    QList<QDockWidget*> dockList;
+    QSettings* settings;
+
+    void dockInit();
+    void loadPreference(const QString &id);
+    void savePreference(const QString &portName);
+
+    QLabel* baudRateLabel;
+    QLabel* dataBitsLabel;
+    QLabel* stopBitsLabel;
+    QLabel* parityLabel;
+    QCheckBox* onTopBox;
+
 #endif
+
 };
 #endif // MAINWINDOW_H
