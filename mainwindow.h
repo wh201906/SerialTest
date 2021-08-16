@@ -46,6 +46,7 @@ public slots:
     void onRxSliderValueChanged(int value);
     void onRxSliderMoved(int value);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void discoverFinished();
 private slots:
     void refreshPortsInfo();
     void on_portTable_cellDoubleClicked(int row, int column);

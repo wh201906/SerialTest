@@ -5,6 +5,7 @@
 #include <QDateTime>
 #ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
+#include <QAndroidJniEnvironment>
 #endif
 
 MainWindow::MainWindow(QWidget *parent)
@@ -56,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef Q_OS_ANDROID
     discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &MainWindow::deviceDiscovered);
+    connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::discoverFinished);
+    connect(discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::discoverFinished);
 #endif
 
     refreshPortsInfo();
@@ -264,10 +267,23 @@ void MainWindow::initUI()
 #endif
 }
 
+void MainWindow::discoverFinished()
+{
+    ui->refreshPortsButton->setText(tr("Refresh"));
+}
+
 void MainWindow::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
-    qDebug() << device.name()
-             << device.address()
+    QString address = device.address().toString();
+    QString name = device.name();
+    int i = ui->portTable->rowCount();
+    ui->portTable->setRowCount(i + 1);
+    ui->portTable->setItem(i, HPortName, new QTableWidgetItem(name));
+    ui->portTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
+    ui->portTable->setItem(i, HDescription, new QTableWidgetItem("Discovered"));
+    ui->portBox->addItem(address);
+    qDebug() << name
+             << address
              << device.isValid()
              << device.rssi()
              << device.majorDeviceClass()
@@ -280,9 +296,9 @@ void MainWindow::refreshPortsInfo()
 {
     ui->portTable->clearContents();
     ui->portBox->clear();
-    QBluetoothLocalDevice device;
-    qDebug() << device.connectedDevices();
 #ifdef Q_OS_ANDROID
+    ui->refreshPortsButton->setText(tr("Searching..."));
+    QAndroidJniEnvironment env;
     QtAndroid::PermissionResult r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
     if(r == QtAndroid::PermissionResult::Denied)
     {
@@ -294,6 +310,26 @@ void MainWindow::refreshPortsInfo()
         }
     }
     qDebug() << "has permission";
+
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    QAndroidJniObject helper("priv/wh201906/serialtest/BTHelper");
+    qDebug() << "test:" << helper.callObjectMethod<jstring>("TestStr").toString();
+    QAndroidJniObject array = helper.callObjectMethod("getBondedDevices", "()[Ljava/lang/String;");
+    int arraylen = env->GetArrayLength(array.object<jarray>());
+    qDebug() << "arraylen:" << arraylen;
+    ui->portTable->setRowCount(arraylen);
+    for(int i = 0; i < arraylen; i++)
+    {
+        QString info = QAndroidJniObject::fromLocalRef(env->GetObjectArrayElement(array.object<jobjectArray>(), i)).toString();
+        QString address = info.left(info.indexOf(' '));
+        QString name = info.right(info.length() - info.indexOf(' ') - 1);
+        qDebug() << address << name;
+        ui->portTable->setItem(i, HPortName, new QTableWidgetItem(name));
+        ui->portTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
+        ui->portTable->setItem(i, HDescription, new QTableWidgetItem("Bonded"));
+        ui->portBox->addItem(address);
+    }
+
     discoveryAgent->start();
 #else
     QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
