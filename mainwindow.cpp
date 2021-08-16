@@ -59,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &MainWindow::deviceDiscovered);
     connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::discoverFinished);
     connect(discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::discoverFinished);
+    BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+    connect(BTSocket, &QBluetoothSocket::connected, this, &MainWindow::onBTConnectionChanged);
+    connect(BTSocket, &QBluetoothSocket::disconnected, this, &MainWindow::onBTConnectionChanged);
+
 #endif
 
     refreshPortsInfo();
@@ -360,9 +364,11 @@ void MainWindow::refreshPortsInfo()
 void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
 {
     Q_UNUSED(column);
+    ui->portBox->setCurrentIndex(row);
+#ifndef Q_OS_ANDROID
     QStringList preferences = settings->childGroups();
     QStringList::iterator it;
-    ui->portBox->setCurrentIndex(row);
+
 
     // search preference by <vendorID>-<productID>
     QString id = ui->portTable->item(row, HVendorID)->text();  // vendor id
@@ -389,6 +395,7 @@ void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
             break;
         }
     }
+#endif
 }
 
 void MainWindow::loadPreference(const QString& id)
@@ -414,8 +421,16 @@ void MainWindow::on_advancedBox_clicked(bool checked)
     ui->flowControlBox->setVisible(checked);
 }
 
+void MainWindow::onBTConnectionChanged()
+{
+    qDebug() << "BTState:" << BTSocket->isOpen();
+}
+
 void MainWindow::on_openButton_clicked()
 {
+#ifdef Q_OS_ANDROID
+    BTSocket->connectToService(QBluetoothAddress(ui->portBox->currentText()), QBluetoothUuid::SerialPort);
+#endif
     port->setPortName(ui->portBox->currentText());
     port->setBaudRate(ui->baudRateBox->currentText().toInt());
     port->setDataBits((QSerialPort::DataBits)ui->dataBitsBox->currentData().toInt());

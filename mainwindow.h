@@ -21,6 +21,7 @@
 #include <QtAndroid>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothUuid>
+#include <QBluetoothSocket>
 #else
 
 #endif
@@ -119,6 +120,7 @@ private slots:
     void on_plot_XTypeBox_currentIndexChanged(int index);
 
     void onQCPAxisDoubleClick(QCPAxis *axis);
+    void onBTConnectionChanged();
 private:
     Ui::MainWindow *ui;
     QSerialPort* port;
@@ -188,6 +190,7 @@ private:
 
 #ifdef Q_OS_ANDROID
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    QBluetoothSocket* BTSocket;
 #endif
 };
 #endif // MAINWINDOW_H
