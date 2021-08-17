@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &MainWindow::BTdeviceDiscovered);
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::BTdiscoverFinished);
     connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::BTdiscoverFinished);
+
+    // for pinch gesture
+    ui->qcpWidget->xAxis->setPadding(10);
+    ui->qcpWidget->yAxis->setPadding(10);
 #else
     serialPort = new QSerialPort();
     IODevice = serialPort;

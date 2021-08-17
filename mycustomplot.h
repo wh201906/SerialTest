@@ -6,7 +6,7 @@
 class MyCustomPlot : public QCustomPlot
 {
     Q_OBJECT
-    void HandlePinchGesture(QPinchGesture *pinchGesture);
+    bool HandlePinchGesture(QPinchGesture *pinchGesture);
 public:
     MyCustomPlot(QWidget *parent = nullptr);
 protected:
