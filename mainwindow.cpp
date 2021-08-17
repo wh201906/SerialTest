@@ -143,6 +143,12 @@ void MainWindow::initUI()
     ui->portTable->hideColumn(HVendorID);
     ui->portTable->hideColumn(HProductID);
     ui->portTable->hideColumn(HBaudRates);
+
+    // Strange resize behavior on Android
+    // Need a fixed size
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    setFixedSize(QApplication::primaryScreen()->availableGeometry().size());
+
 #else
     ui->flowControlBox->addItem("NoFlowControl");
     ui->flowControlBox->addItem("HardwareControl");
@@ -212,7 +218,6 @@ void MainWindow::refreshPortsInfo()
     }
     qDebug() << "has permission";
 
-    QAndroidJniObject activity = QtAndroid::androidActivity();
     QAndroidJniObject helper("priv/wh201906/serialtest/BTHelper");
     qDebug() << "test:" << helper.callObjectMethod<jstring>("TestStr").toString();
     QAndroidJniObject array = helper.callObjectMethod("getBondedDevices", "()[Ljava/lang/String;");
