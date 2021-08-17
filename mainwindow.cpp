@@ -25,9 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::BTdiscoverFinished);
     connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::BTdiscoverFinished);
 
-    // for pinch gesture
-    ui->qcpWidget->xAxis->setPadding(10);
-    ui->qcpWidget->yAxis->setPadding(10);
+    // wider axis for pinch gesture
+    ui->qcpWidget->xAxis->setPadding(20);
+    ui->qcpWidget->yAxis->setPadding(20);
 #else
     serialPort = new QSerialPort();
     IODevice = serialPort;
@@ -54,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     RxUIBuf = new QByteArray();
     plotBuf = new QString();
     plotTracer = new QCPItemTracer(ui->qcpWidget);
+    plotText = new QCPItemText(ui->qcpWidget);
     plotDefaultTicker = ui->qcpWidget->xAxis->ticker();
     plotTime = QTime::currentTime();
 
@@ -91,6 +92,13 @@ MainWindow::MainWindow(QWidget *parent)
     plotTracer->setInterpolating(false);
     plotTracer->setVisible(false);
     plotTracer->setGraph(ui->qcpWidget->graph(plotSelectedId));
+    plotText->setPositionAlignment(Qt::AlignTop | Qt::AlignLeft);
+    plotText->setTextAlignment(Qt::AlignLeft);
+    plotText->position->setType(QCPItemPosition::ptAxisRectRatio);
+    plotText->position->setCoords(0.01, 0.01);
+    plotText->setPen(QPen(Qt::black));
+    plotText->setPadding(QMargins(2, 2, 2, 2));
+    plotText->setVisible(false);
     plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(ui->qcpWidget->graph(plotSelectedId))->plottable()->name();
     ui->qcpWidget->replot();
     connect(ui->qcpWidget, &QCustomPlot::selectionChangedByUser, this, &MainWindow::onQCPSelectionChanged);
@@ -683,6 +691,7 @@ void MainWindow::updateRxUI()
             ui->qcpWidget->xAxis->blockSignals(true);
             ui->qcpWidget->xAxis->setRange(currKey, plotXAxisWidth, Qt::AlignRight);
             ui->qcpWidget->xAxis->blockSignals(false);
+            updateTracer(currKey);
         }
         ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
     }
@@ -766,14 +775,19 @@ void MainWindow::onQCPMouseMoved(QMouseEvent *event)
     {
         qDebug() << event->pos();
         double x = ui->qcpWidget->xAxis->pixelToCoord(event->pos().x());
-        plotTracer->setGraphKey(x);
-        plotTracer->updatePosition();
-
-        double xValue = plotTracer->position->key();
-        double yValue = plotTracer->position->value();
-        ui->plot_tracerCheckBox->setText((plotSelectedName + "(%2, %3)").arg(xValue).arg(yValue));
-        ui->qcpWidget->replot();
+        updateTracer(x);
     }
+}
+
+void MainWindow::updateTracer(double x)
+{
+    plotTracer->setGraphKey(x);
+    plotTracer->updatePosition();
+
+    double xValue = plotTracer->position->key();
+    double yValue = plotTracer->position->value();
+    plotText->setText((plotSelectedName + "\n%2, %3").arg(xValue).arg(yValue));
+    ui->qcpWidget->replot();
 }
 
 void MainWindow::on_plot_tracerCheckBox_stateChanged(int arg1)
@@ -782,12 +796,13 @@ void MainWindow::on_plot_tracerCheckBox_stateChanged(int arg1)
     {
         connect(ui->qcpWidget, &QCustomPlot::mouseMove, this, &MainWindow::onQCPMouseMoved);
         plotTracer->setVisible(true);
+        plotText->setVisible(true);
     }
     else
     {
         disconnect(ui->qcpWidget, &QCustomPlot::mouseMove, this, &MainWindow::onQCPMouseMoved);
         plotTracer->setVisible(false);
-        ui->plot_tracerCheckBox->setText(tr("Tracer"));
+        plotText->setVisible(false);
     }
     ui->qcpWidget->replot();
 }

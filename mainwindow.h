@@ -159,6 +159,7 @@ private:
     QString* plotBuf;
     quint64 plotCounter;
     QCPItemTracer* plotTracer;
+    QCPItemText* plotText;
     int plotSelectedId = 0;
     QString plotSelectedName;
     QString plotFrameSeparator;
@@ -214,5 +215,6 @@ private:
 
 #endif
 
+    void updateTracer(double x);
 };
 #endif // MAINWINDOW_H
