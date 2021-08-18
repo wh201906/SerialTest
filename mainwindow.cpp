@@ -117,7 +117,7 @@ void MainWindow::onStateButtonClicked()
 {
     QString portName;
 #ifdef Q_OS_ANDROID
-    portName = BTSocket->peerName();
+    portName = BTlastAddress;
 #else
     portName = serialPort->portName();
 #endif
@@ -133,11 +133,15 @@ void MainWindow::onStateButtonClicked()
     }
     else
     {
+#ifdef Q_OS_ANDROID
+        BTSocket->connectToService(QBluetoothAddress(BTlastAddress), QBluetoothUuid::SerialPort);
+#else
         IODeviceState = IODevice->open(QIODevice::ReadWrite);
         if(IODeviceState)
             onIODeviceConnected();
         else
             QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
+#endif
     }
 }
 
@@ -148,6 +152,8 @@ void MainWindow::initUI()
     statusBar()->addWidget(RxLabel, 1);
     statusBar()->addWidget(TxLabel, 1);
 #ifdef Q_OS_ANDROID
+    ui->baudRateLabel->setVisible(false);
+    ui->baudRateBox->setVisible(false);
     ui->advancedBox->setVisible(false);
     ui->portTable->hideColumn(HManufacturer);
     ui->portTable->hideColumn(HSerialNumber);
@@ -155,6 +161,21 @@ void MainWindow::initUI()
     ui->portTable->hideColumn(HVendorID);
     ui->portTable->hideColumn(HProductID);
     ui->portTable->hideColumn(HBaudRates);
+
+    ui->portTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->portTable->horizontalHeaderItem(HPortName)->setText(tr("DeviceName"));
+    ui->portTable->horizontalHeaderItem(HDescription)->setText(tr("Type"));
+    ui->portTable->horizontalHeaderItem(HSystemLocation)->setText(tr("MAC Address"));
+
+    ui->portLabel->setText(tr("MAC Address") + ":");
+
+    // keep screen on
+
+    QAndroidJniObject helper("priv/wh201906/serialtest/BTHelper");
+    QtAndroid::runOnAndroidThread([&]
+    {
+        helper.callMethod<void>("keepScreenOn", "(Landroid/app/Activity;)V", QtAndroid::androidActivity().object());
+    });
 
     // Strange resize behavior on Android
     // Need a fixed size
@@ -652,6 +673,7 @@ void MainWindow::onXAxisChangedByUser(const QCPRange &newRange)
 void MainWindow::updateRxUI()
 {
     double currKey;
+    bool hasData = false;
     if(RxUIBuf->isEmpty())
         return;
     if(ui->receivedRealtimeBox->isChecked())
@@ -663,6 +685,7 @@ void MainWindow::updateRxUI()
         plotBuf->append(*RxUIBuf);
         while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
         {
+            hasData = true;
             dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
             plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
             plotCounter++;
@@ -686,12 +709,18 @@ void MainWindow::updateRxUI()
             }
 
         }
+        if(!hasData)
+        {
+            RxUIBuf->clear();
+            return;
+        }
         if(ui->plot_latestBox->isChecked())
         {
             ui->qcpWidget->xAxis->blockSignals(true);
             ui->qcpWidget->xAxis->setRange(currKey, plotXAxisWidth, Qt::AlignRight);
             ui->qcpWidget->xAxis->blockSignals(false);
-            updateTracer(currKey);
+            if(ui->plot_tracerCheckBox->isChecked())
+                updateTracer(currKey);
         }
         ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
     }
@@ -916,7 +945,10 @@ void MainWindow::BTdeviceDiscovered(const QBluetoothDeviceInfo &device)
 void MainWindow::onBTConnectionChanged()
 {
     if(BTSocket->isOpen())
+    {
         onIODeviceConnected();
+        BTlastAddress = ui->portBox->currentText();
+    }
     else
         onIODeviceDisconnected();
 }

@@ -1,6 +1,8 @@
 package priv.wh201906.serialtest;
 
 import android.bluetooth.*;
+import android.view.WindowManager;
+import android.app.Activity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,4 +25,9 @@ public class BTHelper {
         String[] result = (String[]) list.toArray(new String[list.size()]);
         return result;
     }
+
+    public void keepScreenOn(Activity activity) {
+        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
 }

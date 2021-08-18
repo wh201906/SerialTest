@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -55,6 +55,9 @@
            <widget class="QTableWidget" name="portTable">
             <property name="editTriggers">
              <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
             </property>
             <property name="selectionBehavior">
              <enum>QAbstractItemView::SelectRows</enum>
@@ -125,7 +128,7 @@
             </widget>
            </item>
            <item row="0" column="0">
-            <widget class="QLabel" name="label">
+            <widget class="QLabel" name="portLabel">
              <property name="text">
               <string>Port:</string>
              </property>
@@ -146,7 +149,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_2">
+            <widget class="QLabel" name="baudRateLabel">
              <property name="text">
               <string>BaudRate:</string>
              </property>

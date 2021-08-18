@@ -196,6 +196,7 @@ private:
 #ifdef Q_OS_ANDROID
     QBluetoothDeviceDiscoveryAgent *BTdiscoveryAgent;
     QBluetoothSocket* BTSocket;
+    QString BTlastAddress;
 #else
     QSerialPort* serialPort;
     QSerialPortInfo* serialPortInfo;
