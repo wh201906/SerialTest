@@ -20,17 +20,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    controlitem.cpp \
     main.cpp \
     mainwindow.cpp \
     mycustomplot.cpp \
     qcustomplot.cpp
 
 HEADERS += \
+    controlitem.h \
     mainwindow.h \
     mycustomplot.h \
     qcustomplot.h
 
 FORMS += \
+    controlitem.ui \
     mainwindow.ui
 
 TRANSLATIONS += \

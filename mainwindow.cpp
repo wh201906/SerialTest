@@ -1,6 +1,8 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "controlitem.h"
+
 #include <QDateTime>
 #ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
@@ -991,6 +993,7 @@ void MainWindow::onSerialErrorOccurred(QSerialPort::SerialPortError error)
     qDebug() << error;
     if(error != QSerialPort::NoError && IODeviceState)
     {
+        IODevice->close();
         onIODeviceDisconnected();
     }
 
@@ -1024,4 +1027,45 @@ void MainWindow::loadPreference(const QString& id)
     settings->endGroup();
 }
 #endif
+
+
+void MainWindow::on_ctrl_addCMDButton_clicked()
+{
+    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
+    ControlItem* c = new ControlItem(ControlItem::Command);
+    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
+    p->insertWidget(ctrlItemCount++, c);
+}
+
+
+void MainWindow::on_ctrl_addSliderButton_clicked()
+{
+    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
+    ControlItem* c = new ControlItem(ControlItem::Slider);
+    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
+    p->insertWidget(ctrlItemCount++, c);
+}
+
+
+void MainWindow::on_ctrl_addCheckBoxButton_clicked()
+{
+    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
+    ControlItem* c = new ControlItem(ControlItem::CheckBox);
+    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
+    p->insertWidget(ctrlItemCount++, c);
+}
+
+
+void MainWindow::on_ctrl_addSpinBoxButton_clicked()
+{
+    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
+    ControlItem* c = new ControlItem(ControlItem::SpinBox);
+    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
+    p->insertWidget(ctrlItemCount++, c);
+}
+
+void MainWindow::onCtrlItemDestroyed()
+{
+    ctrlItemCount--;
+}
 

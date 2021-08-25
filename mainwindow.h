@@ -136,6 +136,16 @@ private slots:
     void onIODeviceConnected();
 
     void onIODeviceDisconnected();
+
+    void on_ctrl_addCMDButton_clicked();
+
+    void on_ctrl_addSliderButton_clicked();
+
+    void on_ctrl_addCheckBoxButton_clicked();
+
+    void on_ctrl_addSpinBoxButton_clicked();
+
+    void onCtrlItemDestroyed();
 private:
     Ui::MainWindow *ui;
     void initUI();
@@ -169,6 +179,8 @@ private:
     QSharedPointer<QCPAxisTicker> plotDefaultTicker;
     QTime plotTime;
     int hexCounter = 0;
+
+    int ctrlItemCount = 0;
 
     QTimer* repeatTimer;
     QTimer* updateUITimer;
