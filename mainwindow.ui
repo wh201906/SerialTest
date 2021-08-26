@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>920</width>
+    <width>883</width>
     <height>600</height>
    </rect>
   </property>
@@ -523,9 +523,15 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
-           <widget class="QGroupBox" name="groupBox_2">
+           <widget class="QGroupBox" name="data_suffixBox">
             <property name="title">
              <string>Suffix</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <property name="spacing">
@@ -541,65 +547,34 @@
               <number>5</number>
              </property>
              <item>
-              <widget class="QRadioButton" name="suffixNoneButton">
-               <property name="text">
-                <string>None</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
+              <widget class="QComboBox" name="data_suffixTypeBox">
+               <item>
+                <property name="text">
+                 <string>String</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Hex</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>\r\n</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="suffixCRLFButton">
-               <property name="text">
-                <string>\r\n</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="suffixCharButton">
-               <property name="text">
-                <string>Char</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="suffixCharEdit">
+              <widget class="QLineEdit" name="data_suffixEdit">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="maxLength">
-                <number>1</number>
-               </property>
                <property name="placeholderText">
-                <string>a single char</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QRadioButton" name="suffixByteButton">
-               <property name="text">
-                <string>Byte</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="suffixByteEdit">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maxLength">
-                <number>2</number>
-               </property>
-               <property name="placeholderText">
-                <string>a byte in hex</string>
+                <string>Suffix</string>
                </property>
               </widget>
              </item>
@@ -620,18 +595,17 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="groupBox_3">
+           <widget class="QGroupBox" name="data_repeatBox">
             <property name="title">
              <string>Repeat</string>
             </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
             <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QCheckBox" name="repeatBox">
-               <property name="text">
-                <string>Repeat</string>
-               </property>
-              </widget>
-             </item>
              <item>
               <widget class="QLineEdit" name="repeatDelayEdit">
                <property name="text">
@@ -645,6 +619,19 @@
                 <string>ms</string>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_8">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -1010,6 +997,13 @@
            </spacer>
           </item>
           <item>
+           <widget class="QPushButton" name="ctrl_clearButton">
+            <property name="text">
+             <string>Clear</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="ctrl_importButton">
             <property name="text">
              <string>Import</string>
@@ -1038,7 +1032,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>859</width>
+             <width>822</width>
              <height>484</height>
             </rect>
            </property>

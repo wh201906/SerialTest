@@ -72,13 +72,9 @@ private slots:
 
     void on_sendedClearButton_clicked();
 
-    void on_suffixCharEdit_textChanged(const QString &arg1);
-
-    void on_suffixByteEdit_textChanged(const QString &arg1);
-
     void on_sendEdit_textChanged(const QString &arg1);
 
-    void on_repeatBox_stateChanged(int arg1);
+    void on_data_repeatBox_clicked(bool checked);
 
     void on_receivedCopyButton_clicked();
 
@@ -147,6 +143,10 @@ private slots:
 
     void onCtrlItemDestroyed();
     void sendData(QByteArray &data);
+    void on_ctrl_clearButton_clicked();
+
+    void on_data_suffixTypeBox_currentIndexChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     void initUI();

@@ -110,12 +110,14 @@ void ControlItem::on_deleteButton_clicked()
 void ControlItem::on_prefixTypeBox_currentIndexChanged(int index)
 {
     ui->prefixEdit->setVisible(index != 2);
+    ui->prefixEdit->setPlaceholderText(tr("Prefix") + ((index == 1) ? "(Hex)" : ""));
 }
 
 
 void ControlItem::on_suffixTypeBox_currentIndexChanged(int index)
 {
     ui->suffixEdit->setVisible(index != 2);
+    ui->suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
 }
 
 
@@ -199,5 +201,11 @@ void ControlItem::on_sliderEdit_editingFinished()
     if(val == ui->slider->value())
         return;
     ui->slider->setValue(val);
+}
+
+
+void ControlItem::on_hexBox_stateChanged(int arg1)
+{
+    ui->CMDEdit->setPlaceholderText(tr("Command") + ((arg1 == Qt::Checked) ? "(Hex)" : ""));
 }
 

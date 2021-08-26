@@ -523,12 +523,16 @@ void MainWindow::on_sendButton_clicked()
         data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
     else
         data = ui->sendEdit->text().toLatin1();
-    if(ui->suffixCRLFButton->isChecked())
-        data += "\r\n";
-    else if(ui->suffixCharButton->isChecked())
-        data += ui->suffixCharEdit->text().toLatin1();
-    else if(ui->suffixByteButton->isChecked())
-        data += QByteArray::fromHex(ui->suffixByteEdit->text().toLatin1());
+    if(ui->data_suffixBox->isChecked())
+    {
+        if(ui->data_suffixTypeBox->currentIndex() == 0)
+            data += ui->data_suffixEdit->text().toLatin1();
+        else if(ui->data_suffixTypeBox->currentIndex() == 1)
+            data += QByteArray::fromHex(ui->data_suffixEdit->text().toLatin1());
+        else if(ui->data_suffixTypeBox->currentIndex() == 2)
+            data += "\r\n";
+    }
+
     sendData(data);
 }
 
@@ -587,28 +591,16 @@ void MainWindow::on_sendedClearButton_clicked()
     syncSendedEditWithData();
 }
 
-void MainWindow::on_suffixCharEdit_textChanged(const QString &arg1)
-{
-    ui->suffixByteEdit->setText(arg1.toLatin1().toHex());
-}
-
-void MainWindow::on_suffixByteEdit_textChanged(const QString &arg1)
-{
-    QByteArray newChar = QByteArray::fromHex(arg1.toLatin1());
-    if(newChar.length() == 1 && newChar.at(0) >= 0x20 && newChar.at(0) < 0x7F)
-        ui->suffixCharEdit->setText(newChar);
-}
-
 void MainWindow::on_sendEdit_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
     repeatTimer->stop();
-    ui->repeatBox->setChecked(false);
+    ui->data_repeatBox->setChecked(false);
 }
 
-void MainWindow::on_repeatBox_stateChanged(int arg1)
+void MainWindow::on_data_repeatBox_clicked(bool checked)
 {
-    if(arg1 == Qt::Checked)
+    if(checked)
     {
         repeatTimer->setInterval(ui->repeatDelayEdit->text().toInt());
         repeatTimer->start();
@@ -1076,5 +1068,21 @@ void MainWindow::on_ctrl_addSpinBoxButton_clicked()
 void MainWindow::onCtrlItemDestroyed()
 {
     ctrlItemCount--;
+}
+
+
+void MainWindow::on_ctrl_clearButton_clicked()
+{
+    // the layout is the first child
+    // the spacer is not a child
+    const QObjectList& list = ui->ctrl_itemContents->children();
+    for(auto it = list.begin() + 1; it != list.end(); it++)
+        (*it)->deleteLater();
+}
+
+void MainWindow::on_data_suffixTypeBox_currentIndexChanged(int index)
+{
+    ui->data_suffixEdit->setVisible(index != 2);
+    ui->data_suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
 }
 

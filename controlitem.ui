@@ -61,6 +61,18 @@
       </sizepolicy>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QSlider" name="slider">
         <property name="orientation">
@@ -93,6 +105,18 @@
       </sizepolicy>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QDoubleSpinBox" name="spinBox">
         <property name="sizePolicy">
@@ -162,6 +186,25 @@
    <item>
     <widget class="QWidget" name="confGrp" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="autoBox">
+        <property name="text">
+         <string>Auto</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QCheckBox" name="intBox">
         <property name="text">
@@ -187,13 +230,6 @@
        <widget class="QLineEdit" name="stepEdit">
         <property name="placeholderText">
          <string>step</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="autoBox">
-        <property name="text">
-         <string>Auto</string>
         </property>
        </widget>
       </item>

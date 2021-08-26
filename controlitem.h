@@ -55,6 +55,8 @@ private slots:
 
     void on_sliderEdit_editingFinished();
 
+    void on_hexBox_stateChanged(int arg1);
+
 private:
     Ui::ControlItem *ui;
     Type type;
