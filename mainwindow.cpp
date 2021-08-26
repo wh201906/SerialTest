@@ -519,11 +519,6 @@ void MainWindow::readData()
 void MainWindow::on_sendButton_clicked()
 {
     QByteArray data;
-    if(!IODeviceState)
-    {
-        QMessageBox::warning(this, "Error", "No port is opened.");
-        return;
-    }
     if(isSendedDataHex)
         data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
     else
@@ -534,6 +529,16 @@ void MainWindow::on_sendButton_clicked()
         data += ui->suffixCharEdit->text().toLatin1();
     else if(ui->suffixByteButton->isChecked())
         data += QByteArray::fromHex(ui->suffixByteEdit->text().toLatin1());
+    sendData(data);
+}
+
+void MainWindow::sendData(QByteArray& data)
+{
+    if(!IODeviceState)
+    {
+        QMessageBox::warning(this, "Error", "No port is opened.");
+        return;
+    }
     rawSendedData->append(data);
     syncSendedEditWithData();
     IODevice->write(data);
@@ -1033,6 +1038,7 @@ void MainWindow::on_ctrl_addCMDButton_clicked()
 {
     QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
     ControlItem* c = new ControlItem(ControlItem::Command);
+    connect(c, &ControlItem::send, this, &MainWindow::sendData);
     connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
     p->insertWidget(ctrlItemCount++, c);
 }
@@ -1042,6 +1048,7 @@ void MainWindow::on_ctrl_addSliderButton_clicked()
 {
     QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
     ControlItem* c = new ControlItem(ControlItem::Slider);
+    connect(c, &ControlItem::send, this, &MainWindow::sendData);
     connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
     p->insertWidget(ctrlItemCount++, c);
 }
@@ -1051,6 +1058,7 @@ void MainWindow::on_ctrl_addCheckBoxButton_clicked()
 {
     QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
     ControlItem* c = new ControlItem(ControlItem::CheckBox);
+    connect(c, &ControlItem::send, this, &MainWindow::sendData);
     connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
     p->insertWidget(ctrlItemCount++, c);
 }
@@ -1060,6 +1068,7 @@ void MainWindow::on_ctrl_addSpinBoxButton_clicked()
 {
     QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
     ControlItem* c = new ControlItem(ControlItem::SpinBox);
+    connect(c, &ControlItem::send, this, &MainWindow::sendData);
     connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
     p->insertWidget(ctrlItemCount++, c);
 }

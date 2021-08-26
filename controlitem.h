@@ -49,8 +49,19 @@ private slots:
 
     void on_suffixTypeBox_currentIndexChanged(int index);
 
+    void on_autoBox_stateChanged(int arg1);
+
+    void on_sendButton_clicked();
+
+    void on_sliderEdit_editingFinished();
+
 private:
     Ui::ControlItem *ui;
+    Type type;
+
+signals:
+    void send(QByteArray&);
+
 };
 
 #endif // CONTROLITEM_H

@@ -24,6 +24,8 @@ ControlItem::ControlItem(Type type, QWidget *parent) :
     ui->prefixBox->setVisible(type != Command);
 
     ui->confGrp->setVisible(false);
+
+    this->type = type;
 }
 
 ControlItem::~ControlItem()
@@ -33,7 +35,7 @@ ControlItem::~ControlItem()
 
 void ControlItem::on_slider_valueChanged(int value)
 {
-    ui->sliderLabel->setText(QString::number(value));
+    ui->sliderEdit->setText(QString::number(value));
 }
 
 
@@ -114,5 +116,88 @@ void ControlItem::on_prefixTypeBox_currentIndexChanged(int index)
 void ControlItem::on_suffixTypeBox_currentIndexChanged(int index)
 {
     ui->suffixEdit->setVisible(index != 2);
+}
+
+
+void ControlItem::on_autoBox_stateChanged(int arg1)
+{
+    ui->sendButton->setVisible(arg1 != Qt::Checked);
+    if(arg1 == Qt::Checked)
+    {
+        connect(ui->slider, &QSlider::valueChanged, this, &ControlItem::on_sendButton_clicked);
+        connect(ui->checkBox, &QCheckBox::stateChanged, this, &ControlItem::on_sendButton_clicked);
+        connect(ui->spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ControlItem::on_sendButton_clicked);
+    }
+    else
+    {
+        disconnect(ui->slider, &QSlider::valueChanged, this, &ControlItem::on_sendButton_clicked);
+        disconnect(ui->checkBox, &QCheckBox::stateChanged, this, &ControlItem::on_sendButton_clicked);
+        disconnect(ui->spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ControlItem::on_sendButton_clicked);
+    }
+}
+
+
+void ControlItem::on_sendButton_clicked()
+{
+    QByteArray data;
+    if(ui->prefixBox->isChecked())
+    {
+        if(ui->prefixTypeBox->currentIndex() == 0)
+            data = ui->prefixEdit->text().toLatin1();
+        else if(ui->prefixTypeBox->currentIndex() == 1)
+            data = QByteArray::fromHex(ui->prefixEdit->text().toLatin1());
+        else if(ui->prefixTypeBox->currentIndex() == 2)
+            data = "\r\n";
+    }
+
+    if(type == Command)
+    {
+        if(ui->hexBox->isChecked())
+            data = QByteArray::fromHex(ui->CMDEdit->text().toLatin1());
+        else
+            data = ui->CMDEdit->text().toLatin1();
+    }
+    else if(type == Slider)
+    {
+        data += QString::number(ui->slider->value());
+    }
+    else if(type == CheckBox)
+    {
+        data += ui->checkBox->isChecked() ? "1" : "0";
+    }
+    else if(type == SpinBox)
+    {
+        if(ui->intBox->isChecked())
+            data += QString::number((int)ui->spinBox->value());
+        else
+            data += QString::number(ui->spinBox->value());
+    }
+
+
+    if(ui->suffixBox->isChecked())
+    {
+        if(ui->suffixTypeBox->currentIndex() == 0)
+            data += ui->suffixEdit->text().toLatin1();
+        else if(ui->suffixTypeBox->currentIndex() == 1)
+            data += QByteArray::fromHex(ui->suffixEdit->text().toLatin1());
+        else if(ui->suffixTypeBox->currentIndex() == 2)
+            data += "\r\n";
+    }
+    emit send(data);
+}
+
+
+void ControlItem::on_sliderEdit_editingFinished()
+{
+    int val = ui->sliderEdit->text().toInt();
+    if(val < ui->slider->minimum())
+        val = ui->slider->minimum();
+    else if(val > ui->slider->maximum())
+        val = ui->slider->maximum();
+    ui->sliderEdit->setText(QString::number(val));
+
+    if(val == ui->slider->value())
+        return;
+    ui->slider->setValue(val);
 }
 

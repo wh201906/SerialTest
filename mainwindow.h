@@ -146,6 +146,7 @@ private slots:
     void on_ctrl_addSpinBoxButton_clicked();
 
     void onCtrlItemDestroyed();
+    void sendData(QByteArray &data);
 private:
     Ui::MainWindow *ui;
     void initUI();
