@@ -98,11 +98,13 @@ void ControlItem::on_confButton_clicked()
     {
         ui->confButton->setText("<");
         ui->confGrp->setVisible(true);
+        ui->mainGrp->setVisible(false);
     }
     else
     {
         ui->confButton->setText(">");
         ui->confGrp->setVisible(false);
+        ui->mainGrp->setVisible(true);
     }
 }
 
@@ -181,7 +183,7 @@ void ControlItem::on_sendButton_clicked()
     }
     else if(type == Slider)
     {
-        data += QString::number(ui->slider->value());
+        data += QString::number(ui->slider->value()).toLatin1();
     }
     else if(type == CheckBox)
     {
@@ -189,7 +191,7 @@ void ControlItem::on_sendButton_clicked()
     }
     else if(type == SpinBox)
     {
-        data += QString::number(ui->spinBox->value());
+        data += QString::number(ui->spinBox->value()).toLatin1();
     }
 
 

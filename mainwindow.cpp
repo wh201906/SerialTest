@@ -27,9 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::BTdiscoverFinished);
     connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::BTdiscoverFinished);
 
-    // wider axis for pinch gesture
-    ui->qcpWidget->xAxis->setPadding(20);
-    ui->qcpWidget->yAxis->setPadding(20);
 #else
     serialPort = new QSerialPort();
     IODevice = serialPort;
@@ -108,6 +105,8 @@ MainWindow::MainWindow(QWidget *parent)
     plotXAxisWidth = ui->qcpWidget->xAxis->range().size();
     plotTimeTicker->setTimeFormat("%h:%m:%s.%z");
     plotTimeTicker->setTickCount(5);
+
+    ui->ctrl_dataEdit->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -231,6 +230,8 @@ void MainWindow::initUI()
 
     on_advancedBox_clicked(false);
     on_plot_advancedBox_stateChanged(Qt::Unchecked);
+    on_data_repeatBox_clicked(false);
+    on_data_suffixBox_clicked(false);
     stateUpdate();
 }
 
@@ -600,6 +601,8 @@ void MainWindow::on_sendEdit_textChanged(const QString &arg1)
 
 void MainWindow::on_data_repeatBox_clicked(bool checked)
 {
+    ui->repeatDelayEdit->setVisible(checked);
+    ui->data_repeatLabel->setVisible(checked);
     if(checked)
     {
         repeatTimer->setInterval(ui->repeatDelayEdit->text().toInt());
@@ -607,6 +610,12 @@ void MainWindow::on_data_repeatBox_clicked(bool checked)
     }
     else
         repeatTimer->stop();
+}
+
+void MainWindow::on_data_suffixBox_clicked(bool checked)
+{
+    ui->data_suffixTypeBox->setVisible(checked);
+    ui->data_suffixEdit->setVisible(checked);
 }
 
 void MainWindow::on_receivedCopyButton_clicked()
@@ -1086,6 +1095,36 @@ void MainWindow::on_data_suffixTypeBox_currentIndexChanged(int index)
 
 void MainWindow::on_ctrl_importButton_clicked()
 {
+#ifdef Q_OS_ANDROID
+    if(ui->ctrl_importButton->text() == tr("Import"))
+    {
+        ui->ctrl_dataEdit->setPlainText(tr("# Paste the exported data in the box."));
+        ui->ctrl_dataEdit->appendPlainText(""); // new line;
+        ui->ctrl_itemArea->setVisible(false);
+        ui->ctrl_dataEdit->setVisible(true);
+        ui->ctrl_importButton->setText(tr("Done"));
+    }
+    else
+    {
+        QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
+        QStringList dataList = ui->ctrl_dataEdit->toPlainText().split("\n", Qt::SkipEmptyParts);
+        for(auto it = dataList.begin(); it != dataList.end(); it++)
+        {
+            if(it->at(0) == '#')
+                continue;
+            ControlItem* c = new ControlItem(ControlItem::Command);
+            connect(c, &ControlItem::send, this, &MainWindow::sendData);
+            connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
+            p->insertWidget(ctrlItemCount++, c);
+            if(!c->load(*it))
+                c->deleteLater();
+        }
+        ui->ctrl_dataEdit->clear();
+        ui->ctrl_itemArea->setVisible(true);
+        ui->ctrl_dataEdit->setVisible(false);
+        ui->ctrl_importButton->setText(tr("Import"));
+    }
+#else
     bool flag = true;
     const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
     QString fileName;
@@ -1109,11 +1148,37 @@ void MainWindow::on_ctrl_importButton_clicked()
     }
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
+#endif
 }
 
 
 void MainWindow::on_ctrl_exportButton_clicked()
 {
+#ifdef Q_OS_ANDROID
+    if(ui->ctrl_exportButton->text() == tr("Export"))
+    {
+        if(ctrlItemCount == 0)
+        {
+            QMessageBox::information(this, tr("Info"), tr("Please add item first"));
+            return;
+        }
+        const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
+        ui->ctrl_dataEdit->setPlainText(tr("# Copy all text in this box and save it to somewhere."));
+        ui->ctrl_dataEdit->appendPlainText(tr("# To import, click the Import button, then paste the text back."));
+        for(auto it = list.begin(); it != list.end(); it++)
+            ui->ctrl_dataEdit->appendPlainText((*it)->save());
+        ui->ctrl_itemArea->setVisible(false);
+        ui->ctrl_dataEdit->setVisible(true);
+        ui->ctrl_exportButton->setText(tr("Done"));
+    }
+    else
+    {
+        ui->ctrl_dataEdit->clear();
+        ui->ctrl_itemArea->setVisible(true);
+        ui->ctrl_dataEdit->setVisible(false);
+        ui->ctrl_exportButton->setText(tr("Export"));
+    }
+#else
     if(ctrlItemCount == 0)
     {
         QMessageBox::information(this, tr("Info"), tr("Please add item first"));
@@ -1131,5 +1196,9 @@ void MainWindow::on_ctrl_exportButton_clicked()
         flag &= file.write(((*it)->save() + "\n").toUtf8()) != -1;
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
+#endif
 }
+
+
+
 

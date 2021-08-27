@@ -151,6 +151,8 @@ private slots:
 
     void on_ctrl_exportButton_clicked();
 
+    void on_data_suffixBox_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
     void initUI();

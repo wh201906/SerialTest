@@ -534,17 +534,17 @@
              <bool>false</bool>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <property name="spacing">
-              <number>5</number>
+             <property name="leftMargin">
+              <number>2</number>
              </property>
              <property name="topMargin">
-              <number>5</number>
+              <number>2</number>
              </property>
              <property name="rightMargin">
-              <number>5</number>
+              <number>2</number>
              </property>
              <property name="bottomMargin">
-              <number>5</number>
+              <number>2</number>
              </property>
              <item>
               <widget class="QComboBox" name="data_suffixTypeBox">
@@ -586,7 +586,7 @@
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
-                 <height>20</height>
+                 <height>1</height>
                 </size>
                </property>
               </spacer>
@@ -606,6 +606,18 @@
              <bool>false</bool>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <property name="leftMargin">
+              <number>2</number>
+             </property>
+             <property name="topMargin">
+              <number>2</number>
+             </property>
+             <property name="rightMargin">
+              <number>2</number>
+             </property>
+             <property name="bottomMargin">
+              <number>2</number>
+             </property>
              <item>
               <widget class="QLineEdit" name="repeatDelayEdit">
                <property name="text">
@@ -614,7 +626,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_5">
+              <widget class="QLabel" name="data_repeatLabel">
                <property name="text">
                 <string>ms</string>
                </property>
@@ -628,7 +640,7 @@
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
-                 <height>20</height>
+                 <height>1</height>
                 </size>
                </property>
               </spacer>
@@ -1020,6 +1032,9 @@
          </layout>
         </item>
         <item>
+         <widget class="QPlainTextEdit" name="ctrl_dataEdit"/>
+        </item>
+        <item>
          <widget class="QScrollArea" name="ctrl_itemArea">
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -1033,7 +1048,7 @@
              <x>0</x>
              <y>0</y>
              <width>822</width>
-             <height>484</height>
+             <height>286</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
