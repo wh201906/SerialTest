@@ -147,6 +147,10 @@ private slots:
 
     void on_data_suffixTypeBox_currentIndexChanged(int index);
 
+    void on_ctrl_importButton_clicked();
+
+    void on_ctrl_exportButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     void initUI();

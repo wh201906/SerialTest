@@ -653,7 +653,6 @@ void MainWindow::on_sendedExportButton_clicked()
         flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
-
 }
 
 void MainWindow::on_receivedUpdateButton_clicked()
@@ -1073,10 +1072,8 @@ void MainWindow::onCtrlItemDestroyed()
 
 void MainWindow::on_ctrl_clearButton_clicked()
 {
-    // the layout is the first child
-    // the spacer is not a child
-    const QObjectList& list = ui->ctrl_itemContents->children();
-    for(auto it = list.begin() + 1; it != list.end(); it++)
+    const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
+    for(auto it = list.begin(); it != list.end(); it++)
         (*it)->deleteLater();
 }
 
@@ -1084,5 +1081,55 @@ void MainWindow::on_data_suffixTypeBox_currentIndexChanged(int index)
 {
     ui->data_suffixEdit->setVisible(index != 2);
     ui->data_suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
+}
+
+
+void MainWindow::on_ctrl_importButton_clicked()
+{
+    bool flag = true;
+    const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
+    QString fileName;
+    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
+    fileName = QFileDialog::getOpenFileName(this, tr("Import Control Panel"));
+    if(fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    flag &= file.open(QFile::ReadOnly | QFile::Text);
+    QStringList dataList = QString(file.readAll()).split("\n", Qt::SkipEmptyParts);
+    for(auto it = dataList.begin(); it != dataList.end(); it++)
+    {
+        if(it->at(0) == '#')
+            continue;
+        ControlItem* c = new ControlItem(ControlItem::Command);
+        connect(c, &ControlItem::send, this, &MainWindow::sendData);
+        connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
+        p->insertWidget(ctrlItemCount++, c);
+        if(!c->load(*it))
+            c->deleteLater();
+    }
+    file.close();
+    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
+}
+
+
+void MainWindow::on_ctrl_exportButton_clicked()
+{
+    if(ctrlItemCount == 0)
+    {
+        QMessageBox::information(this, tr("Info"), tr("Please add item first"));
+        return;
+    }
+    bool flag = true;
+    const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
+    QString fileName;
+    fileName = QFileDialog::getSaveFileName(this, tr("Export Control Panel"), QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
+    if(fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    flag &= file.open(QFile::WriteOnly | QFile::Text);
+    for(auto it = list.begin(); it != list.end(); it++)
+        flag &= file.write(((*it)->save() + "\n").toUtf8()) != -1;
+    file.close();
+    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 }
 

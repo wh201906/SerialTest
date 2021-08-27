@@ -24,6 +24,8 @@ public:
     explicit ControlItem(Type type, QWidget *parent = nullptr);
     ~ControlItem();
 
+    bool load(QString& data);
+    QString save();
 private slots:
     void on_slider_valueChanged(int value);
 
@@ -61,6 +63,8 @@ private:
     Ui::ControlItem *ui;
     Type type;
 
+    void initUI();
+    const QString dataSplitter = "||,,||";
 signals:
     void send(QByteArray&);
 

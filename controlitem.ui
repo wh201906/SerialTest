@@ -206,14 +206,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="intBox">
-        <property name="text">
-         <string>Int</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLineEdit" name="minEdit">
+        <property name="text">
+         <string>0</string>
+        </property>
         <property name="placeholderText">
          <string>min</string>
         </property>
@@ -221,6 +217,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="maxEdit">
+        <property name="text">
+         <string>100</string>
+        </property>
         <property name="placeholderText">
          <string>max</string>
         </property>
@@ -228,6 +227,9 @@
       </item>
       <item>
        <widget class="QLineEdit" name="stepEdit">
+        <property name="text">
+         <string>1</string>
+        </property>
         <property name="placeholderText">
          <string>step</string>
         </property>

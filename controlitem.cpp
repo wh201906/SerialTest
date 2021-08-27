@@ -10,12 +10,19 @@ ControlItem::ControlItem(Type type, QWidget *parent) :
     on_prefixBox_stateChanged(Qt::Unchecked);
     on_suffixBox_stateChanged(Qt::Unchecked);
 
+    ui->confGrp->setVisible(false);
+
+    this->type = type;
+    initUI();
+}
+
+void ControlItem::initUI()
+{
     ui->CMDEdit->setVisible(type == Command);
     ui->sliderGrp->setVisible(type == Slider);
     ui->checkBox->setVisible(type == CheckBox);
     ui->spinBoxGrp->setVisible(type == SpinBox);
 
-    ui->intBox->setVisible(type == SpinBox);
     ui->minEdit->setVisible(type == SpinBox || type == Slider);
     ui->maxEdit->setVisible(type == SpinBox || type == Slider);
     ui->stepEdit->setVisible(type == SpinBox || type == Slider);
@@ -23,9 +30,16 @@ ControlItem::ControlItem(Type type, QWidget *parent) :
     ui->hexBox->setVisible(type == Command);
     ui->prefixBox->setVisible(type != Command);
 
-    ui->confGrp->setVisible(false);
+    on_minEdit_editingFinished();
+    on_maxEdit_editingFinished();
+    on_stepEdit_editingFinished();
+    on_prefixBox_stateChanged(ui->prefixBox->checkState());
+    on_prefixTypeBox_currentIndexChanged(ui->prefixTypeBox->currentIndex());
+    on_suffixBox_stateChanged(ui->suffixBox->checkState());
+    on_suffixTypeBox_currentIndexChanged(ui->suffixTypeBox->currentIndex());
+    on_hexBox_stateChanged(ui->hexBox->checkState());
+    on_autoBox_stateChanged(ui->autoBox->checkState());
 
-    this->type = type;
 }
 
 ControlItem::~ControlItem()
@@ -53,22 +67,28 @@ void ControlItem::on_spinBoxDownButton_clicked()
 
 void ControlItem::on_minEdit_editingFinished()
 {
-    ui->spinBox->setMinimum(ui->minEdit->text().toDouble());
-    ui->slider->setMinimum(ui->minEdit->text().toInt());
+    if(type == SpinBox)
+        ui->spinBox->setMinimum(ui->minEdit->text().toDouble());
+    else if(type == Slider)
+        ui->slider->setMinimum(ui->minEdit->text().toInt());
 }
 
 
 void ControlItem::on_maxEdit_editingFinished()
 {
-    ui->spinBox->setMaximum(ui->maxEdit->text().toDouble());
-    ui->slider->setMaximum(ui->maxEdit->text().toInt());
+    if(type == SpinBox)
+        ui->spinBox->setMaximum(ui->maxEdit->text().toDouble());
+    else if(type == Slider)
+        ui->slider->setMaximum(ui->maxEdit->text().toInt());
 }
 
 
 void ControlItem::on_stepEdit_editingFinished()
 {
-    ui->spinBox->setSingleStep(ui->stepEdit->text().toDouble());
-    ui->slider->setSingleStep(ui->stepEdit->text().toInt());
+    if(type == SpinBox)
+        ui->spinBox->setSingleStep(ui->stepEdit->text().toDouble());
+    else if(type == Slider)
+        ui->slider->setSingleStep(ui->stepEdit->text().toInt());
 }
 
 
@@ -169,10 +189,7 @@ void ControlItem::on_sendButton_clicked()
     }
     else if(type == SpinBox)
     {
-        if(ui->intBox->isChecked())
-            data += QString::number((int)ui->spinBox->value());
-        else
-            data += QString::number(ui->spinBox->value());
+        data += QString::number(ui->spinBox->value());
     }
 
 
@@ -209,3 +226,76 @@ void ControlItem::on_hexBox_stateChanged(int arg1)
     ui->CMDEdit->setPlaceholderText(tr("Command") + ((arg1 == Qt::Checked) ? "(Hex)" : ""));
 }
 
+bool ControlItem::load(QString& data)
+{
+    QStringList list = data.split(dataSplitter);
+    if(list.length() < 14)
+        return false;
+    type = (Type)list[0].toUInt();
+    ui->nameEdit->setText(list[1]);
+    ui->prefixBox->setCheckState((Qt::CheckState)list[2].toUInt());
+    ui->prefixTypeBox->setCurrentIndex(list[3].toUInt());
+    ui->prefixEdit->setText(list[4]);
+    ui->suffixBox->setCheckState((Qt::CheckState)list[5].toUInt());
+    ui->suffixTypeBox->setCurrentIndex(list[6].toUInt());
+    ui->suffixEdit->setText(list[7]);
+    ui->hexBox->setCheckState((Qt::CheckState)list[8].toUInt());
+    ui->autoBox->setCheckState((Qt::CheckState)list[9].toUInt());
+    ui->minEdit->setText(list[10]);
+    ui->maxEdit->setText(list[11]);
+    ui->stepEdit->setText(list[12]);
+
+    ui->slider->blockSignals(true);
+    ui->checkBox->blockSignals(true);
+    ui->spinBox->blockSignals(true);
+    if(type == Command)
+    {
+        ui->CMDEdit->setText(list[13]);
+    }
+    else if(type == Slider)
+    {
+        ui->sliderEdit->setText(list[13]);
+        ui->slider->setValue(list[13].toInt());
+    }
+    else if(type == CheckBox)
+    {
+        ui->checkBox->setCheckState((Qt::CheckState)list[13].toUInt());
+    }
+    else if(type == SpinBox)
+    {
+        ui->spinBox->setValue(list[13].toDouble());
+    }
+    ui->slider->blockSignals(false);
+    ui->checkBox->blockSignals(false);
+    ui->spinBox->blockSignals(false);
+
+    initUI();
+    return true;
+}
+
+QString ControlItem::save()
+{
+    QString data;
+    data = QString::number(type) + dataSplitter;
+    data += ui->nameEdit->text() + dataSplitter;
+    data += QString::number(ui->prefixBox->checkState()) + dataSplitter;
+    data += QString::number(ui->prefixTypeBox->currentIndex()) + dataSplitter;
+    data += ui->prefixEdit->text() + dataSplitter;
+    data += QString::number(ui->suffixBox->checkState()) + dataSplitter;
+    data += QString::number(ui->suffixTypeBox->currentIndex()) + dataSplitter;
+    data += ui->suffixEdit->text() + dataSplitter;
+    data += QString::number(ui->hexBox->checkState()) + dataSplitter;
+    data += QString::number(ui->autoBox->checkState()) + dataSplitter;
+    data += ui->minEdit->text() + dataSplitter;
+    data += ui->maxEdit->text() + dataSplitter;
+    data += ui->stepEdit->text() + dataSplitter;
+    if(type == Command)
+        data += ui->CMDEdit->text();
+    else if(type == Slider)
+        data += QString::number(ui->slider->value());
+    else if(type == CheckBox)
+        data += QString::number(ui->checkBox->checkState());
+    else if(type == SpinBox)
+        data += QString::number(ui->spinBox->value());
+    return data;
+}
