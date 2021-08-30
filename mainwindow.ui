@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -599,9 +599,6 @@
             <property name="title">
              <string>Repeat</string>
             </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
             <property name="checked">
              <bool>false</bool>
             </property>
@@ -618,6 +615,13 @@
              <property name="bottomMargin">
               <number>2</number>
              </property>
+             <item>
+              <widget class="QCheckBox" name="data_repeatCheckBox">
+               <property name="text">
+                <string>Repeat</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QLineEdit" name="repeatDelayEdit">
                <property name="text">

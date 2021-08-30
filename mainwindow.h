@@ -52,7 +52,7 @@ public slots:
 private slots:
     void refreshPortsInfo();
 
-    void on_portTable_cellDoubleClicked(int row, int column);
+    void on_portTable_cellClicked(int row, int column);
 
     void on_advancedBox_clicked(bool checked);
 
@@ -74,7 +74,7 @@ private slots:
 
     void on_sendEdit_textChanged(const QString &arg1);
 
-    void on_data_repeatBox_clicked(bool checked);
+    void on_data_repeatCheckBox_stateChanged(int arg1);
 
     void on_receivedCopyButton_clicked();
 
@@ -150,8 +150,6 @@ private slots:
     void on_ctrl_importButton_clicked();
 
     void on_ctrl_exportButton_clicked();
-
-    void on_data_suffixBox_clicked(bool checked);
 
 private:
     Ui::MainWindow *ui;

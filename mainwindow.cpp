@@ -230,8 +230,6 @@ void MainWindow::initUI()
 
     on_advancedBox_clicked(false);
     on_plot_advancedBox_stateChanged(Qt::Unchecked);
-    on_data_repeatBox_clicked(false);
-    on_data_suffixBox_clicked(false);
     stateUpdate();
 }
 
@@ -299,7 +297,7 @@ void MainWindow::refreshPortsInfo()
 #endif
 }
 
-void MainWindow::on_portTable_cellDoubleClicked(int row, int column)
+void MainWindow::on_portTable_cellClicked(int row, int column)
 {
     Q_UNUSED(column);
     ui->portBox->setCurrentIndex(row);
@@ -542,6 +540,7 @@ void MainWindow::sendData(QByteArray& data)
     if(!IODeviceState)
     {
         QMessageBox::warning(this, "Error", "No port is opened.");
+        ui->data_repeatCheckBox->setCheckState(Qt::Unchecked);
         return;
     }
     rawSendedData->append(data);
@@ -599,23 +598,15 @@ void MainWindow::on_sendEdit_textChanged(const QString &arg1)
     ui->data_repeatBox->setChecked(false);
 }
 
-void MainWindow::on_data_repeatBox_clicked(bool checked)
+void MainWindow::on_data_repeatCheckBox_stateChanged(int arg1)
 {
-    ui->repeatDelayEdit->setVisible(checked);
-    ui->data_repeatLabel->setVisible(checked);
-    if(checked)
+    if(arg1 == Qt::Checked)
     {
         repeatTimer->setInterval(ui->repeatDelayEdit->text().toInt());
         repeatTimer->start();
     }
     else
         repeatTimer->stop();
-}
-
-void MainWindow::on_data_suffixBox_clicked(bool checked)
-{
-    ui->data_suffixTypeBox->setVisible(checked);
-    ui->data_suffixEdit->setVisible(checked);
 }
 
 void MainWindow::on_receivedCopyButton_clicked()
@@ -1198,7 +1189,4 @@ void MainWindow::on_ctrl_exportButton_clicked()
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 #endif
 }
-
-
-
 
