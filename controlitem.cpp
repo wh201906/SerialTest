@@ -148,13 +148,13 @@ void ControlItem::on_autoBox_stateChanged(int arg1)
     ui->sendButton->setVisible(arg1 != Qt::Checked);
     if(arg1 == Qt::Checked)
     {
-        connect(ui->slider, &QSlider::valueChanged, this, &ControlItem::on_sendButton_clicked);
+        connect(ui->slider, &QSlider::sliderReleased, this, &ControlItem::on_sendButton_clicked);
         connect(ui->checkBox, &QCheckBox::stateChanged, this, &ControlItem::on_sendButton_clicked);
         connect(ui->spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ControlItem::on_sendButton_clicked);
     }
     else
     {
-        disconnect(ui->slider, &QSlider::valueChanged, this, &ControlItem::on_sendButton_clicked);
+        disconnect(ui->slider, &QSlider::sliderReleased, this, &ControlItem::on_sendButton_clicked);
         disconnect(ui->checkBox, &QCheckBox::stateChanged, this, &ControlItem::on_sendButton_clicked);
         disconnect(ui->spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ControlItem::on_sendButton_clicked);
     }
@@ -220,6 +220,7 @@ void ControlItem::on_sliderEdit_editingFinished()
     if(val == ui->slider->value())
         return;
     ui->slider->setValue(val);
+    emit ui->slider->sliderReleased();
 }
 
 
