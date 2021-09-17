@@ -151,6 +151,8 @@ private slots:
 
     void on_ctrl_exportButton_clicked();
 
+    void on_plot_scatterBox_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     void initUI();

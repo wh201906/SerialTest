@@ -1190,3 +1190,18 @@ void MainWindow::on_ctrl_exportButton_clicked()
 #endif
 }
 
+
+void MainWindow::on_plot_scatterBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::Checked)
+    {
+        for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
+            ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+    }
+    else
+    {
+        for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
+            ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+    }
+}
+

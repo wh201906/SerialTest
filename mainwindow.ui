@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -943,6 +943,13 @@
              </property>
              <property name="maxLength">
               <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="plot_scatterBox">
+             <property name="text">
+              <string>Scatter</string>
              </property>
             </widget>
            </item>
