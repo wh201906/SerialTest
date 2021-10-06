@@ -685,7 +685,8 @@ void MainWindow::updateRxUI()
         {
             hasData = true;
             dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
-            plotBuf->remove(0, i + ui->plot_dataSpEdit->text().length());
+            qDebug() << dataList;
+            plotBuf->remove(0, i + plotFrameSeparator.length());
             plotCounter++;
             if(ui->plot_XTypeBox->currentIndex() == 0)
             {
@@ -888,6 +889,17 @@ void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
         plotDataSeparator = QByteArray::fromHex(ui->plot_dataSpEdit->text().toLatin1());
     else if(index == 2)
         plotDataSeparator = "\r\n";
+}
+
+void MainWindow::on_plot_frameSpEdit_editingFinished()
+{
+    on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
+}
+
+
+void MainWindow::on_plot_dataSpEdit_editingFinished()
+{
+    on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
 }
 
 void MainWindow::on_plot_XTypeBox_currentIndexChanged(int index)
@@ -1204,4 +1216,3 @@ void MainWindow::on_plot_scatterBox_stateChanged(int arg1)
             ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
     }
 }
-

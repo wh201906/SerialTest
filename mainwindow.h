@@ -153,6 +153,10 @@ private slots:
 
     void on_plot_scatterBox_stateChanged(int arg1);
 
+    void on_plot_frameSpEdit_editingFinished();
+
+    void on_plot_dataSpEdit_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     void initUI();
