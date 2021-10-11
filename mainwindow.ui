@@ -652,6 +652,54 @@
             </layout>
            </widget>
           </item>
+          <item>
+           <widget class="QGroupBox" name="data_flowControlBox">
+            <property name="title">
+             <string>Flow Control</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <property name="leftMargin">
+              <number>2</number>
+             </property>
+             <property name="topMargin">
+              <number>2</number>
+             </property>
+             <property name="rightMargin">
+              <number>2</number>
+             </property>
+             <property name="bottomMargin">
+              <number>2</number>
+             </property>
+             <item>
+              <widget class="QCheckBox" name="data_flowDTRBox">
+               <property name="text">
+                <string>DTR</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="data_flowRTSBox">
+               <property name="text">
+                <string>RTS</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
@@ -1058,8 +1106,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>822</width>
-             <height>286</height>
+             <width>1039</width>
+             <height>312</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">

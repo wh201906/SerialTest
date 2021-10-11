@@ -127,6 +127,10 @@ private slots:
     void onTopBoxClicked(bool checked);
 
     void onSerialErrorOccurred(QSerialPort::SerialPortError error);
+
+    void on_data_flowDTRBox_clicked(bool checked);
+
+    void on_data_flowRTSBox_clicked(bool checked);
 #endif
 
     void onIODeviceConnected();

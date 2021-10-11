@@ -183,6 +183,8 @@ void MainWindow::initUI()
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setFixedSize(QApplication::primaryScreen()->availableGeometry().size());
 
+    ui->data_flowControlBox->setVisible(false);
+
 #else
     ui->flowControlBox->addItem("NoFlowControl");
     ui->flowControlBox->addItem("HardwareControl");
@@ -226,7 +228,6 @@ void MainWindow::initUI()
 
     stateButton->setMinimumHeight(1);
     stateButton->setStyleSheet("*{text-align:left;}");
-
 
     on_advancedBox_clicked(false);
     on_plot_advancedBox_stateChanged(Qt::Unchecked);
@@ -414,11 +415,23 @@ void MainWindow::stateUpdate()
 
 void MainWindow::onIODeviceConnected()
 {
+
+
     qDebug() << "IODevice Connected";
     IODeviceState = true;
     updateUITimer->start();
     stateUpdate();
     refreshPortsInfo();
+#ifndef Q_OS_ANDROID
+    QSerialPort* port;
+    port = dynamic_cast<QSerialPort*>(IODevice);
+    if(port != nullptr)
+    {
+        ui->data_flowRTSBox->setVisible(port->flowControl() != QSerialPort::HardwareControl);
+        ui->data_flowRTSBox->setChecked(port->isRequestToSend());
+        ui->data_flowDTRBox->setChecked(port->isDataTerminalReady());
+    }
+#endif
 }
 
 void MainWindow::onIODeviceDisconnected()
@@ -1033,6 +1046,21 @@ void MainWindow::loadPreference(const QString& id)
     ui->parityBox->setCurrentIndex(settings->value("ParityID").toInt());
     ui->flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
     settings->endGroup();
+}
+
+void MainWindow::on_data_flowDTRBox_clicked(bool checked)
+{
+    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
+    if(port != nullptr)
+        port->setDataTerminalReady(checked);
+}
+
+
+void MainWindow::on_data_flowRTSBox_clicked(bool checked)
+{
+    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
+    if(port != nullptr && port->flowControl() != QSerialPort::HardwareControl)
+        port->setRequestToSend(checked);
 }
 #endif
 
