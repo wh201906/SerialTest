@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
     on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
     on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
+    on_plot_clearFlagTypeBox_currentIndexChanged(ui->plot_clearFlagTypeBox->currentIndex());
     plotCounter = 0;
     connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &MainWindow::onQCPLegendDoubleClick);
     connect(ui->qcpWidget, &QCustomPlot::axisDoubleClick, this, &MainWindow::onQCPAxisDoubleClick);
@@ -701,7 +702,11 @@ void MainWindow::updateRxUI()
             qDebug() << dataList;
             plotBuf->remove(0, i + plotFrameSeparator.length());
             plotCounter++;
-            if(ui->plot_XTypeBox->currentIndex() == 0)
+            if(dataList[0] == plotClearFlag)
+            {
+                on_plot_clearButton_clicked();
+            }
+            else if(ui->plot_XTypeBox->currentIndex() == 0)
             {
                 currKey = plotCounter;
                 for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
@@ -902,6 +907,21 @@ void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
         plotDataSeparator = QByteArray::fromHex(ui->plot_dataSpEdit->text().toLatin1());
     else if(index == 2)
         plotDataSeparator = "\r\n";
+}
+
+
+void MainWindow::on_plot_clearFlagTypeBox_currentIndexChanged(int index)
+{
+    if(index == 0)
+        plotClearFlag = ui->plot_clearFlagEdit->text();
+    else if(index == 1)
+        plotClearFlag = QByteArray::fromHex(ui->plot_clearFlagEdit->text().toLatin1());
+}
+
+
+void MainWindow::on_plot_clearFlagEdit_editingFinished()
+{
+    on_plot_clearFlagTypeBox_currentIndexChanged(ui->plot_clearFlagTypeBox->currentIndex());
 }
 
 void MainWindow::on_plot_frameSpEdit_editingFinished()
@@ -1244,3 +1264,4 @@ void MainWindow::on_plot_scatterBox_stateChanged(int arg1)
             ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
     }
 }
+

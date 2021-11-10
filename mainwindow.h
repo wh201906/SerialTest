@@ -161,6 +161,10 @@ private slots:
 
     void on_plot_dataSpEdit_editingFinished();
 
+    void on_plot_clearFlagTypeBox_currentIndexChanged(int index);
+
+    void on_plot_clearFlagEdit_editingFinished();
+
 private:
     Ui::MainWindow *ui;
     void initUI();
@@ -189,6 +193,7 @@ private:
     QString plotSelectedName;
     QString plotFrameSeparator;
     QString plotDataSeparator;
+    QString plotClearFlag;
     double plotXAxisWidth;
     QSharedPointer<QCPAxisTickerTime> plotTimeTicker = QSharedPointer<QCPAxisTickerTime>(new QCPAxisTickerTime);
     QSharedPointer<QCPAxisTicker> plotDefaultTicker;
