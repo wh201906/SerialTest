@@ -265,6 +265,11 @@
           <string>\r\n</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>\n</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
@@ -296,6 +301,11 @@
         <item>
          <property name="text">
           <string>\r\n</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>\n</string>
          </property>
         </item>
        </widget>

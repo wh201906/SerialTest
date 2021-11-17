@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -563,6 +563,11 @@
                  <string>\r\n</string>
                 </property>
                </item>
+               <item>
+                <property name="text">
+                 <string>\n</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
@@ -932,7 +937,7 @@
            <item>
             <widget class="QComboBox" name="plot_frameSpTypeBox">
              <property name="currentIndex">
-              <number>2</number>
+              <number>0</number>
              </property>
              <item>
               <property name="text">
@@ -947,6 +952,11 @@
              <item>
               <property name="text">
                <string>\r\n</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>\n</string>
               </property>
              </item>
             </widget>
@@ -980,6 +990,11 @@
              <item>
               <property name="text">
                <string>\r\n</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>\n</string>
               </property>
              </item>
             </widget>
@@ -1134,8 +1149,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1039</width>
-             <height>312</height>
+             <width>1051</width>
+             <height>286</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">

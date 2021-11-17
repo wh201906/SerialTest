@@ -544,6 +544,8 @@ void MainWindow::on_sendButton_clicked()
             data += QByteArray::fromHex(ui->data_suffixEdit->text().toLatin1());
         else if(ui->data_suffixTypeBox->currentIndex() == 2)
             data += "\r\n";
+        else if(ui->data_suffixTypeBox->currentIndex() == 3)
+            data += "\n";
     }
 
     sendData(data);
@@ -889,24 +891,28 @@ void MainWindow::onQCPSelectionChanged()
 
 void MainWindow::on_plot_frameSpTypeBox_currentIndexChanged(int index)
 {
-    ui->plot_frameSpEdit->setVisible(index != 2);
+    ui->plot_frameSpEdit->setVisible(index != 2 && index != 3);
     if(index == 0)
         plotFrameSeparator = ui->plot_frameSpEdit->text();
     else if(index == 1)
         plotFrameSeparator = QByteArray::fromHex(ui->plot_frameSpEdit->text().toLatin1());
     else if(index == 2)
         plotFrameSeparator = "\r\n";
+    else if(index == 3)
+        plotFrameSeparator = "\n";
 }
 
 void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
 {
-    ui->plot_dataSpEdit->setVisible(index != 2);
+    ui->plot_dataSpEdit->setVisible(index != 2 && index != 3);
     if(index == 0)
         plotDataSeparator = ui->plot_dataSpEdit->text();
     else if(index == 1)
         plotDataSeparator = QByteArray::fromHex(ui->plot_dataSpEdit->text().toLatin1());
     else if(index == 2)
         plotDataSeparator = "\r\n";
+    else if(index == 3)
+        plotDataSeparator = "\n";
 }
 
 
@@ -1139,7 +1145,7 @@ void MainWindow::on_ctrl_clearButton_clicked()
 
 void MainWindow::on_data_suffixTypeBox_currentIndexChanged(int index)
 {
-    ui->data_suffixEdit->setVisible(index != 2);
+    ui->data_suffixEdit->setVisible(index != 2 && index != 3);
     ui->data_suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
 }
 

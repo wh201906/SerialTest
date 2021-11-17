@@ -131,14 +131,14 @@ void ControlItem::on_deleteButton_clicked()
 
 void ControlItem::on_prefixTypeBox_currentIndexChanged(int index)
 {
-    ui->prefixEdit->setVisible(index != 2);
+    ui->prefixEdit->setVisible(index != 2 && index != 3);
     ui->prefixEdit->setPlaceholderText(tr("Prefix") + ((index == 1) ? "(Hex)" : ""));
 }
 
 
 void ControlItem::on_suffixTypeBox_currentIndexChanged(int index)
 {
-    ui->suffixEdit->setVisible(index != 2);
+    ui->suffixEdit->setVisible(index != 2 && index != 3);
     ui->suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
 }
 
@@ -172,6 +172,8 @@ void ControlItem::on_sendButton_clicked()
             data = QByteArray::fromHex(ui->prefixEdit->text().toLatin1());
         else if(ui->prefixTypeBox->currentIndex() == 2)
             data = "\r\n";
+        else if(ui->prefixTypeBox->currentIndex() == 3)
+            data = "\n";
     }
 
     if(type == Command)
@@ -203,6 +205,8 @@ void ControlItem::on_sendButton_clicked()
             data += QByteArray::fromHex(ui->suffixEdit->text().toLatin1());
         else if(ui->suffixTypeBox->currentIndex() == 2)
             data += "\r\n";
+        else if(ui->suffixTypeBox->currentIndex() == 3)
+            data += "\n";
     }
     emit send(data);
 }
