@@ -187,17 +187,17 @@ void MainWindow::initUI()
     ui->data_flowControlBox->setVisible(false);
 
 #else
-    ui->flowControlBox->addItem("NoFlowControl");
-    ui->flowControlBox->addItem("HardwareControl");
-    ui->flowControlBox->addItem("SoftwareControl");
+    ui->flowControlBox->addItem(tr("NoFlowControl"));
+    ui->flowControlBox->addItem(tr("HardwareControl"));
+    ui->flowControlBox->addItem(tr("SoftwareControl"));
     ui->flowControlBox->setItemData(0, QSerialPort::NoFlowControl);
     ui->flowControlBox->setItemData(1, QSerialPort::HardwareControl);
     ui->flowControlBox->setItemData(2, QSerialPort::SoftwareControl);
-    ui->parityBox->addItem("NoParity");
-    ui->parityBox->addItem("EvenParity");
-    ui->parityBox->addItem("OddParity");
-    ui->parityBox->addItem("SpaceParity");
-    ui->parityBox->addItem("MarkParity");
+    ui->parityBox->addItem(tr("NoParity"));
+    ui->parityBox->addItem(tr("EvenParity"));
+    ui->parityBox->addItem(tr("OddParity"));
+    ui->parityBox->addItem(tr("SpaceParity"));
+    ui->parityBox->addItem(tr("MarkParity"));
     ui->parityBox->setItemData(0, QSerialPort::NoParity);
     ui->parityBox->setItemData(1, QSerialPort::EvenParity);
     ui->parityBox->setItemData(2, QSerialPort::OddParity);
@@ -268,7 +268,7 @@ void MainWindow::refreshPortsInfo()
         qDebug() << address << name;
         ui->portTable->setItem(i, HPortName, new QTableWidgetItem(name));
         ui->portTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
-        ui->portTable->setItem(i, HDescription, new QTableWidgetItem("Bonded"));
+        ui->portTable->setItem(i, HDescription, new QTableWidgetItem(tr("Bonded")));
         ui->portBox->addItem(address);
     }
 
@@ -388,30 +388,30 @@ void MainWindow::stateUpdate()
     portName = BTSocket->peerName();
 #else
     portName = serialPort->portName();
-    QString stopbits[4] = {"", "OneStop", "TwoStop", "OneAndHalfStop"};
-    QString parities[6] = {"NoParity", "", "EvenParity", "OddParity", "SpaceParity", "MarkParity"};
+    QString stopbits[4] = {"", tr("OneStop"), tr("TwoStop"), tr("OneAndHalfStop")};
+    QString parities[6] = {tr("NoParity"), "", tr("EvenParity"), tr("OddParity"), tr("SpaceParity"), tr("MarkParity")};
     if(IODeviceState)
     {
-        baudRateLabel->setText("BaudRate: " + QString::number(serialPort->baudRate()));
-        dataBitsLabel->setText("DataBits: " + QString::number(serialPort->dataBits()));
-        stopBitsLabel->setText("StopBits: " + stopbits[(int)serialPort->stopBits()]);
-        parityLabel->setText("Parity: " + parities[(int)serialPort->parity()]);
+        baudRateLabel->setText(tr("BaudRate") + ": " + QString::number(serialPort->baudRate()));
+        dataBitsLabel->setText(tr("DataBits") + ": " + QString::number(serialPort->dataBits()));
+        stopBitsLabel->setText(tr("StopBits") + ": " + stopbits[(int)serialPort->stopBits()]);
+        parityLabel->setText(tr("Parity") + ": " + parities[(int)serialPort->parity()]);
     }
     else
     {
-        baudRateLabel->setText("BaudRate: ");
-        dataBitsLabel->setText("DataBits: ");
-        stopBitsLabel->setText("StopBits: ");
-        parityLabel->setText("Parity: ");
+        baudRateLabel->setText(tr("BaudRate") + ": ");
+        dataBitsLabel->setText(tr("DataBits") + ": ");
+        stopBitsLabel->setText(tr("StopBits") + ": ");
+        parityLabel->setText(tr("Parity") + ": ");
     }
 #endif
     if(IODeviceState)
-        stateButton->setText("State: √");
+        stateButton->setText(tr("State") + ": √");
     else
-        stateButton->setText("State: X");
-    portLabel->setText("Port: " + portName);
-    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
-    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
+        stateButton->setText(tr("State") + ": X");
+    portLabel->setText(tr("Port") + ": " + portName);
+    RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
+    TxLabel->setText(tr("Tx") + ": " +  QString::number(rawSendedData->length()));
 }
 
 void MainWindow::onIODeviceConnected()
@@ -524,7 +524,7 @@ void MainWindow::readData()
         userRequiredRxSliderPos = currRxSliderPos;
         RxSlider->setSliderPosition(currRxSliderPos);
     }
-    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
+    RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
     RxUIBuf->append(newData);
     QApplication::processEvents();
 }
@@ -596,14 +596,14 @@ void MainWindow::on_receivedHexBox_stateChanged(int arg1)
 void MainWindow::on_receivedClearButton_clicked()
 {
     rawReceivedData->clear();
-    RxLabel->setText("Rx: " + QString::number(rawReceivedData->length()));
+    RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
     syncReceivedEditWithData();
 }
 
 void MainWindow::on_sendedClearButton_clicked()
 {
     rawSendedData->clear();
-    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
+    TxLabel->setText(tr("Tx") + ": " + QString::number(rawSendedData->length()));
     syncSendedEditWithData();
 }
 
@@ -704,7 +704,7 @@ void MainWindow::updateRxUI()
             qDebug() << dataList;
             plotBuf->remove(0, i + plotFrameSeparator.length());
             plotCounter++;
-            if(dataList[0] == plotClearFlag)
+            if(!plotClearFlag.isEmpty() && dataList[0] == plotClearFlag)
             {
                 on_plot_clearButton_clicked();
             }
@@ -918,9 +918,12 @@ void MainWindow::on_plot_dataSpTypeBox_currentIndexChanged(int index)
 
 void MainWindow::on_plot_clearFlagTypeBox_currentIndexChanged(int index)
 {
+    ui->plot_clearFlagEdit->setVisible(index != 0);
     if(index == 0)
+        plotClearFlag.clear();
+    if(index == 1)
         plotClearFlag = ui->plot_clearFlagEdit->text();
-    else if(index == 1)
+    else if(index == 2)
         plotClearFlag = QByteArray::fromHex(ui->plot_clearFlagEdit->text().toLatin1());
 }
 
@@ -979,7 +982,7 @@ void MainWindow::BTdeviceDiscovered(const QBluetoothDeviceInfo &device)
     ui->portTable->setRowCount(i + 1);
     ui->portTable->setItem(i, HPortName, new QTableWidgetItem(name));
     ui->portTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
-    ui->portTable->setItem(i, HDescription, new QTableWidgetItem("Discovered"));
+    ui->portTable->setItem(i, HDescription, new QTableWidgetItem(tr("Discovered")));
     ui->portBox->addItem(address);
     qDebug() << name
              << address
@@ -1155,7 +1158,7 @@ void MainWindow::on_ctrl_importButton_clicked()
 #ifdef Q_OS_ANDROID
     if(ui->ctrl_importButton->text() == tr("Import"))
     {
-        ui->ctrl_dataEdit->setPlainText(tr("# Paste the exported data in the box."));
+        ui->ctrl_dataEdit->setPlainText("# " + tr("Paste the exported data in the box."));
         ui->ctrl_dataEdit->appendPlainText(""); // new line;
         ui->ctrl_itemArea->setVisible(false);
         ui->ctrl_dataEdit->setVisible(true);
@@ -1220,8 +1223,8 @@ void MainWindow::on_ctrl_exportButton_clicked()
             return;
         }
         const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
-        ui->ctrl_dataEdit->setPlainText(tr("# Copy all text in this box and save it to somewhere."));
-        ui->ctrl_dataEdit->appendPlainText(tr("# To import, click the Import button, then paste the text back."));
+        ui->ctrl_dataEdit->setPlainText("# " + tr("Copy all text in this box and save it to somewhere."));
+        ui->ctrl_dataEdit->appendPlainText("# " + tr("To import, click the Import button, then paste the text back."));
         for(auto it = list.begin(); it != list.end(); it++)
             ui->ctrl_dataEdit->appendPlainText((*it)->save());
         ui->ctrl_itemArea->setVisible(false);

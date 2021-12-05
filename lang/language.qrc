@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/lang">
+        <file>SerialTest_zh_CN.qm</file>
+    </qresource>
+</RCC>

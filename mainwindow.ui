@@ -1020,6 +1020,11 @@
             <widget class="QComboBox" name="plot_clearFlagTypeBox">
              <item>
               <property name="text">
+               <string>None</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
                <string>String</string>
               </property>
              </item>

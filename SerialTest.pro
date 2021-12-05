@@ -37,7 +37,7 @@ FORMS += \
     mainwindow.ui
 
 TRANSLATIONS += \
-    SerialTest_zh_CN.ts
+    lang/SerialTest_zh_CN.ts
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -61,3 +61,6 @@ DISTFILES += \
     android/res/values/libs.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+RESOURCES += \
+    lang/language.qrc
