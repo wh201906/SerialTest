@@ -43,6 +43,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
 
     settings = new QSettings("preference.ini", QSettings::IniFormat);
+
+    dockAllWindows = new QAction(tr("Dock all windows"), this);
+    connect(dockAllWindows, &QAction::triggered, [ = ]()
+    {
+        for(int i = 0; i < dockList.size(); i++)
+            dockList[i]->setFloating(false);
+    });
+    contextMenu->addAction(dockAllWindows);
+    contextMenu->addSeparator();
 #endif
     portLabel = new QLabel();
     stateButton = new QPushButton();
@@ -110,11 +119,33 @@ MainWindow::MainWindow(QWidget *parent)
     plotTimeTicker->setTickCount(5);
 
     ui->ctrl_dataEdit->setVisible(false);
+
+    myInfo = new QAction("wh201906", this);
+    currVersion = new QAction(tr("Ver: ") + QApplication::applicationVersion().section('.', 0, -2), this); // ignore the 4th version number
+    checkUpdate = new QAction(tr("Check Update"), this);
+    connect(myInfo, &QAction::triggered, [ = ]()
+    {
+        QDesktopServices::openUrl(QUrl("https://github.com/wh201906"));
+    });
+    connect(checkUpdate, &QAction::triggered, [ = ]()
+    {
+        QDesktopServices::openUrl(QUrl("https://github.com/wh201906/SerialTest/releases"));
+    });
+    contextMenu = new QMenu();
+    contextMenu->addAction(myInfo);
+    currVersion->setEnabled(false);
+    contextMenu->addAction(currVersion);
+    contextMenu->addAction(checkUpdate);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::contextMenuEvent(QContextMenuEvent *event)
+{
+    contextMenu->exec(event->globalPos());
 }
 
 void MainWindow::onStateButtonClicked()

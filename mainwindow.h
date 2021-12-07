@@ -49,6 +49,8 @@ public slots:
     void BTdiscoverFinished();
 #endif
 
+protected:
+    void contextMenuEvent(QContextMenuEvent *event) override;
 private slots:
     void refreshPortsInfo();
 
@@ -169,8 +171,14 @@ private:
     Ui::MainWindow *ui;
     void initUI();
     void stateUpdate();
-    bool IODeviceState;
 
+    QMenu* contextMenu;
+    QAction* dockAllWindows;
+    QAction* myInfo;
+    QAction* currVersion;
+    QAction* checkUpdate;
+
+    bool IODeviceState;
     QIODevice* IODevice;
 
     QScrollBar* RxSlider;

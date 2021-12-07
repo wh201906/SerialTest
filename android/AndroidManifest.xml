@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0"?>
-<manifest package="priv.wh201906.serialtest" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="-- %%INSERT_VERSION_NAME%% --" android:versionCode="-- %%INSERT_VERSION_CODE%% --" android:installLocation="auto">
+<manifest package="priv.wh201906.serialtest" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="V0.1" android:versionCode="10" android:installLocation="auto">
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
          Remove the comment if you do not require these default permissions. -->
     <!-- %%INSERT_PERMISSIONS -->

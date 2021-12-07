@@ -10,106 +10,106 @@
     </message>
     <message>
         <location filename="../controlitem.ui" line="63"/>
-        <location filename="../controlitem.cpp" line="233"/>
+        <location filename="../controlitem.cpp" line="232"/>
         <source>Command</source>
         <translation>命令</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="148"/>
+        <location filename="../controlitem.ui" line="154"/>
         <source>+</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="155"/>
+        <location filename="../controlitem.ui" line="161"/>
         <source>-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="175"/>
+        <location filename="../controlitem.ui" line="181"/>
         <source>Send</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="200"/>
+        <location filename="../controlitem.ui" line="212"/>
         <source>Auto</source>
         <translation>自动发送</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="207"/>
+        <location filename="../controlitem.ui" line="219"/>
         <source>0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="210"/>
+        <location filename="../controlitem.ui" line="222"/>
         <source>min</source>
         <translation>最小值</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="217"/>
+        <location filename="../controlitem.ui" line="229"/>
         <source>100</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="220"/>
+        <location filename="../controlitem.ui" line="232"/>
         <source>max</source>
         <translation>最大值</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="227"/>
+        <location filename="../controlitem.ui" line="239"/>
         <source>1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="230"/>
+        <location filename="../controlitem.ui" line="242"/>
         <source>step</source>
         <translation>步进</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="237"/>
-        <location filename="../controlitem.ui" line="257"/>
-        <location filename="../controlitem.ui" line="295"/>
+        <location filename="../controlitem.ui" line="255"/>
+        <location filename="../controlitem.ui" line="281"/>
+        <location filename="../controlitem.ui" line="325"/>
         <source>Hex</source>
         <translation>16进制</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="244"/>
-        <location filename="../controlitem.ui" line="275"/>
-        <location filename="../controlitem.cpp" line="135"/>
+        <location filename="../controlitem.ui" line="268"/>
+        <location filename="../controlitem.ui" line="299"/>
+        <location filename="../controlitem.cpp" line="133"/>
         <source>Prefix</source>
         <translation>前缀</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="252"/>
-        <location filename="../controlitem.ui" line="290"/>
+        <location filename="../controlitem.ui" line="276"/>
+        <location filename="../controlitem.ui" line="320"/>
         <source>String</source>
         <translation>字符串</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="262"/>
-        <location filename="../controlitem.ui" line="300"/>
+        <location filename="../controlitem.ui" line="286"/>
+        <location filename="../controlitem.ui" line="330"/>
         <source>\r\n</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="267"/>
-        <location filename="../controlitem.ui" line="305"/>
+        <location filename="../controlitem.ui" line="291"/>
+        <location filename="../controlitem.ui" line="335"/>
         <source>\n</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="282"/>
-        <location filename="../controlitem.ui" line="313"/>
-        <location filename="../controlitem.cpp" line="142"/>
+        <location filename="../controlitem.ui" line="312"/>
+        <location filename="../controlitem.ui" line="343"/>
+        <location filename="../controlitem.cpp" line="141"/>
         <source>Suffix</source>
         <translation>后缀</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="333"/>
+        <location filename="../controlitem.ui" line="363"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../controlitem.ui" line="355"/>
+        <location filename="../controlitem.ui" line="385"/>
         <source>&gt;</source>
         <translation></translation>
     </message>
@@ -128,7 +128,7 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="48"/>
-        <location filename="../mainwindow.cpp" line="974"/>
+        <location filename="../mainwindow.cpp" line="1007"/>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
@@ -308,8 +308,8 @@
         <location filename="../mainwindow.ui" line="375"/>
         <location filename="../mainwindow.ui" line="459"/>
         <location filename="../mainwindow.ui" line="1135"/>
-        <location filename="../mainwindow.cpp" line="1218"/>
-        <location filename="../mainwindow.cpp" line="1239"/>
+        <location filename="../mainwindow.cpp" line="1251"/>
+        <location filename="../mainwindow.cpp" line="1272"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
@@ -340,7 +340,7 @@
     <message>
         <location filename="../mainwindow.ui" line="528"/>
         <location filename="../mainwindow.ui" line="582"/>
-        <location filename="../mainwindow.cpp" line="1152"/>
+        <location filename="../mainwindow.cpp" line="1185"/>
         <source>Suffix</source>
         <translation>后缀</translation>
     </message>
@@ -519,244 +519,259 @@
     </message>
     <message>
         <location filename="../mainwindow.ui" line="1128"/>
-        <location filename="../mainwindow.cpp" line="1159"/>
-        <location filename="../mainwindow.cpp" line="1185"/>
+        <location filename="../mainwindow.cpp" line="1192"/>
+        <location filename="../mainwindow.cpp" line="1218"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="40"/>
+        <location filename="../mainwindow.cpp" line="42"/>
         <source>On Top</source>
         <translation>窗口置顶</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="145"/>
-        <location filename="../mainwindow.cpp" line="369"/>
+        <location filename="../mainwindow.cpp" line="47"/>
+        <source>Dock all windows</source>
+        <translation>吸附所有悬浮窗口</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="124"/>
+        <source>Ver: </source>
+        <translation>版本： </translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="125"/>
+        <source>Check Update</source>
+        <translation>检查更新</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="178"/>
+        <location filename="../mainwindow.cpp" line="402"/>
         <source>Cannot open the serial port.</source>
         <translation>无法打开串口。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="168"/>
+        <location filename="../mainwindow.cpp" line="201"/>
         <source>DeviceName</source>
         <translation>设备名</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="169"/>
+        <location filename="../mainwindow.cpp" line="202"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="170"/>
-        <location filename="../mainwindow.cpp" line="172"/>
+        <location filename="../mainwindow.cpp" line="203"/>
+        <location filename="../mainwindow.cpp" line="205"/>
         <source>MAC Address</source>
         <translation>MAC地址</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="190"/>
+        <location filename="../mainwindow.cpp" line="223"/>
         <source>NoFlowControl</source>
         <translation>无流控</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="191"/>
+        <location filename="../mainwindow.cpp" line="224"/>
         <source>HardwareControl</source>
         <translation>软件流控</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="192"/>
+        <location filename="../mainwindow.cpp" line="225"/>
         <source>SoftwareControl</source>
         <translation>硬件流控</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="196"/>
-        <location filename="../mainwindow.cpp" line="392"/>
+        <location filename="../mainwindow.cpp" line="229"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>NoParity</source>
         <translation>无校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="197"/>
-        <location filename="../mainwindow.cpp" line="392"/>
+        <location filename="../mainwindow.cpp" line="230"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>EvenParity</source>
         <translation>偶校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="198"/>
-        <location filename="../mainwindow.cpp" line="392"/>
+        <location filename="../mainwindow.cpp" line="231"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>OddParity</source>
         <translation>奇校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="199"/>
-        <location filename="../mainwindow.cpp" line="392"/>
+        <location filename="../mainwindow.cpp" line="232"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>SpaceParity</source>
         <translation>固定0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="200"/>
-        <location filename="../mainwindow.cpp" line="392"/>
+        <location filename="../mainwindow.cpp" line="233"/>
+        <location filename="../mainwindow.cpp" line="425"/>
         <source>MarkParity</source>
         <translation>固定1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="243"/>
+        <location filename="../mainwindow.cpp" line="276"/>
         <source>Searching...</source>
         <translation>搜索中...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="271"/>
+        <location filename="../mainwindow.cpp" line="304"/>
         <source>Bonded</source>
         <translation>已配对</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="391"/>
+        <location filename="../mainwindow.cpp" line="424"/>
         <source>OneStop</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="391"/>
+        <location filename="../mainwindow.cpp" line="424"/>
         <source>TwoStop</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="391"/>
+        <location filename="../mainwindow.cpp" line="424"/>
         <source>OneAndHalfStop</source>
         <translation>1.5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="395"/>
-        <location filename="../mainwindow.cpp" line="402"/>
+        <location filename="../mainwindow.cpp" line="428"/>
+        <location filename="../mainwindow.cpp" line="435"/>
         <source>BaudRate</source>
         <translation>波特率</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="396"/>
-        <location filename="../mainwindow.cpp" line="403"/>
+        <location filename="../mainwindow.cpp" line="429"/>
+        <location filename="../mainwindow.cpp" line="436"/>
         <source>DataBits</source>
         <translation>数据位</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="397"/>
-        <location filename="../mainwindow.cpp" line="404"/>
+        <location filename="../mainwindow.cpp" line="430"/>
+        <location filename="../mainwindow.cpp" line="437"/>
         <source>StopBits</source>
         <translation>停止位</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="398"/>
-        <location filename="../mainwindow.cpp" line="405"/>
+        <location filename="../mainwindow.cpp" line="431"/>
+        <location filename="../mainwindow.cpp" line="438"/>
         <source>Parity</source>
         <translation>校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="409"/>
-        <location filename="../mainwindow.cpp" line="411"/>
+        <location filename="../mainwindow.cpp" line="442"/>
+        <location filename="../mainwindow.cpp" line="444"/>
         <source>State</source>
         <translation>状态</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="412"/>
+        <location filename="../mainwindow.cpp" line="445"/>
         <source>Port</source>
         <translation>端口</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="413"/>
-        <location filename="../mainwindow.cpp" line="527"/>
-        <location filename="../mainwindow.cpp" line="599"/>
+        <location filename="../mainwindow.cpp" line="446"/>
+        <location filename="../mainwindow.cpp" line="560"/>
+        <location filename="../mainwindow.cpp" line="632"/>
         <source>Rx</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="414"/>
-        <location filename="../mainwindow.cpp" line="606"/>
+        <location filename="../mainwindow.cpp" line="447"/>
+        <location filename="../mainwindow.cpp" line="639"/>
         <source>Tx</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="642"/>
+        <location filename="../mainwindow.cpp" line="675"/>
         <source>Export received data</source>
         <translation>导出已接收数据</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="653"/>
-        <location filename="../mainwindow.cpp" line="671"/>
-        <location filename="../mainwindow.cpp" line="1210"/>
-        <location filename="../mainwindow.cpp" line="1222"/>
-        <location filename="../mainwindow.cpp" line="1244"/>
-        <location filename="../mainwindow.cpp" line="1258"/>
+        <location filename="../mainwindow.cpp" line="686"/>
+        <location filename="../mainwindow.cpp" line="704"/>
+        <location filename="../mainwindow.cpp" line="1243"/>
+        <location filename="../mainwindow.cpp" line="1255"/>
+        <location filename="../mainwindow.cpp" line="1277"/>
+        <location filename="../mainwindow.cpp" line="1291"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="653"/>
-        <location filename="../mainwindow.cpp" line="671"/>
-        <location filename="../mainwindow.cpp" line="1210"/>
-        <location filename="../mainwindow.cpp" line="1258"/>
+        <location filename="../mainwindow.cpp" line="686"/>
+        <location filename="../mainwindow.cpp" line="704"/>
+        <location filename="../mainwindow.cpp" line="1243"/>
+        <location filename="../mainwindow.cpp" line="1291"/>
         <source>Successed!</source>
         <translation>成功！</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="653"/>
-        <location filename="../mainwindow.cpp" line="671"/>
-        <location filename="../mainwindow.cpp" line="1210"/>
-        <location filename="../mainwindow.cpp" line="1258"/>
+        <location filename="../mainwindow.cpp" line="686"/>
+        <location filename="../mainwindow.cpp" line="704"/>
+        <location filename="../mainwindow.cpp" line="1243"/>
+        <location filename="../mainwindow.cpp" line="1291"/>
         <source>Failed!</source>
         <translation>失败！</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="660"/>
+        <location filename="../mainwindow.cpp" line="693"/>
         <source>Export sended data</source>
         <translation>导出已发送数据</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="803"/>
+        <location filename="../mainwindow.cpp" line="836"/>
         <source>Legend:</source>
         <translation>图例：</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="803"/>
+        <location filename="../mainwindow.cpp" line="836"/>
         <source>New graph name:</source>
         <translation>绘图名称：</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="985"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Discovered</source>
         <translation>已发现</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1161"/>
+        <location filename="../mainwindow.cpp" line="1194"/>
         <source>Paste the exported data in the box.</source>
         <oldsource># Paste the exported data in the box.</oldsource>
         <translation>将导出的数据粘贴到此框中。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1165"/>
-        <location filename="../mainwindow.cpp" line="1232"/>
+        <location filename="../mainwindow.cpp" line="1198"/>
+        <location filename="../mainwindow.cpp" line="1265"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1192"/>
+        <location filename="../mainwindow.cpp" line="1225"/>
         <source>Import Control Panel</source>
         <translation>导入控制面板</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1222"/>
-        <location filename="../mainwindow.cpp" line="1244"/>
+        <location filename="../mainwindow.cpp" line="1255"/>
+        <location filename="../mainwindow.cpp" line="1277"/>
         <source>Please add item first</source>
         <translation>请先添加控制项</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1226"/>
+        <location filename="../mainwindow.cpp" line="1259"/>
         <source>Copy all text in this box and save it to somewhere.</source>
         <oldsource># Copy all text in this box and save it to somewhere.</oldsource>
         <translation>将此文本框中的内容复制并保存。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1227"/>
+        <location filename="../mainwindow.cpp" line="1260"/>
         <source>To import, click the Import button, then paste the text back.</source>
         <oldsource># To import, click the Import button, then paste the text back.</oldsource>
         <translation>需要导入时，单击“导入”按钮，将复制的内容粘贴回来即可。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1250"/>
+        <location filename="../mainwindow.cpp" line="1283"/>
         <source>Export Control Panel</source>
         <translation>导出控制面板</translation>
     </message>
