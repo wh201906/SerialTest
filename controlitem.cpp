@@ -33,13 +33,10 @@ void ControlItem::initUI()
     on_minEdit_editingFinished();
     on_maxEdit_editingFinished();
     on_stepEdit_editingFinished();
-    on_prefixBox_stateChanged(ui->prefixBox->checkState());
     on_prefixTypeBox_currentIndexChanged(ui->prefixTypeBox->currentIndex());
-    on_suffixBox_stateChanged(ui->suffixBox->checkState());
     on_suffixTypeBox_currentIndexChanged(ui->suffixTypeBox->currentIndex());
     on_hexBox_stateChanged(ui->hexBox->checkState());
     on_autoBox_stateChanged(ui->autoBox->checkState());
-
 }
 
 ControlItem::~ControlItem()
@@ -111,15 +108,15 @@ void ControlItem::on_confButton_clicked()
 
 void ControlItem::on_prefixBox_stateChanged(int arg1)
 {
-    ui->prefixTypeBox->setVisible(arg1 == Qt::Checked);
-    ui->prefixEdit->setVisible(arg1 == Qt::Checked);
+    Q_UNUSED(arg1)
+    on_prefixTypeBox_currentIndexChanged(ui->prefixTypeBox->currentIndex());
 }
 
 
 void ControlItem::on_suffixBox_stateChanged(int arg1)
 {
-    ui->suffixTypeBox->setVisible(arg1 == Qt::Checked);
-    ui->suffixEdit->setVisible(arg1 == Qt::Checked);
+    Q_UNUSED(arg1)
+    on_suffixTypeBox_currentIndexChanged(ui->suffixTypeBox->currentIndex());
 }
 
 
@@ -131,14 +128,16 @@ void ControlItem::on_deleteButton_clicked()
 
 void ControlItem::on_prefixTypeBox_currentIndexChanged(int index)
 {
-    ui->prefixEdit->setVisible(index != 2 && index != 3);
+    ui->prefixTypeBox->setVisible(ui->prefixBox->isChecked());
+    ui->prefixEdit->setVisible(index != 2 && index != 3 && ui->prefixBox->isChecked());
     ui->prefixEdit->setPlaceholderText(tr("Prefix") + ((index == 1) ? "(Hex)" : ""));
 }
 
 
 void ControlItem::on_suffixTypeBox_currentIndexChanged(int index)
 {
-    ui->suffixEdit->setVisible(index != 2 && index != 3);
+    ui->suffixTypeBox->setVisible(ui->suffixBox->isChecked());
+    ui->suffixEdit->setVisible(index != 2 && index != 3 && ui->suffixBox->isChecked());
     ui->suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
 }
 

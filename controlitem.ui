@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1265</width>
+    <width>1482</width>
     <height>116</height>
    </rect>
   </property>
@@ -87,6 +87,12 @@
          </property>
          <item>
           <widget class="QSlider" name="slider">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -162,7 +168,7 @@
       <item>
        <widget class="QCheckBox" name="checkBox">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -196,6 +202,12 @@
       </property>
       <item>
        <widget class="QCheckBox" name="autoBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Auto</string>
         </property>
@@ -233,6 +245,12 @@
       </item>
       <item>
        <widget class="QCheckBox" name="hexBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Hex</string>
         </property>
@@ -240,6 +258,12 @@
       </item>
       <item>
        <widget class="QCheckBox" name="prefixBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Prefix</string>
         </property>
@@ -278,6 +302,12 @@
       </item>
       <item>
        <widget class="QCheckBox" name="suffixBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Suffix</string>
         </property>

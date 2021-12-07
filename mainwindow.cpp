@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &MainWindow::BTdiscoverFinished);
     connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &MainWindow::BTdiscoverFinished);
 
+    setStyleSheet("QCheckBox::indicator{min-width:15px;min-height:15px;}");
+
 #else
     serialPort = new QSerialPort();
     IODevice = serialPort;
