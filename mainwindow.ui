@@ -240,7 +240,47 @@
              </item>
              <item>
               <property name="text">
+               <string>76800</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
                <string>115200</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>128000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>230400</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>256000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>460800</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>512000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>576000</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>921600</string>
               </property>
              </item>
             </widget>
@@ -1154,7 +1194,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1051</width>
+             <width>1047</width>
              <height>286</height>
             </rect>
            </property>

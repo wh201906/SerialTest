@@ -1,13 +1,12 @@
 ## Previews
 
+[中文](previews_zh_CN.md)  
+
 Plot with screen clean:  
-带清屏功能的绘图：  
-![plot_cls](plot_cls_zh_CN.gif)  
+![plot_cls](plot_cls.gif)  
 
 Realtime plot:  
-跟踪最新数据点：  
-![plot_realtime](plot_realtime_zh_CN.gif)  
+![plot_realtime](plot_realtime.gif)  
 
 Dock Widget:  
-可拆分子窗口：  
-![dock1](dock_zh_CN.png)  
+![dock1](dock.png)  

@@ -350,7 +350,7 @@ void MainWindow::on_portTable_cellClicked(int row, int column)
     {
         if(*it == id)
         {
-            loadPreference(id);
+            loadPortPreference(id);
             break;
         }
     }
@@ -363,7 +363,7 @@ void MainWindow::on_portTable_cellClicked(int row, int column)
     {
         if(*it == id)
         {
-            loadPreference(id);
+            loadPortPreference(id);
             break;
         }
     }
@@ -404,7 +404,7 @@ void MainWindow::on_openButton_clicked()
         return;
     }
     onIODeviceConnected();
-    savePreference(serialPort->portName());
+    savePortPreference(serialPort->portName());
 #endif
 }
 
@@ -677,12 +677,17 @@ void MainWindow::on_receivedExportButton_clicked()
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
-    flag &= file.open(QFile::WriteOnly | QFile::Text);
     selection = ui->receivedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
     if(selection.isEmpty())
-        flag &= file.write(ui->receivedEdit->toPlainText().toUtf8()) != -1;
+    {
+        flag &= file.open(QFile::WriteOnly);
+        flag &= file.write(*rawReceivedData) != -1;
+    }
     else
+    {
+        flag &= file.open(QFile::WriteOnly | QFile::Text);
         flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+    }
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 }
@@ -695,12 +700,17 @@ void MainWindow::on_sendedExportButton_clicked()
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
-    flag &= file.open(QFile::WriteOnly | QFile::Text);
     selection = ui->sendedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
     if(selection.isEmpty())
-        flag &= file.write(ui->sendedEdit->toPlainText().toUtf8()) != -1;
+    {
+        flag &= file.open(QFile::WriteOnly);
+        flag &= file.write(*rawSendedData) != -1;
+    }
     else
+    {
+        flag &= file.open(QFile::WriteOnly | QFile::Text);
         flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+    }
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 }
@@ -735,7 +745,7 @@ void MainWindow::updateRxUI()
         {
             hasData = true;
             dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
-            qDebug() << dataList;
+            // qDebug() << dataList;
             plotBuf->remove(0, i + plotFrameSeparator.length());
             plotCounter++;
             if(!plotClearFlag.isEmpty() && dataList[0] == plotClearFlag)
@@ -1083,7 +1093,7 @@ void MainWindow::onSerialErrorOccurred(QSerialPort::SerialPortError error)
 
 }
 
-void MainWindow::savePreference(const QString& portName)
+void MainWindow::savePortPreference(const QString& portName)
 {
     QSerialPortInfo info(portName);
     QString id;
@@ -1100,7 +1110,7 @@ void MainWindow::savePreference(const QString& portName)
     settings->endGroup();
 }
 
-void MainWindow::loadPreference(const QString& id)
+void MainWindow::loadPortPreference(const QString& id)
 {
     settings->beginGroup(id);
     ui->baudRateBox->setEditText(settings->value("BaudRate").toString());

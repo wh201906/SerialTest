@@ -245,8 +245,8 @@ private:
     QSettings* settings;
 
     void dockInit();
-    void loadPreference(const QString &id);
-    void savePreference(const QString &portName);
+    void loadPortPreference(const QString &id);
+    void savePortPreference(const QString &portName);
 
     QLabel* baudRateLabel;
     QLabel* dataBitsLabel;
