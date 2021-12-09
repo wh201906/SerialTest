@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    contextMenu = new QMenu();
 #ifdef Q_OS_ANDROID
     BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
     IODevice = BTSocket;
@@ -131,7 +132,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         QDesktopServices::openUrl(QUrl("https://github.com/wh201906/SerialTest/releases"));
     });
-    contextMenu = new QMenu();
+
     contextMenu->addAction(myInfo);
     currVersion->setEnabled(false);
     contextMenu->addAction(currVersion);
@@ -158,7 +159,7 @@ void MainWindow::onStateButtonClicked()
 #endif
     if(portName.isEmpty())
     {
-        QMessageBox::warning(this, "Error", "Plz connect to a port first");
+        QMessageBox::warning(this, "Error", tr("Plz connect to a port first."));
         return;
     }
     if(IODeviceState)
