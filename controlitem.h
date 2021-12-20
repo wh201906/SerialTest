@@ -26,6 +26,7 @@ public:
 
     bool load(QString& data);
     QString save();
+    void setCodecPtr(QTextCodec* codec);
 private slots:
     void on_slider_valueChanged(int value);
 
@@ -65,6 +66,7 @@ private:
 
     void initUI();
     const QString dataSplitter = "||,,||";
+    QTextCodec* dataCodec;
 signals:
     void send(QByteArray&);
 

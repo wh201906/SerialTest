@@ -137,6 +137,8 @@ MainWindow::MainWindow(QWidget *parent)
     currVersion->setEnabled(false);
     contextMenu->addAction(currVersion);
     contextMenu->addAction(checkUpdate);
+
+    on_data_encodingSetButton_clicked();
 }
 
 MainWindow::~MainWindow()
@@ -488,7 +490,8 @@ void MainWindow::syncReceivedEditWithData()
     if(isReceivedDataHex)
         ui->receivedEdit->setPlainText(rawReceivedData->toHex(' ') + ' ');
     else
-        ui->receivedEdit->setPlainText(*rawReceivedData);
+        // sync, use QTextCodec
+        ui->receivedEdit->setPlainText(dataCodec->toUnicode(*rawReceivedData));
     RxSlider->blockSignals(false);
 //    qDebug() << toHEX(*rawReceivedData);
 }
@@ -498,7 +501,7 @@ void MainWindow::syncSendedEditWithData()
     if(isSendedDataHex)
         ui->sendedEdit->setPlainText(rawSendedData->toHex(' ') + ' ');
     else
-        ui->sendedEdit->setPlainText(*rawSendedData);
+        ui->sendedEdit->setPlainText(dataCodec->toUnicode(*rawSendedData));
 }
 
 // TODO:
@@ -535,7 +538,8 @@ void MainWindow::appendReceivedData(QByteArray& data)
         }
     }
     else
-        ui->receivedEdit->insertPlainText(data);
+        // append, use QTextDecoder
+        ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data));
     if(chopped)
         data.append('\r'); // undo data.chop(1);
     ui->receivedEdit->textCursor().setPosition(cursorPos);
@@ -569,11 +573,11 @@ void MainWindow::on_sendButton_clicked()
     if(isSendedDataHex)
         data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
     else
-        data = ui->sendEdit->text().toLatin1();
+        data = dataCodec->fromUnicode(ui->sendEdit->text());
     if(ui->data_suffixBox->isChecked())
     {
         if(ui->data_suffixTypeBox->currentIndex() == 0)
-            data += ui->data_suffixEdit->text().toLatin1();
+            data += dataCodec->fromUnicode(ui->data_suffixEdit->text());
         else if(ui->data_suffixTypeBox->currentIndex() == 1)
             data += QByteArray::fromHex(ui->data_suffixEdit->text().toLatin1());
         else if(ui->data_suffixTypeBox->currentIndex() == 2)
@@ -728,6 +732,9 @@ void MainWindow::onXAxisChangedByUser(const QCPRange &newRange)
     plotXAxisWidth = newRange.size();
 }
 
+
+// TODO:
+// use the same RxDecoder for edit/plot
 void MainWindow::updateRxUI()
 {
     double currKey;
@@ -1144,6 +1151,7 @@ void MainWindow::on_ctrl_addCMDButton_clicked()
     ControlItem* c = new ControlItem(ControlItem::Command);
     connect(c, &ControlItem::send, this, &MainWindow::sendData);
     connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
+    c->setCodecPtr(dataCodec);
     p->insertWidget(ctrlItemCount++, c);
 }
 
@@ -1316,5 +1324,29 @@ void MainWindow::on_plot_scatterBox_stateChanged(int arg1)
         for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
             ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
     }
+}
+
+
+void MainWindow::on_data_encodingSetButton_clicked()
+{
+    QTextCodec* newCodec;
+    QComboBox* box;
+    box = ui->data_encodingNameBox;
+    newCodec = QTextCodec::codecForName(box->currentText().toLatin1());
+    if(newCodec != nullptr)
+    {
+        if(box->itemText(box->currentIndex()) == box->currentText()) // existing text
+            dataEncodingId = box->currentIndex();
+        if(RxDecoder != nullptr)
+            delete RxDecoder;
+        dataCodec = newCodec;
+        RxDecoder = dataCodec->makeDecoder(); // clear state machine
+    }
+    else
+    {
+        QMessageBox::information(this, tr("Info"), ui->data_encodingNameBox->currentText() + " " + tr("is not a valid encoding."));
+        box->setCurrentIndex(dataEncodingId);
+    }
+
 }
 

@@ -1,6 +1,8 @@
 ﻿#include "controlitem.h"
 #include "ui_controlitem.h"
 
+#include <QTextCodec>
+
 ControlItem::ControlItem(Type type, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ControlItem)
@@ -166,7 +168,7 @@ void ControlItem::on_sendButton_clicked()
     if(ui->prefixBox->isChecked())
     {
         if(ui->prefixTypeBox->currentIndex() == 0)
-            data = ui->prefixEdit->text().toLatin1();
+            data = dataCodec->fromUnicode(ui->prefixEdit->text());
         else if(ui->prefixTypeBox->currentIndex() == 1)
             data = QByteArray::fromHex(ui->prefixEdit->text().toLatin1());
         else if(ui->prefixTypeBox->currentIndex() == 2)
@@ -180,26 +182,27 @@ void ControlItem::on_sendButton_clicked()
         if(ui->hexBox->isChecked())
             data = QByteArray::fromHex(ui->CMDEdit->text().toLatin1());
         else
-            data = ui->CMDEdit->text().toLatin1();
+            data = dataCodec->fromUnicode(ui->CMDEdit->text());
     }
     else if(type == Slider)
     {
-        data += QString::number(ui->slider->value()).toLatin1();
+        data += dataCodec->fromUnicode(QString::number(ui->slider->value()));
     }
     else if(type == CheckBox)
     {
-        data += ui->checkBox->isChecked() ? "1" : "0";
+        data += dataCodec->fromUnicode(ui->checkBox->isChecked() ? "1" : "0");
     }
     else if(type == SpinBox)
     {
-        data += QString::number(ui->spinBox->value()).toLatin1();
+        data += dataCodec->fromUnicode(QString::number(ui->spinBox->value()));
     }
 
 
     if(ui->suffixBox->isChecked())
     {
         if(ui->suffixTypeBox->currentIndex() == 0)
-            data += ui->suffixEdit->text().toLatin1();
+
+            data += dataCodec->fromUnicode(ui->suffixEdit->text());
         else if(ui->suffixTypeBox->currentIndex() == 1)
             data += QByteArray::fromHex(ui->suffixEdit->text().toLatin1());
         else if(ui->suffixTypeBox->currentIndex() == 2)
@@ -304,4 +307,9 @@ QString ControlItem::save()
     else if(type == SpinBox)
         data += QString::number(ui->spinBox->value());
     return data;
+}
+
+void ControlItem::setCodecPtr(QTextCodec *codec)
+{
+    this->dataCodec = codec;
 }

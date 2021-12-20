@@ -167,6 +167,8 @@ private slots:
 
     void on_plot_clearFlagEdit_editingFinished();
 
+    void on_data_encodingSetButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     void initUI();
@@ -189,6 +191,10 @@ private:
     QPushButton* stateButton;
     QLabel* TxLabel;
     QLabel* RxLabel;
+
+    int dataEncodingId = 0;
+    QTextCodec* dataCodec = nullptr; // for Tx and generating Rx decoder
+    QTextDecoder* RxDecoder = nullptr; // for Rx UI, a multi-byte character might be split.
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
