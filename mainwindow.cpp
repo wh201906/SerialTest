@@ -30,6 +30,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     setStyleSheet("QCheckBox::indicator{min-width:15px;min-height:15px;}");
 
+    // on Android, use default.
+    settings = new QSettings("wh201906", "SerialTest");
+
 #else
     serialPort = new QSerialPort();
     IODevice = serialPort;
@@ -43,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     onTopBox = new QCheckBox(tr("On Top"));
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
 
+    // on PC, store preferences in files for portable use
     settings = new QSettings("preference.ini", QSettings::IniFormat);
 
     dockAllWindows = new QAction(tr("Dock all windows"), this);
@@ -88,6 +92,33 @@ MainWindow::MainWindow(QWidget *parent)
 
     refreshPortsInfo();
     initUI();
+    loadPreference();
+    connect(ui->plot_enaBox, &QCheckBox::clicked, this, &MainWindow::savePlotPreference);
+    connect(ui->plot_latestBox, &QCheckBox::clicked, this, &MainWindow::savePlotPreference);
+    connect(ui->plot_XTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::savePlotPreference);
+    connect(ui->plot_dataNumBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::savePlotPreference);
+    connect(ui->plot_legendCheckBox, &QCheckBox::clicked, this, &MainWindow::savePlotPreference);
+    connect(ui->plot_tracerCheckBox, &QCheckBox::clicked, this, &MainWindow::savePlotPreference);
+    connect(ui->plot_frameSpTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::savePlotPreference);
+    connect(ui->plot_frameSpEdit, &QLineEdit::editingFinished, this, &MainWindow::savePlotPreference);
+    connect(ui->plot_dataSpTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::savePlotPreference);
+    connect(ui->plot_dataSpEdit, &QLineEdit::editingFinished, this, &MainWindow::savePlotPreference);
+    connect(ui->plot_clearFlagTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::savePlotPreference);
+    connect(ui->plot_clearFlagEdit, &QLineEdit::editingFinished, this, &MainWindow::savePlotPreference);
+    connect(ui->plot_scatterBox, &QCheckBox::clicked, this, &MainWindow::savePlotPreference);
+
+    connect(ui->receivedHexBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
+    connect(ui->receivedLatestBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
+    connect(ui->receivedRealtimeBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
+    connect(ui->sendedHexBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
+    connect(ui->data_suffixBox, &QGroupBox::clicked, this, &MainWindow::saveDataPreference);
+    connect(ui->data_suffixTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::saveDataPreference);
+    connect(ui->data_suffixEdit, &QLineEdit::editingFinished, this, &MainWindow::saveDataPreference);
+    connect(ui->data_repeatCheckBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
+    connect(ui->repeatDelayEdit, &QLineEdit::editingFinished, this, &MainWindow::saveDataPreference);
+    connect(ui->data_flowDTRBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
+    connect(ui->data_flowRTSBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
+
 
     ui->qcpWidget->axisRect()->setupFullAxesBox(true);
     ui->qcpWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectLegend | QCP::iSelectPlottables);
@@ -593,7 +624,7 @@ void MainWindow::sendData(QByteArray& data)
 {
     if(!IODeviceState)
     {
-        QMessageBox::warning(this, "Error", "No port is opened.");
+        QMessageBox::warning(this, tr("Error"), tr("No port is opened."));
         ui->data_repeatCheckBox->setCheckState(Qt::Unchecked);
         return;
     }
@@ -1135,7 +1166,6 @@ void MainWindow::on_data_flowDTRBox_clicked(bool checked)
         port->setDataTerminalReady(checked);
 }
 
-
 void MainWindow::on_data_flowRTSBox_clicked(bool checked)
 {
     QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
@@ -1143,6 +1173,87 @@ void MainWindow::on_data_flowRTSBox_clicked(bool checked)
         port->setRequestToSend(checked);
 }
 #endif
+
+void MainWindow::saveDataPreference()
+{
+    settings->beginGroup("SerialTest_Data");
+    settings->setValue("Recv_Hex", ui->receivedHexBox->isChecked());
+    settings->setValue("Recv_Latest", ui->receivedLatestBox->isChecked());
+    settings->setValue("Recv_Realtime", ui->receivedRealtimeBox->isChecked());
+    settings->setValue("Send_Hex", ui->sendedHexBox->isChecked());
+    settings->setValue("Suffix_Enabled", ui->data_suffixBox->isChecked());
+    settings->setValue("Suffix_Type", ui->data_suffixTypeBox->currentIndex());
+    settings->setValue("Suffix_Context", ui->data_suffixEdit->text());
+    settings->setValue("Repeat_Enabled", ui->data_repeatCheckBox->isChecked());
+    settings->setValue("Repeat_Delay", ui->repeatDelayEdit->text());
+    settings->setValue("Flow_DTR", ui->data_flowDTRBox->isChecked());
+    settings->setValue("Flow_RTS", ui->data_flowRTSBox->isChecked());
+    //Encoding_Name will not be saved there, because it need to be verified
+    settings->endGroup();
+
+}
+
+void MainWindow::savePlotPreference()
+{
+    settings->beginGroup("SerialTest_Plot");
+    settings->setValue("Enabled", ui->plot_enaBox->isChecked());
+    settings->setValue("Latest", ui->plot_latestBox->isChecked());
+    settings->setValue("XType", ui->plot_XTypeBox->currentIndex());
+    settings->setValue("DataNum", ui->plot_dataNumBox->value());
+    settings->setValue("Legend", ui->plot_legendCheckBox->isChecked());
+    settings->setValue("Tracer", ui->plot_tracerCheckBox->isChecked());
+    settings->setValue("FrameSp_Type", ui->plot_frameSpTypeBox->currentIndex());
+    settings->setValue("FrameSp_Context", ui->plot_frameSpEdit->text());
+    settings->setValue("DataSp_Type", ui->plot_dataSpTypeBox->currentIndex());
+    settings->setValue("DataSp_Context", ui->plot_dataSpEdit->text());
+    settings->setValue("ClearF_Type", ui->plot_clearFlagTypeBox->currentIndex());
+    settings->setValue("ClearF_Context", ui->plot_clearFlagEdit->text());
+    settings->setValue("Scatter", ui->plot_scatterBox->isChecked());
+    settings->endGroup();
+}
+
+// settings->setValue\((.+), ui->(.+)->currentIndex.+
+// ui->$2->setCurrentIndex(settings->value($1).toInt());
+// settings->setValue\((.+), ui->(.+)->text.+
+// ui->$2->setText(settings->value($1).toString());
+
+void MainWindow::loadPreference()
+{
+    // default preferences are defined there
+    settings->beginGroup("SerialTest_Data");
+    ui->receivedHexBox->setChecked(settings->value("Recv_Hex", false).toBool());
+    ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", false).toBool());
+    ui->receivedRealtimeBox->setChecked(settings->value("Recv_Realtime", true).toBool());
+    ui->sendedHexBox->setChecked(settings->value("Send_Hex", false).toBool());
+    ui->data_suffixBox->setChecked(settings->value("Suffix_Enabled", false).toBool());
+    ui->data_suffixTypeBox->setCurrentIndex(settings->value("Suffix_Type", 2).toInt());
+    ui->data_suffixEdit->setText(settings->value("Suffix_Context", "").toString());
+    on_data_suffixTypeBox_currentIndexChanged(ui->data_suffixTypeBox->currentIndex());
+    ui->data_repeatCheckBox->setChecked(settings->value("Repeat_Enabled", false).toBool());
+    ui->repeatDelayEdit->setText(settings->value("Repeat_Delay", 1000).toString());
+    ui->data_flowDTRBox->setChecked(settings->value("Flow_DTR", false).toBool());
+    ui->data_flowRTSBox->setChecked(settings->value("Flow_RTS", false).toBool());
+    ui->data_encodingNameBox->setCurrentText(settings->value("Encoding_Name", "UTF-8").toString());
+    settings->endGroup();
+    settings->beginGroup("SerialTest_Plot");
+    ui->plot_enaBox->setChecked(settings->value("Enabled", false).toBool());
+    ui->plot_latestBox->setChecked(settings->value("Latest", false).toBool());
+    ui->plot_XTypeBox->setCurrentIndex(settings->value("XType", 0).toInt());
+    ui->plot_dataNumBox->setValue(settings->value("DataNum", 1).toInt());
+    ui->plot_legendCheckBox->setChecked(settings->value("Legend", false).toBool());
+    ui->plot_tracerCheckBox->setChecked(settings->value("Tracer", false).toBool());
+    ui->plot_frameSpTypeBox->setCurrentIndex(settings->value("FrameSp_Type", 3).toInt());
+    ui->plot_frameSpEdit->setText(settings->value("FrameSp_Context", "").toString());
+    ui->plot_dataSpTypeBox->setCurrentIndex(settings->value("DataSp_Type", 0).toInt());
+    ui->plot_dataSpEdit->setText(settings->value("DataSp_Context", ",").toString());
+    ui->plot_clearFlagTypeBox->setCurrentIndex(settings->value("ClearF_Type", 1).toInt());
+    ui->plot_clearFlagEdit->setText(settings->value("ClearF_Context", "cls").toString());
+    on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
+    on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
+    on_plot_clearFlagTypeBox_currentIndexChanged(ui->plot_clearFlagTypeBox->currentIndex());
+    ui->plot_scatterBox->setChecked(settings->value("Scatter", false).toBool());
+    settings->endGroup();
+}
 
 
 void MainWindow::on_ctrl_addCMDButton_clicked()
@@ -1341,6 +1452,9 @@ void MainWindow::on_data_encodingSetButton_clicked()
             delete RxDecoder;
         dataCodec = newCodec;
         RxDecoder = dataCodec->makeDecoder(); // clear state machine
+        settings->beginGroup("SerialTest_Data");
+        settings->setValue("Encoding_Name", ui->data_encodingNameBox->currentText());
+        settings->endGroup();
     }
     else
     {

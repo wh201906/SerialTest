@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">
@@ -668,11 +668,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="repeatDelayEdit">
-               <property name="text">
-                <string>1000</string>
-               </property>
-              </widget>
+              <widget class="QLineEdit" name="repeatDelayEdit"/>
              </item>
              <item>
               <widget class="QLabel" name="data_repeatLabel">
@@ -733,6 +729,12 @@
               <spacer name="horizontalSpacer_9">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
                </property>
               </spacer>
              </item>
@@ -1026,9 +1028,6 @@
            </item>
            <item>
             <widget class="QComboBox" name="plot_frameSpTypeBox">
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
              <item>
               <property name="text">
                <string>String</string>
@@ -1052,11 +1051,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="plot_frameSpEdit">
-             <property name="text">
-              <string>&gt;</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="plot_frameSpEdit"/>
            </item>
            <item>
             <widget class="QLabel" name="label_9">
@@ -1091,9 +1086,6 @@
            </item>
            <item>
             <widget class="QLineEdit" name="plot_dataSpEdit">
-             <property name="text">
-              <string>,</string>
-             </property>
              <property name="maxLength">
               <number>1</number>
              </property>
@@ -1126,11 +1118,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="plot_clearFlagEdit">
-             <property name="text">
-              <string>cls</string>
-             </property>
-            </widget>
+            <widget class="QLineEdit" name="plot_clearFlagEdit"/>
            </item>
            <item>
             <widget class="QCheckBox" name="plot_scatterBox">
@@ -1245,7 +1233,7 @@
              <x>0</x>
              <y>0</y>
              <width>1140</width>
-             <height>362</height>
+             <height>286</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">

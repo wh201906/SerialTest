@@ -169,6 +169,8 @@ private slots:
 
     void on_data_encodingSetButton_clicked();
 
+    void savePlotPreference();
+    void saveDataPreference();
 private:
     Ui::MainWindow *ui;
     void initUI();
@@ -248,7 +250,7 @@ private:
     QSerialPortInfo* serialPortInfo;
 
     QList<QDockWidget*> dockList;
-    QSettings* settings;
+
 
     void dockInit();
     void loadPortPreference(const QString &id);
@@ -261,7 +263,9 @@ private:
     QCheckBox* onTopBox;
 
 #endif
+    QSettings* settings;
 
     void updateTracer(double x);
+    void loadPreference();
 };
 #endif // MAINWINDOW_H
