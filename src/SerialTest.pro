@@ -24,6 +24,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     mycustomplot.cpp \
+    mysettings.cpp \
     plottab.cpp \
     qcustomplot.cpp
 
@@ -31,6 +32,7 @@ HEADERS += \
     controlitem.h \
     mainwindow.h \
     mycustomplot.h \
+    mysettings.h \
     plottab.h \
     qcustomplot.h
 
