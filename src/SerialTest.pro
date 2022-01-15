@@ -24,20 +24,23 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     mycustomplot.cpp \
+    plottab.cpp \
     qcustomplot.cpp
 
 HEADERS += \
     controlitem.h \
     mainwindow.h \
     mycustomplot.h \
+    plottab.h \
     qcustomplot.h
 
 FORMS += \
-    controlitem.ui \
-    mainwindow.ui
+    ui/controlitem.ui \
+    ui/mainwindow.ui \
+    ui/plottab.ui
 
 TRANSLATIONS += \
-    lang/SerialTest_zh_CN.ts
+    i18n/SerialTest_zh_CN.ts
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -63,4 +66,4 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 RESOURCES += \
-    lang/language.qrc
+    i18n/language.qrc
