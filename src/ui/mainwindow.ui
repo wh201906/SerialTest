@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="funcTab">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="portsTab">
        <attribute name="title">

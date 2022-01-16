@@ -1,0 +1,352 @@
+<ui version="4.0">
+ <author />
+ <comment />
+ <exportmacro />
+ <class>PlotTab</class>
+ <widget class="QWidget" name="PlotTab">
+  <attribute name="title">
+   <string>Plot</string>
+  </attribute>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="leftMargin">
+    <number>2</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
+   </property>
+   <item>
+    <widget class="MyCustomPlot" name="qcpWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QCheckBox" name="plot_enaBox">
+       <property name="text">
+        <string>Enable</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="plot_latestBox">
+       <property name="text">
+        <string>Show latest</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="plot_clearButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>X Axis:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="plot_XTypeBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <item>
+        <property name="text">
+         <string>Count</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>First data</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Time</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Data Num:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="plot_dataNumBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="plot_legendCheckBox">
+       <property name="text">
+        <string>Legend</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="plot_fitXButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Fit X</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="plot_fitYButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>1</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Fit Y</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="plot_advancedBox">
+       <property name="text">
+        <string>Advanced</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="plot_tracerCheckBox">
+       <property name="text">
+        <string>Tracer</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="plot_advancedWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_11">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Frame spliter:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="plot_frameSpTypeBox">
+        <item>
+         <property name="text">
+          <string>String</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hex</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>\r\n</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>\n</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="plot_frameSpEdit" />
+      </item>
+      <item>
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Data Spliter:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="plot_dataSpTypeBox">
+        <item>
+         <property name="text">
+          <string>String</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hex</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>\r\n</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>\n</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="plot_dataSpEdit">
+        <property name="maxLength">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Clear:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="plot_clearFlagTypeBox">
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>String</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hex</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="plot_clearFlagEdit" />
+      </item>
+      <item>
+       <widget class="QCheckBox" name="plot_scatterBox">
+        <property name="text">
+         <string>Scatter</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <pixmapfunction />
+ <connections />
+</ui>

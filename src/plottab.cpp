@@ -1,0 +1,450 @@
+﻿#include "plottab.h"
+#include "ui_plottab.h"
+
+PlotTab::PlotTab(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::PlotTab)
+{
+    ui->setupUi(this);
+
+    initSettings();
+    initQCP();
+    on_plot_advancedBox_stateChanged(Qt::Unchecked); // hide
+}
+
+PlotTab::~PlotTab()
+{
+    delete ui;
+}
+
+void PlotTab::initSettings()
+{
+    settings = MySettings::defaultSettings();
+    loadPreference();
+
+    connect(ui->plot_enaBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_latestBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_XTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
+    connect(ui->plot_dataNumBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &PlotTab::savePlotPreference);
+    connect(ui->plot_legendCheckBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_tracerCheckBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_frameSpTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
+    connect(ui->plot_frameSpEdit, &QLineEdit::editingFinished, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_dataSpTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
+    connect(ui->plot_dataSpEdit, &QLineEdit::editingFinished, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_clearFlagTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
+    connect(ui->plot_clearFlagEdit, &QLineEdit::editingFinished, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_scatterBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
+
+}
+
+void PlotTab::initQCP()
+{
+    // init
+    plotBuf = new QString();
+    plotTracer = new QCPItemTracer(ui->qcpWidget);
+    plotText = new QCPItemText(ui->qcpWidget);
+    plotDefaultTicker = ui->qcpWidget->xAxis->ticker();
+    plotTime = QTime::currentTime();
+    plotCounter = 0;
+    plotXAxisWidth = ui->qcpWidget->xAxis->range().size();
+    plotTimeTicker->setTimeFormat("%h:%m:%s.%z");
+    plotTimeTicker->setTickCount(5);
+
+    // appearance
+    ui->qcpWidget->axisRect()->setupFullAxesBox(true);
+    ui->qcpWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectLegend | QCP::iSelectPlottables);
+    ui->qcpWidget->legend->setSelectableParts(QCPLegend::spItems);
+    plotTracer->setStyle(QCPItemTracer::tsCrosshair);
+    plotTracer->setBrush(Qt::red);
+    plotTracer->setInterpolating(false);
+    plotTracer->setVisible(false);
+    plotTracer->setGraph(ui->qcpWidget->graph(plotSelectedId));
+    plotText->setPositionAlignment(Qt::AlignTop | Qt::AlignLeft);
+    plotText->setTextAlignment(Qt::AlignLeft);
+    plotText->position->setType(QCPItemPosition::ptAxisRectRatio);
+    plotText->position->setCoords(0.01, 0.01);
+    plotText->setPen(QPen(Qt::black));
+    plotText->setPadding(QMargins(2, 2, 2, 2));
+    plotText->setVisible(false);
+    plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(ui->qcpWidget->graph(plotSelectedId))->plottable()->name();
+    ui->qcpWidget->replot();
+
+    // connect
+    connect(ui->qcpWidget, &QCustomPlot::selectionChangedByUser, this, &PlotTab::onQCPSelectionChanged);
+    connect(ui->qcpWidget->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, &PlotTab::onXAxisChangedByUser);
+    connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &PlotTab::onQCPLegendDoubleClick);
+    connect(ui->qcpWidget, &QCustomPlot::axisDoubleClick, this, &PlotTab::onQCPAxisDoubleClick);
+}
+
+void PlotTab::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
+{
+    // Rename a graph by double clicking on its legend item
+    Q_UNUSED(legend)
+    if(item)  // only react if item was clicked (user could have clicked on border padding of legend where there is no item, then item is 0)
+    {
+        QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
+        bool ok;
+        QString newName = QInputDialog::getText(this, tr("Legend:"), tr("New graph name:"), QLineEdit::Normal, plItem->plottable()->name(), &ok);
+        if(ok)
+        {
+            plItem->plottable()->setName(newName);
+            ui->qcpWidget->replot();
+        }
+    }
+}
+
+void PlotTab::onQCPAxisDoubleClick(QCPAxis *axis)
+{
+    if(axis == ui->qcpWidget->xAxis)
+        on_plot_fitXButton_clicked();
+    else if(axis == ui->qcpWidget->yAxis)
+        on_plot_fitYButton_clicked();
+}
+
+void PlotTab::onQCPMouseMoved(QMouseEvent *event)
+{
+    if(ui->plot_tracerCheckBox->isChecked())
+    {
+        qDebug() << event->pos();
+        double x = ui->qcpWidget->xAxis->pixelToCoord(event->pos().x());
+        updateTracer(x);
+    }
+}
+
+void PlotTab::on_plot_dataNumBox_valueChanged(int arg1)
+{
+    if(ui->plot_XTypeBox->currentIndex() == 1) // use first data as X
+        arg1--;
+    int delta = arg1 - ui->qcpWidget->graphCount();
+    QCPGraph* currGraph;
+    if(delta > 0)
+    {
+        for(int i = 0; i < delta; i++)
+        {
+            QRandomGenerator* randGen = QRandomGenerator::global();
+            currGraph = ui->qcpWidget->addGraph();
+            currGraph->setPen(QColor(randGen->bounded(10, 235), randGen->bounded(10, 235), randGen->bounded(10, 235)));
+            currGraph->setSelectable(QCP::stWhole);
+        }
+    }
+    else if(delta < 0)
+    {
+        delta = -delta;
+        for(int i = 0; i < delta; i++)
+            ui->qcpWidget->removeGraph(ui->qcpWidget->graphCount() - 1);
+    }
+}
+
+void PlotTab::on_plot_clearButton_clicked()
+{
+    int num;
+    plotCounter = 0;
+    plotTime = QTime::currentTime();
+    num = ui->qcpWidget->graphCount();
+    for(int i = 0; i < num; i++)
+        ui->qcpWidget->graph(i)->data()->clear(); // use data()->clear() rather than data().clear()
+    plotBuf->clear();
+    ui->qcpWidget->replot();
+}
+
+void PlotTab::on_plot_legendCheckBox_stateChanged(int arg1)
+{
+    ui->qcpWidget->legend->setVisible(arg1 == Qt::Checked);
+    ui->qcpWidget->replot();
+}
+
+void PlotTab::on_plot_advancedBox_stateChanged(int arg1)
+{
+    ui->plot_advancedWidget->setVisible(arg1 == Qt::Checked);
+}
+
+void PlotTab::updateTracer(double x)
+{
+    plotTracer->setGraphKey(x);
+    plotTracer->updatePosition();
+
+    double xValue = plotTracer->position->key();
+    double yValue = plotTracer->position->value();
+    plotText->setText((plotSelectedName + "\n%2, %3").arg(xValue).arg(yValue));
+    ui->qcpWidget->replot();
+}
+
+void PlotTab::on_plot_tracerCheckBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::Checked)
+    {
+        connect(ui->qcpWidget, &QCustomPlot::mouseMove, this, &PlotTab::onQCPMouseMoved);
+        plotTracer->setVisible(true);
+        plotText->setVisible(true);
+    }
+    else
+    {
+        disconnect(ui->qcpWidget, &QCustomPlot::mouseMove, this, &PlotTab::onQCPMouseMoved);
+        plotTracer->setVisible(false);
+        plotText->setVisible(false);
+    }
+    ui->qcpWidget->replot();
+}
+
+void PlotTab::on_plot_fitXButton_clicked()
+{
+    ui->qcpWidget->xAxis->rescale(true);
+    ui->qcpWidget->replot();
+}
+
+void PlotTab::on_plot_fitYButton_clicked()
+{
+    ui->qcpWidget->yAxis->rescale(true);
+    ui->qcpWidget->replot();
+}
+
+void PlotTab::onQCPSelectionChanged()
+{
+    // Copied from official interaction demo
+    // A legendItem and a plottable cannot be both selected by user.
+    // synchronize selection of graphs with selection of corresponding legend items:
+    QCPGraph *graph;
+    for(int i = 0; i < ui->qcpWidget->graphCount(); ++i)
+    {
+        graph = ui->qcpWidget->graph(i);
+        QCPPlottableLegendItem *item = ui->qcpWidget->legend->itemWithPlottable(graph);
+        if(item->selected() || graph->selected())
+        {
+            plotSelectedId = i;
+            item->setSelected(true);
+            graph->setSelection(QCPDataSelection(graph->data()->dataRange()));
+        }
+    }
+    graph = ui->qcpWidget->graph(plotSelectedId);
+    plotTracer->setGraph(graph);
+    plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(graph)->plottable()->name();
+}
+
+void PlotTab::on_plot_frameSpTypeBox_currentIndexChanged(int index)
+{
+    ui->plot_frameSpEdit->setVisible(index != 2 && index != 3);
+    if(index == 0)
+    {
+        if(ui->plot_frameSpEdit->text().isEmpty()) // empty separator is not allowed
+            ui->plot_frameSpEdit->setText(plotFrameSeparator);
+        else
+            plotFrameSeparator = ui->plot_frameSpEdit->text();
+    }
+    else if(index == 1) // empty separator is not allowed
+    {
+        QByteArray newSp = QByteArray::fromHex(ui->plot_frameSpEdit->text().toLatin1());
+        if(ui->plot_frameSpEdit->text() == "") // empty separator is not allowed
+            ui->plot_frameSpEdit->setText(newSp.toHex(' '));
+        else
+            plotFrameSeparator = newSp;
+    }
+    else if(index == 2)
+        plotFrameSeparator = "\r\n";
+    else if(index == 3)
+        plotFrameSeparator = "\n";
+}
+
+void PlotTab::on_plot_dataSpTypeBox_currentIndexChanged(int index)
+{
+    ui->plot_dataSpEdit->setVisible(index != 2 && index != 3);
+    if(index == 0)
+    {
+        if(ui->plot_dataSpEdit->text().isEmpty()) // empty separator is not allowed
+            ui->plot_dataSpEdit->setText(plotDataSeparator);
+        else
+            plotDataSeparator = ui->plot_dataSpEdit->text();
+    }
+    else if(index == 1)
+    {
+        QByteArray newSp = QByteArray::fromHex(ui->plot_dataSpEdit->text().toLatin1());
+        if(ui->plot_dataSpEdit->text() == "") // empty separator is not allowed
+            ui->plot_dataSpEdit->setText(newSp.toHex(' '));
+        else
+            plotDataSeparator = newSp;
+    }
+    else if(index == 2)
+        plotDataSeparator = "\r\n";
+    else if(index == 3)
+        plotDataSeparator = "\n";
+}
+
+
+void PlotTab::on_plot_clearFlagTypeBox_currentIndexChanged(int index)
+{
+    ui->plot_clearFlagEdit->setVisible(index != 0);
+    if(index == 0)
+        plotClearFlag.clear();
+    if(index == 1)
+        plotClearFlag = ui->plot_clearFlagEdit->text();
+    else if(index == 2)
+        plotClearFlag = QByteArray::fromHex(ui->plot_clearFlagEdit->text().toLatin1());
+}
+
+
+void PlotTab::on_plot_clearFlagEdit_editingFinished()
+{
+    on_plot_clearFlagTypeBox_currentIndexChanged(ui->plot_clearFlagTypeBox->currentIndex());
+}
+
+void PlotTab::on_plot_frameSpEdit_editingFinished()
+{
+    on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
+}
+
+
+void PlotTab::on_plot_dataSpEdit_editingFinished()
+{
+    on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
+}
+
+void PlotTab::on_plot_XTypeBox_currentIndexChanged(int index)
+{
+    if(index == 1 && ui->plot_dataNumBox->value() == 1) // use first data as X axis
+    {
+        ui->plot_dataNumBox->setValue(2);
+        ui->plot_dataNumBox->setMinimum(2);
+    }
+    else
+    {
+        ui->plot_dataNumBox->setMinimum(1);
+    }
+    if(index == 2)
+    {
+        ui->qcpWidget->xAxis->setTicker(plotTimeTicker);
+    }
+    else
+    {
+        ui->qcpWidget->xAxis->setTicker(plotDefaultTicker);
+    }
+}
+
+void PlotTab::on_plot_scatterBox_stateChanged(int arg1)
+{
+    if(arg1 == Qt::Checked)
+    {
+        for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
+            ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+    }
+    else
+    {
+        for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
+            ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+    }
+}
+
+void PlotTab::onXAxisChangedByUser(const QCPRange &newRange)
+{
+    plotXAxisWidth = newRange.size();
+}
+
+void PlotTab::savePlotPreference()
+{
+    settings->beginGroup("SerialTest_Plot");
+    settings->setValue("Enabled", ui->plot_enaBox->isChecked());
+    settings->setValue("Latest", ui->plot_latestBox->isChecked());
+    settings->setValue("XType", ui->plot_XTypeBox->currentIndex());
+    settings->setValue("DataNum", ui->plot_dataNumBox->value());
+    settings->setValue("Legend", ui->plot_legendCheckBox->isChecked());
+    settings->setValue("Tracer", ui->plot_tracerCheckBox->isChecked());
+    settings->setValue("FrameSp_Type", ui->plot_frameSpTypeBox->currentIndex());
+    settings->setValue("FrameSp_Context", ui->plot_frameSpEdit->text());
+    settings->setValue("DataSp_Type", ui->plot_dataSpTypeBox->currentIndex());
+    settings->setValue("DataSp_Context", ui->plot_dataSpEdit->text());
+    settings->setValue("ClearF_Type", ui->plot_clearFlagTypeBox->currentIndex());
+    settings->setValue("ClearF_Context", ui->plot_clearFlagEdit->text());
+    settings->setValue("Scatter", ui->plot_scatterBox->isChecked());
+    settings->endGroup();
+}
+
+void PlotTab::loadPreference()
+{
+    // default preferences are defined in this function
+    const QString defaultFrameSp = "|";
+    const QString defaultDataSp = ",";
+
+    settings->beginGroup("SerialTest_Plot");
+    // empty separator is not allowed
+    if(settings->value("FrameSp_Context").toString().isEmpty())
+        settings->setValue("FrameSp_Context", defaultFrameSp);
+    if(settings->value("DataSp_Context").toString().isEmpty())
+        settings->setValue("DataSp_Context", defaultDataSp);
+
+
+    ui->plot_enaBox->setChecked(settings->value("Enabled", false).toBool());
+    ui->plot_latestBox->setChecked(settings->value("Latest", false).toBool());
+    ui->plot_XTypeBox->setCurrentIndex(settings->value("XType", 0).toInt());
+    ui->plot_dataNumBox->setValue(settings->value("DataNum", 1).toInt());
+    ui->plot_legendCheckBox->setChecked(settings->value("Legend", false).toBool());
+    ui->plot_tracerCheckBox->setChecked(settings->value("Tracer", false).toBool());
+    ui->plot_frameSpTypeBox->setCurrentIndex(settings->value("FrameSp_Type", 3).toInt());
+    ui->plot_frameSpEdit->setText(settings->value("FrameSp_Context", defaultFrameSp).toString());
+    ui->plot_dataSpTypeBox->setCurrentIndex(settings->value("DataSp_Type", 0).toInt());
+    ui->plot_dataSpEdit->setText(settings->value("DataSp_Context", defaultDataSp).toString());
+    ui->plot_clearFlagTypeBox->setCurrentIndex(settings->value("ClearF_Type", 1).toInt());
+    ui->plot_clearFlagEdit->setText(settings->value("ClearF_Context", "cls").toString());
+    ui->plot_scatterBox->setChecked(settings->value("Scatter", false).toBool());
+    settings->endGroup();
+    on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
+    on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
+    on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
+    on_plot_clearFlagTypeBox_currentIndexChanged(ui->plot_clearFlagTypeBox->currentIndex());
+}
+
+void PlotTab::newData(const QByteArray& data)
+{
+    double currKey;
+    bool hasData = false;
+    int i;
+    QStringList dataList;
+    if(!ui->plot_enaBox->isChecked())
+        return;
+
+    plotBuf->append(data); // TODO: use decoder
+    while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
+    {
+        hasData = true;
+        dataList = ((QString)(plotBuf->left(i))).split(plotDataSeparator);
+        // qDebug() << dataList;
+        plotBuf->remove(0, i + plotFrameSeparator.length());
+        plotCounter++;
+        if(!plotClearFlag.isEmpty() && dataList[0] == plotClearFlag)
+        {
+            on_plot_clearButton_clicked();
+        }
+        else if(ui->plot_XTypeBox->currentIndex() == 0)
+        {
+            currKey = plotCounter;
+            for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
+        }
+        else if(ui->plot_XTypeBox->currentIndex() == 1)
+        {
+            currKey = dataList[0].toDouble();
+            for(i = 1; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                ui->qcpWidget->graph(i - 1)->addData(currKey, dataList[i].toDouble());
+        }
+        else if(ui->plot_XTypeBox->currentIndex() == 2)
+        {
+            currKey = plotTime.msecsTo(QTime::currentTime()) / 1000.0;
+            for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
+                ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
+        }
+
+    }
+    if(!hasData)
+    {
+        if(plotBuf->size() > 1024 * 1024 * 256) // 256MB threshold
+            plotBuf->clear();
+        return;
+    }
+    else if(ui->plot_latestBox->isChecked())
+    {
+        ui->qcpWidget->xAxis->blockSignals(true);
+        ui->qcpWidget->xAxis->setRange(currKey, plotXAxisWidth, Qt::AlignRight);
+        ui->qcpWidget->xAxis->blockSignals(false);
+        if(ui->plot_tracerCheckBox->isChecked())
+            updateTracer(currKey);
+    }
+    ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
+}

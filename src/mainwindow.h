@@ -20,11 +20,11 @@
 #else
 #include <QSerialPort>
 #include <QSerialPortInfo>
-#include <QSettings>
 #include <QDockWidget>
 #endif
 
-#include "qcustomplot.h"
+#include "mysettings.h"
+#include "plottab.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -88,39 +88,11 @@ private slots:
 
     void onStateButtonClicked();
 
-    void on_plot_dataNumBox_valueChanged(int arg1);
-
-    void on_plot_clearButton_clicked();
-
-    void on_plot_legendCheckBox_stateChanged(int arg1);
-
-    void on_plot_advancedBox_stateChanged(int arg1);
-
-    void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
-
-    void onQCPMouseMoved(QMouseEvent *event);
-
-    void on_plot_tracerCheckBox_stateChanged(int arg1);
-
-    void on_plot_fitXButton_clicked();
-
-    void on_plot_fitYButton_clicked();
-
-    void onQCPSelectionChanged();
-
-    void on_plot_frameSpTypeBox_currentIndexChanged(int index);
-
-    void on_plot_dataSpTypeBox_currentIndexChanged(int index);
-
     void updateRxUI();
 
     void on_receivedUpdateButton_clicked();
 
-    void onXAxisChangedByUser(const QCPRange &newRange);
 
-    void on_plot_XTypeBox_currentIndexChanged(int index);
-
-    void onQCPAxisDoubleClick(QCPAxis *axis);
 
 
 #ifdef Q_OS_ANDROID
@@ -157,19 +129,8 @@ private slots:
 
     void on_ctrl_exportButton_clicked();
 
-    void on_plot_scatterBox_stateChanged(int arg1);
-
-    void on_plot_frameSpEdit_editingFinished();
-
-    void on_plot_dataSpEdit_editingFinished();
-
-    void on_plot_clearFlagTypeBox_currentIndexChanged(int index);
-
-    void on_plot_clearFlagEdit_editingFinished();
-
     void on_data_encodingSetButton_clicked();
 
-    void savePlotPreference();
     void saveDataPreference();
 private:
     Ui::MainWindow *ui;
@@ -200,20 +161,9 @@ private:
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
+    char lastReceivedByte = '\0';
     QByteArray* RxUIBuf;
-    QString* plotBuf;
-    quint64 plotCounter;
-    QCPItemTracer* plotTracer;
-    QCPItemText* plotText;
-    int plotSelectedId = 0;
-    QString plotSelectedName;
-    QString plotFrameSeparator;
-    QString plotDataSeparator;
-    QString plotClearFlag;
-    double plotXAxisWidth;
-    QSharedPointer<QCPAxisTickerTime> plotTimeTicker = QSharedPointer<QCPAxisTickerTime>(new QCPAxisTickerTime);
-    QSharedPointer<QCPAxisTicker> plotDefaultTicker;
-    QTime plotTime;
+
     int hexCounter = 0;
 
     int ctrlItemCount = 0;
@@ -223,7 +173,7 @@ private:
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
-    void appendReceivedData(QByteArray &data);
+    void appendReceivedData(const QByteArray &data);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
 
@@ -263,9 +213,8 @@ private:
     QCheckBox* onTopBox;
 
 #endif
-    QSettings* settings;
-
-    void updateTracer(double x);
+    MySettings* settings;
+    PlotTab* plotTab;
     void loadPreference();
 };
 #endif // MAINWINDOW_H
