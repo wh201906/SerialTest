@@ -29,8 +29,11 @@ void ControlItem::initUI()
     ui->maxEdit->setVisible(type == SpinBox || type == Slider);
     ui->stepEdit->setVisible(type == SpinBox || type == Slider);
     ui->autoBox->setVisible(type != Command);
+    ui->autoLabel->setVisible(type != Command);
     ui->hexBox->setVisible(type == Command);
+    ui->hexLabel->setVisible(type == Command);
     ui->prefixBox->setVisible(type != Command);
+    ui->prefixLabel->setVisible(type != Command);
 
     on_minEdit_editingFinished();
     on_maxEdit_editingFinished();

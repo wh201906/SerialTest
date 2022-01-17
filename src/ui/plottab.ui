@@ -1,12 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author />
- <comment />
- <exportmacro />
  <class>PlotTab</class>
  <widget class="QWidget" name="PlotTab">
-  <attribute name="title">
-   <string>Plot</string>
-  </attribute>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1208</width>
+    <height>59</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <property name="spacing">
     <number>2</number>
@@ -36,14 +39,20 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
-      <widget class="QCheckBox" name="plot_enaBox">
+      <widget class="QCheckBox" name="plot_enaBox"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Enable</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="plot_latestBox">
+      <widget class="QCheckBox" name="plot_latestBox"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Show latest</string>
        </property>
@@ -133,7 +142,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="plot_legendCheckBox">
+      <widget class="QCheckBox" name="plot_legendCheckBox"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
        <property name="text">
         <string>Legend</string>
        </property>
@@ -178,14 +190,20 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="plot_advancedBox">
+      <widget class="QCheckBox" name="plot_advancedBox"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_5">
        <property name="text">
         <string>Advanced</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="plot_tracerCheckBox">
+      <widget class="QCheckBox" name="plot_tracerCheckBox"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_10">
        <property name="text">
         <string>Tracer</string>
        </property>
@@ -253,7 +271,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="plot_frameSpEdit" />
+       <widget class="QLineEdit" name="plot_frameSpEdit"/>
       </item>
       <item>
        <widget class="QLabel" name="label_9">
@@ -320,10 +338,13 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="plot_clearFlagEdit" />
+       <widget class="QLineEdit" name="plot_clearFlagEdit"/>
       </item>
       <item>
-       <widget class="QCheckBox" name="plot_scatterBox">
+       <widget class="QCheckBox" name="plot_scatterBox"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_11">
         <property name="text">
          <string>Scatter</string>
         </property>
@@ -347,6 +368,14 @@
    </item>
   </layout>
  </widget>
- <pixmapfunction />
- <connections />
+ <customwidgets>
+  <customwidget>
+   <class>MyCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>mycustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
 </ui>

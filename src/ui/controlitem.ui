@@ -208,6 +208,10 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="autoLabel">
         <property name="text">
          <string>Auto</string>
         </property>
@@ -251,6 +255,10 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="hexLabel">
         <property name="text">
          <string>Hex</string>
         </property>
@@ -264,6 +272,10 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="prefixLabel">
         <property name="text">
          <string>Prefix</string>
         </property>
@@ -308,6 +320,10 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="suffixLabel">
         <property name="text">
          <string>Suffix</string>
         </property>
