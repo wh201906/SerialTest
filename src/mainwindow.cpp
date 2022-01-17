@@ -1,12 +1,9 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QDateTime>
 #ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
 #include <QAndroidJniEnvironment>
-#else
-#include <QFileDialog>
 #endif
 
 MainWindow::MainWindow(QWidget *parent)
@@ -29,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     setStyleSheet("QCheckBox::indicator{min-width:15px;min-height:15px;}");
 
     // on Android, use default.
-    settings = new QSettings("wh201906", "SerialTest");
+    MySettings::init(QSettings::NativeFormat);
 
 #else
     serialPort = new QSerialPort();
@@ -46,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // on PC, store preferences in files for portable use
     MySettings::init(QSettings::IniFormat, "preference.ini");
-    settings = MySettings::defaultSettings();
+
 
     dockAllWindows = new QAction(tr("Dock all windows"), this);
     connect(dockAllWindows, &QAction::triggered, [ = ]()
@@ -57,54 +54,43 @@ MainWindow::MainWindow(QWidget *parent)
     contextMenu->addAction(dockAllWindows);
     contextMenu->addSeparator();
 #endif
-    plotTab = new PlotTab();
-    ui->funcTab->insertTab(0, plotTab, "PPlot");
-    ctrlTab = new CtrlTab();
-    connect(ctrlTab, &CtrlTab::send, this, &MainWindow::sendData);
-    ui->funcTab->insertTab(0, ctrlTab, "CCtrl");
-
+    settings = MySettings::defaultSettings();
     portLabel = new QLabel();
     stateButton = new QPushButton();
     TxLabel = new QLabel();
     RxLabel = new QLabel();
-    IODeviceState = false;
 
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
     RxUIBuf = new QByteArray();
 
-    repeatTimer = new QTimer();
+    dataTab = new DataTab(rawReceivedData, rawSendedData);
+    dataTab->setIODevice(IODevice);
+    connect(dataTab, &DataTab::setRxLabelText, RxLabel, &QLabel::setText);
+    connect(dataTab, &DataTab::setTxLabelText, TxLabel, &QLabel::setText);
+    connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
+    ui->funcTab->insertTab(1, dataTab, "DData");
+    plotTab = new PlotTab();
+    ui->funcTab->insertTab(2, plotTab, "PPlot");
+    ctrlTab = new CtrlTab();
+    connect(ctrlTab, &CtrlTab::send, this, &MainWindow::sendData);
+    connect(dataTab, &DataTab::setDataCodec, ctrlTab, &CtrlTab::setDataCodec);
+    ui->funcTab->insertTab(3, ctrlTab, "CCtrl");
+
+    IODeviceState = false;
     updateUITimer = new QTimer();
-    updateUITimer->setInterval(1);
+    updateUITimer->setInterval(20);
 
     connect(ui->refreshPortsButton, &QPushButton::clicked, this, &MainWindow::refreshPortsInfo);
-    connect(ui->sendEdit, &QLineEdit::returnPressed, this, &MainWindow::on_sendButton_clicked);
 
     connect(IODevice, &QIODevice::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
 
-    connect(repeatTimer, &QTimer::timeout, this, &MainWindow::on_sendButton_clicked);
+
     connect(updateUITimer, &QTimer::timeout, this, &MainWindow::updateRxUI);
     connect(stateButton, &QPushButton::clicked, this, &MainWindow::onStateButtonClicked);
 
-    RxSlider = ui->receivedEdit->verticalScrollBar();
-    connect(RxSlider, &QScrollBar::valueChanged, this, &MainWindow::onRxSliderValueChanged);
-    connect(RxSlider, &QScrollBar::sliderMoved, this, &MainWindow::onRxSliderMoved);
-
     refreshPortsInfo();
     initUI();
-    loadPreference();
-
-    connect(ui->receivedHexBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
-    connect(ui->receivedLatestBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
-    connect(ui->receivedRealtimeBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
-    connect(ui->sendedHexBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
-    connect(ui->data_suffixBox, &QGroupBox::clicked, this, &MainWindow::saveDataPreference);
-    connect(ui->data_suffixTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::saveDataPreference);
-    connect(ui->data_suffixEdit, &QLineEdit::editingFinished, this, &MainWindow::saveDataPreference);
-    connect(ui->data_repeatCheckBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
-    connect(ui->repeatDelayEdit, &QLineEdit::editingFinished, this, &MainWindow::saveDataPreference);
-    connect(ui->data_flowDTRBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
-    connect(ui->data_flowRTSBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
 
     myInfo = new QAction("wh201906", this);
     currVersion = new QAction(tr("Ver: ") + QApplication::applicationVersion().section('.', 0, -2), this); // ignore the 4th version number
@@ -122,8 +108,6 @@ MainWindow::MainWindow(QWidget *parent)
     currVersion->setEnabled(false);
     contextMenu->addAction(currVersion);
     contextMenu->addAction(checkUpdate);
-
-    on_data_encodingSetButton_clicked();
 
 }
 
@@ -205,8 +189,6 @@ void MainWindow::initUI()
     // Need a fixed size
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setFixedSize(QApplication::primaryScreen()->availableGeometry().size());
-
-    ui->data_flowControlBox->setVisible(false);
 
 #else
     ui->flowControlBox->addItem(tr("NoFlowControl"));
@@ -449,9 +431,7 @@ void MainWindow::onIODeviceConnected()
     port = dynamic_cast<QSerialPort*>(IODevice);
     if(port != nullptr)
     {
-        ui->data_flowRTSBox->setVisible(port->flowControl() != QSerialPort::HardwareControl);
-        ui->data_flowRTSBox->setChecked(port->isRequestToSend());
-        ui->data_flowDTRBox->setChecked(port->isDataTerminalReady());
+        dataTab->setFlowCtrl(port->flowControl() != QSerialPort::HardwareControl, port->isRequestToSend(), port->isDataTerminalReady());
     }
 #endif
 }
@@ -469,106 +449,15 @@ void MainWindow::onIODeviceDisconnected()
 // Rx/Tx Data
 // **********************************************************************************************************************************************
 
-void MainWindow::syncReceivedEditWithData()
-{
-    RxSlider->blockSignals(true);
-    if(isReceivedDataHex)
-        ui->receivedEdit->setPlainText(rawReceivedData->toHex(' ') + ' ');
-    else
-        // sync, use QTextCodec
-        ui->receivedEdit->setPlainText(dataCodec->toUnicode(*rawReceivedData));
-    RxSlider->blockSignals(false);
-//    qDebug() << toHEX(*rawReceivedData);
-}
-
-void MainWindow::syncSendedEditWithData()
-{
-    if(isSendedDataHex)
-        ui->sendedEdit->setPlainText(rawSendedData->toHex(' ') + ' ');
-    else
-        ui->sendedEdit->setPlainText(dataCodec->toUnicode(*rawSendedData));
-}
-
-// TODO:
-// split sync process, add processEvents()
-// void MainWindow::syncEditWithData()
-
-void MainWindow::appendReceivedData(const QByteArray& data)
-{
-    int cursorPos;
-    int sliderPos;
-    sliderPos = RxSlider->sliderPosition();
-
-    cursorPos = ui->receivedEdit->textCursor().position();
-    ui->receivedEdit->moveCursor(QTextCursor::End);
-    if(isReceivedDataHex)
-    {
-        ui->receivedEdit->insertPlainText(data.toHex(' ') + ' ');
-        hexCounter += data.length();
-        // QPlainTextEdit is not good at handling long line
-        // Seperate for better realtime receiving response
-        if(hexCounter > 5000)
-        {
-            ui->receivedEdit->insertPlainText("\r\n");
-            hexCounter = 0;
-        }
-    }
-    else
-    {
-        // append, use QTextDecoder
-        // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have one more empty line
-        // just ignore one of them
-        if(lastReceivedByte == '\r' && !data.isEmpty() && *data.cbegin() == '\n')
-            ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data.right(data.size() - 1)));
-        else
-            ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data));
-        lastReceivedByte = *data.crbegin();
-    }
-    ui->receivedEdit->textCursor().setPosition(cursorPos);
-    RxSlider->setSliderPosition(sliderPos);
-}
-
 void MainWindow::readData()
 {
     QByteArray newData = IODevice->readAll();
     if(newData.isEmpty())
         return;
     rawReceivedData->append(newData);
-    if(ui->receivedLatestBox->isChecked())
-    {
-        userRequiredRxSliderPos = RxSlider->maximum();
-        RxSlider->setSliderPosition(RxSlider->maximum());
-    }
-    else
-    {
-        userRequiredRxSliderPos = currRxSliderPos;
-        RxSlider->setSliderPosition(currRxSliderPos);
-    }
     RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
     RxUIBuf->append(newData);
     QApplication::processEvents();
-}
-
-void MainWindow::on_sendButton_clicked()
-{
-    QByteArray data;
-    if(isSendedDataHex)
-        data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
-    else
-        data = dataCodec->fromUnicode(ui->sendEdit->text());
-    if(ui->data_suffixBox->isChecked())
-    {
-        if(ui->data_suffixTypeBox->currentIndex() == 0)
-            data += dataCodec->fromUnicode(ui->data_suffixEdit->text());
-        else if(ui->data_suffixTypeBox->currentIndex() == 1)
-            data += QByteArray::fromHex(ui->data_suffixEdit->text().toLatin1());
-        else if(ui->data_suffixTypeBox->currentIndex() == 2)
-            data += "\r\n";
-        else if(ui->data_suffixTypeBox->currentIndex() == 3)
-            data += "\n";
-    }
-
-    sendData(data);
 }
 
 void MainWindow::sendData(const QByteArray& data)
@@ -576,135 +465,13 @@ void MainWindow::sendData(const QByteArray& data)
     if(!IODeviceState)
     {
         QMessageBox::warning(this, tr("Error"), tr("No port is opened."));
-        ui->data_repeatCheckBox->setCheckState(Qt::Unchecked);
+        dataTab->setRepeat(false);
         return;
     }
     rawSendedData->append(data);
-    syncSendedEditWithData();
+    dataTab->syncSendedEditWithData();
     IODevice->write(data);
     TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
-}
-
-// Rx/Tx UI
-// **********************************************************************************************************************************************
-
-void MainWindow::onRxSliderValueChanged(int value)
-{
-    // qDebug() << "valueChanged" << value;
-    currRxSliderPos = value;
-}
-
-void MainWindow::onRxSliderMoved(int value)
-{
-    // slider is moved by user
-    // qDebug() << "sliderMoved" << value;
-    userRequiredRxSliderPos = value;
-}
-
-void MainWindow::on_sendedHexBox_stateChanged(int arg1)
-{
-    isSendedDataHex = (arg1 == Qt::Checked);
-    syncSendedEditWithData();
-}
-
-void MainWindow::on_receivedHexBox_stateChanged(int arg1)
-{
-    isReceivedDataHex = (arg1 == Qt::Checked);
-    syncReceivedEditWithData();
-}
-
-void MainWindow::on_receivedClearButton_clicked()
-{
-    lastReceivedByte = '\0'; // anything but '\r'
-    rawReceivedData->clear();
-    RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
-    syncReceivedEditWithData();
-}
-
-void MainWindow::on_sendedClearButton_clicked()
-{
-    rawSendedData->clear();
-    TxLabel->setText(tr("Tx") + ": " + QString::number(rawSendedData->length()));
-    syncSendedEditWithData();
-}
-
-void MainWindow::on_sendEdit_textChanged(const QString &arg1)
-{
-    Q_UNUSED(arg1);
-    repeatTimer->stop();
-    ui->data_repeatBox->setChecked(false);
-}
-
-void MainWindow::on_data_repeatCheckBox_stateChanged(int arg1)
-{
-    if(arg1 == Qt::Checked)
-    {
-        repeatTimer->setInterval(ui->repeatDelayEdit->text().toInt());
-        repeatTimer->start();
-    }
-    else
-        repeatTimer->stop();
-}
-
-void MainWindow::on_receivedCopyButton_clicked()
-{
-    QApplication::clipboard()->setText(ui->receivedEdit->toPlainText());
-}
-
-void MainWindow::on_sendedCopyButton_clicked()
-{
-    QApplication::clipboard()->setText(ui->sendedEdit->toPlainText());
-}
-
-void MainWindow::on_receivedExportButton_clicked()
-{
-    bool flag = true;
-    QString fileName, selection;
-    fileName = QFileDialog::getSaveFileName(this, tr("Export received data"), "recv_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
-    if(fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    selection = ui->receivedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
-    if(selection.isEmpty())
-    {
-        flag &= file.open(QFile::WriteOnly);
-        flag &= file.write(*rawReceivedData) != -1;
-    }
-    else
-    {
-        flag &= file.open(QFile::WriteOnly | QFile::Text);
-        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
-    }
-    file.close();
-    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
-}
-
-void MainWindow::on_sendedExportButton_clicked()
-{
-    bool flag = true;
-    QString fileName, selection;
-    fileName = QFileDialog::getSaveFileName(this, tr("Export sended data"), "send_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
-    if(fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    selection = ui->sendedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
-    if(selection.isEmpty())
-    {
-        flag &= file.open(QFile::WriteOnly);
-        flag &= file.write(*rawSendedData) != -1;
-    }
-    else
-    {
-        flag &= file.open(QFile::WriteOnly | QFile::Text);
-        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
-    }
-    file.close();
-    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
-}
-
-void MainWindow::on_receivedUpdateButton_clicked()
-{
-    syncReceivedEditWithData();
 }
 
 // TODO:
@@ -714,8 +481,8 @@ void MainWindow::updateRxUI()
 {
     if(RxUIBuf->isEmpty())
         return;
-    if(ui->receivedRealtimeBox->isChecked())
-        appendReceivedData(*RxUIBuf);
+    if(dataTab->getRxRealtimeState())
+        dataTab->appendReceivedData(*RxUIBuf);
     plotTab->newData(*RxUIBuf);
     RxUIBuf->clear();
 }
@@ -831,96 +598,5 @@ void MainWindow::loadPortPreference(const QString& id)
     ui->flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
     settings->endGroup();
 }
-
-void MainWindow::on_data_flowDTRBox_clicked(bool checked)
-{
-    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
-    if(port != nullptr)
-        port->setDataTerminalReady(checked);
-}
-
-void MainWindow::on_data_flowRTSBox_clicked(bool checked)
-{
-    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
-    if(port != nullptr && port->flowControl() != QSerialPort::HardwareControl)
-        port->setRequestToSend(checked);
-}
 #endif
-
-void MainWindow::saveDataPreference()
-{
-    settings->beginGroup("SerialTest_Data");
-    settings->setValue("Recv_Hex", ui->receivedHexBox->isChecked());
-    settings->setValue("Recv_Latest", ui->receivedLatestBox->isChecked());
-    settings->setValue("Recv_Realtime", ui->receivedRealtimeBox->isChecked());
-    settings->setValue("Send_Hex", ui->sendedHexBox->isChecked());
-    settings->setValue("Suffix_Enabled", ui->data_suffixBox->isChecked());
-    settings->setValue("Suffix_Type", ui->data_suffixTypeBox->currentIndex());
-    settings->setValue("Suffix_Context", ui->data_suffixEdit->text());
-    settings->setValue("Repeat_Enabled", ui->data_repeatCheckBox->isChecked());
-    settings->setValue("Repeat_Delay", ui->repeatDelayEdit->text());
-    settings->setValue("Flow_DTR", ui->data_flowDTRBox->isChecked());
-    settings->setValue("Flow_RTS", ui->data_flowRTSBox->isChecked());
-    //Encoding_Name will not be saved there, because it need to be verified
-    settings->endGroup();
-
-}
-
-// settings->setValue\((.+), ui->(.+)->currentIndex.+
-// ui->$2->setCurrentIndex(settings->value($1).toInt());
-// settings->setValue\((.+), ui->(.+)->text.+
-// ui->$2->setText(settings->value($1).toString());
-
-void MainWindow::loadPreference()
-{
-    // default preferences are defined there
-    settings->beginGroup("SerialTest_Data");
-    ui->receivedHexBox->setChecked(settings->value("Recv_Hex", false).toBool());
-    ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", false).toBool());
-    ui->receivedRealtimeBox->setChecked(settings->value("Recv_Realtime", true).toBool());
-    ui->sendedHexBox->setChecked(settings->value("Send_Hex", false).toBool());
-    ui->data_suffixBox->setChecked(settings->value("Suffix_Enabled", false).toBool());
-    ui->data_suffixTypeBox->setCurrentIndex(settings->value("Suffix_Type", 2).toInt());
-    ui->data_suffixEdit->setText(settings->value("Suffix_Context", "").toString());
-    on_data_suffixTypeBox_currentIndexChanged(ui->data_suffixTypeBox->currentIndex());
-    ui->data_repeatCheckBox->setChecked(settings->value("Repeat_Enabled", false).toBool());
-    ui->repeatDelayEdit->setText(settings->value("Repeat_Delay", 1000).toString());
-    ui->data_flowDTRBox->setChecked(settings->value("Flow_DTR", false).toBool());
-    ui->data_flowRTSBox->setChecked(settings->value("Flow_RTS", false).toBool());
-    ui->data_encodingNameBox->setCurrentText(settings->value("Encoding_Name", "UTF-8").toString());
-    settings->endGroup();
-}
-
-void MainWindow::on_data_suffixTypeBox_currentIndexChanged(int index)
-{
-    ui->data_suffixEdit->setVisible(index != 2 && index != 3);
-    ui->data_suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
-}
-
-void MainWindow::on_data_encodingSetButton_clicked()
-{
-    QTextCodec* newCodec;
-    QComboBox* box;
-    box = ui->data_encodingNameBox;
-    newCodec = QTextCodec::codecForName(box->currentText().toLatin1());
-    if(newCodec != nullptr)
-    {
-        if(box->itemText(box->currentIndex()) == box->currentText()) // existing text
-            dataEncodingId = box->currentIndex();
-        if(RxDecoder != nullptr)
-            delete RxDecoder;
-        dataCodec = newCodec;
-        ctrlTab->setDataCodec(dataCodec); // use the same address after startup
-        RxDecoder = dataCodec->makeDecoder(); // clear state machine
-        settings->beginGroup("SerialTest_Data");
-        settings->setValue("Encoding_Name", ui->data_encodingNameBox->currentText());
-        settings->endGroup();
-    }
-    else
-    {
-        QMessageBox::information(this, tr("Info"), ui->data_encodingNameBox->currentText() + " " + tr("is not a valid encoding."));
-        box->setCurrentIndex(dataEncodingId);
-    }
-
-}
 

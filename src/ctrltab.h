@@ -16,8 +16,8 @@ public:
     explicit CtrlTab(QWidget *parent = nullptr);
     ~CtrlTab();
 
-    void setDataCodec(QTextCodec* codec);
-
+public slots:
+    void setDataCodec(QTextCodec *codec);
 private slots:
     void on_ctrl_addCMDButton_clicked();
     void on_ctrl_addSliderButton_clicked();

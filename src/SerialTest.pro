@@ -22,6 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     controlitem.cpp \
     ctrltab.cpp \
+    datatab.cpp \
     main.cpp \
     mainwindow.cpp \
     mycustomplot.cpp \
@@ -32,6 +33,7 @@ SOURCES += \
 HEADERS += \
     controlitem.h \
     ctrltab.h \
+    datatab.h \
     mainwindow.h \
     mycustomplot.h \
     mysettings.h \
@@ -39,6 +41,7 @@ HEADERS += \
     qcustomplot.h
 
 FORMS += \
+    ui/datatab.ui \
     ui/ctrltab.ui \
     ui/controlitem.ui \
     ui/mainwindow.ui \
