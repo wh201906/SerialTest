@@ -68,7 +68,7 @@ private:
     const QString dataSplitter = "||,,||";
     QTextCodec* dataCodec;
 signals:
-    void send(QByteArray&);
+    void send(const QByteArray& data);
 
 };
 

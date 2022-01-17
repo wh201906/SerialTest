@@ -25,4 +25,4 @@ A cross-platform serial port test tool.
 [more previews](doc/previews/previews.md)  
 
 ## Build
-You need to [download](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz) qcustomplot.c and qcustomplot.h manually, put them in the root of the repository, then build.  
+You need to [download](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz) qcustomplot.c and qcustomplot.h manually, put them in the /src folder, then build.  

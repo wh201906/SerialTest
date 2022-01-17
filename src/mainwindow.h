@@ -25,6 +25,7 @@
 
 #include "mysettings.h"
 #include "plottab.h"
+#include "ctrltab.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -44,6 +45,7 @@ public:
 public slots:
     void onRxSliderValueChanged(int value);
     void onRxSliderMoved(int value);
+    void sendData(const QByteArray &data);
 #ifdef Q_OS_ANDROID
     void BTdeviceDiscovered(const QBluetoothDeviceInfo &device);
     void BTdiscoverFinished();
@@ -111,23 +113,7 @@ private slots:
 
     void onIODeviceDisconnected();
 
-    void on_ctrl_addCMDButton_clicked();
-
-    void on_ctrl_addSliderButton_clicked();
-
-    void on_ctrl_addCheckBoxButton_clicked();
-
-    void on_ctrl_addSpinBoxButton_clicked();
-
-    void onCtrlItemDestroyed();
-    void sendData(QByteArray &data);
-    void on_ctrl_clearButton_clicked();
-
     void on_data_suffixTypeBox_currentIndexChanged(int index);
-
-    void on_ctrl_importButton_clicked();
-
-    void on_ctrl_exportButton_clicked();
 
     void on_data_encodingSetButton_clicked();
 
@@ -165,8 +151,6 @@ private:
     QByteArray* RxUIBuf;
 
     int hexCounter = 0;
-
-    int ctrlItemCount = 0;
 
     QTimer* repeatTimer;
     QTimer* updateUITimer;
@@ -215,6 +199,7 @@ private:
 #endif
     MySettings* settings;
     PlotTab* plotTab;
+    CtrlTab* ctrlTab;
     void loadPreference();
 };
 #endif // MAINWINDOW_H

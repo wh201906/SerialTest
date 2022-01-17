@@ -1,8 +1,6 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "controlitem.h"
-
 #include <QDateTime>
 #ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
@@ -61,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent)
 #endif
     plotTab = new PlotTab();
     ui->funcTab->insertTab(0, plotTab, "PPlot");
+    ctrlTab = new CtrlTab();
+    connect(ctrlTab, &CtrlTab::send, this, &MainWindow::sendData);
+    ui->funcTab->insertTab(0, ctrlTab, "CCtrl");
+
     portLabel = new QLabel();
     stateButton = new QPushButton();
     TxLabel = new QLabel();
@@ -103,8 +105,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->repeatDelayEdit, &QLineEdit::editingFinished, this, &MainWindow::saveDataPreference);
     connect(ui->data_flowDTRBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
     connect(ui->data_flowRTSBox, &QCheckBox::clicked, this, &MainWindow::saveDataPreference);
-
-    ui->ctrl_dataEdit->setVisible(false);
 
     myInfo = new QAction("wh201906", this);
     currVersion = new QAction(tr("Ver: ") + QApplication::applicationVersion().section('.', 0, -2), this); // ignore the 4th version number
@@ -571,7 +571,7 @@ void MainWindow::on_sendButton_clicked()
     sendData(data);
 }
 
-void MainWindow::sendData(QByteArray& data)
+void MainWindow::sendData(const QByteArray& data)
 {
     if(!IODeviceState)
     {
@@ -660,7 +660,7 @@ void MainWindow::on_receivedExportButton_clicked()
 {
     bool flag = true;
     QString fileName, selection;
-    fileName = QFileDialog::getSaveFileName(this, tr("Export received data"), QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
+    fileName = QFileDialog::getSaveFileName(this, tr("Export received data"), "recv_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
@@ -683,7 +683,7 @@ void MainWindow::on_sendedExportButton_clicked()
 {
     bool flag = true;
     QString fileName, selection;
-    fileName = QFileDialog::getSaveFileName(this, tr("Export sended data"), QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
+    fileName = QFileDialog::getSaveFileName(this, tr("Export sended data"), "send_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
@@ -891,171 +891,10 @@ void MainWindow::loadPreference()
     settings->endGroup();
 }
 
-
-void MainWindow::on_ctrl_addCMDButton_clicked()
-{
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::Command);
-    connect(c, &ControlItem::send, this, &MainWindow::sendData);
-    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
-    c->setCodecPtr(dataCodec);
-    p->insertWidget(ctrlItemCount++, c);
-}
-
-
-void MainWindow::on_ctrl_addSliderButton_clicked()
-{
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::Slider);
-    connect(c, &ControlItem::send, this, &MainWindow::sendData);
-    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
-    p->insertWidget(ctrlItemCount++, c);
-}
-
-
-void MainWindow::on_ctrl_addCheckBoxButton_clicked()
-{
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::CheckBox);
-    connect(c, &ControlItem::send, this, &MainWindow::sendData);
-    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
-    p->insertWidget(ctrlItemCount++, c);
-}
-
-
-void MainWindow::on_ctrl_addSpinBoxButton_clicked()
-{
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::SpinBox);
-    connect(c, &ControlItem::send, this, &MainWindow::sendData);
-    connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
-    p->insertWidget(ctrlItemCount++, c);
-}
-
-void MainWindow::onCtrlItemDestroyed()
-{
-    ctrlItemCount--;
-}
-
-
-void MainWindow::on_ctrl_clearButton_clicked()
-{
-    const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
-    for(auto it = list.begin(); it != list.end(); it++)
-        (*it)->deleteLater();
-}
-
 void MainWindow::on_data_suffixTypeBox_currentIndexChanged(int index)
 {
     ui->data_suffixEdit->setVisible(index != 2 && index != 3);
     ui->data_suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
-}
-
-
-void MainWindow::on_ctrl_importButton_clicked()
-{
-#ifdef Q_OS_ANDROID
-    if(ui->ctrl_importButton->text() == tr("Import"))
-    {
-        ui->ctrl_dataEdit->setPlainText("# " + tr("Paste the exported data in the box."));
-        ui->ctrl_dataEdit->appendPlainText(""); // new line;
-        ui->ctrl_itemArea->setVisible(false);
-        ui->ctrl_dataEdit->setVisible(true);
-        ui->ctrl_importButton->setText(tr("Done"));
-    }
-    else
-    {
-        QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-        QStringList dataList = ui->ctrl_dataEdit->toPlainText().split("\n", Qt::SkipEmptyParts);
-        for(auto it = dataList.begin(); it != dataList.end(); it++)
-        {
-            if(it->at(0) == '#')
-                continue;
-            ControlItem* c = new ControlItem(ControlItem::Command);
-            connect(c, &ControlItem::send, this, &MainWindow::sendData);
-            connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
-            p->insertWidget(ctrlItemCount++, c);
-            if(!c->load(*it))
-                c->deleteLater();
-        }
-        ui->ctrl_dataEdit->clear();
-        ui->ctrl_itemArea->setVisible(true);
-        ui->ctrl_dataEdit->setVisible(false);
-        ui->ctrl_importButton->setText(tr("Import"));
-    }
-#else
-    bool flag = true;
-    const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
-    QString fileName;
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    fileName = QFileDialog::getOpenFileName(this, tr("Import Control Panel"));
-    if(fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    flag &= file.open(QFile::ReadOnly | QFile::Text);
-    QStringList dataList = QString(file.readAll()).split("\n", Qt::SkipEmptyParts);
-    for(auto it = dataList.begin(); it != dataList.end(); it++)
-    {
-        if(it->at(0) == '#')
-            continue;
-        ControlItem* c = new ControlItem(ControlItem::Command);
-        connect(c, &ControlItem::send, this, &MainWindow::sendData);
-        connect(c, &ControlItem::destroyed, this, &MainWindow::onCtrlItemDestroyed);
-        p->insertWidget(ctrlItemCount++, c);
-        if(!c->load(*it))
-            c->deleteLater();
-    }
-    file.close();
-    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
-#endif
-}
-
-
-void MainWindow::on_ctrl_exportButton_clicked()
-{
-#ifdef Q_OS_ANDROID
-    if(ui->ctrl_exportButton->text() == tr("Export"))
-    {
-        if(ctrlItemCount == 0)
-        {
-            QMessageBox::information(this, tr("Info"), tr("Please add item first"));
-            return;
-        }
-        const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
-        ui->ctrl_dataEdit->setPlainText("# " + tr("Copy all text in this box and save it to somewhere."));
-        ui->ctrl_dataEdit->appendPlainText("# " + tr("To import, click the Import button, then paste the text back."));
-        for(auto it = list.begin(); it != list.end(); it++)
-            ui->ctrl_dataEdit->appendPlainText((*it)->save());
-        ui->ctrl_itemArea->setVisible(false);
-        ui->ctrl_dataEdit->setVisible(true);
-        ui->ctrl_exportButton->setText(tr("Done"));
-    }
-    else
-    {
-        ui->ctrl_dataEdit->clear();
-        ui->ctrl_itemArea->setVisible(true);
-        ui->ctrl_dataEdit->setVisible(false);
-        ui->ctrl_exportButton->setText(tr("Export"));
-    }
-#else
-    if(ctrlItemCount == 0)
-    {
-        QMessageBox::information(this, tr("Info"), tr("Please add item first"));
-        return;
-    }
-    bool flag = true;
-    const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
-    QString fileName;
-    fileName = QFileDialog::getSaveFileName(this, tr("Export Control Panel"), QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
-    if(fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    flag &= file.open(QFile::WriteOnly | QFile::Text);
-    for(auto it = list.begin(); it != list.end(); it++)
-        flag &= file.write(((*it)->save() + "\n").toUtf8()) != -1;
-    file.close();
-    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
-#endif
 }
 
 void MainWindow::on_data_encodingSetButton_clicked()
@@ -1071,6 +910,7 @@ void MainWindow::on_data_encodingSetButton_clicked()
         if(RxDecoder != nullptr)
             delete RxDecoder;
         dataCodec = newCodec;
+        ctrlTab->setDataCodec(dataCodec); // use the same address after startup
         RxDecoder = dataCodec->makeDecoder(); // clear state machine
         settings->beginGroup("SerialTest_Data");
         settings->setValue("Encoding_Name", ui->data_encodingNameBox->currentText());

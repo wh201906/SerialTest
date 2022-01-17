@@ -25,4 +25,4 @@
 [更多预览](../previews/previews_zh_CN.md)  
 
 ## 手动编译
-编译时需要[手动下载](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz)qcustomplot.c和qcustomplot.h并放到项目根目录下编译。  
+编译时需要[手动下载](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz)qcustomplot.c和qcustomplot.h并放到/src目录下编译。  
