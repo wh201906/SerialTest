@@ -132,5 +132,6 @@ private:
     PlotTab* plotTab;
     CtrlTab* ctrlTab;
     DataTab* dataTab;
+    void initTabs();
 };
 #endif // MAINWINDOW_H

@@ -19,8 +19,11 @@ public:
     explicit PlotTab(QWidget *parent = nullptr);
     ~PlotTab();
 
+    void initQCP();
+    void initSettings();
 public slots:
     void newData(const QByteArray &data);
+    void setDecoder(QTextDecoder* decoder);
 private:
     Ui::PlotTab *ui;
 
@@ -38,11 +41,15 @@ private:
     QSharedPointer<QCPAxisTicker> plotDefaultTicker;
     QTime plotTime;
 
+    QTextDecoder* decoder = nullptr;
+
 signals:
 
 private slots:
-    void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item);
+    void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent* event);
     void onQCPAxisDoubleClick(QCPAxis *axis);
+    void onQCPMousePress(QMouseEvent *event);
+    void onQCPMouseRelease(QMouseEvent *event);
     void onQCPMouseMoved(QMouseEvent *event);
     void onQCPSelectionChanged();
     void onXAxisChangedByUser(const QCPRange &newRange);
@@ -66,9 +73,9 @@ private slots:
 private:
     MySettings *settings;
     void updateTracer(double x);
+    QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);
 
-    void initQCP();
-    void initSettings();
+    QMap<QCPAbstractLegendItem*, ulong> longPressCounter;
 };
 
 #endif // PLOTTAB_H

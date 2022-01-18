@@ -7,8 +7,6 @@ PlotTab::PlotTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    initSettings();
-    initQCP();
     on_plot_advancedBox_stateChanged(Qt::Unchecked); // hide
 }
 
@@ -75,22 +73,27 @@ void PlotTab::initQCP()
     connect(ui->qcpWidget->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, &PlotTab::onXAxisChangedByUser);
     connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &PlotTab::onQCPLegendDoubleClick);
     connect(ui->qcpWidget, &QCustomPlot::axisDoubleClick, this, &PlotTab::onQCPAxisDoubleClick);
+    connect(ui->qcpWidget, &QCustomPlot::mousePress, this, &PlotTab::onQCPMousePress);
+    connect(ui->qcpWidget, &QCustomPlot::mouseRelease, this, &PlotTab::onQCPMouseRelease);
 }
 
-void PlotTab::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item)
+void PlotTab::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent* event)
 {
     // Rename a graph by double clicking on its legend item
     Q_UNUSED(legend)
-    if(item)  // only react if item was clicked (user could have clicked on border padding of legend where there is no item, then item is 0)
+    qDebug() << event->type();
+    if((event->button() & Qt::LeftButton) == 0)
+        return;
+    if(item == nullptr)  // only react if item was clicked (user could have clicked on border padding of legend where there is no item, then item is 0)
+        return;
+
+    QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
+    bool ok;
+    QString newName = QInputDialog::getText(this, tr("Legend:"), tr("New graph name:"), QLineEdit::Normal, plItem->plottable()->name(), &ok);
+    if(ok)
     {
-        QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
-        bool ok;
-        QString newName = QInputDialog::getText(this, tr("Legend:"), tr("New graph name:"), QLineEdit::Normal, plItem->plottable()->name(), &ok);
-        if(ok)
-        {
-            plItem->plottable()->setName(newName);
-            ui->qcpWidget->replot();
-        }
+        plItem->plottable()->setName(newName);
+        ui->qcpWidget->replot();
     }
 }
 
@@ -100,6 +103,28 @@ void PlotTab::onQCPAxisDoubleClick(QCPAxis *axis)
         on_plot_fitXButton_clicked();
     else if(axis == ui->qcpWidget->yAxis)
         on_plot_fitYButton_clicked();
+}
+
+void PlotTab::onQCPMousePress(QMouseEvent *event)
+{
+    QCPAbstractLegendItem* item = getLegendItemByPos(event->pos());
+    if(item == nullptr)
+        return;
+    longPressCounter[item] = event->timestamp();
+}
+
+void PlotTab::onQCPMouseRelease(QMouseEvent *event)
+{
+    QCPAbstractLegendItem* item = getLegendItemByPos(event->pos());
+    if(item == nullptr)
+        return;
+    ulong pressTimestamp = longPressCounter[item]; // default value is 0
+    ulong releaseTimestamp = event->timestamp();
+    if(pressTimestamp != 0 && releaseTimestamp > pressTimestamp && releaseTimestamp - pressTimestamp > 1000)
+    {
+        qDebug() << "long pressed!";
+    }
+    longPressCounter[item] = 0; // avoid multi click
 }
 
 void PlotTab::onQCPMouseMoved(QMouseEvent *event)
@@ -134,6 +159,7 @@ void PlotTab::on_plot_dataNumBox_valueChanged(int arg1)
         for(int i = 0; i < delta; i++)
             ui->qcpWidget->removeGraph(ui->qcpWidget->graphCount() - 1);
     }
+    longPressCounter.clear();
 }
 
 void PlotTab::on_plot_clearButton_clicked()
@@ -400,7 +426,7 @@ void PlotTab::newData(const QByteArray& data)
     if(!ui->plot_enaBox->isChecked())
         return;
 
-    plotBuf->append(data); // TODO: use decoder
+    plotBuf->append(decoder->toUnicode(data));
     while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
     {
         hasData = true;
@@ -447,4 +473,29 @@ void PlotTab::newData(const QByteArray& data)
             updateTracer(currKey);
     }
     ui->qcpWidget->replot(QCustomPlot::rpQueuedReplot);
+}
+
+void PlotTab::setDecoder(QTextDecoder *decoder)
+{
+    if(this->decoder != nullptr)
+        delete this->decoder;
+    this->decoder = decoder;
+}
+
+QCPAbstractLegendItem* PlotTab::getLegendItemByPos(const QPointF &pos)
+{
+    int i;
+    if(!ui->qcpWidget->legend->visible()) // a bug in QCustomPlot v2.10, visibility needs to be checked
+        return nullptr;
+    if(ui->qcpWidget->legend->selectTest(pos, false) == -1.0)
+        return nullptr;
+    for(i = 0; i < ui->qcpWidget->legend->itemCount(); i++)
+    {
+        QCPAbstractLegendItem* it = ui->qcpWidget->legend->item(i);
+        if(it->selectTest(pos, false) != -1.0)
+        {
+            return it;
+        }
+    }
+    return nullptr;
 }

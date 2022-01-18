@@ -20,15 +20,15 @@ bool MyCustomPlot::event(QEvent *event)
         if(!interactions().testFlag(QCP::iRangeZoom))
             return QWidget::event(event);
         QPinchGesture* pinchGesture = static_cast<QPinchGesture *>(gesture);
-        if(!HandlePinchGesture(pinchGesture))
+        if(!handlePinchGesture(pinchGesture))
             return QWidget::event(event);
         event->accept();
         return true;
     }
-    return QWidget::event(event);
+    return QCustomPlot::event(event);
 }
 
-bool MyCustomPlot::HandlePinchGesture(QPinchGesture* pinchGesture)
+bool MyCustomPlot::handlePinchGesture(QPinchGesture* pinchGesture)
 {
     if(pinchGesture->state() != Qt::GestureFinished)
         return false;

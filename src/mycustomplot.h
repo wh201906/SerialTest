@@ -6,11 +6,12 @@
 class MyCustomPlot : public QCustomPlot
 {
     Q_OBJECT
-    bool HandlePinchGesture(QPinchGesture *pinchGesture);
 public:
     MyCustomPlot(QWidget *parent = nullptr);
 protected:
     bool event(QEvent *event);
+private:
+    bool handlePinchGesture(QPinchGesture *pinchGesture);
 };
 
 #endif // MYCUSTOMPLOT_H

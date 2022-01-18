@@ -27,6 +27,7 @@ public:
     void setFlowCtrl(bool isRTSValid, bool rts, bool dtr);
     void setRepeat(bool state);
     bool getRxRealtimeState();
+    void initSettings();
 private slots:
     void saveDataPreference();
     void on_data_encodingSetButton_clicked();
@@ -74,11 +75,11 @@ private:
     QByteArray* rawReceivedData = nullptr;
     QByteArray* rawSendedData = nullptr;
 
-    void initSettings();
     void loadPreference();
 signals:
     void send(const QByteArray& data);
     void setDataCodec(QTextCodec* codec);
+    void setPlotDecoder(QTextDecoder* decoder);
     void setRxLabelText(const QString& text);
     void setTxLabelText(const QString& text);
 };

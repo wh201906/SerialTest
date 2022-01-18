@@ -25,8 +25,6 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
     connect(RxSlider, &QScrollBar::valueChanged, this, &DataTab::onRxSliderValueChanged);
     connect(RxSlider, &QScrollBar::sliderMoved, this, &DataTab::onRxSliderMoved);
 
-    initSettings();
-    on_data_encodingSetButton_clicked();
 #ifdef Q_OS_ANDROID
     ui->data_flowControlBox->setVisible(false);
 #endif
@@ -68,8 +66,9 @@ void DataTab::on_data_encodingSetButton_clicked()
         if(RxDecoder != nullptr)
             delete RxDecoder;
         dataCodec = newCodec;
-        emit setDataCodec(dataCodec); // use the same address after startup
+        emit setDataCodec(dataCodec);
         RxDecoder = dataCodec->makeDecoder(); // clear state machine
+        emit setPlotDecoder(dataCodec->makeDecoder());// clear state machine, standalone decoder for DataTab/PlotTab
         settings->beginGroup("SerialTest_Data");
         settings->setValue("Encoding_Name", ui->data_encodingNameBox->currentText());
         settings->endGroup();
@@ -121,7 +120,7 @@ void DataTab::loadPreference()
     ui->data_flowRTSBox->setChecked(settings->value("Flow_RTS", false).toBool());
     ui->data_encodingNameBox->setCurrentText(settings->value("Encoding_Name", "UTF-8").toString());
     settings->endGroup();
-    RxSlider = ui->receivedEdit->verticalScrollBar();
+    on_data_encodingSetButton_clicked();
 }
 
 void DataTab::on_data_suffixTypeBox_currentIndexChanged(int index)

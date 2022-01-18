@@ -118,22 +118,13 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
+            <number>7</number>
            </property>
            <item>
             <layout class="QGridLayout" name="gridLayout_2">
+             <property name="verticalSpacing">
+              <number>7</number>
+             </property>
              <item row="3" column="0">
               <widget class="QLabel" name="stopBitsLabel">
                <property name="text">
@@ -321,7 +312,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <property name="spacing">
-              <number>5</number>
+              <number>7</number>
              </property>
              <item>
               <widget class="QPushButton" name="openButton">

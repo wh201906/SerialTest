@@ -69,13 +69,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(dataTab, &DataTab::setRxLabelText, RxLabel, &QLabel::setText);
     connect(dataTab, &DataTab::setTxLabelText, TxLabel, &QLabel::setText);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
-    ui->funcTab->insertTab(1, dataTab, "DData");
+    ui->funcTab->insertTab(1, dataTab, tr("Data"));
     plotTab = new PlotTab();
-    ui->funcTab->insertTab(2, plotTab, "PPlot");
+    connect(dataTab, &DataTab::setPlotDecoder, plotTab, &PlotTab::setDecoder);
+    ui->funcTab->insertTab(2, plotTab, tr("Plot"));
     ctrlTab = new CtrlTab();
     connect(ctrlTab, &CtrlTab::send, this, &MainWindow::sendData);
     connect(dataTab, &DataTab::setDataCodec, ctrlTab, &CtrlTab::setDataCodec);
-    ui->funcTab->insertTab(3, ctrlTab, "CCtrl");
+    ui->funcTab->insertTab(3, ctrlTab, tr("Control"));
+    initTabs();
 
     IODeviceState = false;
     updateUITimer = new QTimer();
@@ -114,6 +116,14 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::initTabs()
+{
+    // these functions must be called after class initialization with fixed order
+    dataTab->initSettings();
+    plotTab->initSettings();
+    plotTab->initQCP();
 }
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
