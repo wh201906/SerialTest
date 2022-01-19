@@ -7,6 +7,8 @@ PlotTab::PlotTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    doubleRegex = new QRegularExpression("-?\\d*\\.?\\d+");
+    doubleRegex->optimize();
     on_plot_advancedBox_stateChanged(Qt::Unchecked); // hide
 }
 
@@ -442,19 +444,19 @@ void PlotTab::newData(const QByteArray& data)
         {
             currKey = plotCounter;
             for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
-                ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
+                ui->qcpWidget->graph(i)->addData(currKey, toDouble(dataList[i]));
         }
         else if(ui->plot_XTypeBox->currentIndex() == 1)
         {
-            currKey = dataList[0].toDouble();
+            currKey = toDouble(dataList[0]);
             for(i = 1; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
-                ui->qcpWidget->graph(i - 1)->addData(currKey, dataList[i].toDouble());
+                ui->qcpWidget->graph(i - 1)->addData(currKey, toDouble(dataList[i]));
         }
         else if(ui->plot_XTypeBox->currentIndex() == 2)
         {
             currKey = plotTime.msecsTo(QTime::currentTime()) / 1000.0;
             for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
-                ui->qcpWidget->graph(i)->addData(currKey, dataList[i].toDouble());
+                ui->qcpWidget->graph(i)->addData(currKey, toDouble(dataList[i]));
         }
 
     }
@@ -498,4 +500,9 @@ QCPAbstractLegendItem* PlotTab::getLegendItemByPos(const QPointF &pos)
         }
     }
     return nullptr;
+}
+
+inline double PlotTab::toDouble(const QString& str)
+{
+    return doubleRegex->match(str).captured().toDouble();
 }

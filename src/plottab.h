@@ -24,25 +24,6 @@ public:
 public slots:
     void newData(const QByteArray &data);
     void setDecoder(QTextDecoder* decoder);
-private:
-    Ui::PlotTab *ui;
-
-    QString* plotBuf;
-    quint64 plotCounter;
-    QCPItemTracer* plotTracer;
-    QCPItemText* plotText;
-    int plotSelectedId = 0;
-    QString plotSelectedName;
-    QString plotFrameSeparator;
-    QString plotDataSeparator;
-    QString plotClearFlag;
-    double plotXAxisWidth;
-    QSharedPointer<QCPAxisTickerTime> plotTimeTicker = QSharedPointer<QCPAxisTickerTime>(new QCPAxisTickerTime);
-    QSharedPointer<QCPAxisTicker> plotDefaultTicker;
-    QTime plotTime;
-
-    QTextDecoder* decoder = nullptr;
-
 signals:
 
 private slots:
@@ -71,11 +52,31 @@ private slots:
     void savePlotPreference();
     void loadPreference();
 private:
-    MySettings *settings;
-    void updateTracer(double x);
-    QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);
+    Ui::PlotTab *ui;
+
+    QString* plotBuf;
+    quint64 plotCounter;
+    QCPItemTracer* plotTracer;
+    QCPItemText* plotText;
+    int plotSelectedId = 0;
+    QString plotSelectedName;
+    QString plotFrameSeparator;
+    QString plotDataSeparator;
+    QString plotClearFlag;
+    double plotXAxisWidth;
+    QSharedPointer<QCPAxisTickerTime> plotTimeTicker = QSharedPointer<QCPAxisTickerTime>(new QCPAxisTickerTime);
+    QSharedPointer<QCPAxisTicker> plotDefaultTicker;
+    QTime plotTime;
 
     QMap<QCPAbstractLegendItem*, ulong> longPressCounter;
+
+    QTextDecoder* decoder = nullptr;
+    MySettings *settings;
+    QRegularExpression* doubleRegex;
+
+    void updateTracer(double x);
+    QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);
+    inline double toDouble(const QString& str); // find valid value then convert
 };
 
 #endif // PLOTTAB_H
