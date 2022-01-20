@@ -7,7 +7,7 @@ PlotTab::PlotTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    doubleRegex = new QRegularExpression("-?\\d*\\.?\\d+");
+    doubleRegex = new QRegularExpression("-?\\d*\\.?\\d+"); // for +xxxxx and xxxxx. , just get xxxxx
     doubleRegex->optimize();
     on_plot_advancedBox_stateChanged(Qt::Unchecked); // hide
 }
@@ -91,7 +91,7 @@ void PlotTab::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *i
 
     QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
     bool ok;
-    QString newName = QInputDialog::getText(this, tr("Legend:"), tr("New graph name:"), QLineEdit::Normal, plItem->plottable()->name(), &ok);
+    QString newName = QInputDialog::getText(this, tr("Legend"), tr("New graph name") + ":", QLineEdit::Normal, plItem->plottable()->name(), &ok);
     if(ok)
     {
         plItem->plottable()->setName(newName);

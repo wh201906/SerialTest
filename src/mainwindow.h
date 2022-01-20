@@ -24,6 +24,7 @@
 #include "plottab.h"
 #include "ctrltab.h"
 #include "datatab.h"
+#include "devicetab.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -43,18 +44,14 @@ public:
 public slots:
     void sendData(const QByteArray &data);
 #ifdef Q_OS_ANDROID
-    void BTdeviceDiscovered(const QBluetoothDeviceInfo &device);
-    void BTdiscoverFinished();
+    void openDevice(const QString &name);
+#else
+    void openDevice(const QString &name, const qint32 baudRate, QSerialPort::DataBits dataBits, QSerialPort::StopBits stopBits, QSerialPort::Parity parity, QSerialPort::FlowControl flowControl);
 #endif
-
+    void closeDevice();
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 private slots:
-    void refreshPortsInfo();
-    void on_portTable_cellClicked(int row, int column);
-    void on_advancedBox_clicked(bool checked);
-    void on_openButton_clicked();
-    void on_closeButton_clicked();
     void readData();
     void onStateButtonClicked();
     void updateRxUI();
@@ -82,7 +79,7 @@ private:
     bool IODeviceState;
     QIODevice* IODevice;
 
-    QLabel* portLabel;
+    QLabel* deviceLabel;
     QPushButton* stateButton;
     QLabel* TxLabel;
     QLabel* RxLabel;
@@ -92,6 +89,12 @@ private:
     QByteArray* RxUIBuf;
 
     QTimer* updateUITimer;
+
+    MySettings* settings;
+    PlotTab* plotTab;
+    CtrlTab* ctrlTab;
+    DataTab* dataTab;
+    DeviceTab* deviceTab;
 
     enum tableHeader
     {
@@ -107,31 +110,21 @@ private:
     };
 
 #ifdef Q_OS_ANDROID
-    QBluetoothDeviceDiscoveryAgent *BTdiscoveryAgent;
     QBluetoothSocket* BTSocket;
-    QString BTlastAddress;
+    QString BTNewAddress;
+    QString BTLastAddress;
 #else
     QSerialPort* serialPort;
-    QSerialPortInfo* serialPortInfo;
 
     QList<QDockWidget*> dockList;
-
-
-    void dockInit();
-    void loadPortPreference(const QString &id);
-    void savePortPreference(const QString &portName);
-
     QLabel* baudRateLabel;
     QLabel* dataBitsLabel;
     QLabel* stopBitsLabel;
     QLabel* parityLabel;
     QCheckBox* onTopBox;
 
+    void dockInit();
 #endif
-    MySettings* settings;
-    PlotTab* plotTab;
-    CtrlTab* ctrlTab;
-    DataTab* dataTab;
     void initTabs();
 };
 #endif // MAINWINDOW_H

@@ -23,6 +23,7 @@ SOURCES += \
     controlitem.cpp \
     ctrltab.cpp \
     datatab.cpp \
+    devicetab.cpp \
     main.cpp \
     mainwindow.cpp \
     mycustomplot.cpp \
@@ -34,6 +35,7 @@ HEADERS += \
     controlitem.h \
     ctrltab.h \
     datatab.h \
+    devicetab.h \
     mainwindow.h \
     mycustomplot.h \
     mysettings.h \
@@ -41,6 +43,7 @@ HEADERS += \
     qcustomplot.h
 
 FORMS += \
+    ui/devicetab.ui \
     ui/datatab.ui \
     ui/ctrltab.ui \
     ui/controlitem.ui \
