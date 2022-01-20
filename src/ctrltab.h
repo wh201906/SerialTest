@@ -2,6 +2,7 @@
 #define CTRLTAB_H
 
 #include <QWidget>
+#include <QTextCodec>
 
 namespace Ui
 {
@@ -19,14 +20,11 @@ public:
 public slots:
     void setDataCodec(QTextCodec *codec);
 private slots:
-    void on_ctrl_addCMDButton_clicked();
-    void on_ctrl_addSliderButton_clicked();
-    void on_ctrl_addCheckBoxButton_clicked();
-    void on_ctrl_addSpinBoxButton_clicked();
     void onCtrlItemDestroyed();
     void on_ctrl_clearButton_clicked();
     void on_ctrl_importButton_clicked();
     void on_ctrl_exportButton_clicked();
+    void addCtrlItem();
 private:
     Ui::CtrlTab *ui;
 
@@ -34,6 +32,7 @@ private:
     QTextCodec* dataCodec = nullptr;
 signals:
     void send(const QByteArray& data);
+    void newDataCodec(QTextCodec *codec);
 };
 
 #endif // CTRLTAB_H

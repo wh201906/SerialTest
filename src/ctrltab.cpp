@@ -15,6 +15,11 @@ CtrlTab::CtrlTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    connect(ui->ctrl_addCMDButton, &QPushButton::clicked, this, &CtrlTab::addCtrlItem);
+    connect(ui->ctrl_addSliderButton, &QPushButton::clicked, this, &CtrlTab::addCtrlItem);
+    connect(ui->ctrl_addCheckBoxButton, &QPushButton::clicked, this, &CtrlTab::addCtrlItem);
+    connect(ui->ctrl_addSpinBoxButton, &QPushButton::clicked, this, &CtrlTab::addCtrlItem);
+
     ui->ctrl_dataEdit->setVisible(false);
 }
 
@@ -25,46 +30,28 @@ CtrlTab::~CtrlTab()
 
 void CtrlTab::setDataCodec(QTextCodec *codec)
 {
-    this->dataCodec = codec;
+    dataCodec = codec;
+    emit newDataCodec(dataCodec);
 }
 
-void CtrlTab::on_ctrl_addCMDButton_clicked()
+void CtrlTab::addCtrlItem()
 {
+    ControlItem::Type type = ControlItem::Command;
+    QString buttonName = sender()->objectName();
+    if(buttonName.contains("CMD"))
+        type = ControlItem::Command;
+    else if(buttonName.contains("Slider"))
+        type = ControlItem::Slider;
+    else if(buttonName.contains("CheckBox"))
+        type = ControlItem::CheckBox;
+    else if(buttonName.contains("SpinBox"))
+        type = ControlItem::SpinBox;
     QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::Command);
+    ControlItem* c = new ControlItem(type);
     connect(c, &ControlItem::send, this, &CtrlTab::send);
     connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
-    c->setCodecPtr(dataCodec);
-    p->insertWidget(ctrlItemCount++, c);
-}
-
-
-void CtrlTab::on_ctrl_addSliderButton_clicked()
-{
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::Slider);
-    connect(c, &ControlItem::send, this, &CtrlTab::send);
-    connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
-    p->insertWidget(ctrlItemCount++, c);
-}
-
-
-void CtrlTab::on_ctrl_addCheckBoxButton_clicked()
-{
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::CheckBox);
-    connect(c, &ControlItem::send, this, &CtrlTab::send);
-    connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
-    p->insertWidget(ctrlItemCount++, c);
-}
-
-
-void CtrlTab::on_ctrl_addSpinBoxButton_clicked()
-{
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    ControlItem* c = new ControlItem(ControlItem::SpinBox);
-    connect(c, &ControlItem::send, this, &CtrlTab::send);
-    connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
+    connect(this, &CtrlTab::newDataCodec, c, &ControlItem::setDataCodec);
+    c->setDataCodec(dataCodec);
     p->insertWidget(ctrlItemCount++, c);
 }
 
@@ -95,7 +82,7 @@ void CtrlTab::on_ctrl_importButton_clicked()
     else
     {
         QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-        QStringList dataList = ui->ctrl_dataEdit->toPlainText().split("\n", Qt::SkipEmptyParts);
+        QStringList dataList = ui->ctrl_dataEdit->toPlainText().split("\n", QString::SkipEmptyParts);
         for(auto it = dataList.begin(); it != dataList.end(); it++)
         {
             if(it->at(0) == '#')
@@ -122,7 +109,7 @@ void CtrlTab::on_ctrl_importButton_clicked()
         return;
     QFile file(fileName);
     flag &= file.open(QFile::ReadOnly | QFile::Text);
-    QStringList dataList = QString(file.readAll()).split("\n", Qt::SkipEmptyParts);
+    QStringList dataList = QString(file.readAll()).split("\n", QString::SkipEmptyParts);
     for(auto it = dataList.begin(); it != dataList.end(); it++)
     {
         if(it->at(0) == '#')

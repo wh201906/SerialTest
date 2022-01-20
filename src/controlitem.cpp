@@ -312,7 +312,7 @@ QString ControlItem::save()
     return data;
 }
 
-void ControlItem::setCodecPtr(QTextCodec *codec)
+void ControlItem::setDataCodec(QTextCodec *codec)
 {
     this->dataCodec = codec;
 }

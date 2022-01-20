@@ -26,7 +26,8 @@ public:
 
     bool load(QString& data);
     QString save();
-    void setCodecPtr(QTextCodec* codec);
+public slots:
+    void setDataCodec(QTextCodec* codec);
 private slots:
     void on_slider_valueChanged(int value);
 
