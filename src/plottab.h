@@ -28,6 +28,7 @@ signals:
 
 private slots:
     void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent* event);
+    void onQCPLegendClick(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent *event);
     void onQCPAxisDoubleClick(QCPAxis *axis);
     void onQCPMousePress(QMouseEvent *event);
     void onQCPMouseRelease(QMouseEvent *event);
@@ -76,7 +77,10 @@ private:
 
     void updateTracer(double x);
     QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);
+    void setLegendItemName(QCPAbstractLegendItem *item);
     inline double toDouble(const QString& str); // find valid value then convert
+    void saveGraphName();
+    void changeGraphNum(int newNum);
 };
 
 #endif // PLOTTAB_H

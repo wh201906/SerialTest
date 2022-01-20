@@ -25,7 +25,7 @@ void PlotTab::initSettings()
     connect(ui->plot_enaBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
     connect(ui->plot_latestBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
     connect(ui->plot_XTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
-    connect(ui->plot_dataNumBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &PlotTab::savePlotPreference);
+    // savePlotPreference() must be called after plot_dataNumBox is changed, so the signal is not connected there.
     connect(ui->plot_legendCheckBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
     connect(ui->plot_tracerCheckBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
     connect(ui->plot_frameSpTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
@@ -74,6 +74,7 @@ void PlotTab::initQCP()
     connect(ui->qcpWidget, &QCustomPlot::selectionChangedByUser, this, &PlotTab::onQCPSelectionChanged);
     connect(ui->qcpWidget->xAxis, QOverload<const QCPRange&>::of(&QCPAxis::rangeChanged), this, &PlotTab::onXAxisChangedByUser);
     connect(ui->qcpWidget, &QCustomPlot::legendDoubleClick, this, &PlotTab::onQCPLegendDoubleClick);
+    connect(ui->qcpWidget, &QCustomPlot::legendClick, this, &PlotTab::onQCPLegendClick);
     connect(ui->qcpWidget, &QCustomPlot::axisDoubleClick, this, &PlotTab::onQCPAxisDoubleClick);
     connect(ui->qcpWidget, &QCustomPlot::mousePress, this, &PlotTab::onQCPMousePress);
     connect(ui->qcpWidget, &QCustomPlot::mouseRelease, this, &PlotTab::onQCPMouseRelease);
@@ -81,22 +82,39 @@ void PlotTab::initQCP()
 
 void PlotTab::onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent* event)
 {
-    // Rename a graph by double clicking on its legend item
     Q_UNUSED(legend)
-    qDebug() << event->type();
-    if((event->button() & Qt::LeftButton) == 0)
+    if((event->button() & Qt::LeftButton) == 0) // double click with left button
         return;
     if(item == nullptr)  // only react if item was clicked (user could have clicked on border padding of legend where there is no item, then item is 0)
         return;
 
+    // hide/show a graph
     QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
-    bool ok;
-    QString newName = QInputDialog::getText(this, tr("Legend"), tr("New graph name") + ":", QLineEdit::Normal, plItem->plottable()->name(), &ok);
-    if(ok)
+    QCPAbstractPlottable* pl = plItem->plottable();
+    if(pl->visible())
     {
-        plItem->plottable()->setName(newName);
-        ui->qcpWidget->replot();
+        pl->setName("*" + pl->name());
+        pl->setVisible(false);
     }
+    else
+    {
+        QString oldName = pl->name();
+        if(oldName[0] == '*')
+            pl->setName(oldName.right(oldName.size() - 1));
+        pl->setVisible(true);
+    }
+    ui->qcpWidget->replot();
+}
+
+void PlotTab::onQCPLegendClick(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent* event)
+{
+    // Rename a graph by right clicking on its legend item(or long press on Android)
+    Q_UNUSED(legend)
+    if((event->button() & Qt::RightButton) == 0) // right click
+        return;
+    if(item == nullptr)
+        return;
+    setLegendItemName(item);
 }
 
 void PlotTab::onQCPAxisDoubleClick(QCPAxis *axis)
@@ -125,6 +143,7 @@ void PlotTab::onQCPMouseRelease(QMouseEvent *event)
     if(pressTimestamp != 0 && releaseTimestamp > pressTimestamp && releaseTimestamp - pressTimestamp > 1000)
     {
         qDebug() << "long pressed!";
+        setLegendItemName(item);
     }
     longPressCounter[item] = 0; // avoid multi click
 }
@@ -141,9 +160,16 @@ void PlotTab::onQCPMouseMoved(QMouseEvent *event)
 
 void PlotTab::on_plot_dataNumBox_valueChanged(int arg1)
 {
+    changeGraphNum(arg1);
+    longPressCounter.clear();
+    savePlotPreference();
+}
+
+void PlotTab::changeGraphNum(int newNum)
+{
     if(ui->plot_XTypeBox->currentIndex() == 1) // use first data as X
-        arg1--;
-    int delta = arg1 - ui->qcpWidget->graphCount();
+        newNum--;
+    int delta = newNum - ui->qcpWidget->graphCount();
     QCPGraph* currGraph;
     if(delta > 0)
     {
@@ -161,7 +187,6 @@ void PlotTab::on_plot_dataNumBox_valueChanged(int arg1)
         for(int i = 0; i < delta; i++)
             ui->qcpWidget->removeGraph(ui->qcpWidget->graphCount() - 1);
     }
-    longPressCounter.clear();
 }
 
 void PlotTab::on_plot_clearButton_clicked()
@@ -332,6 +357,7 @@ void PlotTab::on_plot_XTypeBox_currentIndexChanged(int index)
     {
         ui->plot_dataNumBox->setValue(2);
         ui->plot_dataNumBox->setMinimum(2);
+        // no need to call on_plot_dataNumBox_valueChanged();
     }
     else
     {
@@ -366,6 +392,23 @@ void PlotTab::onXAxisChangedByUser(const QCPRange &newRange)
     plotXAxisWidth = newRange.size();
 }
 
+void PlotTab::saveGraphName()
+{
+    QStringList nameList;
+    settings->beginGroup("SerialTest_Plot");
+    for(int i = 0; i < ui->plot_dataNumBox->value(); i++)
+    {
+        QCPAbstractPlottable* g = ui->qcpWidget->graph(i);
+        QString gName = g->name();
+        if(!g->visible() && gName[0] == '*')
+            nameList << gName.right(gName.size() - 1);
+        else
+            nameList << gName;
+    }
+    settings->setValue("GraphName", nameList);
+    settings->endGroup();
+}
+
 void PlotTab::savePlotPreference()
 {
     settings->beginGroup("SerialTest_Plot");
@@ -390,6 +433,8 @@ void PlotTab::loadPreference()
     // default preferences are defined in this function
     const QString defaultFrameSp = "|";
     const QString defaultDataSp = ",";
+    QStringList nameList;
+    int nameNum;
 
     settings->beginGroup("SerialTest_Plot");
     // empty separator is not allowed
@@ -412,11 +457,16 @@ void PlotTab::loadPreference()
     ui->plot_clearFlagTypeBox->setCurrentIndex(settings->value("ClearF_Type", 1).toInt());
     ui->plot_clearFlagEdit->setText(settings->value("ClearF_Context", "cls").toString());
     ui->plot_scatterBox->setChecked(settings->value("Scatter", false).toBool());
+    nameList = settings->value("GraphName", QStringList()).toStringList();
     settings->endGroup();
-    on_plot_dataNumBox_valueChanged(ui->plot_dataNumBox->value());
+    changeGraphNum(ui->plot_dataNumBox->value());
     on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
     on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
     on_plot_clearFlagTypeBox_currentIndexChanged(ui->plot_clearFlagTypeBox->currentIndex());
+    nameNum = ui->plot_dataNumBox->value();
+    nameNum = nameNum < nameList.size() ? nameNum : nameList.size();
+    for(int i = 0; i < nameNum; i++)
+        ui->qcpWidget->graph(i)->setName(nameList[i]);
 }
 
 void PlotTab::newData(const QByteArray& data)
@@ -500,6 +550,23 @@ QCPAbstractLegendItem* PlotTab::getLegendItemByPos(const QPointF &pos)
         }
     }
     return nullptr;
+}
+
+void PlotTab::setLegendItemName(QCPAbstractLegendItem *item)
+{
+    QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
+    QCPAbstractPlottable* pl = plItem->plottable();
+    bool ok;
+    QString oldName = pl->name();
+    oldName = (!pl->visible() && oldName[0] == '*') ? oldName.right(oldName.size() - 1) : oldName;
+    QString newName = QInputDialog::getText(this, tr("Legend"), tr("New graph name") + ":", QLineEdit::Normal, oldName, &ok);
+    if(ok)
+    {
+
+        pl->setName((pl->visible() ? "" : "*") + newName);
+        ui->qcpWidget->replot();
+        saveGraphName();
+    }
 }
 
 inline double PlotTab::toDouble(const QString& str)
