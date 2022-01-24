@@ -28,6 +28,10 @@ public:
     void setRepeat(bool state);
     bool getRxRealtimeState();
     void initSettings();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private slots:
     void saveDataPreference();
     void on_data_encodingSetButton_clicked();

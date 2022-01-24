@@ -13,6 +13,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     contextMenu = new QMenu();
 #ifdef Q_OS_ANDROID
+    QBluetoothLocalDevice lDevice;
+    if(!lDevice.isValid())
+        QMessageBox::information(this, tr("Error"), tr("Bluetooth is invalid!"));
+    else if(lDevice.hostMode() == QBluetoothLocalDevice::HostPoweredOff)
+    {
+        QMessageBox::information(this, tr("Error"), tr("Please enable Bluetooth!"));
+        lDevice.powerOn();
+    }
     BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
     IODevice = BTSocket;
     connect(BTSocket, &QBluetoothSocket::connected, this, &MainWindow::onBTConnectionChanged);

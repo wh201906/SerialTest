@@ -124,6 +124,7 @@ void DeviceTab::initUI()
     ui->deviceTable->horizontalHeaderItem(HSystemLocation)->setText(tr("MAC Address"));
 
     ui->deviceLabel->setText(tr("Device") + ":");
+    ui->deviceBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 #else
     ui->flowControlBox->addItem(tr("NoFlowControl"));
     ui->flowControlBox->addItem(tr("HardwareControl"));
@@ -275,6 +276,7 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo &device)
     ui->deviceTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
     ui->deviceTable->setItem(i, HDescription, new QTableWidgetItem(tr("Discovered")));
     ui->deviceBox->addItem(address);
+    ui->deviceBox->adjustSize();
     qDebug() << name
              << address
              << device.isValid()

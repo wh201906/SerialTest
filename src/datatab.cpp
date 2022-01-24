@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QSerialPort>
 #include <QDateTime>
+#include <QDebug>
 
 DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
     QWidget(parent),
@@ -19,6 +20,7 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
 
     repeatTimer = new QTimer();
     RxSlider = ui->receivedEdit->verticalScrollBar();
+    ui->dataTabSplitter->handle(1)->installEventFilter(this); // the id of the 1st visible handle is 1 rather than 0
 
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &DataTab::on_sendButton_clicked);
     connect(repeatTimer, &QTimer::timeout, this, &DataTab::on_sendButton_clicked);
@@ -51,6 +53,22 @@ void DataTab::initSettings()
     connect(ui->repeatDelayEdit, &QLineEdit::editingFinished, this, &DataTab::saveDataPreference);
     connect(ui->data_flowDTRBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_flowRTSBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+}
+
+bool DataTab::eventFilter(QObject *watched, QEvent *event)
+{
+    // double click the handle to reset the size
+    if(watched == ui->dataTabSplitter->handle(1))
+    {
+        if(event->type() != QEvent::MouseButtonDblClick)
+            return false;
+        QList<int> newSizes = ui->dataTabSplitter->sizes(); // 2 elements
+        newSizes[0] += newSizes[1];
+        newSizes[1] = newSizes[0] / 2;
+        newSizes[0] -= newSizes[1];
+        ui->dataTabSplitter->setSizes(newSizes);
+    }
+    return false;
 }
 
 void DataTab::on_data_encodingSetButton_clicked()
