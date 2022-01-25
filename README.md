@@ -28,6 +28,11 @@ A cross-platform serial port test tool.
 
 [more previews](doc/previews/previews.md)  
 
+## Tutorials[WIP]
+[1.Connect](doc/tutorials/connect/connect_zh_CN.md)  
+[2.Send&Receive Data](doc/tutorials/data/data_zh_CN.md)  
+[3.Plot](doc/tutorials/plot/plot.gif)  
+
 ## Change Log
 [Change Log](CHANGELOG.md)
 

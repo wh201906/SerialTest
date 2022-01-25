@@ -28,6 +28,11 @@
 
 [更多预览](../previews/previews_zh_CN.md)  
 
+## 教程[未完工]
+[1.连接设备](../tutorials/connect/connect_zh_CN.md)  
+[2.数据收发](../tutorials/data/data_zh_CN.md)  
+[3.绘图](../tutorials/plot/plot.gif)  
+
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)
 
