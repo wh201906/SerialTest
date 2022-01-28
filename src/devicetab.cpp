@@ -235,6 +235,8 @@ void DeviceTab::on_deviceTable_cellClicked(int row, int column)
 #ifndef Q_OS_ANDROID
 void DeviceTab::saveDevicesPreference(const QString& deviceName)
 {
+    if(settings->group() != "")
+        return;
     QSerialPortInfo info(deviceName);
     QString id;
     if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)

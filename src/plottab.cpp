@@ -394,6 +394,8 @@ void PlotTab::onXAxisChangedByUser(const QCPRange &newRange)
 
 void PlotTab::saveGraphName()
 {
+    if(settings->group() != "")
+        return;
     QStringList nameList;
     settings->beginGroup("SerialTest_Plot");
     for(int i = 0; i < ui->plot_dataNumBox->value(); i++)
@@ -411,6 +413,8 @@ void PlotTab::saveGraphName()
 
 void PlotTab::savePlotPreference()
 {
+    if(settings->group() != "")
+        return;
     settings->beginGroup("SerialTest_Plot");
     settings->setValue("Enabled", ui->plot_enaBox->isChecked());
     settings->setValue("Latest", ui->plot_latestBox->isChecked());
