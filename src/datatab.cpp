@@ -30,6 +30,9 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
 #ifdef Q_OS_ANDROID
     ui->data_flowControlBox->setVisible(false);
 #endif
+
+    // might be faster?
+    // ui->receivedEdit->setWordWrapMode(QTextOption::WrapAnywhere);
 }
 
 DataTab::~DataTab()
@@ -362,7 +365,7 @@ void DataTab::appendReceivedData(const QByteArray& data)
         // Seperate for better realtime receiving response
         if(hexCounter > 5000)
         {
-            ui->receivedEdit->insertPlainText("\r\n");
+            ui->receivedEdit->insertPlainText("\n");
             hexCounter = 0;
         }
     }

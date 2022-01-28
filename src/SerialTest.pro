@@ -29,7 +29,8 @@ SOURCES += \
     mycustomplot.cpp \
     mysettings.cpp \
     plottab.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    serialpinout.cpp
 
 HEADERS += \
     controlitem.h \
@@ -40,9 +41,11 @@ HEADERS += \
     mycustomplot.h \
     mysettings.h \
     plottab.h \
-    qcustomplot.h
+    qcustomplot.h \
+    serialpinout.h
 
 FORMS += \
+    ui/serialpinout.ui \
     ui/devicetab.ui \
     ui/datatab.ui \
     ui/ctrltab.ui \

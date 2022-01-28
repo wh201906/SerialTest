@@ -25,6 +25,7 @@
 #include "ctrltab.h"
 #include "datatab.h"
 #include "devicetab.h"
+#include "serialpinout.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -61,6 +62,8 @@ private slots:
 #else
     void onTopBoxClicked(bool checked);
     void onSerialErrorOccurred(QSerialPort::SerialPortError error);
+    void updatePinout();
+    void onPinoutEnableStateChanged(bool state);
 #endif
 
     void onIODeviceConnected();
@@ -121,7 +124,10 @@ private:
     QLabel* dataBitsLabel;
     QLabel* stopBitsLabel;
     QLabel* parityLabel;
+    SerialPinout* serialPinout;
     QCheckBox* onTopBox;
+
+    QTimer* updatePinoutTimer;
 
     void dockInit();
 #endif

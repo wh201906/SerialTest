@@ -41,7 +41,12 @@ MainWindow::MainWindow(QWidget *parent)
     dataBitsLabel = new QLabel();
     stopBitsLabel = new QLabel();
     parityLabel = new QLabel();
+    serialPinout = new SerialPinout();
+    updatePinoutTimer = new QTimer();
     onTopBox = new QCheckBox(tr("On Top"));
+    updatePinoutTimer->setInterval(100);
+    connect(updatePinoutTimer, &QTimer::timeout, this, &MainWindow::updatePinout);
+    connect(serialPinout, &SerialPinout::enableStateChanged, this, &MainWindow::onPinoutEnableStateChanged);
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
 
     // on PC, store preferences in files for portable use
@@ -192,6 +197,7 @@ void MainWindow::initUI()
     statusBar()->addWidget(dataBitsLabel, 1);
     statusBar()->addWidget(stopBitsLabel, 1);
     statusBar()->addWidget(parityLabel, 1);
+    statusBar()->addWidget(serialPinout, 1);
     statusBar()->addWidget(onTopBox, 1);
     dockInit();
 #endif
@@ -294,6 +300,9 @@ void MainWindow::onIODeviceDisconnected()
     qDebug() << "IODevice Disconnected";
     IODeviceState = false;
     updateUITimer->stop();
+#ifndef Q_OS_ANDROID
+    updatePinoutTimer->stop();
+#endif
     stateUpdate();
     deviceTab->refreshDevicesInfo();
     updateRxUI();
@@ -397,6 +406,20 @@ void MainWindow::onSerialErrorOccurred(QSerialPort::SerialPortError error)
         onIODeviceDisconnected();
     }
 
+}
+
+void MainWindow::updatePinout()
+{
+    QSerialPort* port = static_cast<QSerialPort*>(IODevice);
+    serialPinout->setPinout(port->pinoutSignals());
+}
+
+void MainWindow::onPinoutEnableStateChanged(bool state)
+{
+    if(state)
+        updatePinoutTimer->start();
+    else
+        updatePinoutTimer->stop();
 }
 #endif
 
