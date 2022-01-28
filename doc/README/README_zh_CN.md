@@ -31,7 +31,7 @@
 ## 教程[未完工]
 [1.连接设备](../tutorials/connect/connect_zh_CN.md)  
 [2.数据收发](../tutorials/data/data_zh_CN.md)  
-[3.绘图](../tutorials/plot/plot.gif)  
+[3.绘图](../tutorials/plot/plot_zh_CN.md)  
 
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)

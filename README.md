@@ -31,7 +31,7 @@ A cross-platform serial port test tool.
 ## Tutorials[WIP]
 [1.Connect](doc/tutorials/connect/connect_zh_CN.md)  
 [2.Send&Receive Data](doc/tutorials/data/data_zh_CN.md)  
-[3.Plot](doc/tutorials/plot/plot.gif)  
+[3.Plot](doc/tutorials/plot/plot_zh_CN.md)  
 
 ## Change Log
 [Change Log](CHANGELOG.md)
