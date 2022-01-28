@@ -132,8 +132,8 @@ void MainWindow::initTabs()
     // these functions must be called after class initialization with fixed order
     deviceTab->initSettings();
     dataTab->initSettings();
-    plotTab->initSettings();
     plotTab->initQCP();
+    plotTab->initSettings();
 }
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
