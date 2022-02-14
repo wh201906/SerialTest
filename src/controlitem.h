@@ -2,6 +2,7 @@
 #define CONTROLITEM_H
 
 #include <QWidget>
+#include <QJsonObject>
 
 namespace Ui
 {
@@ -15,17 +16,17 @@ class ControlItem : public QWidget
 public:
     enum Type
     {
-        Command,
+        Command = 0,
         Slider,
         CheckBox,
         SpinBox,
     };
 
-    explicit ControlItem(Type type, QWidget *parent = nullptr);
+    explicit ControlItem(Type type = Command, QWidget *parent = nullptr);
     ~ControlItem();
 
-    bool load(QString& data);
-    QString save();
+    bool load(const QJsonObject& dict);
+    QJsonObject save();
 public slots:
     void setDataCodec(QTextCodec* codec);
 private slots:
@@ -66,7 +67,6 @@ private:
     Type type;
 
     void initUI();
-    const QString dataSplitter = "||,,||";
     QTextCodec* dataCodec;
 signals:
     void send(const QByteArray& data);

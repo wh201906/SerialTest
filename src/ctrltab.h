@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTextCodec>
+#include <QRegularExpression>
 
 namespace Ui
 {
@@ -30,6 +31,7 @@ private:
 
     int ctrlItemCount = 0;
     QTextCodec* dataCodec = nullptr;
+    QRegularExpression* commentRegExp = nullptr;
 signals:
     void send(const QByteArray& data);
     void newDataCodec(QTextCodec *codec);
