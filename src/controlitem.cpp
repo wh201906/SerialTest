@@ -32,8 +32,6 @@ void ControlItem::initUI()
     ui->autoLabel->setVisible(type != Command);
     ui->hexBox->setVisible(type == Command);
     ui->hexLabel->setVisible(type == Command);
-    ui->prefixBox->setVisible(type != Command);
-    ui->prefixLabel->setVisible(type != Command);
 
     on_minEdit_editingFinished();
     on_maxEdit_editingFinished();
@@ -204,7 +202,6 @@ void ControlItem::on_sendButton_clicked()
     if(ui->suffixBox->isChecked())
     {
         if(ui->suffixTypeBox->currentIndex() == 0)
-
             data += dataCodec->fromUnicode(ui->suffixEdit->text());
         else if(ui->suffixTypeBox->currentIndex() == 1)
             data += QByteArray::fromHex(ui->suffixEdit->text().toLatin1());
