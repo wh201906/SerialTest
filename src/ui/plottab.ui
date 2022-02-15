@@ -305,11 +305,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="plot_dataSpEdit">
-        <property name="maxLength">
-         <number>1</number>
-        </property>
-       </widget>
+       <widget class="QLineEdit" name="plot_dataSpEdit"/>
       </item>
       <item>
        <widget class="QLabel" name="label">

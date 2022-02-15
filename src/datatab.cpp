@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QSerialPort>
 #include <QDateTime>
+#include <QDebug>
 
 DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
     QWidget(parent),
@@ -19,6 +20,7 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
 
     repeatTimer = new QTimer();
     RxSlider = ui->receivedEdit->verticalScrollBar();
+    ui->dataTabSplitter->handle(1)->installEventFilter(this); // the id of the 1st visible handle is 1 rather than 0
 
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &DataTab::on_sendButton_clicked);
     connect(repeatTimer, &QTimer::timeout, this, &DataTab::on_sendButton_clicked);
@@ -53,6 +55,48 @@ void DataTab::initSettings()
     connect(ui->data_flowRTSBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
 }
 
+bool DataTab::eventFilter(QObject *watched, QEvent *event)
+{
+    if(watched == ui->dataTabSplitter->handle(1))
+    {
+        // double click the handle to reset the size
+        if(event->type() == QEvent::MouseButtonDblClick)
+        {
+            QList<int> newSizes = ui->dataTabSplitter->sizes(); // 2 elements
+            newSizes[1] += newSizes[0];
+            newSizes[0] = newSizes[1] * 0.5;
+            newSizes[1] -= newSizes[0];
+            ui->dataTabSplitter->setSizes(newSizes);
+        }
+        // save layout when mouse button is released
+        else if(event->type() == QEvent::MouseButtonRelease)
+        {
+            QList<int> sizes = ui->dataTabSplitter->sizes(); // 2 elements
+            double ratio = (double)sizes[0] / (sizes[0] + sizes[1]);
+            settings->beginGroup("SerialTest_Data");
+            settings->setValue("SplitRatio", ratio);
+            settings->endGroup();
+        }
+    }
+    return false;
+}
+
+void DataTab::showEvent(QShowEvent *ev)
+{
+    Q_UNUSED(ev)
+    // ui->dataTabSplitter->sizes() will return 0 if the widgets are invisible
+    settings->beginGroup("SerialTest_Data");
+    QList<int> newSizes = ui->dataTabSplitter->sizes();
+    double ratio = settings->value("SplitRatio", 0.5).toDouble();
+    settings->endGroup();
+
+    newSizes[1] += newSizes[0];
+    newSizes[0] = newSizes[1] * ratio;
+    newSizes[1] -= newSizes[0];
+
+    ui->dataTabSplitter->setSizes(newSizes);
+}
+
 void DataTab::on_data_encodingSetButton_clicked()
 {
     QTextCodec* newCodec;
@@ -82,6 +126,8 @@ void DataTab::on_data_encodingSetButton_clicked()
 
 void DataTab::saveDataPreference()
 {
+    if(settings->group() != "")
+        return;
     settings->beginGroup("SerialTest_Data");
     settings->setValue("Recv_Hex", ui->receivedHexBox->isChecked());
     settings->setValue("Recv_Latest", ui->receivedLatestBox->isChecked());
@@ -344,7 +390,7 @@ void DataTab::appendReceivedData(const QByteArray& data)
         // Seperate for better realtime receiving response
         if(hexCounter > 5000)
         {
-            ui->receivedEdit->insertPlainText("\r\n");
+            ui->receivedEdit->insertPlainText("\n");
             hexCounter = 0;
         }
     }
@@ -378,3 +424,4 @@ void DataTab::on_data_flowRTSBox_clicked(bool checked)
         port->setRequestToSend(checked);
 }
 #endif
+

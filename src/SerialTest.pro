@@ -29,7 +29,8 @@ SOURCES += \
     mycustomplot.cpp \
     mysettings.cpp \
     plottab.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    serialpinout.cpp
 
 HEADERS += \
     controlitem.h \
@@ -40,9 +41,11 @@ HEADERS += \
     mycustomplot.h \
     mysettings.h \
     plottab.h \
-    qcustomplot.h
+    qcustomplot.h \
+    serialpinout.h
 
 FORMS += \
+    ui/serialpinout.ui \
     ui/devicetab.ui \
     ui/datatab.ui \
     ui/ctrltab.ui \
@@ -58,7 +61,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-VERSION = 0.1.1
+VERSION = 0.1.2
 QMAKE_TARGET_PRODUCT = "SerialTest"
 QMAKE_TARGET_DESCRIPTION = "SerialTest"
 QMAKE_TARGET_COMPANY = "wh201906"

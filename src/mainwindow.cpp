@@ -13,6 +13,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     contextMenu = new QMenu();
 #ifdef Q_OS_ANDROID
+    QBluetoothLocalDevice lDevice;
+    if(!lDevice.isValid())
+        QMessageBox::information(this, tr("Error"), tr("Bluetooth is invalid!"));
+    else if(lDevice.hostMode() == QBluetoothLocalDevice::HostPoweredOff)
+    {
+        QMessageBox::information(this, tr("Error"), tr("Please enable Bluetooth!"));
+        lDevice.powerOn();
+    }
     BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
     IODevice = BTSocket;
     connect(BTSocket, &QBluetoothSocket::connected, this, &MainWindow::onBTConnectionChanged);
@@ -33,7 +41,12 @@ MainWindow::MainWindow(QWidget *parent)
     dataBitsLabel = new QLabel();
     stopBitsLabel = new QLabel();
     parityLabel = new QLabel();
+    serialPinout = new SerialPinout();
+    updatePinoutTimer = new QTimer();
     onTopBox = new QCheckBox(tr("On Top"));
+    updatePinoutTimer->setInterval(100);
+    connect(updatePinoutTimer, &QTimer::timeout, this, &MainWindow::updatePinout);
+    connect(serialPinout, &SerialPinout::enableStateChanged, this, &MainWindow::onPinoutEnableStateChanged);
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
 
     // on PC, store preferences in files for portable use
@@ -119,8 +132,8 @@ void MainWindow::initTabs()
     // these functions must be called after class initialization with fixed order
     deviceTab->initSettings();
     dataTab->initSettings();
-    plotTab->initSettings();
     plotTab->initQCP();
+    plotTab->initSettings();
 }
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
@@ -184,6 +197,7 @@ void MainWindow::initUI()
     statusBar()->addWidget(dataBitsLabel, 1);
     statusBar()->addWidget(stopBitsLabel, 1);
     statusBar()->addWidget(parityLabel, 1);
+    statusBar()->addWidget(serialPinout, 1);
     statusBar()->addWidget(onTopBox, 1);
     dockInit();
 #endif
@@ -269,6 +283,10 @@ void MainWindow::onIODeviceConnected()
     qDebug() << "IODevice Connected";
     IODeviceState = true;
     updateUITimer->start();
+#ifndef Q_OS_ANDROID
+    if(serialPinout->getEnableState())
+        updatePinoutTimer->start();
+#endif
     stateUpdate();
     deviceTab->refreshDevicesInfo();
 #ifndef Q_OS_ANDROID
@@ -286,6 +304,9 @@ void MainWindow::onIODeviceDisconnected()
     qDebug() << "IODevice Disconnected";
     IODeviceState = false;
     updateUITimer->stop();
+#ifndef Q_OS_ANDROID
+    updatePinoutTimer->stop();
+#endif
     stateUpdate();
     deviceTab->refreshDevicesInfo();
     updateRxUI();
@@ -389,6 +410,20 @@ void MainWindow::onSerialErrorOccurred(QSerialPort::SerialPortError error)
         onIODeviceDisconnected();
     }
 
+}
+
+void MainWindow::updatePinout()
+{
+    QSerialPort* port = static_cast<QSerialPort*>(IODevice);
+    serialPinout->setPinout(port->pinoutSignals());
+}
+
+void MainWindow::onPinoutEnableStateChanged(bool state)
+{
+    if(state)
+        updatePinoutTimer->start();
+    else
+        updatePinoutTimer->stop();
 }
 #endif
 

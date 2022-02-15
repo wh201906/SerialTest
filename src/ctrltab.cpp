@@ -6,8 +6,12 @@
 #include <QDateTime>
 #ifndef Q_OS_ANDROID
 #include <QFileDialog>
+#else
+#include <QClipboard>
 #endif
 #include <QMessageBox>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 CtrlTab::CtrlTab(QWidget *parent) :
     QWidget(parent),
@@ -19,6 +23,9 @@ CtrlTab::CtrlTab(QWidget *parent) :
     connect(ui->ctrl_addSliderButton, &QPushButton::clicked, this, &CtrlTab::addCtrlItem);
     connect(ui->ctrl_addCheckBoxButton, &QPushButton::clicked, this, &CtrlTab::addCtrlItem);
     connect(ui->ctrl_addSpinBoxButton, &QPushButton::clicked, this, &CtrlTab::addCtrlItem);
+
+    commentRegExp = new QRegularExpression("^#.+$", QRegularExpression::MultilineOption);
+    commentRegExp->optimize();
 
     ui->ctrl_dataEdit->setVisible(false);
 }
@@ -73,6 +80,7 @@ void CtrlTab::on_ctrl_importButton_clicked()
 #ifdef Q_OS_ANDROID
     if(ui->ctrl_importButton->text() == tr("Import"))
     {
+        ui->ctrl_dataEdit->setReadOnly(false);
         ui->ctrl_dataEdit->setPlainText("# " + tr("Paste the exported data in the box."));
         ui->ctrl_dataEdit->appendPlainText(""); // new line;
         ui->ctrl_itemArea->setVisible(false);
@@ -82,16 +90,15 @@ void CtrlTab::on_ctrl_importButton_clicked()
     else
     {
         QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-        QStringList dataList = ui->ctrl_dataEdit->toPlainText().split("\n", QString::SkipEmptyParts);
-        for(auto it = dataList.begin(); it != dataList.end(); it++)
+        QString dataStr = ui->ctrl_dataEdit->toPlainText().replace(*commentRegExp, "");
+        QJsonArray dataArray = QJsonDocument::fromJson(dataStr.toUtf8()).array();
+        for(auto it = dataArray.begin(); it != dataArray.end(); it++)
         {
-            if(it->at(0) == '#')
-                continue;
-            ControlItem* c = new ControlItem(ControlItem::Command);
+            ControlItem* c = new ControlItem();
             connect(c, &ControlItem::send, this, &CtrlTab::send);
             connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
             p->insertWidget(ctrlItemCount++, c);
-            if(!c->load(*it))
+            if(!c->load(it->toObject()))
                 c->deleteLater();
         }
         ui->ctrl_dataEdit->clear();
@@ -101,7 +108,6 @@ void CtrlTab::on_ctrl_importButton_clicked()
     }
 #else
     bool flag = true;
-    const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
     QString fileName;
     QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
     fileName = QFileDialog::getOpenFileName(this, tr("Import Control Panel"));
@@ -109,19 +115,19 @@ void CtrlTab::on_ctrl_importButton_clicked()
         return;
     QFile file(fileName);
     flag &= file.open(QFile::ReadOnly | QFile::Text);
-    QStringList dataList = QString(file.readAll()).split("\n", QString::SkipEmptyParts);
-    for(auto it = dataList.begin(); it != dataList.end(); it++)
+    QString dataStr = QString::fromUtf8(file.readAll());
+    file.close();
+    dataStr.replace(*commentRegExp, "");
+    QJsonArray dataArray = QJsonDocument::fromJson(dataStr.toUtf8()).array();
+    for(auto it = dataArray.begin(); it != dataArray.end(); it++)
     {
-        if(it->at(0) == '#')
-            continue;
-        ControlItem* c = new ControlItem(ControlItem::Command);
+        ControlItem* c = new ControlItem();
         connect(c, &ControlItem::send, this, &CtrlTab::send);
         connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
         p->insertWidget(ctrlItemCount++, c);
-        if(!c->load(*it))
+        if(!c->load(it->toObject()))
             c->deleteLater();
     }
-    file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 #endif
 }
@@ -137,11 +143,17 @@ void CtrlTab::on_ctrl_exportButton_clicked()
             QMessageBox::information(this, tr("Info"), tr("Please add item first"));
             return;
         }
-        const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
+        ui->ctrl_dataEdit->setReadOnly(true);
         ui->ctrl_dataEdit->setPlainText("# " + tr("Copy all text in this box and save it to somewhere."));
         ui->ctrl_dataEdit->appendPlainText("# " + tr("To import, click the Import button, then paste the text back."));
+        const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
+        QJsonArray dataArray;
         for(auto it = list.begin(); it != list.end(); it++)
-            ui->ctrl_dataEdit->appendPlainText((*it)->save());
+            dataArray.append((*it)->save());
+        QJsonDocument jsonData;
+        jsonData.setArray(dataArray);
+        ui->ctrl_dataEdit->appendPlainText(QString::fromUtf8(jsonData.toJson(QJsonDocument::Compact)));
+        QApplication::clipboard()->setText(ui->ctrl_dataEdit->toPlainText());
         ui->ctrl_itemArea->setVisible(false);
         ui->ctrl_dataEdit->setVisible(true);
         ui->ctrl_exportButton->setText(tr("Done"));
@@ -162,13 +174,17 @@ void CtrlTab::on_ctrl_exportButton_clicked()
     bool flag = true;
     const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
     QString fileName;
-    fileName = QFileDialog::getSaveFileName(this, tr("Export Control Panel"), "ctrl_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".txt");
+    fileName = QFileDialog::getSaveFileName(this, tr("Export Control Panel"), "ctrl_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".json");
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
     flag &= file.open(QFile::WriteOnly | QFile::Text);
+    QJsonArray dataArray;
     for(auto it = list.begin(); it != list.end(); it++)
-        flag &= file.write(((*it)->save() + "\n").toUtf8()) != -1;
+        dataArray.append((*it)->save());
+    QJsonDocument jsonData;
+    jsonData.setArray(dataArray);
+    flag &= file.write(jsonData.toJson()) != -1;
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 #endif

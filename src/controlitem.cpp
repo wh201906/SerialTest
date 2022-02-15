@@ -32,8 +32,6 @@ void ControlItem::initUI()
     ui->autoLabel->setVisible(type != Command);
     ui->hexBox->setVisible(type == Command);
     ui->hexLabel->setVisible(type == Command);
-    ui->prefixBox->setVisible(type != Command);
-    ui->prefixLabel->setVisible(type != Command);
 
     on_minEdit_editingFinished();
     on_maxEdit_editingFinished();
@@ -204,7 +202,6 @@ void ControlItem::on_sendButton_clicked()
     if(ui->suffixBox->isChecked())
     {
         if(ui->suffixTypeBox->currentIndex() == 0)
-
             data += dataCodec->fromUnicode(ui->suffixEdit->text());
         else if(ui->suffixTypeBox->currentIndex() == 1)
             data += QByteArray::fromHex(ui->suffixEdit->text().toLatin1());
@@ -238,44 +235,41 @@ void ControlItem::on_hexBox_stateChanged(int arg1)
     ui->CMDEdit->setPlaceholderText(tr("Command") + ((arg1 == Qt::Checked) ? "(Hex)" : ""));
 }
 
-bool ControlItem::load(QString& data)
+bool ControlItem::load(const QJsonObject& dict)
 {
-    QStringList list = data.split(dataSplitter);
-    if(list.length() < 14)
-        return false;
-    type = (Type)list[0].toUInt();
-    ui->nameEdit->setText(list[1]);
-    ui->prefixBox->setCheckState((Qt::CheckState)list[2].toUInt());
-    ui->prefixTypeBox->setCurrentIndex(list[3].toUInt());
-    ui->prefixEdit->setText(list[4]);
-    ui->suffixBox->setCheckState((Qt::CheckState)list[5].toUInt());
-    ui->suffixTypeBox->setCurrentIndex(list[6].toUInt());
-    ui->suffixEdit->setText(list[7]);
-    ui->hexBox->setCheckState((Qt::CheckState)list[8].toUInt());
-    ui->autoBox->setCheckState((Qt::CheckState)list[9].toUInt());
-    ui->minEdit->setText(list[10]);
-    ui->maxEdit->setText(list[11]);
-    ui->stepEdit->setText(list[12]);
+    type = (Type)dict["type"].toInt();
+    ui->nameEdit->setText(dict["name"].toString());
+    ui->prefixBox->setChecked(dict["prefixEnabled"].toBool());
+    ui->prefixTypeBox->setCurrentIndex(dict["prefixType"].toInt());
+    ui->prefixEdit->setText(dict["prefix"].toString());
+    ui->suffixBox->setChecked(dict["suffixEnabled"].toBool());
+    ui->suffixTypeBox->setCurrentIndex(dict["suffixType"].toInt());
+    ui->suffixEdit->setText(dict["suffix"].toString());
+    ui->hexBox->setChecked(dict["hex"].toBool());
+    ui->autoBox->setChecked(dict["auto"].toBool());
+    ui->minEdit->setText(dict["min"].toString());
+    ui->maxEdit->setText(dict["max"].toString());
+    ui->stepEdit->setText(dict["step"].toString());
 
     ui->slider->blockSignals(true);
     ui->checkBox->blockSignals(true);
     ui->spinBox->blockSignals(true);
     if(type == Command)
     {
-        ui->CMDEdit->setText(list[13]);
+        ui->CMDEdit->setText(dict["content"].toString());
     }
     else if(type == Slider)
     {
-        ui->sliderEdit->setText(list[13]);
-        ui->slider->setValue(list[13].toInt());
+        ui->slider->setValue(dict["content"].toInt());
+        ui->sliderEdit->setText(QString::number(ui->slider->value()));
     }
     else if(type == CheckBox)
     {
-        ui->checkBox->setCheckState((Qt::CheckState)list[13].toUInt());
+        ui->checkBox->setChecked(dict["content"].toBool());
     }
     else if(type == SpinBox)
     {
-        ui->spinBox->setValue(list[13].toDouble());
+        ui->spinBox->setValue(dict["content"].toDouble());
     }
     ui->slider->blockSignals(false);
     ui->checkBox->blockSignals(false);
@@ -285,30 +279,32 @@ bool ControlItem::load(QString& data)
     return true;
 }
 
-QString ControlItem::save()
+QJsonObject ControlItem::save()
 {
-    QString data;
-    data = QString::number(type) + dataSplitter;
-    data += ui->nameEdit->text() + dataSplitter;
-    data += QString::number(ui->prefixBox->checkState()) + dataSplitter;
-    data += QString::number(ui->prefixTypeBox->currentIndex()) + dataSplitter;
-    data += ui->prefixEdit->text() + dataSplitter;
-    data += QString::number(ui->suffixBox->checkState()) + dataSplitter;
-    data += QString::number(ui->suffixTypeBox->currentIndex()) + dataSplitter;
-    data += ui->suffixEdit->text() + dataSplitter;
-    data += QString::number(ui->hexBox->checkState()) + dataSplitter;
-    data += QString::number(ui->autoBox->checkState()) + dataSplitter;
-    data += ui->minEdit->text() + dataSplitter;
-    data += ui->maxEdit->text() + dataSplitter;
-    data += ui->stepEdit->text() + dataSplitter;
+    QJsonObject data;
+
+    data["type"] = type;
+    data["name"] = ui->nameEdit->text();
+    data["prefixEnabled"] = ui->prefixBox->isChecked();
+    data["prefixType"] = ui->prefixTypeBox->currentIndex();
+    data["prefix"] = ui->prefixEdit->text();
+    data["suffixEnabled"] = ui->suffixBox->isChecked();
+    data["suffixType"] = ui->suffixTypeBox->currentIndex();
+    data["suffix"] = ui->suffixEdit->text();
+    data["hex"] = ui->hexBox->isChecked();
+    data["auto"] = ui->autoBox->isChecked();
+    data["min"] = ui->minEdit->text();
+    data["max"] = ui->maxEdit->text();
+    data["step"] = ui->stepEdit->text();
     if(type == Command)
-        data += ui->CMDEdit->text();
+        data["content"] = ui->CMDEdit->text();
     else if(type == Slider)
-        data += QString::number(ui->slider->value());
+        data["content"] = ui->slider->value();
     else if(type == CheckBox)
-        data += QString::number(ui->checkBox->checkState());
+        data["content"] = ui->checkBox->isChecked();
     else if(type == SpinBox)
-        data += QString::number(ui->spinBox->value());
+        data["content"] = ui->spinBox->value();
+
     return data;
 }
 

@@ -67,7 +67,7 @@ void PlotTab::initQCP()
     plotText->setPen(QPen(Qt::black));
     plotText->setPadding(QMargins(2, 2, 2, 2));
     plotText->setVisible(false);
-    plotSelectedName = ui->qcpWidget->legend->itemWithPlottable(ui->qcpWidget->graph(plotSelectedId))->plottable()->name();
+    plotSelectedName = "";
     ui->qcpWidget->replot();
 
     // connect
@@ -152,7 +152,6 @@ void PlotTab::onQCPMouseMoved(QMouseEvent *event)
 {
     if(ui->plot_tracerCheckBox->isChecked())
     {
-        qDebug() << event->pos();
         double x = ui->qcpWidget->xAxis->pixelToCoord(event->pos().x());
         updateTracer(x);
     }
@@ -394,6 +393,8 @@ void PlotTab::onXAxisChangedByUser(const QCPRange &newRange)
 
 void PlotTab::saveGraphName()
 {
+    if(settings->group() != "")
+        return;
     QStringList nameList;
     settings->beginGroup("SerialTest_Plot");
     for(int i = 0; i < ui->plot_dataNumBox->value(); i++)
@@ -411,6 +412,8 @@ void PlotTab::saveGraphName()
 
 void PlotTab::savePlotPreference()
 {
+    if(settings->group() != "")
+        return;
     settings->beginGroup("SerialTest_Plot");
     settings->setValue("Enabled", ui->plot_enaBox->isChecked());
     settings->setValue("Latest", ui->plot_latestBox->isChecked());

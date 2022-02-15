@@ -28,6 +28,11 @@ public:
     void setRepeat(bool state);
     bool getRxRealtimeState();
     void initSettings();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+    void showEvent(QShowEvent *ev) override;
+
 private slots:
     void saveDataPreference();
     void on_data_encodingSetButton_clicked();
@@ -50,7 +55,6 @@ private slots:
     void on_data_flowDTRBox_clicked(bool checked);
     void on_data_flowRTSBox_clicked(bool checked);
 #endif
-
 
 private:
     Ui::DataTab *ui;

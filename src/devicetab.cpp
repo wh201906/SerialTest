@@ -124,6 +124,7 @@ void DeviceTab::initUI()
     ui->deviceTable->horizontalHeaderItem(HSystemLocation)->setText(tr("MAC Address"));
 
     ui->deviceLabel->setText(tr("Device") + ":");
+    ui->deviceBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 #else
     ui->flowControlBox->addItem(tr("NoFlowControl"));
     ui->flowControlBox->addItem(tr("HardwareControl"));
@@ -234,6 +235,8 @@ void DeviceTab::on_deviceTable_cellClicked(int row, int column)
 #ifndef Q_OS_ANDROID
 void DeviceTab::saveDevicesPreference(const QString& deviceName)
 {
+    if(settings->group() != "")
+        return;
     QSerialPortInfo info(deviceName);
     QString id;
     if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
@@ -275,6 +278,7 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo &device)
     ui->deviceTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
     ui->deviceTable->setItem(i, HDescription, new QTableWidgetItem(tr("Discovered")));
     ui->deviceBox->addItem(address);
+    ui->deviceBox->adjustSize();
     qDebug() << name
              << address
              << device.isValid()
