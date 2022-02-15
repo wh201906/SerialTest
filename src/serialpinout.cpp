@@ -14,9 +14,21 @@ SerialPinout::~SerialPinout()
     delete ui;
 }
 
+bool SerialPinout::getEnableState()
+{
+    return ui->enaBox->isChecked();
+}
+
 void SerialPinout::setEnableState(bool state)
 {
     onEnableStateChanged(state);
+}
+
+void SerialPinout::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event)
+    activeBGId++;
+    activeBGId %= 3;
 }
 
 void SerialPinout::on_enaBox_clicked(bool checked)
@@ -57,19 +69,19 @@ void SerialPinout::setPinout(QSerialPort::PinoutSignals signal)
 {
 
     if(signal.testFlag(QSerialPort::ClearToSendSignal))
-        ui->CTSLabel->setStyleSheet(greenBG);
+        ui->CTSLabel->setStyleSheet(activeBGList[activeBGId]);
     else
         ui->CTSLabel->setStyleSheet(noBG);
     if(signal.testFlag(QSerialPort::DataCarrierDetectSignal))
-        ui->DCDLabel->setStyleSheet(greenBG);
+        ui->DCDLabel->setStyleSheet(activeBGList[activeBGId]);
     else
         ui->DCDLabel->setStyleSheet(noBG);
     if(signal.testFlag(QSerialPort::DataSetReadySignal))
-        ui->DSRLabel->setStyleSheet(greenBG);
+        ui->DSRLabel->setStyleSheet(activeBGList[activeBGId]);
     else
         ui->DSRLabel->setStyleSheet(noBG);
     if(signal.testFlag(QSerialPort::RingIndicatorSignal))
-        ui->RILabel->setStyleSheet(greenBG);
+        ui->RILabel->setStyleSheet(activeBGList[activeBGId]);
     else
         ui->RILabel->setStyleSheet(noBG);
 }

@@ -283,6 +283,10 @@ void MainWindow::onIODeviceConnected()
     qDebug() << "IODevice Connected";
     IODeviceState = true;
     updateUITimer->start();
+#ifndef Q_OS_ANDROID
+    if(serialPinout->getEnableState())
+        updatePinoutTimer->start();
+#endif
     stateUpdate();
     deviceTab->refreshDevicesInfo();
 #ifndef Q_OS_ANDROID
