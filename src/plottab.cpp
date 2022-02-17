@@ -474,7 +474,7 @@ void PlotTab::loadPreference()
 
 void PlotTab::newData(const QByteArray& data)
 {
-    double currKey;
+    double currKey = 0;
     bool hasData = false;
     int i;
     QStringList dataList;
