@@ -33,8 +33,37 @@
 [2.数据收发](../tutorials/data/data_zh_CN.md)  
 [3.绘图](../tutorials/plot/plot_zh_CN.md)  
 
+## 示例程序
+demo/文件夹下提供了多种MCU的例程，可根据这些例程编写MCU上的程序与串口助手交互  
+
+## 在Windows和Android平台下直接使用
+[release](https://github.com/wh201906/SerialTest/releases) 页面当中包含了编译好的Windows程序和Android安装包，可直接下载。Windows平台下的程序免安装，解压后即可使用。  
+
+## 在Linux系统下编译
+### 1. 安装依赖
+```
+sudo apt-get update
+sudo apt-get install qt5-default libqt5serialport5 libqt5serialport5-dev 
+```
+### 2. 获取项目源码
+```
+cd ~
+git clone https://github.com/wh201906/SerialTest.git --depth=1
+cd SerialTest
+mkdir build && cd build
+```
+
+### 3. 选择如何使用QCustomPlot
+#### 使用QCustomPlot源代码（推荐）  
+你需要[下载](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz)QCustomPlot的压缩包，将当中的qcustomplot.cpp和qcustomplot.h解压到src/目录下，然后继续编译。
+#### 使用QCustomPlot库  
+如果src/目录中没有qcustomplot.cpp，项目在编译时会尝试在生成文件夹和库文件的默认文件夹当中寻找QCustomPlot的库文件(xxx.so/xxx.dll)。
+### 4. 编译并运行
+```
+qmake ../src
+make -j4 && make clean
+./SerialTest 
+```
+
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)
-
-## 手动编译
-编译时需要[手动下载](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz)qcustomplot.c和qcustomplot.h并放到/src目录下编译。  
