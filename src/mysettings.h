@@ -22,7 +22,10 @@ public:
 private:
     MySettings() {}
     MySettings(const MySettings&) {}
-    MySettings& operator=(const MySettings&) {}
+    MySettings& operator=(const MySettings&)
+    {
+        return *this;
+    };
     ~MySettings();
 
     static MySettings* m_inst;

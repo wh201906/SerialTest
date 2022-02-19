@@ -707,6 +707,11 @@
         <translation>无法打开串口。</translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="228"/>
+        <source>The port has been opened.</source>
+        <translation>串口已打开。</translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="256"/>
         <source>NoParity</source>
         <translation>无校验</translation>
@@ -806,6 +811,10 @@
     <message>
         <location filename="../mainwindow.cpp" line="18"/>
         <location filename="../mainwindow.cpp" line="21"/>
+        <location filename="../mainwindow.cpp" line="154"/>
+        <location filename="../mainwindow.cpp" line="171"/>
+        <location filename="../mainwindow.cpp" line="228"/>
+        <location filename="../mainwindow.cpp" line="233"/>
         <location filename="../mainwindow.cpp" line="333"/>
         <source>Error</source>
         <translation>错误</translation>
@@ -892,14 +901,14 @@
     <message>
         <location filename="../ui/plottab.ui" line="253"/>
         <location filename="../ui/plottab.ui" line="287"/>
-        <location filename="../ui/plottab.ui" line="330"/>
+        <location filename="../ui/plottab.ui" line="326"/>
         <source>String</source>
         <translation>字符串</translation>
     </message>
     <message>
         <location filename="../ui/plottab.ui" line="258"/>
         <location filename="../ui/plottab.ui" line="292"/>
-        <location filename="../ui/plottab.ui" line="335"/>
+        <location filename="../ui/plottab.ui" line="331"/>
         <source>Hex</source>
         <translation>16进制</translation>
     </message>
@@ -921,17 +930,17 @@
         <translation>数据项分隔符：</translation>
     </message>
     <message>
-        <location filename="../ui/plottab.ui" line="317"/>
+        <location filename="../ui/plottab.ui" line="313"/>
         <source>Clear:</source>
         <translation>清空符：</translation>
     </message>
     <message>
-        <location filename="../ui/plottab.ui" line="325"/>
+        <location filename="../ui/plottab.ui" line="321"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="../ui/plottab.ui" line="349"/>
+        <location filename="../ui/plottab.ui" line="345"/>
         <source>Scatter</source>
         <translation>显示点</translation>
     </message>

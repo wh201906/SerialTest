@@ -29,7 +29,6 @@ SOURCES += \
     mycustomplot.cpp \
     mysettings.cpp \
     plottab.cpp \
-    qcustomplot.cpp \
     serialpinout.cpp
 
 HEADERS += \
@@ -41,7 +40,6 @@ HEADERS += \
     mycustomplot.h \
     mysettings.h \
     plottab.h \
-    qcustomplot.h \
     serialpinout.h
 
 FORMS += \
@@ -81,3 +79,37 @@ ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 RESOURCES += \
     i18n/language.qrc
+
+exists(qcustomplot.cpp) {
+    # For platforms which don't have qcp library, like Android.
+
+    # Download qcustomplot source file at https://www.qcustomplot.com/index.php/download.
+    # Extract the .cpp and .h file in src/ folder,
+    # then build this project.
+    message(Using qcustomplot sources)
+
+    SOURCES += qcustomplot.cpp
+    HEADERS += qcustomplot.h
+} else {
+    # For platforms which have qcp library. This will increase compile speed.
+
+    # If qcustomplot library is not installed,
+    # put the library file(*.so/*.dll) in the building folder,
+    # then build this project.
+    message(Using qcustomplot library)
+
+    # Tell the qcustomplot header that it will be used as library:
+    DEFINES += QCUSTOMPLOT_USE_LIBRARY
+
+    # Link with debug version of qcustomplot if compiling in debug mode, else with release library:
+
+    CONFIG(debug, release|debug) {
+        win32:QCPLIB = qcustomplotd2
+        else: QCPLIB = qcustomplotd
+    } else {
+        win32:QCPLIB = qcustomplot2
+        else: QCPLIB = qcustomplot
+    }
+
+    LIBS += -L./ -l$$QCPLIB
+}

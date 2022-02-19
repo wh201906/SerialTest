@@ -71,4 +71,4 @@ Thumbs.db
 *.dll
 *.exe
 
-qcustomplot.*
+qcustomplot.cpp

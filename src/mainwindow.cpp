@@ -151,7 +151,7 @@ void MainWindow::onStateButtonClicked()
 #endif
     if(device.isEmpty())
     {
-        QMessageBox::warning(this, "Error", tr("Plz connect to a port first."));
+        QMessageBox::warning(this, tr("Error"), tr("Plz connect to a port first."));
         return;
     }
     if(IODeviceState)
@@ -168,7 +168,7 @@ void MainWindow::onStateButtonClicked()
         if(IODeviceState)
             onIODeviceConnected();
         else
-            QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
+            QMessageBox::warning(this, tr("Error"), tr("Cannot open the serial port."));
 #endif
     }
 }
@@ -225,12 +225,12 @@ void MainWindow::openDevice(const QString& name, const qint32 baudRate, QSerialP
     serialPort->setFlowControl(flowControl);
     if(serialPort->isOpen())
     {
-        QMessageBox::warning(this, "Error", "The port has been opened.");
+        QMessageBox::warning(this, tr("Error"), tr("The port has been opened."));
         return;
     }
     if(!serialPort->open(QSerialPort::ReadWrite))
     {
-        QMessageBox::warning(this, "Error", tr("Cannot open the serial port."));
+        QMessageBox::warning(this, tr("Error"), tr("Cannot open the serial port."));
         return;
     }
     onIODeviceConnected();
