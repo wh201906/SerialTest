@@ -25,6 +25,7 @@ A cross-platform serial port test tool.
 ![port_android](doc/previews/port_android.jpg)  
 ![data](doc/previews/data.png)  
 ![plot](doc/previews/plot.png)  
+![ctrl](doc/previews/ctrl.png)  
 
 [more previews](doc/previews/previews.md)  
 

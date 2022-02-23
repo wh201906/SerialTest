@@ -25,6 +25,7 @@
 ![port_android](../previews/port_android_zh_CN.jpg)  
 ![data](../previews/data_zh_CN.png)  
 ![plot](../previews/plot_zh_CN.png)  
+![ctrl](../previews/ctrl_zh_CN.png)  
 
 [更多预览](../previews/previews_zh_CN.md)  
 
