@@ -2,6 +2,9 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
+## V0.1.3
++ Fix some bugs  
+
 ## V0.1.2
 + Easier to use  
 + Use Json to storage control items in CtrlTab

@@ -41,6 +41,7 @@ void CtrlTab::setDataCodec(QTextCodec *codec)
     emit newDataCodec(dataCodec);
 }
 
+// remember to change on_ctrl_importButton_clicked() if related code is changed
 void CtrlTab::addCtrlItem()
 {
     ControlItem::Type type = ControlItem::Command;
@@ -75,6 +76,7 @@ void CtrlTab::on_ctrl_clearButton_clicked()
         (*it)->deleteLater();
 }
 
+// remember to change addCtrlItem() if related code is changed
 void CtrlTab::on_ctrl_importButton_clicked()
 {
 #ifdef Q_OS_ANDROID
@@ -97,6 +99,8 @@ void CtrlTab::on_ctrl_importButton_clicked()
             ControlItem* c = new ControlItem();
             connect(c, &ControlItem::send, this, &CtrlTab::send);
             connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
+            connect(this, &CtrlTab::newDataCodec, c, &ControlItem::setDataCodec);
+            c->setDataCodec(dataCodec);
             p->insertWidget(ctrlItemCount++, c);
             if(!c->load(it->toObject()))
                 c->deleteLater();
@@ -124,6 +128,8 @@ void CtrlTab::on_ctrl_importButton_clicked()
         ControlItem* c = new ControlItem();
         connect(c, &ControlItem::send, this, &CtrlTab::send);
         connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
+        connect(this, &CtrlTab::newDataCodec, c, &ControlItem::setDataCodec);
+        c->setDataCodec(dataCodec);
         p->insertWidget(ctrlItemCount++, c);
         if(!c->load(it->toObject()))
             c->deleteLater();

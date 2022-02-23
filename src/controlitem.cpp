@@ -181,9 +181,9 @@ void ControlItem::on_sendButton_clicked()
     if(type == Command)
     {
         if(ui->hexBox->isChecked())
-            data = QByteArray::fromHex(ui->CMDEdit->text().toLatin1());
+            data += QByteArray::fromHex(ui->CMDEdit->text().toLatin1());
         else
-            data = dataCodec->fromUnicode(ui->CMDEdit->text());
+            data += dataCodec->fromUnicode(ui->CMDEdit->text());
     }
     else if(type == Slider)
     {
