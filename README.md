@@ -6,19 +6,24 @@ A cross-platform serial port test tool.
 
 ## Features
 + Tested on Windows, Ubuntu, Android, Raspbian  
+(Android: Bluetooth SPP)  
 + Fast response  
-(Disable "Realtime" option in "data" tab for higher speed)  
+(UI update is separated from Data reception. Disable "Realtime" option in "data" tab for higher speed)  
 + Low memory cost  
-(around 1:1 memory cost in raw dump mode)  
-(useful when dumping serial data)  
+(Received bytes to memory consumption is about 1:1 in raw dump mode, useful when dumping serial data)  
 + Rich encoding support  
 (UTF-8/16/32, GB18030, BIG5, KOI8-R, EUC-JP, EUC-KR, …)  
-+ Remember all preferences  
-(All preferences are saved in one file on PC, portable and clean)  
-+ Export raw binary data or selected text  
-+ Real-time plot  
-+ Customized controllers  
-+ Android Bluetooth SPP support  
++ Flow control support on serialport  
+(HW/SW flow control, Modify DTR, RTS, Show CTS, DSR, DCD, RI)  
++ Export of raw binary data or selected text  
++ Real-time plotting  
+(Support multiple plotting modes, graph customization, clear screen command)  
++ Customized control(shortcut) panel  
+(Send commands/Modify parameters by one click, with prefix/suffix support，import/export, autosend)  
++ Flexible layout  
+(Detach panels as sub-windows, support window topping)  
++ Saving all preferences  
+(All preferences are saved in a single file on PC, portable and clean) 
 
 ## Previews
 ![port](doc/previews/port.png)  
@@ -30,12 +35,12 @@ A cross-platform serial port test tool.
 [more previews](doc/previews/previews.md)  
 
 ## Tutorials[WIP]
-[1.Connect](doc/tutorials/connect/connect_zh_CN.md)  
-[2.Send&Receive Data](doc/tutorials/data/data_zh_CN.md)  
+[1.Connect](doc/tutorials/connect/connect.md)  
+[2.Send&Receive Data](doc/tutorials/data/data.md)  
 [3.Plot](doc/tutorials/plot/plot_zh_CN.md)  
 
 ## Demos
-You can write programs on MCU according to the demos in the demo/ folder  
+You can write programs on MCU according to the demos in the [demo/](https://github.com/wh201906/SerialTest/tree/master/demo) folder  
 
 ## Binaries for Windows and Android
 You can download pre-built binaries in [release](https://github.com/wh201906/SerialTest/releases) page.  
