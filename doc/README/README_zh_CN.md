@@ -42,6 +42,7 @@
 
 ## 示例程序
 [demo/](https://github.com/wh201906/SerialTest/tree/master/demo)文件夹下提供了多种MCU的例程，可根据这些例程编写MCU上的程序与串口助手交互  
+[Demo文档](../../demo/README.md)  
 
 ## 在Windows和Android平台下直接使用
 [release](https://github.com/wh201906/SerialTest/releases) 页面当中包含了编译好的Windows程序和Android安装包，可直接下载。Windows平台下的程序免安装，解压后即可使用。  

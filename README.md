@@ -41,6 +41,7 @@ A cross-platform serial port test tool.
 
 ## Demos
 You can write programs on MCU according to the demos in the [demo/](https://github.com/wh201906/SerialTest/tree/master/demo) folder  
+[Demo README](demo/README.md)  
 
 ## Binaries for Windows and Android
 You can download pre-built binaries in [release](https://github.com/wh201906/SerialTest/releases) page.  
