@@ -24,10 +24,10 @@ int main()
     myitoa(i, buf, 10);
     UART_sendStr(buf);
     UART_sendByte(',');
-    myitoa(sin((double)i / 256 * 4 * PI) * 10000, buf, 10);
+    myitoa(sin((double)i / 256 * 2 * PI) * 10000, buf, 10);
     UART_sendStr(buf);
     UART_sendByte(',');
-    myitoa(cos((double)i / 256 * 4 * PI) * 10000 - 2000, buf, 10);
+    myitoa(cos((double)i / 256 * 2 * PI) * 10000 - 2000, buf, 10);
     UART_sendStr(buf);
     UART_sendByte('\n');
     i++;

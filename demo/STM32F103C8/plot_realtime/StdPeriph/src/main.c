@@ -54,7 +54,7 @@ int main(void)
   
   while (1)
   {
-    printf("%d,%f,%f\n", i, sin((double)i / 256 * 4 * PI) * 20, cos((double)i / 256 * 4 * PI) * 20 - 5);
+    printf("%d,%f,%f\n", i, sin((double)i / 256 * 2 * PI) * 20, cos((double)i / 256 * 2 * PI) * 20 - 5);
     i++;
   }
 }

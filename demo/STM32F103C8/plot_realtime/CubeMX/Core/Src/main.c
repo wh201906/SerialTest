@@ -107,7 +107,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    printf("%d,%f,%f\n", i, sin((double)i / 256 * 4 * PI) * 20, cos((double)i / 256 * 4 * PI) * 20 - 5);
+    printf("%d,%f,%f\n", i, sin((double)i / 256 * 2 * PI) * 20, cos((double)i / 256 * 2 * PI) * 20 - 5);
     i++;
   }
   /* USER CODE END 3 */
