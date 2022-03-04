@@ -29,7 +29,8 @@ SOURCES += \
     mycustomplot.cpp \
     mysettings.cpp \
     plottab.cpp \
-    serialpinout.cpp
+    serialpinout.cpp \
+    util.cpp
 
 HEADERS += \
     controlitem.h \
@@ -40,7 +41,8 @@ HEADERS += \
     mycustomplot.h \
     mysettings.h \
     plottab.h \
-    serialpinout.h
+    serialpinout.h \
+    util.h
 
 FORMS += \
     ui/serialpinout.ui \

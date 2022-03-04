@@ -1,4 +1,5 @@
 ﻿#include "datatab.h"
+#include "util.h"
 #include "ui_datatab.h"
 
 #include <QTimer>
@@ -205,6 +206,7 @@ void DataTab::on_receivedClearButton_clicked()
     rawReceivedData->clear();
     emit setRxLabelText(tr("Rx") + ": 0");
     syncReceivedEditWithData();
+    ui->sendedEdit->setPlainText(Util::unescape(ui->sendEdit->text())); // DEBUG
 }
 
 void DataTab::on_sendedClearButton_clicked()
