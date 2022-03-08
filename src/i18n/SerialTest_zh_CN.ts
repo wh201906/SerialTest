@@ -148,72 +148,72 @@
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="64"/>
-        <location filename="../ctrltab.cpp" line="81"/>
-        <location filename="../ctrltab.cpp" line="107"/>
+        <location filename="../ctrltab.cpp" line="83"/>
+        <location filename="../ctrltab.cpp" line="111"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="71"/>
-        <location filename="../ctrltab.cpp" line="139"/>
-        <location filename="../ctrltab.cpp" line="166"/>
+        <location filename="../ctrltab.cpp" line="145"/>
+        <location filename="../ctrltab.cpp" line="172"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="84"/>
+        <location filename="../ctrltab.cpp" line="86"/>
         <source>Paste the exported data in the box.</source>
         <translation>将导出的数据粘贴到此框中。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="88"/>
-        <location filename="../ctrltab.cpp" line="159"/>
+        <location filename="../ctrltab.cpp" line="90"/>
+        <location filename="../ctrltab.cpp" line="165"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="113"/>
+        <location filename="../ctrltab.cpp" line="117"/>
         <source>Import Control Panel</source>
         <translation>导入控制面板</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="131"/>
-        <location filename="../ctrltab.cpp" line="143"/>
-        <location filename="../ctrltab.cpp" line="171"/>
-        <location filename="../ctrltab.cpp" line="189"/>
+        <location filename="../ctrltab.cpp" line="137"/>
+        <location filename="../ctrltab.cpp" line="149"/>
+        <location filename="../ctrltab.cpp" line="177"/>
+        <location filename="../ctrltab.cpp" line="195"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="131"/>
-        <location filename="../ctrltab.cpp" line="189"/>
+        <location filename="../ctrltab.cpp" line="137"/>
+        <location filename="../ctrltab.cpp" line="195"/>
         <source>Successed!</source>
         <translation>成功！</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="131"/>
-        <location filename="../ctrltab.cpp" line="189"/>
+        <location filename="../ctrltab.cpp" line="137"/>
+        <location filename="../ctrltab.cpp" line="195"/>
         <source>Failed!</source>
         <translation>失败！</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="143"/>
-        <location filename="../ctrltab.cpp" line="171"/>
+        <location filename="../ctrltab.cpp" line="149"/>
+        <location filename="../ctrltab.cpp" line="177"/>
         <source>Please add item first</source>
         <translation>请先添加控制项</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="147"/>
+        <location filename="../ctrltab.cpp" line="153"/>
         <source>Copy all text in this box and save it to somewhere.</source>
         <translation>将此文本框中的内容复制并保存。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="148"/>
+        <location filename="../ctrltab.cpp" line="154"/>
         <source>To import, click the Import button, then paste the text back.</source>
         <translation>需要导入时，单击“导入”按钮，将复制的内容粘贴回来即可。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="177"/>
+        <location filename="../ctrltab.cpp" line="183"/>
         <source>Export Control Panel</source>
         <translation>导出控制面板</translation>
     </message>
@@ -278,7 +278,7 @@
     <message>
         <location filename="../ui/datatab.ui" line="266"/>
         <location filename="../ui/datatab.ui" line="320"/>
-        <location filename="../datatab.cpp" line="175"/>
+        <location filename="../datatab.cpp" line="176"/>
         <source>Suffix</source>
         <translation>后缀</translation>
     </message>
@@ -349,46 +349,46 @@
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="122"/>
-        <location filename="../datatab.cpp" line="265"/>
-        <location filename="../datatab.cpp" line="288"/>
+        <location filename="../datatab.cpp" line="123"/>
+        <location filename="../datatab.cpp" line="267"/>
+        <location filename="../datatab.cpp" line="290"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="122"/>
+        <location filename="../datatab.cpp" line="123"/>
         <source>is not a valid encoding.</source>
         <translation>不是有效编码名。</translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="206"/>
+        <location filename="../datatab.cpp" line="207"/>
         <source>Rx</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="213"/>
+        <location filename="../datatab.cpp" line="215"/>
         <source>Tx</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="249"/>
+        <location filename="../datatab.cpp" line="251"/>
         <source>Export received data</source>
         <translation>导出已接收数据</translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="265"/>
-        <location filename="../datatab.cpp" line="288"/>
+        <location filename="../datatab.cpp" line="267"/>
+        <location filename="../datatab.cpp" line="290"/>
         <source>Successed!</source>
         <translation>成功！</translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="265"/>
-        <location filename="../datatab.cpp" line="288"/>
+        <location filename="../datatab.cpp" line="267"/>
+        <location filename="../datatab.cpp" line="290"/>
         <source>Failed!</source>
         <translation>失败！</translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="272"/>
+        <location filename="../datatab.cpp" line="274"/>
         <source>Export sended data</source>
         <translation>导出已发送数据</translation>
     </message>
@@ -895,8 +895,13 @@
     </message>
     <message>
         <location filename="../ui/plottab.ui" line="245"/>
-        <source>Frame spliter:</source>
+        <source>Frame Splitter:</source>
         <translation>帧分隔符：</translation>
+    </message>
+    <message>
+        <location filename="../ui/plottab.ui" line="279"/>
+        <source>Data Splitter:</source>
+        <translation>数据项分隔符：</translation>
     </message>
     <message>
         <location filename="../ui/plottab.ui" line="253"/>
@@ -923,11 +928,6 @@
         <location filename="../ui/plottab.ui" line="302"/>
         <source>\n</source>
         <translation></translation>
-    </message>
-    <message>
-        <location filename="../ui/plottab.ui" line="279"/>
-        <source>Data Spliter:</source>
-        <translation>数据项分隔符：</translation>
     </message>
     <message>
         <location filename="../ui/plottab.ui" line="313"/>

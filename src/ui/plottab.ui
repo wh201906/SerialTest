@@ -242,7 +242,7 @@
       <item>
        <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>Frame spliter:</string>
+         <string>Frame Splitter:</string>
         </property>
        </widget>
       </item>
@@ -276,7 +276,7 @@
       <item>
        <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>Data Spliter:</string>
+         <string>Data Splitter:</string>
         </property>
        </widget>
       </item>
