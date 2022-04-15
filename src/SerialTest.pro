@@ -65,7 +65,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 # Remember to change version in AndroidManifest.xml
-VERSION = 0.1.3
+VERSION = 0.1.4
 QMAKE_TARGET_PRODUCT = "SerialTest"
 QMAKE_TARGET_DESCRIPTION = "SerialTest"
 QMAKE_TARGET_COMPANY = "wh201906"
