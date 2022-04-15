@@ -1,7 +1,7 @@
 import os, sys, shutil
 from win32api import GetFileVersionInfo
 from json import load
-from re import fullmatch
+from re import fullmatch, IGNORECASE
 
 
 def getPEVersion(fname):
@@ -85,7 +85,7 @@ if os.path.exists(dstAndroidPath) :
 shutil.copyfile(srcAndroidPath, dstAndroidPath)
 
 use7z = input("Compress?(y/N)")
-if fullmatch("[Yy][Ee][Ss]|[Yy]", use7z):
+if fullmatch("yes|y", use7z, IGNORECASE):
     archive32Path = dst32Dir + ".7z"
     archive64Path = dst64Dir + ".7z"
 

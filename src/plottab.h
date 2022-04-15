@@ -77,9 +77,9 @@ private:
 
     void updateTracer(double x);
     QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);
-    void setLegendItemName(QCPAbstractLegendItem *item);
+    void setGraphProperty(QCPAbstractLegendItem *item);
     inline double toDouble(const QString& str); // find valid value then convert
-    void saveGraphName();
+    void saveGraphProperty();
     void changeGraphNum(int newNum);
 };
 

@@ -24,6 +24,7 @@ SOURCES += \
     ctrltab.cpp \
     datatab.cpp \
     devicetab.cpp \
+    legenditemdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     mycustomplot.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     ctrltab.h \
     datatab.h \
     devicetab.h \
+    legenditemdialog.h \
     mainwindow.h \
     mycustomplot.h \
     mysettings.h \
@@ -45,6 +47,7 @@ HEADERS += \
     util.h
 
 FORMS += \
+    ui/legenditemdialog.ui \
     ui/serialpinout.ui \
     ui/devicetab.ui \
     ui/datatab.ui \

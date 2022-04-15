@@ -1,6 +1,8 @@
 ﻿#include "plottab.h"
 #include "ui_plottab.h"
 
+#include "legenditemdialog.h"
+
 PlotTab::PlotTab(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::PlotTab)
@@ -59,7 +61,8 @@ void PlotTab::initQCP()
     plotTracer->setBrush(Qt::red);
     plotTracer->setInterpolating(false);
     plotTracer->setVisible(false);
-    plotTracer->setGraph(ui->qcpWidget->graph(plotSelectedId));
+    if(ui->qcpWidget->graphCount() > plotSelectedId)
+        plotTracer->setGraph(ui->qcpWidget->graph(plotSelectedId));
     plotText->setPositionAlignment(Qt::AlignTop | Qt::AlignLeft);
     plotText->setTextAlignment(Qt::AlignLeft);
     plotText->position->setType(QCPItemPosition::ptAxisRectRatio);
@@ -114,7 +117,7 @@ void PlotTab::onQCPLegendClick(QCPLegend *legend, QCPAbstractLegendItem *item, Q
         return;
     if(item == nullptr)
         return;
-    setLegendItemName(item);
+    setGraphProperty(item);
 }
 
 void PlotTab::onQCPAxisDoubleClick(QCPAxis *axis)
@@ -143,7 +146,7 @@ void PlotTab::onQCPMouseRelease(QMouseEvent *event)
     if(pressTimestamp != 0 && releaseTimestamp > pressTimestamp && releaseTimestamp - pressTimestamp > 1000)
     {
         qDebug() << "long pressed!";
-        setLegendItemName(item);
+        setGraphProperty(item);
     }
     longPressCounter[item] = 0; // avoid multi click
 }
@@ -391,13 +394,15 @@ void PlotTab::onXAxisChangedByUser(const QCPRange &newRange)
     plotXAxisWidth = newRange.size();
 }
 
-void PlotTab::saveGraphName()
+void PlotTab::saveGraphProperty()
 {
     if(settings->group() != "")
         return;
-    QStringList nameList;
+    QStringList nameList, colorList;
     settings->beginGroup("SerialTest_Plot");
-    for(int i = 0; i < ui->plot_dataNumBox->value(); i++)
+
+    // don't use ui->plot_dataNumBox->value() there, the actural num of graphs might be value() or value()-1
+    for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
     {
         QCPAbstractPlottable* g = ui->qcpWidget->graph(i);
         QString gName = g->name();
@@ -405,8 +410,10 @@ void PlotTab::saveGraphName()
             nameList << gName.right(gName.size() - 1);
         else
             nameList << gName;
+        colorList << g->pen().color().name();
     }
     settings->setValue("GraphName", nameList);
+    settings->setValue("GraphColor", colorList);
     settings->endGroup();
 }
 
@@ -436,8 +443,8 @@ void PlotTab::loadPreference()
     // default preferences are defined in this function
     const QString defaultFrameSp = "|";
     const QString defaultDataSp = ",";
-    QStringList nameList;
-    int nameNum;
+    QStringList nameList, colorList;
+    int nameNum, colorNum;
 
     settings->beginGroup("SerialTest_Plot");
     // empty separator is not allowed
@@ -460,14 +467,19 @@ void PlotTab::loadPreference()
     ui->plot_clearFlagTypeBox->setCurrentIndex(settings->value("ClearF_Type", 1).toInt());
     ui->plot_clearFlagEdit->setText(settings->value("ClearF_Context", "cls").toString());
     ui->plot_scatterBox->setChecked(settings->value("Scatter", false).toBool());
+    colorList = settings->value("GraphColor", QStringList()).toStringList();
     nameList = settings->value("GraphName", QStringList()).toStringList();
     settings->endGroup();
     changeGraphNum(ui->plot_dataNumBox->value());
     on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
     on_plot_dataSpTypeBox_currentIndexChanged(ui->plot_dataSpTypeBox->currentIndex());
     on_plot_clearFlagTypeBox_currentIndexChanged(ui->plot_clearFlagTypeBox->currentIndex());
-    nameNum = ui->plot_dataNumBox->value();
+    // don't use ui->plot_dataNumBox->value() there, the actural num of graphs might be value() or value()-1
+    nameNum = ui->qcpWidget->graphCount();
+    colorNum = nameNum < colorList.size() ? nameNum : colorList.size();
     nameNum = nameNum < nameList.size() ? nameNum : nameList.size();
+    for(int i = 0; i < colorNum; i++)
+        ui->qcpWidget->graph(i)->setPen(QColor(colorList[i]));
     for(int i = 0; i < nameNum; i++)
         ui->qcpWidget->graph(i)->setName(nameList[i]);
 }
@@ -555,20 +567,19 @@ QCPAbstractLegendItem* PlotTab::getLegendItemByPos(const QPointF &pos)
     return nullptr;
 }
 
-void PlotTab::setLegendItemName(QCPAbstractLegendItem *item)
+void PlotTab::setGraphProperty(QCPAbstractLegendItem *item)
 {
     QCPPlottableLegendItem *plItem = qobject_cast<QCPPlottableLegendItem*>(item);
     QCPAbstractPlottable* pl = plItem->plottable();
-    bool ok;
     QString oldName = pl->name();
     oldName = (!pl->visible() && oldName[0] == '*') ? oldName.right(oldName.size() - 1) : oldName;
-    QString newName = QInputDialog::getText(this, tr("Legend"), tr("New graph name") + ":", QLineEdit::Normal, oldName, &ok);
-    if(ok)
+    LegendItemDialog dialog(oldName, pl->pen().color());
+    if(dialog.exec() == QDialog::Accepted)
     {
-
-        pl->setName((pl->visible() ? "" : "*") + newName);
+        pl->setName((pl->visible() ? "" : "*") + dialog.getName());
+        pl->setPen(dialog.getColor());
         ui->qcpWidget->replot();
-        saveGraphName();
+        saveGraphProperty();
     }
 }
 
