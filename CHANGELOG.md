@@ -2,7 +2,7 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
-## V0.1.3
+## V0.1.3 ~ V0.1.4
 + Fix some bugs  
 
 ## V0.1.2

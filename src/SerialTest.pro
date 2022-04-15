@@ -24,25 +24,30 @@ SOURCES += \
     ctrltab.cpp \
     datatab.cpp \
     devicetab.cpp \
+    legenditemdialog.cpp \
     main.cpp \
     mainwindow.cpp \
     mycustomplot.cpp \
     mysettings.cpp \
     plottab.cpp \
-    serialpinout.cpp
+    serialpinout.cpp \
+    util.cpp
 
 HEADERS += \
     controlitem.h \
     ctrltab.h \
     datatab.h \
     devicetab.h \
+    legenditemdialog.h \
     mainwindow.h \
     mycustomplot.h \
     mysettings.h \
     plottab.h \
-    serialpinout.h
+    serialpinout.h \
+    util.h
 
 FORMS += \
+    ui/legenditemdialog.ui \
     ui/serialpinout.ui \
     ui/devicetab.ui \
     ui/datatab.ui \
@@ -60,7 +65,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 # Remember to change version in AndroidManifest.xml
-VERSION = 0.1.3
+VERSION = 0.1.4
 QMAKE_TARGET_PRODUCT = "SerialTest"
 QMAKE_TARGET_DESCRIPTION = "SerialTest"
 QMAKE_TARGET_COMPANY = "wh201906"

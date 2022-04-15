@@ -72,7 +72,7 @@ void CtrlTab::onCtrlItemDestroyed()
 void CtrlTab::on_ctrl_clearButton_clicked()
 {
     const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
-    for(auto it = list.begin(); it != list.end(); it++)
+    for(auto it = list.begin(); it != list.end(); ++it)
         (*it)->deleteLater();
 }
 
@@ -94,7 +94,7 @@ void CtrlTab::on_ctrl_importButton_clicked()
         QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
         QString dataStr = ui->ctrl_dataEdit->toPlainText().replace(*commentRegExp, "");
         QJsonArray dataArray = QJsonDocument::fromJson(dataStr.toUtf8()).array();
-        for(auto it = dataArray.begin(); it != dataArray.end(); it++)
+        for(auto it = dataArray.begin(); it != dataArray.end(); ++it)
         {
             ControlItem* c = new ControlItem();
             connect(c, &ControlItem::send, this, &CtrlTab::send);
@@ -123,7 +123,7 @@ void CtrlTab::on_ctrl_importButton_clicked()
     file.close();
     dataStr.replace(*commentRegExp, "");
     QJsonArray dataArray = QJsonDocument::fromJson(dataStr.toUtf8()).array();
-    for(auto it = dataArray.begin(); it != dataArray.end(); it++)
+    for(auto it = dataArray.begin(); it != dataArray.end(); ++it)
     {
         ControlItem* c = new ControlItem();
         connect(c, &ControlItem::send, this, &CtrlTab::send);
@@ -154,7 +154,7 @@ void CtrlTab::on_ctrl_exportButton_clicked()
         ui->ctrl_dataEdit->appendPlainText("# " + tr("To import, click the Import button, then paste the text back."));
         const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
         QJsonArray dataArray;
-        for(auto it = list.begin(); it != list.end(); it++)
+        for(auto it = list.begin(); it != list.end(); ++it)
             dataArray.append((*it)->save());
         QJsonDocument jsonData;
         jsonData.setArray(dataArray);
@@ -186,7 +186,7 @@ void CtrlTab::on_ctrl_exportButton_clicked()
     QFile file(fileName);
     flag &= file.open(QFile::WriteOnly | QFile::Text);
     QJsonArray dataArray;
-    for(auto it = list.begin(); it != list.end(); it++)
+    for(auto it = list.begin(); it != list.end(); ++it)
         dataArray.append((*it)->save());
     QJsonDocument jsonData;
     jsonData.setArray(dataArray);

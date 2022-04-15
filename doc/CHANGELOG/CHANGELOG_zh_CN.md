@@ -2,7 +2,7 @@
 
 [English](../../CHANGELOG.md)  
 
-## V0.1.3
+## V0.1.3 ~ V0.1.4
 + 修复一些BUG  
 
 ## V0.1.2

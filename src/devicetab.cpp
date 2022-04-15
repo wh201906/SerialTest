@@ -205,7 +205,7 @@ void DeviceTab::on_deviceTable_cellClicked(int row, int column)
     QString id = ui->deviceTable->item(row, HVendorID)->text();  // vendor id
     id += "-";
     id += ui->deviceTable->item(row, HProductID)->text(); // product id
-    for(it = preferences.begin(); it != preferences.end(); it++)
+    for(it = preferences.begin(); it != preferences.end(); ++it)
     {
         if(*it == id)
         {
@@ -218,7 +218,7 @@ void DeviceTab::on_deviceTable_cellClicked(int row, int column)
 
     // search preference by DeviceName
     id = ui->deviceTable->item(row, HDeviceName)->text();
-    for(it = preferences.begin(); it != preferences.end(); it++)
+    for(it = preferences.begin(); it != preferences.end(); ++it)
     {
         if(*it == id)
         {
