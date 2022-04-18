@@ -2,12 +2,13 @@
 #define UTIL_H
 
 #include <QString>
+#include <QTextCodec>
 
 class Util
 {
 public:
     Util();
-    static QString unescape(const QString& text);
+    static QByteArray unescape(const QString& text, QTextCodec* codec);
 private:
     static const char unescapeTable[];
     static int unescapeHelper(QStringRef text, int &result, int baseBits);

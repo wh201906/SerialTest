@@ -38,16 +38,20 @@ int Util::unescapeHelper(QStringRef text, int& result, int baseBits)
     return qMin(i, text.size());
 }
 
-QString Util::unescape(const QString &text)
+QByteArray Util::unescape(const QString &text, QTextCodec* codec)
 {
-    QString result;
+    QByteArray result;
 
     for(int i = 0; i < text.size(); i++)
     {
-        // keep the Qchar unchanged
+        // keep the normal string unchanged
         if(text[i] != '\\' || i + 1 >= text.size())
         {
-            result += text[i];
+            int end = i;
+            while(end < text.size() && text[end] != '\\')
+                end++;
+            result += codec->fromUnicode(QStringRef(&text, i, end - i));
+            i = end - 1;
             continue;
         }
         // '\' is not at the end, process
@@ -68,43 +72,44 @@ QString Util::unescape(const QString &text)
             continue;
 
         int handled, ch;
-        // 2. \nnn, 1~3 octal digits
+        // 2. \nnn, 1~3 octal digits for a byte
         if(i + 1 < text.size() && text[i + 1] >= '0' && text[i + 1] <= '7')
         {
             handled = unescapeHelper(text.midRef(i + 1, qMin(3, text.size() - (i + 1))), ch, 3);
             i += handled;
             if(handled)
-                result += QChar(ch & 0xFF);
+                result += ch & 0xFF;
         }
-        // 3. \xHH, 1~2 hexadecimal digits
+        // 3. \xHH, 1~2 hexadecimal digits for a byte
         else if(i + 2 < text.size() && text[i + 1] == 'x')
         {
             handled = unescapeHelper(text.midRef(i + 2, qMin(2, text.size() - (i + 2))), ch, 4);
             if(handled)
             {
-                result += QChar(ch);
+                result += ch & 0xFF;
                 i += handled + 1; // including 'x'
             }
         }
-        // 4. \uHHHH, exact 4 hexadecimal digits
+        // 4. \uHHHH, exact 4 hexadecimal digits for a unicode char
+        // might be slow
         else if(i + 5 < text.size() && text[i + 1] == 'u')
         {
             bool isOk;
             ch = text.midRef(i + 2, 4).toInt(&isOk, 16);
             if(isOk)
             {
-                result += QChar(ch);
+                QChar qch(ch); // treat it like QString with length=1
+                result += codec->fromUnicode(QStringView(&qch, 1));
                 i += 5;
             }
         }
         // 5. invalid \, keep it unchanged
         else
         {
-            result += text[i];
+            result += codec->fromUnicode(QStringRef(&text, i, 1));
         }
     }
-    qDebug() << result.toUtf8().toHex(' ');
-    qDebug() << result.toLatin1().toHex(' ');
-    qDebug() << result;
+//    qDebug() << result.toHex(' ');
+//    qDebug() << result;
     return result;
 }

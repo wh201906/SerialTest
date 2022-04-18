@@ -47,6 +47,7 @@ void DataTab::initSettings()
     connect(ui->receivedLatestBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->receivedRealtimeBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->sendedHexBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+    connect(ui->data_unescapeBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_suffixBox, &QGroupBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_suffixTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DataTab::saveDataPreference);
     connect(ui->data_suffixEdit, &QLineEdit::editingFinished, this, &DataTab::saveDataPreference);
@@ -134,6 +135,7 @@ void DataTab::saveDataPreference()
     settings->setValue("Recv_Latest", ui->receivedLatestBox->isChecked());
     settings->setValue("Recv_Realtime", ui->receivedRealtimeBox->isChecked());
     settings->setValue("Send_Hex", ui->sendedHexBox->isChecked());
+    settings->setValue("Send_Unescape", ui->data_unescapeBox->isChecked());
     settings->setValue("Suffix_Enabled", ui->data_suffixBox->isChecked());
     settings->setValue("Suffix_Type", ui->data_suffixTypeBox->currentIndex());
     settings->setValue("Suffix_Context", ui->data_suffixEdit->text());
@@ -153,11 +155,13 @@ void DataTab::saveDataPreference()
 void DataTab::loadPreference()
 {
     // default preferences are defined there
+    // setChecked() will trigger on_xxx_stateChanged(), but on_xxx_clicked() will not be triggered
     settings->beginGroup("SerialTest_Data");
     ui->receivedHexBox->setChecked(settings->value("Recv_Hex", false).toBool());
     ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", false).toBool());
     ui->receivedRealtimeBox->setChecked(settings->value("Recv_Realtime", true).toBool());
     ui->sendedHexBox->setChecked(settings->value("Send_Hex", false).toBool());
+    ui->data_unescapeBox->setChecked(settings->value("Send_Unescape", false).toBool());
     ui->data_suffixBox->setChecked(settings->value("Suffix_Enabled", false).toBool());
     ui->data_suffixTypeBox->setCurrentIndex(settings->value("Suffix_Type", 2).toInt());
     ui->data_suffixEdit->setText(settings->value("Suffix_Context", "").toString());
@@ -300,11 +304,21 @@ void DataTab::on_sendButton_clicked()
     if(isSendedDataHex)
         data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
     else
-        data = dataCodec->fromUnicode(ui->sendEdit->text());
+    {
+        if(unescapeSendedData)
+            data = Util::unescape(ui->sendEdit->text(), dataCodec);
+        else
+            data = dataCodec->fromUnicode(ui->sendEdit->text());
+    }
     if(ui->data_suffixBox->isChecked())
     {
         if(ui->data_suffixTypeBox->currentIndex() == 0)
-            data += dataCodec->fromUnicode(ui->data_suffixEdit->text());
+        {
+            if(unescapeSendedData)
+                data += Util::unescape(ui->data_suffixEdit->text(), dataCodec);
+            else
+                data += dataCodec->fromUnicode(ui->data_suffixEdit->text());
+        }
         else if(ui->data_suffixTypeBox->currentIndex() == 1)
             data += QByteArray::fromHex(ui->data_suffixEdit->text().toLatin1());
         else if(ui->data_suffixTypeBox->currentIndex() == 2)
@@ -425,4 +439,9 @@ void DataTab::on_data_flowRTSBox_clicked(bool checked)
         port->setRequestToSend(checked);
 }
 #endif
+
+void DataTab::on_data_unescapeBox_stateChanged(int arg1)
+{
+    unescapeSendedData = (arg1 == Qt::Checked);
+}
 

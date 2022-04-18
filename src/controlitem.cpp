@@ -1,5 +1,6 @@
 ﻿#include "controlitem.h"
 #include "ui_controlitem.h"
+#include "util.h"
 
 #include <QTextCodec>
 
@@ -169,7 +170,12 @@ void ControlItem::on_sendButton_clicked()
     if(ui->prefixBox->isChecked())
     {
         if(ui->prefixTypeBox->currentIndex() == 0)
-            data = dataCodec->fromUnicode(ui->prefixEdit->text());
+        {
+            if(ui->unescapeBox->isChecked())
+                data = Util::unescape(ui->prefixEdit->text(), dataCodec);
+            else
+                data = dataCodec->fromUnicode(ui->prefixEdit->text());
+        }
         else if(ui->prefixTypeBox->currentIndex() == 1)
             data = QByteArray::fromHex(ui->prefixEdit->text().toLatin1());
         else if(ui->prefixTypeBox->currentIndex() == 2)
@@ -183,7 +189,13 @@ void ControlItem::on_sendButton_clicked()
         if(ui->hexBox->isChecked())
             data += QByteArray::fromHex(ui->CMDEdit->text().toLatin1());
         else
-            data += dataCodec->fromUnicode(ui->CMDEdit->text());
+        {
+            if(ui->unescapeBox->isChecked())
+                data += Util::unescape(ui->CMDEdit->text(), dataCodec);
+            else
+                data += dataCodec->fromUnicode(ui->CMDEdit->text());
+        }
+
     }
     else if(type == Slider)
     {
@@ -202,7 +214,12 @@ void ControlItem::on_sendButton_clicked()
     if(ui->suffixBox->isChecked())
     {
         if(ui->suffixTypeBox->currentIndex() == 0)
-            data += dataCodec->fromUnicode(ui->suffixEdit->text());
+        {
+            if(ui->unescapeBox->isChecked())
+                data += Util::unescape(ui->suffixEdit->text(), dataCodec);
+            else
+                data += dataCodec->fromUnicode(ui->suffixEdit->text());
+        }
         else if(ui->suffixTypeBox->currentIndex() == 1)
             data += QByteArray::fromHex(ui->suffixEdit->text().toLatin1());
         else if(ui->suffixTypeBox->currentIndex() == 2)
@@ -246,6 +263,7 @@ bool ControlItem::load(const QJsonObject& dict)
     ui->suffixTypeBox->setCurrentIndex(dict["suffixType"].toInt());
     ui->suffixEdit->setText(dict["suffix"].toString());
     ui->hexBox->setChecked(dict["hex"].toBool());
+    ui->unescapeBox->setChecked(dict["unescape"].toBool());
     ui->autoBox->setChecked(dict["auto"].toBool());
     ui->minEdit->setText(dict["min"].toString());
     ui->maxEdit->setText(dict["max"].toString());
@@ -292,6 +310,7 @@ QJsonObject ControlItem::save()
     data["suffixType"] = ui->suffixTypeBox->currentIndex();
     data["suffix"] = ui->suffixEdit->text();
     data["hex"] = ui->hexBox->isChecked();
+    data["unescape"] = ui->unescapeBox->isChecked();
     data["auto"] = ui->autoBox->isChecked();
     data["min"] = ui->minEdit->text();
     data["max"] = ui->maxEdit->text();

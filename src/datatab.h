@@ -56,6 +56,8 @@ private slots:
     void on_data_flowRTSBox_clicked(bool checked);
 #endif
 
+    void on_data_unescapeBox_stateChanged(int arg1);
+
 private:
     Ui::DataTab *ui;
 
@@ -71,6 +73,7 @@ private:
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
+    bool unescapeSendedData = false;
 
     QTextCodec* dataCodec = nullptr; // for Tx and generating Rx decoder
     QTextDecoder* RxDecoder = nullptr; // for Rx UI, a multi-byte character might be split.
