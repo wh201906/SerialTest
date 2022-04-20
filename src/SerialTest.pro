@@ -1,7 +1,6 @@
-QT       += core gui serialport printsupport
+QT       += core gui serialport bluetooth network printsupport
 android {
-    QT += bluetooth androidextras
-    message(Using bluetooth on android)
+    QT += androidextras
 }
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -20,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    connection.cpp \
     controlitem.cpp \
     ctrltab.cpp \
     datatab.cpp \
@@ -34,6 +34,7 @@ SOURCES += \
     util.cpp
 
 HEADERS += \
+    connection.h \
     controlitem.h \
     ctrltab.h \
     datatab.h \
