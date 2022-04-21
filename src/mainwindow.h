@@ -26,6 +26,7 @@
 #include "datatab.h"
 #include "devicetab.h"
 #include "serialpinout.h"
+#include "connection.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -58,12 +59,10 @@ private slots:
     void updateRxUI();
 
 #ifdef Q_OS_ANDROID
-    void onBTConnectionChanged();
+
 #else
     void onTopBoxClicked(bool checked);
     void onSerialErrorOccurred(QSerialPort::SerialPortError error);
-    void updatePinout();
-    void onPinoutEnableStateChanged(bool state);
 #endif
 
     void onIODeviceConnected();
@@ -80,7 +79,7 @@ private:
     QAction* checkUpdate;
 
     bool IODeviceState;
-    QIODevice* IODevice;
+    Connection* IOConnection;
 
     QLabel* deviceLabel;
     QPushButton* stateButton;
@@ -113,12 +112,8 @@ private:
     };
 
 #ifdef Q_OS_ANDROID
-    QBluetoothSocket* BTSocket;
-    QString BTNewAddress;
-    QString BTLastAddress;
-#else
-    QSerialPort* serialPort;
 
+#else
     QList<QDockWidget*> dockList;
     QLabel* baudRateLabel;
     QLabel* dataBitsLabel;
@@ -126,8 +121,6 @@ private:
     QLabel* parityLabel;
     SerialPinout* serialPinout;
     QCheckBox* onTopBox;
-
-    QTimer* updatePinoutTimer;
 
     void dockInit();
 #endif

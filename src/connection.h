@@ -60,7 +60,10 @@ public:
 
     // general
     bool setType(Type type);
-    bool connected();
+    bool isConnected();
+    bool polling();
+    void setPollingInterval(int msec);
+    int pollingInterval();
 
     // connection
     void setArgument(SerialPortArgument arg);
@@ -70,14 +73,26 @@ public:
     BTArgument getBTArgument();
     NetworkArgument getNetworkArgument();
     void open(); // async
+    bool reopen(); // async, return false if no argument is stored in the previous connection
+    void close(bool forced = false); // async
 
     // IO
     QByteArray readAll();
     qint64 write(const char *data, qint64 len);
     qint64 write(const QByteArray &data);
+
+    // SerialPort
+    QSerialPort::PinoutSignals SP_pinoutSignals();
+    bool SP_setDataTerminalReady(bool set);
+    bool SP_isDataTerminalReady();
+    bool SP_setRequestToSend(bool set);
+    bool SP_isRequestToSend();
+public slots:
+    void setPolling(bool enabled);
 private:
     Type m_type = SerialPort;
     bool m_connected = false;
+    bool m_connecting = false; // for connectFailed() signal in async functions
 
     // signal/slot connections
     QMetaObject::Connection m_lastReadyReadConn;
@@ -99,14 +114,25 @@ private:
 
     // for characteristics without notify property in BLE, pinout signals in serialport
     QTimer* m_pollTimer = nullptr;
+    bool m_pollTimerEnabled = false;
+
+    //
+    QSerialPort::PinoutSignals m_SP_lastSignals;
 
     void updateSignalSlot();
 signals:
     void readyRead();
+    void connected();
+    void disconnected();
+    void connectFailed();
+    void errorOccurred();
+    void SP_signalsChanged(QSerialPort::PinoutSignals signal);
 private slots:
     void onErrorOccurred();
     void onConnected();
     void onDisconnected();
+    void onPollingTimeout();
+
 };
 
 #endif // CONNECTION_H

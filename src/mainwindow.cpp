@@ -21,32 +21,24 @@ MainWindow::MainWindow(QWidget *parent)
         QMessageBox::information(this, tr("Error"), tr("Please enable Bluetooth!"));
         lDevice.powerOn();
     }
-    BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
-    IODevice = BTSocket;
-    connect(BTSocket, &QBluetoothSocket::connected, this, &MainWindow::onBTConnectionChanged);
-    connect(BTSocket, &QBluetoothSocket::disconnected, this, &MainWindow::onBTConnectionChanged);
-    connect(BTSocket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this, &MainWindow::onBTConnectionChanged);
-
     setStyleSheet("QCheckBox{min-width:15px;min-height:15px;}QCheckBox::indicator{min-width:15px;min-height:15px;}");
 
     // on Android, use default.
     MySettings::init(QSettings::NativeFormat);
 
 #else
-    serialPort = new QSerialPort();
-    IODevice = serialPort;
-    connect(serialPort, &QSerialPort::errorOccurred, this, &MainWindow::onSerialErrorOccurred);
+    IOConnection = new Connection();
+    connect(IOConnection, &Connection::connected, this, &MainWindow::onIODeviceConnected);
+    connect(IOConnection, &Connection::disconnected, this, &MainWindow::onIODeviceDisconnected);
 
     baudRateLabel = new QLabel();
     dataBitsLabel = new QLabel();
     stopBitsLabel = new QLabel();
     parityLabel = new QLabel();
     serialPinout = new SerialPinout();
-    updatePinoutTimer = new QTimer();
+    connect(IOConnection, &Connection::SP_signalsChanged, serialPinout, &SerialPinout::setPinout);
     onTopBox = new QCheckBox(tr("On Top"));
-    updatePinoutTimer->setInterval(100);
-    connect(updatePinoutTimer, &QTimer::timeout, this, &MainWindow::updatePinout);
-    connect(serialPinout, &SerialPinout::enableStateChanged, this, &MainWindow::onPinoutEnableStateChanged);
+    connect(serialPinout, &SerialPinout::enableStateChanged, IOConnection, &Connection::setPolling);
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
 
     // on PC, store preferences in files for portable use
@@ -154,15 +146,15 @@ void MainWindow::onStateButtonClicked()
         QMessageBox::warning(this, tr("Error"), tr("Plz connect to a port first."));
         return;
     }
-    if(IODeviceState)
+    if(IOConnection->isConnected())
     {
-        IODevice->close();
+        IOConnection->close();
         onIODeviceDisconnected();
     }
     else
     {
 #ifdef Q_OS_ANDROID
-        BTSocket->connectToService(QBluetoothAddress(BTLastAddress), QBluetoothUuid::SerialPort);
+        IOConnection->reopen();
 #else
         IODeviceState = IODevice->open(QIODevice::ReadWrite);
         if(IODeviceState)
@@ -281,11 +273,10 @@ void MainWindow::stateUpdate()
 void MainWindow::onIODeviceConnected()
 {
     qDebug() << "IODevice Connected";
-    IODeviceState = true;
     updateUITimer->start();
 #ifndef Q_OS_ANDROID
     if(serialPinout->getEnableState())
-        updatePinoutTimer->start();
+        IOConnection->setPolling(true);
 #endif
     stateUpdate();
     deviceTab->refreshDevicesInfo();
@@ -302,11 +293,7 @@ void MainWindow::onIODeviceConnected()
 void MainWindow::onIODeviceDisconnected()
 {
     qDebug() << "IODevice Disconnected";
-    IODeviceState = false;
     updateUITimer->stop();
-#ifndef Q_OS_ANDROID
-    updatePinoutTimer->stop();
-#endif
     stateUpdate();
     deviceTab->refreshDevicesInfo();
     updateRxUI();
@@ -357,16 +344,7 @@ void MainWindow::updateRxUI()
 // **********************************************************************************************************************************************
 
 #ifdef Q_OS_ANDROID
-void MainWindow::onBTConnectionChanged()
-{
-    if(BTSocket->isOpen())
-    {
-        onIODeviceConnected();
-        BTLastAddress = BTNewAddress;
-    }
-    else
-        onIODeviceDisconnected();
-}
+
 #else
 
 void MainWindow::dockInit()
@@ -401,29 +379,5 @@ void MainWindow::onTopBoxClicked(bool checked)
     show();
 }
 
-void MainWindow::onSerialErrorOccurred(QSerialPort::SerialPortError error)
-{
-    qDebug() << error;
-    if(error != QSerialPort::NoError && IODeviceState)
-    {
-        IODevice->close();
-        onIODeviceDisconnected();
-    }
-
-}
-
-void MainWindow::updatePinout()
-{
-    QSerialPort* port = static_cast<QSerialPort*>(IODevice);
-    serialPinout->setPinout(port->pinoutSignals());
-}
-
-void MainWindow::onPinoutEnableStateChanged(bool state)
-{
-    if(state)
-        updatePinoutTimer->start();
-    else
-        updatePinoutTimer->stop();
-}
 #endif
 
