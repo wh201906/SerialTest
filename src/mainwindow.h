@@ -62,11 +62,11 @@ private slots:
 
 #else
     void onTopBoxClicked(bool checked);
-    void onSerialErrorOccurred(QSerialPort::SerialPortError error);
 #endif
 
     void onIODeviceConnected();
     void onIODeviceDisconnected();
+    void onIODeviceConnectFailed();
 private:
     Ui::MainWindow *ui;
     void initUI();
@@ -78,7 +78,6 @@ private:
     QAction* currVersion;
     QAction* checkUpdate;
 
-    bool IODeviceState;
     Connection* IOConnection;
 
     QLabel* deviceLabel;

@@ -350,9 +350,9 @@ void DataTab::syncSendedEditWithData()
         ui->sendedEdit->setPlainText(dataCodec->toUnicode(*rawSendedData));
 }
 
-void DataTab::setIODevice(QIODevice *dev)
+void DataTab::setIODevice(Connection* conn)
 {
-    IODevice = dev;
+    m_connection = conn;
 }
 
 void DataTab::setFlowCtrl(bool isRTSValid, bool rts, bool dtr)
@@ -427,16 +427,12 @@ void DataTab::appendReceivedData(const QByteArray& data)
 #ifndef Q_OS_ANDROID
 void DataTab::on_data_flowDTRBox_clicked(bool checked)
 {
-    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
-    if(port != nullptr)
-        port->setDataTerminalReady(checked);
+    m_connection->SP_setDataTerminalReady(checked);
 }
 
 void DataTab::on_data_flowRTSBox_clicked(bool checked)
 {
-    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
-    if(port != nullptr && port->flowControl() != QSerialPort::HardwareControl)
-        port->setRequestToSend(checked);
+    m_connection->SP_setRequestToSend(checked);
 }
 #endif
 

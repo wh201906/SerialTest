@@ -12,6 +12,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     contextMenu = new QMenu();
+
+    IOConnection = new Connection();
+    connect(IOConnection, &Connection::connected, this, &MainWindow::onIODeviceConnected);
+    connect(IOConnection, &Connection::disconnected, this, &MainWindow::onIODeviceDisconnected);
+    connect(IOConnection, &Connection::connectFailed, this, &MainWindow::onIODeviceConnectFailed);
 #ifdef Q_OS_ANDROID
     QBluetoothLocalDevice lDevice;
     if(!lDevice.isValid())
@@ -21,15 +26,15 @@ MainWindow::MainWindow(QWidget *parent)
         QMessageBox::information(this, tr("Error"), tr("Please enable Bluetooth!"));
         lDevice.powerOn();
     }
+    IOConnection->setType(Connection::BT_Client);
     setStyleSheet("QCheckBox{min-width:15px;min-height:15px;}QCheckBox::indicator{min-width:15px;min-height:15px;}");
 
     // on Android, use default.
     MySettings::init(QSettings::NativeFormat);
 
 #else
-    IOConnection = new Connection();
-    connect(IOConnection, &Connection::connected, this, &MainWindow::onIODeviceConnected);
-    connect(IOConnection, &Connection::disconnected, this, &MainWindow::onIODeviceDisconnected);
+
+    IOConnection->setType(Connection::SerialPort);
 
     baudRateLabel = new QLabel();
     dataBitsLabel = new QLabel();
@@ -69,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(deviceTab, &DeviceTab::openDevice, this, &MainWindow::openDevice);
     ui->funcTab->insertTab(0, deviceTab, tr("Port"));
     dataTab = new DataTab(rawReceivedData, rawSendedData);
-    dataTab->setIODevice(IODevice);
+    dataTab->setIODevice(IOConnection);
     connect(dataTab, &DataTab::setRxLabelText, RxLabel, &QLabel::setText);
     connect(dataTab, &DataTab::setTxLabelText, TxLabel, &QLabel::setText);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
@@ -83,11 +88,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->funcTab->insertTab(3, ctrlTab, tr("Control"));
     initTabs();
 
-    IODeviceState = false;
     updateUITimer = new QTimer();
     updateUITimer->setInterval(20);
 
-    connect(IODevice, &QIODevice::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
+    connect(IOConnection, &Connection::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
 
 
     connect(updateUITimer, &QTimer::timeout, this, &MainWindow::updateRxUI);
@@ -135,33 +139,17 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 void MainWindow::onStateButtonClicked()
 {
-    QString device;
-#ifdef Q_OS_ANDROID
-    device = BTLastAddress;
-#else
-    device = serialPort->portName();
-#endif
-    if(device.isEmpty())
-    {
-        QMessageBox::warning(this, tr("Error"), tr("Plz connect to a port first."));
-        return;
-    }
     if(IOConnection->isConnected())
     {
         IOConnection->close();
-        onIODeviceDisconnected();
     }
     else
     {
-#ifdef Q_OS_ANDROID
-        IOConnection->reopen();
-#else
-        IODeviceState = IODevice->open(QIODevice::ReadWrite);
-        if(IODeviceState)
-            onIODeviceConnected();
-        else
-            QMessageBox::warning(this, tr("Error"), tr("Cannot open the serial port."));
-#endif
+        if(!IOConnection->reopen())
+        {
+            QMessageBox::warning(this, tr("Error"), tr("Plz connect to a port first."));
+            return;
+        }
     }
 }
 
@@ -203,65 +191,71 @@ void MainWindow::initUI()
 #ifdef Q_OS_ANDROID
 void MainWindow::openDevice(const QString &name)
 {
-    BTNewAddress = name;
-    BTSocket->connectToService(QBluetoothAddress(name), QBluetoothUuid::SerialPort);
+    Connection::BTArgument arg;
+    arg.deviceAddress = QBluetoothAddress(name);
+    IOConnection->setArgument(arg);
+    IOConnection->open();
 }
 #else
 void MainWindow::openDevice(const QString& name, const qint32 baudRate, QSerialPort::DataBits dataBits, QSerialPort::StopBits stopBits, QSerialPort::Parity parity, QSerialPort::FlowControl flowControl)
 {
-    serialPort->setPortName(name);
-    serialPort->setBaudRate(baudRate);
-    serialPort->setDataBits(dataBits);
-    serialPort->setStopBits(stopBits);
-    serialPort->setParity(parity);
-    serialPort->setFlowControl(flowControl);
-    if(serialPort->isOpen())
+    if(IOConnection->isConnected())
     {
         QMessageBox::warning(this, tr("Error"), tr("The port has been opened."));
         return;
     }
-    if(!serialPort->open(QSerialPort::ReadWrite))
-    {
-        QMessageBox::warning(this, tr("Error"), tr("Cannot open the serial port."));
-        return;
-    }
-    onIODeviceConnected();
-    deviceTab->saveDevicesPreference(serialPort->portName());
+    Connection::SerialPortArgument arg;
+    arg.name = name;
+    arg.baudRate = baudRate;
+    arg.dataBits = dataBits;
+    arg.stopBits = stopBits;
+    arg.parity = parity;
+    arg.flowControl = flowControl;
+    IOConnection->setArgument(arg);
+    IOConnection->open();
 }
 #endif
 
 void MainWindow::closeDevice()
 {
-    IODevice->close();
-    onIODeviceDisconnected();
+    IOConnection->close();
 }
 
 void MainWindow::stateUpdate()
 {
-
     QString deviceName;
-#ifdef Q_OS_ANDROID
-    deviceName = BTSocket->peerName();
-#else
-    deviceName = serialPort->portName();
-    QString stopbits[4] = {"", tr("OneStop"), tr("TwoStop"), tr("OneAndHalfStop")};
-    QString parities[6] = {tr("NoParity"), "", tr("EvenParity"), tr("OddParity"), tr("SpaceParity"), tr("MarkParity")};
-    if(IODeviceState)
+    Connection::Type type;
+    type = IOConnection->type();
+    if(type == Connection::SerialPort)
     {
-        baudRateLabel->setText(tr("BaudRate") + ": " + QString::number(serialPort->baudRate()));
-        dataBitsLabel->setText(tr("DataBits") + ": " + QString::number(serialPort->dataBits()));
-        stopBitsLabel->setText(tr("StopBits") + ": " + stopbits[(int)serialPort->stopBits()]);
-        parityLabel->setText(tr("Parity") + ": " + parities[(int)serialPort->parity()]);
-    }
-    else
-    {
-        baudRateLabel->setText(tr("BaudRate") + ": ");
-        dataBitsLabel->setText(tr("DataBits") + ": ");
-        stopBitsLabel->setText(tr("StopBits") + ": ");
-        parityLabel->setText(tr("Parity") + ": ");
-    }
+        Connection::SerialPortArgument arg;
+        arg = IOConnection->getSerialPortArgument();
+        deviceName = arg.name;
+        const QString stopbits[4] = {"", tr("OneStop"), tr("TwoStop"), tr("OneAndHalfStop")};
+        const QString parities[6] = {tr("NoParity"), "", tr("EvenParity"), tr("OddParity"), tr("SpaceParity"), tr("MarkParity")};
+#ifndef Q_OS_ANDROID
+        if(IOConnection->isConnected())
+        {
+            baudRateLabel->setText(tr("BaudRate") + ": " + QString::number(arg.baudRate));
+            dataBitsLabel->setText(tr("DataBits") + ": " + QString::number(arg.dataBits));
+            stopBitsLabel->setText(tr("StopBits") + ": " + stopbits[(int)arg.stopBits]);
+            parityLabel->setText(tr("Parity") + ": " + parities[(int)arg.parity]);
+        }
+        else
+        {
+            baudRateLabel->setText(tr("BaudRate") + ": ");
+            dataBitsLabel->setText(tr("DataBits") + ": ");
+            stopBitsLabel->setText(tr("StopBits") + ": ");
+            parityLabel->setText(tr("Parity") + ": ");
+        }
 #endif
-    if(IODeviceState)
+    }
+    else if(type == Connection::BT_Client)
+    {
+        if(IOConnection->isConnected())
+            deviceName = IOConnection->getBTArgument().deviceAddress.toString();
+    }
+    if(IOConnection->isConnected())
         stateButton->setText(tr("State") + ": √");
     else
         stateButton->setText(tr("State") + ": X");
@@ -281,12 +275,11 @@ void MainWindow::onIODeviceConnected()
     stateUpdate();
     deviceTab->refreshDevicesInfo();
 #ifndef Q_OS_ANDROID
-    QSerialPort* port;
-    port = dynamic_cast<QSerialPort*>(IODevice);
-    if(port != nullptr)
-    {
-        dataTab->setFlowCtrl(port->flowControl() != QSerialPort::HardwareControl, port->isRequestToSend(), port->isDataTerminalReady());
-    }
+    Connection::SerialPortArgument arg;
+    arg = IOConnection->getSerialPortArgument();
+    dataTab->setFlowCtrl(arg.flowControl != QSerialPort::HardwareControl, IOConnection->SP_isRequestToSend(), IOConnection->SP_isDataTerminalReady());
+
+    deviceTab->saveDevicesPreference(arg.name);
 #endif
 }
 
@@ -299,12 +292,20 @@ void MainWindow::onIODeviceDisconnected()
     updateRxUI();
 }
 
+void MainWindow::onIODeviceConnectFailed()
+{
+    if(IOConnection->type() == Connection::SerialPort)
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Cannot open the serial port."));
+    }
+}
+
 // Rx/Tx Data
 // **********************************************************************************************************************************************
 
 void MainWindow::readData()
 {
-    QByteArray newData = IODevice->readAll();
+    QByteArray newData = IOConnection->readAll();
     if(newData.isEmpty())
         return;
     rawReceivedData->append(newData);
@@ -315,7 +316,7 @@ void MainWindow::readData()
 
 void MainWindow::sendData(const QByteArray& data)
 {
-    if(!IODeviceState)
+    if(!IOConnection->isConnected())
     {
         QMessageBox::warning(this, tr("Error"), tr("No port is opened."));
         dataTab->setRepeat(false);
@@ -323,7 +324,7 @@ void MainWindow::sendData(const QByteArray& data)
     }
     rawSendedData->append(data);
     dataTab->syncSendedEditWithData();
-    IODevice->write(data);
+    IOConnection->write(data);
     TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
 }
 

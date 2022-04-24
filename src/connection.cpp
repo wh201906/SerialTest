@@ -5,13 +5,23 @@
 Connection::Connection(QObject *parent)
     : QObject{parent}
 {
+    // permanent
     m_pollTimer = new QTimer();
-    m_pollTimer->setInterval(100); // default interval
-    connect(m_pollTimer, &QTimer::timeout, this, &Connection::onPollingTimeout);
     m_serialPort = new QSerialPort();
     m_BTServer = new QBluetoothServer(QBluetoothServiceInfo::RfcommProtocol);
     m_TCPSocket = new QTcpSocket();
     m_UDPSocket = new QUdpSocket();
+
+    // might be replaced by m_BTServer->nextPendingConnection()
+    m_BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+
+    m_pollTimer->setInterval(100); // default interval
+    connect(m_pollTimer, &QTimer::timeout, this, &Connection::onPollingTimeout);
+}
+
+Connection::Type Connection::type()
+{
+    return m_type;
 }
 
 bool Connection::setType(Type type)
@@ -26,7 +36,12 @@ bool Connection::setType(Type type)
 
 bool Connection::isConnected()
 {
-    return m_connected;
+    return m_state == Connected;
+}
+
+Connection::State Connection::state()
+{
+    return m_state;
 }
 
 void Connection::setPolling(bool enabled)
@@ -34,7 +49,7 @@ void Connection::setPolling(bool enabled)
     m_pollTimerEnabled = enabled;
     if(!enabled)
         m_pollTimer->stop();
-    else if(enabled && m_connected)
+    else if(enabled && isConnected())
         m_pollTimer->start();
 }
 
@@ -103,12 +118,12 @@ void Connection::open()
     }
     else if(m_type == BT_Client)
     {
-        m_connecting = true;
+        m_state = Connecting;
         m_BTSocket->connectToService(m_currBTArgument.deviceAddress, QBluetoothUuid::SerialPort);
     }
     else if(m_type == TCP_Client)
     {
-        m_connecting = true;
+        m_state = Connecting;
         if(m_currNetArgument.useRemoteName)
             m_TCPSocket->connectToHost(m_currNetArgument.remotetName, m_currNetArgument.remotePort);
         else
@@ -118,6 +133,8 @@ void Connection::open()
     {
         if(!m_TCPSocket->bind(m_currNetArgument.localAddress, m_currNetArgument.localPort))
             emit connectFailed();
+        else
+            m_state = Bound;
     }
     else if(m_type == UDP)
     {
@@ -138,16 +155,15 @@ void Connection::open()
                     m_UDPSocket->close(); // necessary? call abort()?
                     break;
                 }
-                onConnected(); // necessary?
+                onConnected(); // no connection, bound = connected
             }
             while(false); // I just want to use break
         }
         else // for unicast and broadcast
             if(m_UDPSocket->bind(m_currNetArgument.localAddress, m_currNetArgument.localPort))
-                onConnected(); // necessary? different from TCP, need modify
+                onConnected(); // no connection, bound = connected
             else
                 emit connectFailed();
-
     }
 }
 
@@ -171,7 +187,7 @@ bool Connection::reopen()
 
 void Connection::close(bool forced)
 {
-    if(!m_connected && !forced)
+    if(m_state == Unconnected && !forced)
         return;
     if(m_type == SerialPort)
     {
@@ -240,7 +256,20 @@ void Connection::onErrorOccurred()
         QSerialPort::SerialPortError error;
         error = m_serialPort->error();
         qDebug() << "SerialPort Error:" << error;
-        // onDisconnected(); // ?
+
+        // no error
+        if(error == QSerialPort::NoError)
+            return;
+        // serialport still works
+        else if(error == QSerialPort::FramingError || error == QSerialPort::ParityError || error == QSerialPort::BreakConditionError || error == QSerialPort::UnsupportedOperationError || error == QSerialPort::TimeoutError || error == QSerialPort::ReadError || error == QSerialPort::WriteError)
+        {
+            return;
+        }
+        // serialport doesn't work, close it for reconnection
+        else
+        {
+            close(true);
+        }
     }
     else if(m_type == BT_Client)
     {
@@ -292,8 +321,7 @@ qint64 Connection::write(const QByteArray &data)
 
 void Connection::onConnected()
 {
-    m_connecting = false;
-    m_connected = true;
+    m_state = Connected;
     if(m_type == SerialPort)
     {
         m_lastSPArgument = m_currSPArgument;
@@ -311,7 +339,7 @@ void Connection::onConnected()
 
 void Connection::onDisconnected()
 {
-    m_connected = false;
+    m_state = Unconnected;
     m_pollTimer->stop();
     emit disconnected();
 }
@@ -335,6 +363,8 @@ QSerialPort::PinoutSignals Connection::SP_pinoutSignals()
 
 bool Connection::SP_setDataTerminalReady(bool set)
 {
+    if(m_type != SerialPort)
+        return false;
     return m_serialPort->setDataTerminalReady(set);
 }
 
@@ -345,6 +375,8 @@ bool Connection::SP_isDataTerminalReady()
 
 bool Connection::SP_setRequestToSend(bool set)
 {
+    if(m_type != SerialPort)
+        return false;
     return m_serialPort->setRequestToSend(set);
 }
 

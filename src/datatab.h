@@ -6,6 +6,7 @@
 #include <QTextDecoder>
 
 #include "mysettings.h"
+#include "connection.h"
 
 namespace Ui
 {
@@ -23,7 +24,7 @@ public:
     void appendReceivedData(const QByteArray &data);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
-    void setIODevice(QIODevice* dev);
+    void setIODevice(Connection* conn);
     void setFlowCtrl(bool isRTSValid, bool rts, bool dtr);
     void setRepeat(bool state);
     bool getRxRealtimeState();
@@ -62,6 +63,7 @@ private:
     Ui::DataTab *ui;
 
     QIODevice* IODevice;
+    Connection* m_connection;
     MySettings* settings;
     QTimer* repeatTimer;
 

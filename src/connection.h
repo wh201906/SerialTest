@@ -29,6 +29,14 @@ public:
         UDP
     };
 
+    enum State
+    {
+        Unconnected = 0,
+        Connecting,
+        Connected,
+        Bound,
+    };
+
     struct SerialPortArgument
     {
         QString name;
@@ -59,8 +67,10 @@ public:
     explicit Connection(QObject *parent = nullptr);
 
     // general
+    Type type();
     bool setType(Type type);
     bool isConnected();
+    State state();
     bool polling();
     void setPollingInterval(int msec);
     int pollingInterval();
@@ -91,8 +101,7 @@ public slots:
     void setPolling(bool enabled);
 private:
     Type m_type = SerialPort;
-    bool m_connected = false;
-    bool m_connecting = false; // for connectFailed() signal in async functions
+    State m_state = Unconnected;
 
     // signal/slot connections
     QMetaObject::Connection m_lastReadyReadConn;
