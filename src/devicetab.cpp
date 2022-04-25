@@ -1,5 +1,6 @@
 ﻿#include "devicetab.h"
 #include "ui_devicetab.h"
+#include "util.h"
 
 #include <QDebug>
 #include <QMessageBox>
@@ -21,8 +22,10 @@ DeviceTab::DeviceTab(QWidget *parent) :
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &DeviceTab::BTdiscoverFinished);
     connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &DeviceTab::BTdiscoverFinished);
 
+    connect(ui->SP_portList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
+    connect(ui->BTClient_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
+
     initUI();
-    connect(ui->refreshButton, &QPushButton::clicked, this, &DeviceTab::refreshTargetList);
     refreshTargetList();
 }
 
@@ -48,7 +51,7 @@ void DeviceTab::refreshTargetList()
     Connection::Type currType = m_connection->type();
     if(currType == Connection::SerialPort)
     {
-        ui->SP_portList->clearContents();
+        ui->SP_portList->setRowCount(0);
         ui->SP_portNameBox->clear();
         QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
         ui->SP_portList->setRowCount(ports.size());
@@ -75,18 +78,18 @@ void DeviceTab::refreshTargetList()
     }
     else if(currType == Connection::BT_Client)
     {
-        ui->BTClient_deviceList->clearContents();
+        ui->BTClient_deviceList->setRowCount(0);
         ui->BTClient_addressBox->clear();
         ui->refreshButton->setText(tr("Searching..."));
 #ifdef Q_OS_ANDROID
-        getBondedTarget();
+        getBondedTarget(false);
 #endif
-        BTdiscoveryAgent->start();
+        BTdiscoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod);
     }
 }
 
 #ifdef Q_OS_ANDROID
-void DeviceTab::getBondedTarget()
+void DeviceTab::getBondedTarget(bool isBLE)
 {
     QAndroidJniEnvironment env;
     QtAndroid::PermissionResult r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
@@ -103,7 +106,7 @@ void DeviceTab::getBondedTarget()
 
     QAndroidJniObject helper("priv/wh201906/serialtest/BTHelper");
     qDebug() << "test:" << helper.callObjectMethod<jstring>("TestStr").toString();
-    QAndroidJniObject array = helper.callObjectMethod("getBondedDevices", "()[Ljava/lang/String;");
+    QAndroidJniObject array = helper.callObjectMethod("getBondedDevices", "(Z)[Ljava/lang/String;", isBLE);
     int arraylen = env->GetArrayLength(array.object<jarray>());
     qDebug() << "arraylen:" << arraylen;
     ui->BTClient_deviceList->setRowCount(arraylen);
@@ -123,15 +126,6 @@ void DeviceTab::getBondedTarget()
 
 void DeviceTab::initUI()
 {
-    ui->typeBox->addItem(tr("SerialPort"), Connection::SerialPort);
-    ui->typeBox->addItem(tr("Bluetooth Client"), Connection::BT_Client);
-    ui->typeBox->addItem(tr("Bluetooth Server"), Connection::BT_Server);
-    ui->typeBox->addItem(tr("BLE Central"), Connection::BLE_Central);
-    ui->typeBox->addItem(tr("BLE Peripheral"), Connection::BLE_Peripheral);
-    ui->typeBox->addItem(tr("TCP Client"), Connection::TCP_Client);
-    ui->typeBox->addItem(tr("TCP Server"), Connection::TCP_Server);
-    ui->typeBox->addItem(tr("UDP"), Connection::UDP);
-
     ui->SP_portList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->BTClient_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -169,8 +163,60 @@ void DeviceTab::initUI()
     ui->SP_dataBitsBox->setItemData(2, QSerialPort::Data7);
     ui->SP_dataBitsBox->setItemData(3, QSerialPort::Data8);
     ui->SP_dataBitsBox->setCurrentIndex(3);
-
     on_SP_advancedBox_clicked(false);
+}
+
+void DeviceTab::getAvailableTypes(bool useFirstValid)
+{
+    int firstValid = -1;
+    Connection::Type currType = ui->typeBox->currentData().value<Connection::Type>();
+    QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->typeBox->model());
+    QVector<Connection::Type> invalid =
+    {Connection::BT_Server, Connection::BLE_Central, Connection::BLE_Peripheral, Connection::TCP_Client, Connection::TCP_Server, Connection::UDP};
+    const QMap<Connection::Type, QString> typeNameMap =
+    {
+        {Connection::SerialPort, tr("SerialPort")},
+        {Connection::BT_Client, tr("Bluetooth Client")},
+        {Connection::BT_Server, tr("Bluetooth Server")},
+        {Connection::BLE_Central, tr("BLE Central")},
+        {Connection::BLE_Peripheral, tr("BLE Peripheral")},
+        {Connection::TCP_Client, tr("TCP Client")},
+        {Connection::TCP_Server, tr("TCP Server")},
+        {Connection::UDP, tr("UDP")}
+    };
+#ifdef Q_OS_ANDROID
+    invalid += Connection::SerialPort;
+#endif
+    QBluetoothLocalDevice lDevice;
+    if(!lDevice.isValid())
+        invalid += Connection::BT_Client;
+    else if(lDevice.hostMode() == QBluetoothLocalDevice::HostPoweredOff)
+    {
+        invalid += Connection::BT_Client;
+    }
+    ui->typeBox->blockSignals(true);
+    ui->typeBox->clear();
+    for(auto it = typeNameMap.cbegin(); it != typeNameMap.cend(); it++)
+    {
+        if(invalid.contains(it.key()))
+        {
+            ui->typeBox->addItem("!" + it.value(), it.key());
+            Util::disableItem(model, it.key());
+        }
+        else
+        {
+            ui->typeBox->addItem(it.value(), it.key());
+            if(firstValid < 0 && useFirstValid)
+            {
+                ui->typeBox->setCurrentIndex(it.key());
+                on_typeBox_currentIndexChanged(it.key()); // this signal is blocked now
+                firstValid = it.key();
+            }
+        }
+    }
+    if(!useFirstValid)
+        ui->typeBox->setCurrentIndex(currType);
+    ui->typeBox->blockSignals(false);
 }
 
 void DeviceTab::on_SP_advancedBox_clicked(bool checked)
@@ -207,10 +253,22 @@ void DeviceTab::on_openButton_clicked()
     }
     else if(currType == Connection::BT_Client)
     {
+        if(m_connection->isConnected())
+        {
+            QMessageBox::warning(this, tr("Error"), tr("The device is already connected."));
+            return;
+        }
+        else if(m_connection->state() == Connection::Connecting)
+        {
+            // force disconnect
+            m_connection->close(true);
+        }
         Connection::BTArgument arg;
         arg.deviceAddress = QBluetoothAddress(ui->BTClient_addressBox->currentText());
         m_connection->setArgument(arg);
         m_connection->open();
+        // show "..." in statusBar
+        emit updateStatusBar();
     }
 }
 
@@ -219,39 +277,47 @@ void DeviceTab::on_closeButton_clicked()
     m_connection->close();
 }
 
-void DeviceTab::on_SP_portList_cellClicked(int row, int column)
+void DeviceTab::onTargetListCellClicked(int row, int column)
 {
     Q_UNUSED(column);
-    ui->SP_portNameBox->setCurrentIndex(row);
-
-    QStringList preferences = settings->childGroups();
-    QStringList::iterator it;
-
-
-    // search preference by <vendorID>-<productID>
-    QString id = ui->SP_portList->item(row, 6)->text();  // vendor id
-    id += "-";
-    id += ui->SP_portList->item(row, 7)->text(); // product id
-    for(it = preferences.begin(); it != preferences.end(); ++it)
+    if(m_connection == nullptr)
+        return;
+    if(m_connection->type() == Connection::SerialPort)
     {
-        if(*it == id)
+        ui->SP_portNameBox->setCurrentIndex(row);
+
+        QStringList preferences = settings->childGroups();
+        QStringList::iterator it;
+
+        // search preference by <vendorID>-<productID>
+        QString id = ui->SP_portList->item(row, 6)->text();  // vendor id
+        id += "-";
+        id += ui->SP_portList->item(row, 7)->text(); // product id
+        for(it = preferences.begin(); it != preferences.end(); ++it)
         {
-            loadDevicesPreference(id);
-            break;
+            if(*it == id)
+            {
+                loadDevicesPreference(id);
+                break;
+            }
+        }
+        if(it != preferences.end())
+            return;
+
+        // search preference by DeviceName
+        id = ui->SP_portList->item(row, 0)->text();
+        for(it = preferences.begin(); it != preferences.end(); ++it)
+        {
+            if(*it == id)
+            {
+                loadDevicesPreference(id);
+                break;
+            }
         }
     }
-    if(it != preferences.end())
-        return;
-
-    // search preference by DeviceName
-    id = ui->SP_portList->item(row, 0)->text();
-    for(it = preferences.begin(); it != preferences.end(); ++it)
+    else if(m_connection->type() == Connection::BT_Client)
     {
-        if(*it == id)
-        {
-            loadDevicesPreference(id);
-            break;
-        }
+        ui->BTClient_addressBox->setCurrentIndex(row);
     }
 }
 
@@ -321,9 +387,25 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
 {
     Q_UNUSED(index)
     Connection::Type newType;
+    bool result;
     newType = ui->typeBox->currentData().value<Connection::Type>();
-    if(m_connection != nullptr)
-        m_connection->setType(newType);
+    if(m_connection == nullptr)
+        return;
+    result = m_connection->setType(newType);
+    if(!result)
+    {
+        if(m_connection->state() != Connection::Unconnected)
+            QMessageBox::warning(this, tr("Error"), tr("Please close the current connection first."));
+        else
+            QMessageBox::warning(this, tr("Error"), tr("Unsupported interface."));
+        ui->typeBox->blockSignals(true);
+        ui->typeBox->setCurrentIndex(m_connection->type());
+        ui->typeBox->blockSignals(false);
+        return;
+    }
+    // stop searching
+    BTdiscoveryAgent->stop();
+    BTdiscoverFinished();
     if(newType == Connection::SerialPort)
     {
         ui->targetListStack->setCurrentWidget(ui->SPListPage);
@@ -333,5 +415,19 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     {
         ui->targetListStack->setCurrentWidget(ui->BTClientListPage);
         ui->argsStack->setCurrentWidget(ui->BTClientArgsPage);
+    }
+    emit connTypeChanged(newType);
+    refreshTargetList();
+}
+
+void DeviceTab::on_refreshButton_clicked()
+{
+    getAvailableTypes();
+    if(ui->refreshButton->text() == tr("Refresh"))
+        refreshTargetList();
+    else
+    {
+        BTdiscoveryAgent->stop();
+        BTdiscoverFinished();
     }
 }

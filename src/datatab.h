@@ -25,11 +25,14 @@ public:
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
     void setConnection(Connection* conn);
-    void setFlowCtrl(bool isRTSValid, bool rts, bool dtr);
+
     void setRepeat(bool state);
     bool getRxRealtimeState();
     void initSettings();
 
+public slots:
+    void onConnTypeChanged(Connection::Type type);
+    void onConnEstablished();
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void showEvent(QShowEvent *ev) override;
@@ -52,13 +55,9 @@ private slots:
     void onRxSliderValueChanged(int value);
     void onRxSliderMoved(int value);
     void on_receivedUpdateButton_clicked();
-#ifndef Q_OS_ANDROID
     void on_data_flowDTRBox_clicked(bool checked);
     void on_data_flowRTSBox_clicked(bool checked);
-#endif
-
     void on_data_unescapeBox_stateChanged(int arg1);
-
 private:
     Ui::DataTab *ui;
 
@@ -89,8 +88,7 @@ signals:
     void send(const QByteArray& data);
     void setDataCodec(QTextCodec* codec);
     void setPlotDecoder(QTextDecoder* decoder);
-    void setRxLabelText(const QString& text);
-    void setTxLabelText(const QString& text);
+    void updateRxTxLen(bool updateRx, bool updateTx);
 };
 
 #endif // DATATAB_H

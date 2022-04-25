@@ -9,14 +9,14 @@
 #include <QLabel>
 #include <QTimer>
 
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothUuid>
 #include <QBluetoothSocket>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
 #else
-#include <QSerialPort>
-#include <QSerialPortInfo>
 #include <QDockWidget>
 #endif
 
@@ -45,6 +45,8 @@ public:
 
 public slots:
     void sendData(const QByteArray &data);
+    void updateStatusBar();
+    void updateRxTxLen(bool updateRx = true, bool updateTx = true);
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 private slots:
@@ -52,9 +54,7 @@ private slots:
     void onStateButtonClicked();
     void updateRxUI();
 
-#ifdef Q_OS_ANDROID
-
-#else
+#ifndef Q_OS_ANDROID
     void onTopBoxClicked(bool checked);
 #endif
 
@@ -64,7 +64,6 @@ private slots:
 private:
     Ui::MainWindow *ui;
     void initUI();
-    void stateUpdate();
 
     QMenu* contextMenu;
     QAction* dockAllWindows;
@@ -91,28 +90,11 @@ private:
     DataTab* dataTab;
     DeviceTab* deviceTab;
 
-    enum tableHeader
-    {
-        HPortName = 0,
-        HDescription,
-        HManufacturer,
-        HSerialNumber,
-        HIsNull,
-        HSystemLocation,
-        HVendorID,
-        HProductID,
-        HBaudRates
-    };
-
-#ifdef Q_OS_ANDROID
-
-#else
-    QList<QDockWidget*> dockList;
-    QLabel* baudRateLabel;
-    QLabel* dataBitsLabel;
-    QLabel* stopBitsLabel;
-    QLabel* parityLabel;
+    QLabel* connArgsLabel;
     SerialPinout* serialPinout;
+
+#ifndef Q_OS_ANDROID
+    QList<QDockWidget*> dockList;
     QCheckBox* onTopBox;
 
     void dockInit();

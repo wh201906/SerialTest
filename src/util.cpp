@@ -113,3 +113,13 @@ QByteArray Util::unescape(const QString &text, QTextCodec* codec)
 //    qDebug() << result;
     return result;
 }
+
+void Util::disableItem(QStandardItemModel* model, int id, bool enabled)
+{
+    if(model == nullptr)
+        return;
+    QStandardItem *item = model->item(id);
+    Qt::ItemFlags flags = item->flags();
+    flags.setFlag(Qt::ItemIsEnabled, enabled);
+    item->setFlags(flags);
+}

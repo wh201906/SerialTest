@@ -15,12 +15,16 @@ public class BTHelper {
         return "Hello";
     }
 
-    public String[] getBondedDevices() {
+    public String[] getBondedDevices(boolean isBLE) {
         BluetoothAdapter BTAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> bondedDevice = BTAdapter.getBondedDevices();
         ArrayList<String> list = new ArrayList<String>();
         for (BluetoothDevice bt : bondedDevice) {
-            list.add(bt.getAddress() + " " + bt.getName());
+            int deviceType = bt.getType();
+            if(!isBLE && (deviceType == BluetoothDevice.DEVICE_TYPE_CLASSIC || deviceType == BluetoothDevice.DEVICE_TYPE_DUAL))
+                list.add(bt.getAddress() + " " + bt.getName());
+            else if(isBLE && (deviceType == BluetoothDevice.DEVICE_TYPE_LE || deviceType == BluetoothDevice.DEVICE_TYPE_DUAL))
+                list.add(bt.getAddress() + " " + bt.getName());
         }
         String[] result = (String[]) list.toArray(new String[list.size()]);
         return result;

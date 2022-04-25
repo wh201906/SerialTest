@@ -3,12 +3,14 @@
 
 #include <QString>
 #include <QTextCodec>
+#include <QStandardItemModel>
 
 class Util
 {
 public:
     Util();
     static QByteArray unescape(const QString& text, QTextCodec* codec);
+    static void disableItem(QStandardItemModel* model, int id, bool enabled = false);
 private:
     static const char unescapeTable[];
     static int unescapeHelper(QStringRef text, int &result, int baseBits);

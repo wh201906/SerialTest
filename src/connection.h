@@ -94,6 +94,9 @@ public:
     bool SP_setRequestToSend(bool set);
     bool SP_isRequestToSend();
 
+    // Bluetooth
+    QString BT_remoteName();
+
 public slots:
     // general
     void setPolling(bool enabled);

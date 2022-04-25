@@ -26,6 +26,8 @@ Connection::Type Connection::type()
 
 bool Connection::setType(Type type)
 {
+    if(m_state != Unconnected)
+        return false;
     m_type = type;
     m_lastSPArgumentValid = false;
     m_lastBTArgumentValid = false;
@@ -100,7 +102,6 @@ Connection::NetworkArgument Connection::getNetworkArgument()
 
 void Connection::open()
 {
-    // close before open?
     if(m_type == SerialPort)
     {
         m_serialPort->setPortName(m_currSPArgument.name);
@@ -248,23 +249,22 @@ void Connection::updateSignalSlot()
 
 void Connection::onErrorOccurred()
 {
-    // TODO:
-    // call onDisconnected() according to the error type.
-    // if m_connecting is true and something bad happens, emit connectFailed()
     if(m_type == SerialPort)
     {
+        // connectFailed() is emitted in open()
         QSerialPort::SerialPortError error;
         error = m_serialPort->error();
         qDebug() << "SerialPort Error:" << error;
 
         // no error
         if(error == QSerialPort::NoError)
-            return;
+            ;
         // serialport still works
         else if(error == QSerialPort::FramingError || error == QSerialPort::ParityError || error == QSerialPort::BreakConditionError || error == QSerialPort::UnsupportedOperationError || error == QSerialPort::TimeoutError || error == QSerialPort::ReadError || error == QSerialPort::WriteError)
-        {
-            return;
-        }
+            ;
+        // doesn't work, but don't close it
+        else if(error == QSerialPort::NotOpenError)
+            ;
         // serialport doesn't work, close it for reconnection
         else
         {
@@ -276,6 +276,18 @@ void Connection::onErrorOccurred()
         QBluetoothSocket::SocketError socketError;
         socketError = m_BTSocket->error();
         qDebug() << "BT Socket Error:" << socketError;
+
+        // no error
+        if(socketError == QBluetoothSocket::NoSocketError)
+            ;
+        else if(socketError == QBluetoothSocket::NetworkError || socketError == QBluetoothSocket::OperationError)
+            ;
+        else
+        {
+            if(m_state == Connecting)
+                emit connectFailed();
+            close(true);
+        }
     }
     emit errorOccurred();
 }
@@ -383,4 +395,11 @@ bool Connection::SP_setRequestToSend(bool set)
 bool Connection::SP_isRequestToSend()
 {
     return m_serialPort->isRequestToSend();
+}
+
+QString Connection::BT_remoteName()
+{
+    if(m_type == BT_Client && m_BTSocket != nullptr)
+        return m_BTSocket->peerName();
+    return QString();
 }

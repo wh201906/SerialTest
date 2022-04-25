@@ -1,8 +1,8 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#ifdef Q_OS_ANDROID
 #include <QBluetoothLocalDevice>
+#ifdef Q_OS_ANDROID
 #include <QAndroidJniEnvironment>
 #endif
 
@@ -18,32 +18,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(IOConnection, &Connection::disconnected, this, &MainWindow::onIODeviceDisconnected);
     connect(IOConnection, &Connection::connectFailed, this, &MainWindow::onIODeviceConnectFailed);
 #ifdef Q_OS_ANDROID
-    QBluetoothLocalDevice lDevice;
-    if(!lDevice.isValid())
-        QMessageBox::information(this, tr("Error"), tr("Bluetooth is invalid!"));
-    else if(lDevice.hostMode() == QBluetoothLocalDevice::HostPoweredOff)
-    {
-        QMessageBox::information(this, tr("Error"), tr("Please enable Bluetooth!"));
-        lDevice.powerOn();
-    }
-    IOConnection->setType(Connection::BT_Client);
     setStyleSheet("QCheckBox{min-width:15px;min-height:15px;}QCheckBox::indicator{min-width:15px;min-height:15px;}");
 
     // on Android, use default.
     MySettings::init(QSettings::NativeFormat);
-
 #else
 
     IOConnection->setType(Connection::SerialPort);
 
-    baudRateLabel = new QLabel();
-    dataBitsLabel = new QLabel();
-    stopBitsLabel = new QLabel();
-    parityLabel = new QLabel();
-    serialPinout = new SerialPinout();
-    connect(IOConnection, &Connection::SP_signalsChanged, serialPinout, &SerialPinout::setPinout);
     onTopBox = new QCheckBox(tr("On Top"));
-    connect(serialPinout, &SerialPinout::enableStateChanged, IOConnection, &Connection::setPolling);
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
 
     // on PC, store preferences in files for portable use
@@ -64,6 +47,10 @@ MainWindow::MainWindow(QWidget *parent)
     stateButton = new QPushButton();
     TxLabel = new QLabel();
     RxLabel = new QLabel();
+    connArgsLabel = new QLabel;
+    serialPinout = new SerialPinout();
+    connect(IOConnection, &Connection::SP_signalsChanged, serialPinout, &SerialPinout::setPinout);
+    connect(serialPinout, &SerialPinout::enableStateChanged, IOConnection, &Connection::setPolling);
 
     rawReceivedData = new QByteArray();
     rawSendedData = new QByteArray();
@@ -71,11 +58,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     deviceTab = new DeviceTab();
     deviceTab->setConnection(IOConnection);
-    ui->funcTab->insertTab(0, deviceTab, tr("Port"));
+    connect(deviceTab, &DeviceTab::updateStatusBar, this, &MainWindow::updateStatusBar);
+    connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateStatusBar);
+    deviceTab->getAvailableTypes(true);
+    ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
     dataTab = new DataTab(rawReceivedData, rawSendedData);
     dataTab->setConnection(IOConnection);
-    connect(dataTab, &DataTab::setRxLabelText, RxLabel, &QLabel::setText);
-    connect(dataTab, &DataTab::setTxLabelText, TxLabel, &QLabel::setText);
+    connect(deviceTab, &DeviceTab::connTypeChanged, dataTab, &DataTab::onConnTypeChanged);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
     ui->funcTab->insertTab(1, dataTab, tr("Data"));
     plotTab = new PlotTab();
@@ -91,8 +80,6 @@ MainWindow::MainWindow(QWidget *parent)
     updateUITimer->setInterval(20);
 
     connect(IOConnection, &Connection::readyRead, this, &MainWindow::readData, Qt::QueuedConnection);
-
-
     connect(updateUITimer, &QTimer::timeout, this, &MainWindow::updateRxUI);
     connect(stateButton, &QPushButton::clicked, this, &MainWindow::onStateButtonClicked);
 
@@ -154,10 +141,12 @@ void MainWindow::onStateButtonClicked()
 
 void MainWindow::initUI()
 {
-    statusBar()->addWidget(deviceLabel, 1);
-    statusBar()->addWidget(stateButton, 1);
-    statusBar()->addWidget(RxLabel, 1);
-    statusBar()->addWidget(TxLabel, 1);
+    statusBar()->addPermanentWidget(deviceLabel, 1);
+    statusBar()->addPermanentWidget(stateButton, 1);
+    statusBar()->addPermanentWidget(RxLabel, 1);
+    statusBar()->addPermanentWidget(TxLabel, 1);
+    statusBar()->addPermanentWidget(connArgsLabel, 1);
+    statusBar()->addPermanentWidget(serialPinout, 1);
 #ifdef Q_OS_ANDROID
     // keep screen on
 
@@ -172,89 +161,99 @@ void MainWindow::initUI()
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setFixedSize(QApplication::primaryScreen()->availableGeometry().size());
 #else
-    statusBar()->addWidget(baudRateLabel, 1);
-    statusBar()->addWidget(dataBitsLabel, 1);
-    statusBar()->addWidget(stopBitsLabel, 1);
-    statusBar()->addWidget(parityLabel, 1);
-    statusBar()->addWidget(serialPinout, 1);
-    statusBar()->addWidget(onTopBox, 1);
+    statusBar()->addPermanentWidget(onTopBox, 1);
     dockInit();
 #endif
-
     stateButton->setMinimumHeight(1);
     stateButton->setStyleSheet("*{text-align:left;}");
 
-    stateUpdate();
+    updateStatusBar();
 }
 
-void MainWindow::stateUpdate()
+void MainWindow::updateStatusBar()
 {
-    QString deviceName;
     Connection::Type type;
     type = IOConnection->type();
     if(type == Connection::SerialPort)
     {
+        serialPinout->show();
         Connection::SerialPortArgument arg;
         arg = IOConnection->getSerialPortArgument();
-        deviceName = arg.name;
         const QString stopbits[4] = {"", tr("OneStop"), tr("TwoStop"), tr("OneAndHalfStop")};
         const QString parities[6] = {tr("NoParity"), "", tr("EvenParity"), tr("OddParity"), tr("SpaceParity"), tr("MarkParity")};
-#ifndef Q_OS_ANDROID
         if(IOConnection->isConnected())
         {
-            baudRateLabel->setText(tr("BaudRate") + ": " + QString::number(arg.baudRate));
-            dataBitsLabel->setText(tr("DataBits") + ": " + QString::number(arg.dataBits));
-            stopBitsLabel->setText(tr("StopBits") + ": " + stopbits[(int)arg.stopBits]);
-            parityLabel->setText(tr("Parity") + ": " + parities[(int)arg.parity]);
+            deviceLabel->setText(tr("Port") + ": " + arg.name);
+            QString text;
+            text.append((tr("BaudRate") + ": %1 ").arg(arg.baudRate));
+            text.append((tr("DataBits") + ": %1 ").arg(arg.dataBits));
+            text.append(tr("StopBits") + ": " + stopbits[(int)arg.stopBits] + " ");
+            text.append(tr("Parity") + ": " + parities[(int)arg.parity] + " ");
+            // the value of flowcontrol is not specified
+            connArgsLabel->setText(text);
         }
         else
         {
-            baudRateLabel->setText(tr("BaudRate") + ": ");
-            dataBitsLabel->setText(tr("DataBits") + ": ");
-            stopBitsLabel->setText(tr("StopBits") + ": ");
-            parityLabel->setText(tr("Parity") + ": ");
+            deviceLabel->setText(tr("Port") + ": ");
+            connArgsLabel->setText("");
         }
-#endif
     }
     else if(type == Connection::BT_Client)
     {
+        serialPinout->hide();
         if(IOConnection->isConnected())
-            deviceName = IOConnection->getBTArgument().deviceAddress.toString();
+        {
+            deviceLabel->setText(tr("Address") + ": " + IOConnection->getBTArgument().deviceAddress.toString());
+            QString text;
+            text.append((tr("Device Name") + ": %1 ").arg(IOConnection->BT_remoteName()));
+            connArgsLabel->setText(text);
+        }
+        else
+        {
+            deviceLabel->setText(tr("Address") + ": ");
+            connArgsLabel->setText("");
+        }
     }
-    if(IOConnection->isConnected())
+    Connection::State currState = IOConnection->state();
+    if(currState == Connection::Connected)
         stateButton->setText(tr("State") + ": √");
+    else if(currState == Connection::Bound || currState == Connection::Connecting)
+        stateButton->setText(tr("State") + ": ...");
     else
         stateButton->setText(tr("State") + ": X");
-    deviceLabel->setText(tr("Port") + ": " + deviceName);
-    RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
-    TxLabel->setText(tr("Tx") + ": " +  QString::number(rawSendedData->length()));
+    updateRxTxLen();
+}
+
+void MainWindow::updateRxTxLen(bool updateRx, bool updateTx)
+{
+    if(updateRx)
+        RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
+    if(updateTx)
+        TxLabel->setText(tr("Tx") + ": " + QString::number(rawSendedData->length()));
 }
 
 void MainWindow::onIODeviceConnected()
 {
     qDebug() << "IODevice Connected";
     updateUITimer->start();
-#ifndef Q_OS_ANDROID
-    if(serialPinout->getEnableState())
-        IOConnection->setPolling(true);
-#endif
-    stateUpdate();
-    deviceTab->refreshTargetList();
-#ifndef Q_OS_ANDROID
-    Connection::SerialPortArgument arg;
-    arg = IOConnection->getSerialPortArgument();
-    dataTab->setFlowCtrl(arg.flowControl != QSerialPort::HardwareControl, IOConnection->SP_isRequestToSend(), IOConnection->SP_isDataTerminalReady());
+    if(IOConnection->type() == Connection::SerialPort)
+    {
+        if(serialPinout->getEnableState())
+            IOConnection->setPolling(true);
 
-    deviceTab->saveDevicesPreference(arg.name);
-#endif
+        Connection::SerialPortArgument arg;
+        arg = IOConnection->getSerialPortArgument();
+        deviceTab->saveDevicesPreference(arg.name);
+    }
+    updateStatusBar();
+    dataTab->onConnEstablished();
 }
 
 void MainWindow::onIODeviceDisconnected()
 {
     qDebug() << "IODevice Disconnected";
     updateUITimer->stop();
-    stateUpdate();
-    deviceTab->refreshTargetList();
+    updateStatusBar();
     updateRxUI();
 }
 
@@ -263,6 +262,10 @@ void MainWindow::onIODeviceConnectFailed()
     if(IOConnection->type() == Connection::SerialPort)
     {
         QMessageBox::warning(this, tr("Error"), tr("Cannot open the serial port."));
+    }
+    if(IOConnection->type() == Connection::BT_Client)
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Cannot establish the connection."));
     }
 }
 
@@ -275,7 +278,7 @@ void MainWindow::readData()
     if(newData.isEmpty())
         return;
     rawReceivedData->append(newData);
-    RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
+    updateRxTxLen(true, false);
     RxUIBuf->append(newData);
     QApplication::processEvents();
 }
@@ -291,7 +294,7 @@ void MainWindow::sendData(const QByteArray& data)
     rawSendedData->append(data);
     dataTab->syncSendedEditWithData();
     IOConnection->write(data);
-    TxLabel->setText("Tx: " + QString::number(rawSendedData->length()));
+    updateRxTxLen(false, true);
 }
 
 // TODO:

@@ -27,6 +27,7 @@ public:
 public slots:
     void refreshTargetList();
     void saveDevicesPreference(const QString &deviceName);
+    void getAvailableTypes(bool useFirstValid = false);
 private:
     Ui::DeviceTab *ui;
 
@@ -39,19 +40,21 @@ private:
 
     void initUI();
 #ifdef Q_OS_ANDROID
-    void DeviceTab::getBondedTarget();
+    void getBondedTarget(bool isBLE);
 #endif
 signals:
-
+    void updateStatusBar();
+    void connTypeChanged(Connection::Type type);
 private slots:
     void on_SP_advancedBox_clicked(bool checked);
     void on_openButton_clicked();
     void on_closeButton_clicked();
-    void on_SP_portList_cellClicked(int row, int column);
+    void onTargetListCellClicked(int row, int column);
 
     void BTdiscoverFinished();
     void BTdeviceDiscovered(const QBluetoothDeviceInfo &device);
     void on_typeBox_currentIndexChanged(int index);
+    void on_refreshButton_clicked();
 };
 
 #endif // DEVICETAB_H

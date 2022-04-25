@@ -27,15 +27,16 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
     connect(repeatTimer, &QTimer::timeout, this, &DataTab::on_sendButton_clicked);
     connect(RxSlider, &QScrollBar::valueChanged, this, &DataTab::onRxSliderValueChanged);
     connect(RxSlider, &QScrollBar::sliderMoved, this, &DataTab::onRxSliderMoved);
-
-#ifdef Q_OS_ANDROID
-    ui->data_flowControlBox->setVisible(false);
-#endif
 }
 
 DataTab::~DataTab()
 {
     delete ui;
+}
+
+void DataTab::onConnTypeChanged(Connection::Type type)
+{
+    ui->data_flowControlBox->setVisible(type == Connection::SerialPort);
 }
 
 void DataTab::initSettings()
@@ -208,14 +209,14 @@ void DataTab::on_receivedClearButton_clicked()
 {
     lastReceivedByte = '\0'; // anything but '\r'
     rawReceivedData->clear();
-    emit setRxLabelText(tr("Rx") + ": 0");
+    emit updateRxTxLen(true, false);
     syncReceivedEditWithData();
 }
 
 void DataTab::on_sendedClearButton_clicked()
 {
     rawSendedData->clear();
-    emit setTxLabelText(tr("Tx") + ": 0");
+    emit updateRxTxLen(false, true);
     syncSendedEditWithData();
 }
 
@@ -355,11 +356,14 @@ void DataTab::setConnection(Connection* conn)
     m_connection = conn;
 }
 
-void DataTab::setFlowCtrl(bool isRTSValid, bool rts, bool dtr)
+void DataTab::onConnEstablished()
 {
-    ui->data_flowRTSBox->setVisible(isRTSValid);
-    ui->data_flowRTSBox->setChecked(rts);
-    ui->data_flowDTRBox->setChecked(dtr);
+    if(m_connection->type() == Connection::SerialPort)
+    {
+        ui->data_flowRTSBox->setVisible(m_connection->getSerialPortArgument().flowControl != QSerialPort::HardwareControl);
+        ui->data_flowRTSBox->setChecked(m_connection->SP_isRequestToSend());
+        ui->data_flowDTRBox->setChecked(m_connection->SP_isDataTerminalReady());
+    }
 }
 
 void DataTab::setRepeat(bool state)
@@ -424,7 +428,6 @@ void DataTab::appendReceivedData(const QByteArray& data)
     RxSlider->setSliderPosition(sliderPos);
 }
 
-#ifndef Q_OS_ANDROID
 void DataTab::on_data_flowDTRBox_clicked(bool checked)
 {
     m_connection->SP_setDataTerminalReady(checked);
@@ -434,7 +437,6 @@ void DataTab::on_data_flowRTSBox_clicked(bool checked)
 {
     m_connection->SP_setRequestToSend(checked);
 }
-#endif
 
 void DataTab::on_data_unescapeBox_stateChanged(int arg1)
 {
