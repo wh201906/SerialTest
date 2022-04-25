@@ -2,14 +2,12 @@
 #include "ui_devicetab.h"
 
 #include <QDebug>
+#include <QMessageBox>
+#include <QBluetoothUuid>
+#include <QBluetoothLocalDevice>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
-#include <QBluetoothUuid>
-#include <QBluetoothLocalDevice>
-#else
-#include <QSerialPort>
-#include <QSerialPortInfo>
 #endif
 
 DeviceTab::DeviceTab(QWidget *parent) :
@@ -18,16 +16,14 @@ DeviceTab::DeviceTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
-#ifdef Q_OS_ANDROID
     BTdiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &DeviceTab::BTdeviceDiscovered);
     connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &DeviceTab::BTdiscoverFinished);
     connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &DeviceTab::BTdiscoverFinished);
-#endif
 
     initUI();
-    connect(ui->refreshDevicesButton, &QPushButton::clicked, this, &DeviceTab::refreshDevicesInfo);
-    refreshDevicesInfo();
+    connect(ui->refreshButton, &QPushButton::clicked, this, &DeviceTab::refreshTargetList);
+    refreshTargetList();
 }
 
 DeviceTab::~DeviceTab()
@@ -40,12 +36,58 @@ void DeviceTab::initSettings()
     settings = MySettings::defaultSettings();
 }
 
-void DeviceTab::refreshDevicesInfo()
+void DeviceTab::setConnection(Connection *conn)
 {
-    ui->deviceTable->clearContents();
-    ui->deviceBox->clear();
+    m_connection = conn;
+}
+
+void DeviceTab::refreshTargetList()
+{
+    if(m_connection == nullptr)
+        return;
+    Connection::Type currType = m_connection->type();
+    if(currType == Connection::SerialPort)
+    {
+        ui->SP_portList->clearContents();
+        ui->SP_portNameBox->clear();
+        QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
+        ui->SP_portList->setRowCount(ports.size());
+        for(int i = 0; i < ports.size(); i++)
+        {
+            ui->SP_portList->setItem(i, 0, new QTableWidgetItem(ports[i].portName()));
+            ui->SP_portNameBox->addItem(ports[i].portName());
+            ui->SP_portList->setItem(i, 1, new QTableWidgetItem(ports[i].description()));
+            ui->SP_portList->setItem(i, 2, new QTableWidgetItem(ports[i].manufacturer()));
+            ui->SP_portList->setItem(i, 3, new QTableWidgetItem(ports[i].serialNumber()));
+            ui->SP_portList->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
+            ui->SP_portList->setItem(i, 5, new QTableWidgetItem(ports[i].systemLocation()));
+            ui->SP_portList->setItem(i, 6, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
+            ui->SP_portList->setItem(i, 7, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
+
+            QList<qint32> baudRateList = ports[i].standardBaudRates();
+            QString baudRates = "";
+            for(int j = 0; j < baudRates.size(); j++)
+            {
+                baudRates += QString::number(baudRateList[j]) + ", ";
+            }
+            ui->SP_portList->setItem(i, 8, new QTableWidgetItem(baudRates));
+        }
+    }
+    else if(currType == Connection::BT_Client)
+    {
+        ui->BTClient_deviceList->clearContents();
+        ui->BTClient_addressBox->clear();
+        ui->refreshButton->setText(tr("Searching..."));
 #ifdef Q_OS_ANDROID
-    ui->refreshDevicesButton->setText(tr("Searching..."));
+        getBondedTarget();
+#endif
+        BTdiscoveryAgent->start();
+    }
+}
+
+#ifdef Q_OS_ANDROID
+void DeviceTab::getBondedTarget()
+{
     QAndroidJniEnvironment env;
     QtAndroid::PermissionResult r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
     if(r == QtAndroid::PermissionResult::Denied)
@@ -64,147 +106,132 @@ void DeviceTab::refreshDevicesInfo()
     QAndroidJniObject array = helper.callObjectMethod("getBondedDevices", "()[Ljava/lang/String;");
     int arraylen = env->GetArrayLength(array.object<jarray>());
     qDebug() << "arraylen:" << arraylen;
-    ui->deviceTable->setRowCount(arraylen);
+    ui->BTClient_deviceList->setRowCount(arraylen);
     for(int i = 0; i < arraylen; i++)
     {
         QString info = QAndroidJniObject::fromLocalRef(env->GetObjectArrayElement(array.object<jobjectArray>(), i)).toString();
         QString address = info.left(info.indexOf(' '));
         QString name = info.right(info.length() - info.indexOf(' ') - 1);
         qDebug() << address << name;
-        ui->deviceTable->setItem(i, HDeviceName, new QTableWidgetItem(name));
-        ui->deviceTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
-        ui->deviceTable->setItem(i, HDescription, new QTableWidgetItem(tr("Bonded")));
-        ui->deviceBox->addItem(address);
+        ui->BTClient_deviceList->setItem(i, 0, new QTableWidgetItem(name));
+        ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
+        ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Bonded")));
+        ui->BTClient_addressBox->addItem(address);
     }
-
-    BTdiscoveryAgent->start();
-#else
-    QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
-    ui->deviceTable->setRowCount(ports.size());
-    for(int i = 0; i < ports.size(); i++)
-    {
-        ui->deviceTable->setItem(i, HDeviceName, new QTableWidgetItem(ports[i].portName()));
-        ui->deviceBox->addItem(ports[i].portName());
-        ui->deviceTable->setItem(i, HDescription, new QTableWidgetItem(ports[i].description()));
-        ui->deviceTable->setItem(i, HManufacturer, new QTableWidgetItem(ports[i].manufacturer()));
-        ui->deviceTable->setItem(i, HSerialNumber, new QTableWidgetItem(ports[i].serialNumber()));
-        ui->deviceTable->setItem(i, HIsNull, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
-        ui->deviceTable->setItem(i, HSystemLocation, new QTableWidgetItem(ports[i].systemLocation()));
-        ui->deviceTable->setItem(i, HVendorID, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
-        ui->deviceTable->setItem(i, HProductID, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
-
-        QList<qint32> baudRateList = ports[i].standardBaudRates();
-        QString baudRates = "";
-        for(int j = 0; j < baudRates.size(); j++)
-        {
-            baudRates += QString::number(baudRateList[j]) + ", ";
-        }
-        ui->deviceTable->setItem(i, HBaudRates, new QTableWidgetItem(baudRates));
-    }
-#endif
-
 }
+#endif
 
 void DeviceTab::initUI()
 {
-#ifdef Q_OS_ANDROID
-    ui->baudRateLabel->setVisible(false);
-    ui->baudRateBox->setVisible(false);
-    ui->advancedBox->setVisible(false);
-    ui->deviceTable->hideColumn(HManufacturer);
-    ui->deviceTable->hideColumn(HSerialNumber);
-    ui->deviceTable->hideColumn(HIsNull);
-    ui->deviceTable->hideColumn(HVendorID);
-    ui->deviceTable->hideColumn(HProductID);
-    ui->deviceTable->hideColumn(HBaudRates);
+    ui->typeBox->addItem(tr("SerialPort"), Connection::SerialPort);
+    ui->typeBox->addItem(tr("Bluetooth Client"), Connection::BT_Client);
+    ui->typeBox->addItem(tr("Bluetooth Server"), Connection::BT_Server);
+    ui->typeBox->addItem(tr("BLE Central"), Connection::BLE_Central);
+    ui->typeBox->addItem(tr("BLE Peripheral"), Connection::BLE_Peripheral);
+    ui->typeBox->addItem(tr("TCP Client"), Connection::TCP_Client);
+    ui->typeBox->addItem(tr("TCP Server"), Connection::TCP_Server);
+    ui->typeBox->addItem(tr("UDP"), Connection::UDP);
 
-    ui->deviceTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->deviceTable->horizontalHeaderItem(HDeviceName)->setText(tr("DeviceName"));
-    ui->deviceTable->horizontalHeaderItem(HDescription)->setText(tr("Type"));
-    ui->deviceTable->horizontalHeaderItem(HSystemLocation)->setText(tr("MAC Address"));
+    ui->SP_portList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->BTClient_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    ui->deviceLabel->setText(tr("Device") + ":");
-    ui->deviceBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-#else
-    ui->flowControlBox->addItem(tr("NoFlowControl"));
-    ui->flowControlBox->addItem(tr("HardwareControl"));
-    ui->flowControlBox->addItem(tr("SoftwareControl"));
-    ui->flowControlBox->setItemData(0, QSerialPort::NoFlowControl);
-    ui->flowControlBox->setItemData(1, QSerialPort::HardwareControl);
-    ui->flowControlBox->setItemData(2, QSerialPort::SoftwareControl);
-    ui->flowControlBox->setCurrentIndex(0);
-    ui->parityBox->addItem(tr("NoParity"));
-    ui->parityBox->addItem(tr("EvenParity"));
-    ui->parityBox->addItem(tr("OddParity"));
-    ui->parityBox->addItem(tr("SpaceParity"));
-    ui->parityBox->addItem(tr("MarkParity"));
-    ui->parityBox->setItemData(0, QSerialPort::NoParity);
-    ui->parityBox->setItemData(1, QSerialPort::EvenParity);
-    ui->parityBox->setItemData(2, QSerialPort::OddParity);
-    ui->parityBox->setItemData(3, QSerialPort::SpaceParity);
-    ui->parityBox->setItemData(4, QSerialPort::MarkParity);
-    ui->parityBox->setCurrentIndex(0);
-    ui->stopBitsBox->addItem("1");
-    ui->stopBitsBox->addItem("1.5");
-    ui->stopBitsBox->addItem("2");
-    ui->stopBitsBox->setItemData(0, QSerialPort::OneStop);
-    ui->stopBitsBox->setItemData(1, QSerialPort::OneAndHalfStop);
-    ui->stopBitsBox->setItemData(2, QSerialPort::TwoStop);
-    ui->stopBitsBox->setCurrentIndex(0);
-    ui->dataBitsBox->addItem("5");
-    ui->dataBitsBox->addItem("6");
-    ui->dataBitsBox->addItem("7");
-    ui->dataBitsBox->addItem("8");
-    ui->dataBitsBox->setItemData(0, QSerialPort::Data5);
-    ui->dataBitsBox->setItemData(1, QSerialPort::Data6);
-    ui->dataBitsBox->setItemData(2, QSerialPort::Data7);
-    ui->dataBitsBox->setItemData(3, QSerialPort::Data8);
-    ui->dataBitsBox->setCurrentIndex(3);
+    ui->SP_flowControlBox->addItem(tr("NoFlowControl"));
+    ui->SP_flowControlBox->addItem(tr("HardwareControl"));
+    ui->SP_flowControlBox->addItem(tr("SoftwareControl"));
+    ui->SP_flowControlBox->setItemData(0, QSerialPort::NoFlowControl);
+    ui->SP_flowControlBox->setItemData(1, QSerialPort::HardwareControl);
+    ui->SP_flowControlBox->setItemData(2, QSerialPort::SoftwareControl);
+    ui->SP_flowControlBox->setCurrentIndex(0);
+    ui->SP_parityBox->addItem(tr("NoParity"));
+    ui->SP_parityBox->addItem(tr("EvenParity"));
+    ui->SP_parityBox->addItem(tr("OddParity"));
+    ui->SP_parityBox->addItem(tr("SpaceParity"));
+    ui->SP_parityBox->addItem(tr("MarkParity"));
+    ui->SP_parityBox->setItemData(0, QSerialPort::NoParity);
+    ui->SP_parityBox->setItemData(1, QSerialPort::EvenParity);
+    ui->SP_parityBox->setItemData(2, QSerialPort::OddParity);
+    ui->SP_parityBox->setItemData(3, QSerialPort::SpaceParity);
+    ui->SP_parityBox->setItemData(4, QSerialPort::MarkParity);
+    ui->SP_parityBox->setCurrentIndex(0);
+    ui->SP_stopBitsBox->addItem("1");
+    ui->SP_stopBitsBox->addItem("1.5");
+    ui->SP_stopBitsBox->addItem("2");
+    ui->SP_stopBitsBox->setItemData(0, QSerialPort::OneStop);
+    ui->SP_stopBitsBox->setItemData(1, QSerialPort::OneAndHalfStop);
+    ui->SP_stopBitsBox->setItemData(2, QSerialPort::TwoStop);
+    ui->SP_stopBitsBox->setCurrentIndex(0);
+    ui->SP_dataBitsBox->addItem("5");
+    ui->SP_dataBitsBox->addItem("6");
+    ui->SP_dataBitsBox->addItem("7");
+    ui->SP_dataBitsBox->addItem("8");
+    ui->SP_dataBitsBox->setItemData(0, QSerialPort::Data5);
+    ui->SP_dataBitsBox->setItemData(1, QSerialPort::Data6);
+    ui->SP_dataBitsBox->setItemData(2, QSerialPort::Data7);
+    ui->SP_dataBitsBox->setItemData(3, QSerialPort::Data8);
+    ui->SP_dataBitsBox->setCurrentIndex(3);
 
-    ui->deviceLabel->setText(tr("Port") + ":");
-#endif
-    on_advancedBox_clicked(false);
+    on_SP_advancedBox_clicked(false);
 }
 
-void DeviceTab::on_advancedBox_clicked(bool checked)
+void DeviceTab::on_SP_advancedBox_clicked(bool checked)
 {
-    ui->dataBitsLabel->setVisible(checked);
-    ui->dataBitsBox->setVisible(checked);
-    ui->stopBitsLabel->setVisible(checked);
-    ui->stopBitsBox->setVisible(checked);
-    ui->parityLabel->setVisible(checked);
-    ui->parityBox->setVisible(checked);
-    ui->flowControlLabel->setVisible(checked);
-    ui->flowControlBox->setVisible(checked);
+    ui->SP_dataBitsLabel->setVisible(checked);
+    ui->SP_dataBitsBox->setVisible(checked);
+    ui->SP_stopBitsLabel->setVisible(checked);
+    ui->SP_stopBitsBox->setVisible(checked);
+    ui->SP_parityLabel->setVisible(checked);
+    ui->SP_parityBox->setVisible(checked);
+    ui->SP_flowControlLabel->setVisible(checked);
+    ui->SP_flowControlBox->setVisible(checked);
 }
 
 void DeviceTab::on_openButton_clicked()
 {
-#ifdef Q_OS_ANDROID
-    emit openDevice(ui->deviceBox->currentText());
-#else
-    emit openDevice(ui->deviceBox->currentText(), ui->baudRateBox->currentText().toInt(), (QSerialPort::DataBits)ui->dataBitsBox->currentData().toInt(), (QSerialPort::StopBits)ui->stopBitsBox->currentData().toInt(), (QSerialPort::Parity)ui->parityBox->currentData().toInt(), (QSerialPort::FlowControl)ui->flowControlBox->currentData().toInt());
-#endif
+    Connection::Type currType = m_connection->type();
+    if(currType == Connection::SerialPort)
+    {
+        if(m_connection->isConnected())
+        {
+            QMessageBox::warning(this, tr("Error"), tr("The port has been opened."));
+            return;
+        }
+        Connection::SerialPortArgument arg;
+        arg.name = ui->SP_portNameBox->currentText();
+        arg.baudRate = ui->SP_baudRateBox->currentText().toUInt();
+        arg.dataBits = (QSerialPort::DataBits)ui->SP_dataBitsBox->currentData().toInt();
+        arg.stopBits = (QSerialPort::StopBits)ui->SP_stopBitsBox->currentData().toInt();
+        arg.parity = (QSerialPort::Parity)ui->SP_parityBox->currentData().toInt();
+        arg.flowControl = (QSerialPort::FlowControl)ui->SP_flowControlBox->currentData().toInt();
+        m_connection->setArgument(arg);
+        m_connection->open();
+    }
+    else if(currType == Connection::BT_Client)
+    {
+        Connection::BTArgument arg;
+        arg.deviceAddress = QBluetoothAddress(ui->BTClient_addressBox->currentText());
+        m_connection->setArgument(arg);
+        m_connection->open();
+    }
 }
 
 void DeviceTab::on_closeButton_clicked()
 {
-    emit closeDevice();
+    m_connection->close();
 }
 
-void DeviceTab::on_deviceTable_cellClicked(int row, int column)
+void DeviceTab::on_SP_portList_cellClicked(int row, int column)
 {
     Q_UNUSED(column);
-    ui->deviceBox->setCurrentIndex(row);
-#ifndef Q_OS_ANDROID
+    ui->SP_portNameBox->setCurrentIndex(row);
+
     QStringList preferences = settings->childGroups();
     QStringList::iterator it;
 
 
     // search preference by <vendorID>-<productID>
-    QString id = ui->deviceTable->item(row, HVendorID)->text();  // vendor id
+    QString id = ui->SP_portList->item(row, 6)->text();  // vendor id
     id += "-";
-    id += ui->deviceTable->item(row, HProductID)->text(); // product id
+    id += ui->SP_portList->item(row, 7)->text(); // product id
     for(it = preferences.begin(); it != preferences.end(); ++it)
     {
         if(*it == id)
@@ -217,7 +244,7 @@ void DeviceTab::on_deviceTable_cellClicked(int row, int column)
         return;
 
     // search preference by DeviceName
-    id = ui->deviceTable->item(row, HDeviceName)->text();
+    id = ui->SP_portList->item(row, 0)->text();
     for(it = preferences.begin(); it != preferences.end(); ++it)
     {
         if(*it == id)
@@ -226,14 +253,12 @@ void DeviceTab::on_deviceTable_cellClicked(int row, int column)
             break;
         }
     }
-#endif
 }
 
 // platform specific
 // **********************************************************************************************************************************************
 
-#ifndef Q_OS_ANDROID
-void DeviceTab::saveDevicesPreference(const QString& deviceName)
+void DeviceTab::saveDevicesPreference(const QString & deviceName)
 {
     if(settings->group() != "")
         return;
@@ -244,41 +269,43 @@ void DeviceTab::saveDevicesPreference(const QString& deviceName)
     else
         id = deviceName;
     settings->beginGroup(id);
-    settings->setValue("BaudRate", ui->baudRateBox->currentText());
-    settings->setValue("DataBitsID", ui->dataBitsBox->currentIndex());
-    settings->setValue("StopBitsID", ui->stopBitsBox->currentIndex());
-    settings->setValue("ParityID", ui->parityBox->currentIndex());
-    settings->setValue("FlowControlID", ui->flowControlBox->currentIndex());
+    settings->setValue("BaudRate", ui->SP_baudRateBox->currentText());
+    settings->setValue("DataBitsID", ui->SP_dataBitsBox->currentIndex());
+    settings->setValue("StopBitsID", ui->SP_stopBitsBox->currentIndex());
+    settings->setValue("ParityID", ui->SP_parityBox->currentIndex());
+    settings->setValue("FlowControlID", ui->SP_flowControlBox->currentIndex());
     settings->endGroup();
 }
 
-void DeviceTab::loadDevicesPreference(const QString& id)
+void DeviceTab::loadDevicesPreference(const QString & id)
 {
     settings->beginGroup(id);
-    ui->baudRateBox->setEditText(settings->value("BaudRate").toString());
-    ui->dataBitsBox->setCurrentIndex(settings->value("DataBitsID").toInt());
-    ui->stopBitsBox->setCurrentIndex(settings->value("StopBitsID").toInt());
-    ui->parityBox->setCurrentIndex(settings->value("ParityID").toInt());
-    ui->flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
+    ui->SP_baudRateBox->setEditText(settings->value("BaudRate").toString());
+    ui->SP_dataBitsBox->setCurrentIndex(settings->value("DataBitsID").toInt());
+    ui->SP_stopBitsBox->setCurrentIndex(settings->value("StopBitsID").toInt());
+    ui->SP_parityBox->setCurrentIndex(settings->value("ParityID").toInt());
+    ui->SP_flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
     settings->endGroup();
 }
-#else
+
 void DeviceTab::BTdiscoverFinished()
 {
-    ui->refreshDevicesButton->setText(tr("Refresh"));
+    ui->refreshButton->setText(tr("Refresh"));
 }
 
-void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo &device)
+void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo & device)
 {
     QString address = device.address().toString();
     QString name = device.name();
-    int i = ui->deviceTable->rowCount();
-    ui->deviceTable->setRowCount(i + 1);
-    ui->deviceTable->setItem(i, HDeviceName, new QTableWidgetItem(name));
-    ui->deviceTable->setItem(i, HSystemLocation, new QTableWidgetItem(address));
-    ui->deviceTable->setItem(i, HDescription, new QTableWidgetItem(tr("Discovered")));
-    ui->deviceBox->addItem(address);
-    ui->deviceBox->adjustSize();
+    QString rssi = QString::number(device.rssi());
+    int i = ui->BTClient_deviceList->rowCount();
+    ui->BTClient_deviceList->setRowCount(i + 1);
+    ui->BTClient_deviceList->setItem(i, 0, new QTableWidgetItem(name));
+    ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
+    ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
+    ui->BTClient_deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
+    ui->BTClient_addressBox->addItem(address);
+    ui->BTClient_addressBox->adjustSize();
     qDebug() << name
              << address
              << device.isValid()
@@ -288,4 +315,23 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo &device)
              << device.serviceClasses()
              << device.manufacturerData();
 }
-#endif
+
+
+void DeviceTab::on_typeBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+    Connection::Type newType;
+    newType = ui->typeBox->currentData().value<Connection::Type>();
+    if(m_connection != nullptr)
+        m_connection->setType(newType);
+    if(newType == Connection::SerialPort)
+    {
+        ui->targetListStack->setCurrentWidget(ui->SPListPage);
+        ui->argsStack->setCurrentWidget(ui->SPArgsPage);
+    }
+    if(newType == Connection::BT_Client)
+    {
+        ui->targetListStack->setCurrentWidget(ui->BTClientListPage);
+        ui->argsStack->setCurrentWidget(ui->BTClientArgsPage);
+    }
+}

@@ -24,7 +24,7 @@ public:
     void appendReceivedData(const QByteArray &data);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
-    void setIODevice(Connection* conn);
+    void setConnection(Connection* conn);
     void setFlowCtrl(bool isRTSValid, bool rts, bool dtr);
     void setRepeat(bool state);
     bool getRxRealtimeState();
@@ -63,7 +63,7 @@ private:
     Ui::DataTab *ui;
 
     QIODevice* IODevice;
-    Connection* m_connection;
+    Connection* m_connection = nullptr;
     MySettings* settings;
     QTimer* repeatTimer;
 

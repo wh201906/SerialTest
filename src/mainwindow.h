@@ -45,12 +45,6 @@ public:
 
 public slots:
     void sendData(const QByteArray &data);
-#ifdef Q_OS_ANDROID
-    void openDevice(const QString &name);
-#else
-    void openDevice(const QString &name, const qint32 baudRate, QSerialPort::DataBits dataBits, QSerialPort::StopBits stopBits, QSerialPort::Parity parity, QSerialPort::FlowControl flowControl);
-#endif
-    void closeDevice();
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 private slots:
@@ -78,7 +72,7 @@ private:
     QAction* currVersion;
     QAction* checkUpdate;
 
-    Connection* IOConnection;
+    Connection* IOConnection = nullptr;
 
     QLabel* deviceLabel;
     QPushButton* stateButton;

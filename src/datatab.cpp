@@ -350,7 +350,7 @@ void DataTab::syncSendedEditWithData()
         ui->sendedEdit->setPlainText(dataCodec->toUnicode(*rawSendedData));
 }
 
-void DataTab::setIODevice(Connection* conn)
+void DataTab::setConnection(Connection* conn)
 {
     m_connection = conn;
 }

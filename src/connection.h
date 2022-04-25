@@ -28,6 +28,7 @@ public:
         TCP_Server,
         UDP
     };
+    Q_ENUM(Type)
 
     enum State
     {
@@ -76,15 +77,10 @@ public:
     int pollingInterval();
 
     // connection
-    void setArgument(SerialPortArgument arg);
-    void setArgument(BTArgument arg);
-    void setArgument(NetworkArgument arg);
     SerialPortArgument getSerialPortArgument();
     BTArgument getBTArgument();
     NetworkArgument getNetworkArgument();
-    void open(); // async
-    bool reopen(); // async, return false if no argument is stored in the previous connection
-    void close(bool forced = false); // async
+
 
     // IO
     QByteArray readAll();
@@ -97,8 +93,18 @@ public:
     bool SP_isDataTerminalReady();
     bool SP_setRequestToSend(bool set);
     bool SP_isRequestToSend();
+
 public slots:
+    // general
     void setPolling(bool enabled);
+
+    // connection
+    void setArgument(SerialPortArgument arg);
+    void setArgument(BTArgument arg);
+    void setArgument(NetworkArgument arg);
+    void open(); // async
+    bool reopen(); // async, return false if no argument is stored in the previous connection
+    void close(bool forced = false); // async
 private:
     Type m_type = SerialPort;
     State m_state = Unconnected;

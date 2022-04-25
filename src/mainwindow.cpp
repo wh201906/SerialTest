@@ -70,11 +70,10 @@ MainWindow::MainWindow(QWidget *parent)
     RxUIBuf = new QByteArray();
 
     deviceTab = new DeviceTab();
-    connect(deviceTab, &DeviceTab::closeDevice, this, &MainWindow::closeDevice);
-    connect(deviceTab, &DeviceTab::openDevice, this, &MainWindow::openDevice);
+    deviceTab->setConnection(IOConnection);
     ui->funcTab->insertTab(0, deviceTab, tr("Port"));
     dataTab = new DataTab(rawReceivedData, rawSendedData);
-    dataTab->setIODevice(IOConnection);
+    dataTab->setConnection(IOConnection);
     connect(dataTab, &DataTab::setRxLabelText, RxLabel, &QLabel::setText);
     connect(dataTab, &DataTab::setTxLabelText, TxLabel, &QLabel::setText);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
@@ -188,39 +187,6 @@ void MainWindow::initUI()
     stateUpdate();
 }
 
-#ifdef Q_OS_ANDROID
-void MainWindow::openDevice(const QString &name)
-{
-    Connection::BTArgument arg;
-    arg.deviceAddress = QBluetoothAddress(name);
-    IOConnection->setArgument(arg);
-    IOConnection->open();
-}
-#else
-void MainWindow::openDevice(const QString& name, const qint32 baudRate, QSerialPort::DataBits dataBits, QSerialPort::StopBits stopBits, QSerialPort::Parity parity, QSerialPort::FlowControl flowControl)
-{
-    if(IOConnection->isConnected())
-    {
-        QMessageBox::warning(this, tr("Error"), tr("The port has been opened."));
-        return;
-    }
-    Connection::SerialPortArgument arg;
-    arg.name = name;
-    arg.baudRate = baudRate;
-    arg.dataBits = dataBits;
-    arg.stopBits = stopBits;
-    arg.parity = parity;
-    arg.flowControl = flowControl;
-    IOConnection->setArgument(arg);
-    IOConnection->open();
-}
-#endif
-
-void MainWindow::closeDevice()
-{
-    IOConnection->close();
-}
-
 void MainWindow::stateUpdate()
 {
     QString deviceName;
@@ -273,7 +239,7 @@ void MainWindow::onIODeviceConnected()
         IOConnection->setPolling(true);
 #endif
     stateUpdate();
-    deviceTab->refreshDevicesInfo();
+    deviceTab->refreshTargetList();
 #ifndef Q_OS_ANDROID
     Connection::SerialPortArgument arg;
     arg = IOConnection->getSerialPortArgument();
@@ -288,7 +254,7 @@ void MainWindow::onIODeviceDisconnected()
     qDebug() << "IODevice Disconnected";
     updateUITimer->stop();
     stateUpdate();
-    deviceTab->refreshDevicesInfo();
+    deviceTab->refreshTargetList();
     updateRxUI();
 }
 
