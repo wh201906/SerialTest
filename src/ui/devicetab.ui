@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>DeviceTab</class>
  <widget class="QWidget" name="DeviceTab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>511</width>
+    <height>372</height>
+   </rect>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -57,7 +65,7 @@
      <item>
       <widget class="QStackedWidget" name="targetListStack">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="SPListPage">
         <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -148,6 +156,61 @@
           <number>0</number>
          </property>
          <item>
+          <widget class="QWidget" name="BTClient_localAdapterWidget" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Local Adapter:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QComboBox" name="BTClient_adapterBox"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="BTClient_localAddrLabel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QTableWidget" name="BTClient_deviceList">
            <property name="editTriggers">
             <set>QAbstractItemView::NoEditTriggers</set>
@@ -182,6 +245,50 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="NetPage">
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QTableWidget" name="Net_addrPortList">
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+           <column>
+            <property name="text">
+             <string>IP/Hostname</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Port</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Alias</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -204,7 +311,7 @@
       <item>
        <widget class="QStackedWidget" name="argsStack">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="SPArgsPage">
          <layout class="QGridLayout" name="gridLayout">
@@ -427,12 +534,12 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Device Address:</string>
+             <string>Target Address:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="BTClient_addressBox">
+           <widget class="QComboBox" name="BTClient_targetAddrBox">
             <property name="editable">
              <bool>true</bool>
             </property>

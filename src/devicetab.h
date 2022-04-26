@@ -2,6 +2,7 @@
 #define DEVICETAB_H
 
 #include <QWidget>
+#include <QBluetoothHostInfo>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QSerialPortInfo>
 #include <QSerialPort>
@@ -34,7 +35,7 @@ private:
     MySettings* settings;
     Connection* m_connection = nullptr;
 
-    QBluetoothDeviceDiscoveryAgent *BTdiscoveryAgent;
+    QBluetoothDeviceDiscoveryAgent *BTClient_discoveryAgent = nullptr;
 
     void loadDevicesPreference(const QString &id);
 
@@ -42,6 +43,7 @@ private:
 #ifdef Q_OS_ANDROID
     void getBondedTarget(bool isBLE);
 #endif
+    void setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress = QBluetoothAddress());
 signals:
     void updateStatusBar();
     void connTypeChanged(Connection::Type type);
@@ -55,6 +57,7 @@ private slots:
     void BTdeviceDiscovered(const QBluetoothDeviceInfo &device);
     void on_typeBox_currentIndexChanged(int index);
     void on_refreshButton_clicked();
+    void on_BTClient_adapterBox_activated(int index);
 };
 
 #endif // DEVICETAB_H

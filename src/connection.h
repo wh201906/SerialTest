@@ -95,7 +95,8 @@ public:
     bool SP_isRequestToSend();
 
     // Bluetooth
-    QString BT_remoteName();
+    QString BTClient_remoteName();
+    QBluetoothAddress BT_localAddress();
 
 public slots:
     // general
@@ -129,6 +130,8 @@ private:
     QBluetoothSocket* m_BTSocket = nullptr;
     QTcpSocket* m_TCPSocket = nullptr;
     QUdpSocket* m_UDPSocket = nullptr;
+
+    QList<QBluetoothSocket*> m_BTConnectedClients;
 
     // for characteristics without notify property in BLE, pinout signals in serialport
     QTimer* m_pollTimer = nullptr;

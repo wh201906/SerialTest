@@ -397,9 +397,19 @@ bool Connection::SP_isRequestToSend()
     return m_serialPort->isRequestToSend();
 }
 
-QString Connection::BT_remoteName()
+QString Connection::BTClient_remoteName()
 {
     if(m_type == BT_Client && m_BTSocket != nullptr)
         return m_BTSocket->peerName();
+
     return QString();
+}
+
+QBluetoothAddress Connection::BT_localAddress()
+{
+    if(m_type == BT_Client && m_BTSocket != nullptr)
+        return m_BTSocket->localAddress();
+    else if(m_type == BT_Server && m_BTServer != nullptr)
+        return m_BTServer->serverAddress();
+    return QBluetoothAddress();
 }

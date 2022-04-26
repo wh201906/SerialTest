@@ -17,11 +17,6 @@ DeviceTab::DeviceTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    BTdiscoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &DeviceTab::BTdeviceDiscovered);
-    connect(BTdiscoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &DeviceTab::BTdiscoverFinished);
-    connect(BTdiscoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &DeviceTab::BTdiscoverFinished);
-
     connect(ui->SP_portList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BTClient_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
 
@@ -79,12 +74,12 @@ void DeviceTab::refreshTargetList()
     else if(currType == Connection::BT_Client)
     {
         ui->BTClient_deviceList->setRowCount(0);
-        ui->BTClient_addressBox->clear();
+        ui->BTClient_targetAddrBox->clear();
         ui->refreshButton->setText(tr("Searching..."));
 #ifdef Q_OS_ANDROID
         getBondedTarget(false);
 #endif
-        BTdiscoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod);
+        BTClient_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod);
     }
 }
 
@@ -119,7 +114,7 @@ void DeviceTab::getBondedTarget(bool isBLE)
         ui->BTClient_deviceList->setItem(i, 0, new QTableWidgetItem(name));
         ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
         ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Bonded")));
-        ui->BTClient_addressBox->addItem(address);
+        ui->BTClient_targetAddrBox->addItem(address);
     }
 }
 #endif
@@ -172,7 +167,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     Connection::Type currType = ui->typeBox->currentData().value<Connection::Type>();
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->typeBox->model());
     QVector<Connection::Type> invalid =
-    {Connection::BT_Server, Connection::BLE_Central, Connection::BLE_Peripheral, Connection::TCP_Client, Connection::TCP_Server, Connection::UDP};
+    {Connection::BLE_Central, Connection::BLE_Peripheral, Connection::TCP_Client, Connection::TCP_Server};
     const QMap<Connection::Type, QString> typeNameMap =
     {
         {Connection::SerialPort, tr("SerialPort")},
@@ -187,16 +182,38 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
 #ifdef Q_OS_ANDROID
     invalid += Connection::SerialPort;
 #endif
-    QBluetoothLocalDevice lDevice;
-    if(!lDevice.isValid())
-        invalid += Connection::BT_Client;
-    else if(lDevice.hostMode() == QBluetoothLocalDevice::HostPoweredOff)
+#ifdef Q_OS_WINDOWS
+    invalid += Connection::BLE_Peripheral;
+#endif
+    ui->BTClient_adapterBox->clear();
+    int id = 0;
+    auto BTAdapterList = QBluetoothLocalDevice::allDevices();
+    for(auto it = BTAdapterList.cbegin(); it != BTAdapterList.cend(); ++it)
+    {
+        QBluetoothLocalDevice dev(it->address());
+        if(dev.isValid() && dev.hostMode() != QBluetoothLocalDevice::HostPoweredOff)
+            ui->BTClient_adapterBox->addItem(QString("%1:%2").arg(id++ + 1).arg(it->name()), it->address().toString());
+    }
+    if(id == 0)
     {
         invalid += Connection::BT_Client;
+        invalid += Connection::BT_Server;
+        invalid += Connection::BLE_Central;
+        invalid += Connection::BLE_Peripheral;
     }
+    else if(id == 1)
+    {
+        ui->BTClient_localAdapterWidget->hide();
+    }
+    else // more than one adapter
+    {
+        ui->BTClient_localAdapterWidget->show();
+    }
+    on_BTClient_adapterBox_activated(0); // index is unused there
+
     ui->typeBox->blockSignals(true);
     ui->typeBox->clear();
-    for(auto it = typeNameMap.cbegin(); it != typeNameMap.cend(); it++)
+    for(auto it = typeNameMap.cbegin(); it != typeNameMap.cend(); ++it)
     {
         if(invalid.contains(it.key()))
         {
@@ -264,7 +281,7 @@ void DeviceTab::on_openButton_clicked()
             m_connection->close(true);
         }
         Connection::BTArgument arg;
-        arg.deviceAddress = QBluetoothAddress(ui->BTClient_addressBox->currentText());
+        arg.deviceAddress = QBluetoothAddress(ui->BTClient_targetAddrBox->currentText());
         m_connection->setArgument(arg);
         m_connection->open();
         // show "..." in statusBar
@@ -317,7 +334,7 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
     }
     else if(m_connection->type() == Connection::BT_Client)
     {
-        ui->BTClient_addressBox->setCurrentIndex(row);
+        ui->BTClient_targetAddrBox->setCurrentIndex(row);
     }
 }
 
@@ -370,8 +387,8 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo & device)
     ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
     ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
     ui->BTClient_deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
-    ui->BTClient_addressBox->addItem(address);
-    ui->BTClient_addressBox->adjustSize();
+    ui->BTClient_targetAddrBox->addItem(address);
+    ui->BTClient_targetAddrBox->adjustSize();
     qDebug() << name
              << address
              << device.isValid()
@@ -404,14 +421,14 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         return;
     }
     // stop searching
-    BTdiscoveryAgent->stop();
+    BTClient_discoveryAgent->stop();
     BTdiscoverFinished();
     if(newType == Connection::SerialPort)
     {
         ui->targetListStack->setCurrentWidget(ui->SPListPage);
         ui->argsStack->setCurrentWidget(ui->SPArgsPage);
     }
-    if(newType == Connection::BT_Client)
+    else if(newType == Connection::BT_Client)
     {
         ui->targetListStack->setCurrentWidget(ui->BTClientListPage);
         ui->argsStack->setCurrentWidget(ui->BTClientArgsPage);
@@ -427,7 +444,30 @@ void DeviceTab::on_refreshButton_clicked()
         refreshTargetList();
     else
     {
-        BTdiscoveryAgent->stop();
+        BTClient_discoveryAgent->stop();
         BTdiscoverFinished();
     }
+}
+
+void DeviceTab::on_BTClient_adapterBox_activated(int index)
+{
+    Q_UNUSED(index)
+    ui->BTClient_localAddrLabel->setText(ui->BTClient_adapterBox->currentData().toString());
+    setBTClientDiscoveryAgent(QBluetoothAddress(ui->BTClient_adapterBox->currentData().toString()));
+}
+
+void DeviceTab::setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress)
+{
+    if(BTClient_discoveryAgent != nullptr)
+    {
+        disconnect(BTClient_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &DeviceTab::BTdeviceDiscovered);
+        disconnect(BTClient_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &DeviceTab::BTdiscoverFinished);
+        disconnect(BTClient_discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &DeviceTab::BTdiscoverFinished);
+        delete BTClient_discoveryAgent;
+    }
+    BTClient_discoveryAgent = new QBluetoothDeviceDiscoveryAgent(adapterAddress, this);
+    connect(BTClient_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &DeviceTab::BTdeviceDiscovered);
+    connect(BTClient_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &DeviceTab::BTdiscoverFinished);
+    connect(BTClient_discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &DeviceTab::BTdiscoverFinished);
+
 }

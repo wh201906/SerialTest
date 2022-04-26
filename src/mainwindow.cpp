@@ -60,7 +60,6 @@ MainWindow::MainWindow(QWidget *parent)
     deviceTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::updateStatusBar, this, &MainWindow::updateStatusBar);
     connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateStatusBar);
-    deviceTab->getAvailableTypes(true);
     ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
     dataTab = new DataTab(rawReceivedData, rawSendedData);
     dataTab->setConnection(IOConnection);
@@ -74,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ctrlTab, &CtrlTab::send, this, &MainWindow::sendData);
     connect(dataTab, &DataTab::setDataCodec, ctrlTab, &CtrlTab::setDataCodec);
     ui->funcTab->insertTab(3, ctrlTab, tr("Control"));
+    deviceTab->getAvailableTypes(true);
     initTabs();
 
     updateUITimer = new QTimer();
@@ -205,7 +205,8 @@ void MainWindow::updateStatusBar()
         {
             deviceLabel->setText(tr("Address") + ": " + IOConnection->getBTArgument().deviceAddress.toString());
             QString text;
-            text.append((tr("Device Name") + ": %1 ").arg(IOConnection->BT_remoteName()));
+            text.append((tr("Device Name") + ": %1 ").arg(IOConnection->BTClient_remoteName()));
+            text.append((tr("Local") + ": %1 ").arg(IOConnection->BT_localAddress().toString()));
             connArgsLabel->setText(text);
         }
         else
