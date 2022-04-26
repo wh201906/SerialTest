@@ -186,13 +186,18 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     invalid += Connection::BLE_Peripheral;
 #endif
     ui->BTClient_adapterBox->clear();
+    ui->BTServer_adapterBox->clear();
     int id = 0;
     auto BTAdapterList = QBluetoothLocalDevice::allDevices();
     for(auto it = BTAdapterList.cbegin(); it != BTAdapterList.cend(); ++it)
     {
         QBluetoothLocalDevice dev(it->address());
         if(dev.isValid() && dev.hostMode() != QBluetoothLocalDevice::HostPoweredOff)
-            ui->BTClient_adapterBox->addItem(QString("%1:%2").arg(id++ + 1).arg(it->name()), it->address().toString());
+        {
+            ui->BTClient_adapterBox->addItem(QString("%1:%2").arg(id + 1).arg(it->name()), it->address().toString());
+            ui->BTServer_adapterBox->addItem(QString("%1:%2").arg(id + 1).arg(it->name()), it->address().toString());
+            id++;
+        }
     }
     if(id == 0)
     {
@@ -210,6 +215,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
         ui->BTClient_localAdapterWidget->show();
     }
     on_BTClient_adapterBox_activated(0); // index is unused there
+    on_BTServer_adapterBox_activated(0); // index is unused there
 
     ui->typeBox->blockSignals(true);
     ui->typeBox->clear();
@@ -281,7 +287,23 @@ void DeviceTab::on_openButton_clicked()
             m_connection->close(true);
         }
         Connection::BTArgument arg;
+        arg.localAdapterAddress = QBluetoothAddress(ui->BTClient_adapterBox->currentData().toString());
         arg.deviceAddress = QBluetoothAddress(ui->BTClient_targetAddrBox->currentText());
+        m_connection->setArgument(arg);
+        m_connection->open();
+        // show "..." in statusBar
+        emit updateStatusBar();
+    }
+    else if(currType == Connection::BT_Server)
+    {
+        if(m_connection->state() != Connection::Unconnected)
+        {
+            QMessageBox::warning(this, tr("Error"), tr("The server is already running."));
+            return;
+        }
+        Connection::BTArgument arg;
+        arg.localAdapterAddress = QBluetoothAddress(ui->BTServer_adapterBox->currentData().toString());
+        arg.serverServiceName = ui->BTServer_serviceNameEdit->text();
         m_connection->setArgument(arg);
         m_connection->open();
         // show "..." in statusBar
@@ -433,6 +455,11 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->targetListStack->setCurrentWidget(ui->BTClientListPage);
         ui->argsStack->setCurrentWidget(ui->BTClientArgsPage);
     }
+    else if(newType == Connection::BT_Server)
+    {
+        ui->targetListStack->setCurrentWidget(ui->BTServerListPage);
+        ui->argsStack->setCurrentWidget(ui->BTServerArgsPage);
+    }
     emit connTypeChanged(newType);
     refreshTargetList();
 }
@@ -471,3 +498,17 @@ void DeviceTab::setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress)
     connect(BTClient_discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &DeviceTab::BTdiscoverFinished);
 
 }
+
+void DeviceTab::on_BTServer_serviceNameEdit_editingFinished()
+{
+    if(ui->BTServer_serviceNameEdit->text().isEmpty())
+        ui->BTServer_serviceNameEdit->setText(tr("SerialTest_BT"));
+}
+
+
+void DeviceTab::on_BTServer_adapterBox_activated(int index)
+{
+    Q_UNUSED(index)
+    ui->BTServer_localAddrLabel->setText(ui->BTServer_adapterBox->currentData().toString());
+}
+

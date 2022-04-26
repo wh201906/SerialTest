@@ -136,6 +136,8 @@ void MainWindow::onStateButtonClicked()
             QMessageBox::warning(this, tr("Error"), tr("Plz connect to a port first."));
             return;
         }
+        // show "..." in statusBar for async connection
+        updateStatusBar();
     }
 }
 

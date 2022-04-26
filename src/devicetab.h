@@ -58,6 +58,8 @@ private slots:
     void on_typeBox_currentIndexChanged(int index);
     void on_refreshButton_clicked();
     void on_BTClient_adapterBox_activated(int index);
+    void on_BTServer_serviceNameEdit_editingFinished();
+    void on_BTServer_adapterBox_activated(int index);
 };
 
 #endif // DEVICETAB_H

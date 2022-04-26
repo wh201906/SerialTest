@@ -120,7 +120,33 @@ void Connection::open()
     else if(m_type == BT_Client)
     {
         m_state = Connecting;
+        // TODO: add user defined UUID support
         m_BTSocket->connectToService(m_currBTArgument.deviceAddress, QBluetoothUuid::SerialPort);
+    }
+    else if(m_type == BT_Server)
+    {
+        if(!m_BTServer->listen(m_currBTArgument.localAdapterAddress))
+        {
+            emit connectFailed();
+            return;
+        }
+        m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceName, m_currBTArgument.serverServiceName);
+        BTServer_updateServicePort();
+        if(!m_RfcommServiceInfo.registerService(m_currBTArgument.localAdapterAddress))
+        {
+            m_BTServer->close();
+            emit connectFailed();
+            return;
+        }
+        else
+        {
+            // m_lastBTArgument is updated there rather than in onConnected()
+            m_lastBTArgument = m_currBTArgument;
+            m_lastBTArgumentValid = true;
+            m_state = Bound;
+            // onConnected() will be called when client is connected
+        }
+
     }
     else if(m_type == TCP_Client)
     {
@@ -142,23 +168,19 @@ void Connection::open()
         // support only one multicast address now...
         if(m_currNetArgument.localAddress.isMulticast())
         {
-            do
+            if(!m_UDPSocket->bind(QHostAddress::Any, m_currNetArgument.localPort, QAbstractSocket::ShareAddress))
             {
-                if(!m_UDPSocket->bind(QHostAddress::Any, m_currNetArgument.localPort, QAbstractSocket::ShareAddress))
-                {
-                    emit connectFailed();
-                    break;
-                }
-                // remember to leave the group in close() or disconnect()
-                if(!m_UDPSocket->joinMulticastGroup(m_currNetArgument.localAddress))
-                {
-                    emit connectFailed();
-                    m_UDPSocket->close(); // necessary? call abort()?
-                    break;
-                }
-                onConnected(); // no connection, bound = connected
+                emit connectFailed();
+                return;
             }
-            while(false); // I just want to use break
+            // remember to leave the group in close() or disconnect()
+            if(!m_UDPSocket->joinMulticastGroup(m_currNetArgument.localAddress))
+            {
+                emit connectFailed();
+                m_UDPSocket->close(); // necessary? call abort()?
+                return;
+            }
+            onConnected(); // no connection, bound = connected
         }
         else // for unicast and broadcast
             if(m_UDPSocket->bind(m_currNetArgument.localAddress, m_currNetArgument.localPort))
@@ -182,6 +204,12 @@ bool Connection::reopen()
             return false;
         setArgument(m_lastBTArgument);
     }
+    else if(m_type == BT_Server)
+    {
+        if(!m_lastBTArgumentValid)
+            return false;
+        setArgument(m_lastBTArgument);
+    }
     open();
     return true;
 }
@@ -198,6 +226,14 @@ void Connection::close(bool forced)
     else if(m_type == BT_Client)
     {
         m_BTSocket->disconnectFromService();
+    }
+    else if(m_type == BT_Server)
+    {
+        m_RfcommServiceInfo.unregisterService();
+        m_BTServer->close();
+        for(auto it = m_BTConnectedClients.begin(); it != m_BTConnectedClients.end(); ++it)
+            (*it)->close();
+        // the delete operation will be done in BTServer_onClientDisconnected()
     }
     else if(m_type == TCP_Client)
     {
@@ -231,6 +267,12 @@ void Connection::updateSignalSlot()
         m_lastOnConnectedConn = connect(m_BTSocket, &QBluetoothSocket::connected, this, &Connection::onConnected);
         m_lastOnDisconnectedConn = connect(m_BTSocket, &QBluetoothSocket::disconnected, this, &Connection::onDisconnected);
     }
+    else if(m_type == BT_Server)
+    {
+        // readyRead(), disconnected() is connected in BTServer_onClientConnected()
+        m_lastOnErrorConn = connect(m_BTServer, QOverload<QBluetoothServer::Error>::of(&QBluetoothServer::error), this, &Connection::onErrorOccurred);
+        m_lastOnConnectedConn = connect(m_BTServer, &QBluetoothServer::newConnection, this, &Connection::BTServer_onClientConnected);
+    }
     else if(m_type == TCP_Client || m_type == TCP_Server)
     {
         m_lastReadyReadConn = connect(m_TCPSocket, &QIODevice::readyRead, this, &Connection::readyRead);
@@ -245,6 +287,61 @@ void Connection::updateSignalSlot()
         m_lastOnConnectedConn = connect(m_UDPSocket, &QAbstractSocket::connected, this, &Connection::onConnected);
         m_lastOnDisconnectedConn = connect(m_UDPSocket, &QAbstractSocket::disconnected, this, &Connection::onDisconnected);
     }
+}
+
+void Connection::BTServer_initServiceInfo()
+{
+    // call it once
+    QBluetoothServiceInfo::Sequence profileSequence;
+    QBluetoothServiceInfo::Sequence classId;
+    classId << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::SerialPort));
+    classId << QVariant::fromValue(quint16(0x100));
+    profileSequence.append(QVariant::fromValue(classId));
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::BluetoothProfileDescriptorList, profileSequence);
+
+    classId.clear();
+    // Add user defined UUID there
+    // classId << QVariant::fromValue(QBluetoothUuid(serviceUuid));
+    classId << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::SerialPort));
+
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceClassIds, classId);
+
+    //! [Service name, description and provider]
+    // m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceName, tr("Bt Chat Server"));
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceDescription,
+                                     tr("Example bluetooth chat server"));
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceProvider, tr("qt-project.org"));
+    //! [Service name, description and provider]
+
+    //! [Service UUID set]
+    // use QBluetoothUuid::SerialPort there
+    // m_RfcommServiceInfo.setServiceUuid(QBluetoothUuid(serviceUuid));
+    m_RfcommServiceInfo.setServiceUuid(QBluetoothUuid::SerialPort);
+    //! [Service UUID set]
+
+    //! [Service Discoverability]
+    QBluetoothServiceInfo::Sequence publicBrowse;
+    publicBrowse << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::PublicBrowseGroup));
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::BrowseGroupList,
+                                     publicBrowse);
+    //! [Service Discoverability]
+}
+
+void Connection::BTServer_updateServicePort()
+{
+    // call it after every m_BTServer->listen()
+    //! [Protocol descriptor list]
+    QBluetoothServiceInfo::Sequence protocolDescriptorList;
+    QBluetoothServiceInfo::Sequence protocol;
+    protocol << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::L2cap));
+    protocolDescriptorList.append(QVariant::fromValue(protocol));
+    protocol.clear();
+    protocol << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::Rfcomm))
+             << QVariant::fromValue(quint8(m_BTServer->serverPort()));
+    protocolDescriptorList.append(QVariant::fromValue(protocol));
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ProtocolDescriptorList,
+                                     protocolDescriptorList);
+    //! [Protocol descriptor list]
 }
 
 void Connection::onErrorOccurred()
@@ -354,6 +451,52 @@ void Connection::onDisconnected()
     m_state = Unconnected;
     m_pollTimer->stop();
     emit disconnected();
+}
+
+void Connection::BTServer_onClientConnected()
+{
+    QBluetoothSocket *socket = m_BTServer->nextPendingConnection();
+    if(!socket)
+        return;
+
+    m_state = Connected;
+    connect(socket, &QBluetoothSocket::readyRead, this, &Connection::readyRead);
+    connect(socket, &QBluetoothSocket::disconnected, this, &Connection::BTServer_onClientDisconnected);
+    connect(m_BTSocket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this, &Connection::BTServer_onClientErrorOccurred);
+    m_BTConnectedClients.append(socket);
+}
+
+void Connection::BTServer_onClientDisconnected()
+{
+    QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
+    if(!socket)
+        return;
+
+    m_BTConnectedClients.removeOne(socket);
+    if(m_BTConnectedClients.empty())
+    {
+        if(m_BTServer->isListening())
+            m_state = Bound;
+        else
+            m_state = Unconnected;
+    }
+    socket->deleteLater();
+}
+
+void Connection::BTServer_onClientErrorOccurred()
+{
+    QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
+    QBluetoothSocket::SocketError socketError;
+    socketError = socket->error();
+    qDebug() << "BT Socket Error:" << socketError;
+
+    // no error
+    if(socketError == QBluetoothSocket::NoSocketError)
+        ;
+    else if(socketError == QBluetoothSocket::NetworkError || socketError == QBluetoothSocket::OperationError)
+        ;
+    else
+        socket->disconnectFromService(); // this will emit disconnected()
 }
 
 void Connection::onPollingTimeout()

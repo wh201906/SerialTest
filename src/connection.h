@@ -52,6 +52,9 @@ public:
     {
         // for Bluetooth classic and BLE
         QBluetoothAddress deviceAddress;
+        // for Bluetooth classic server
+        QString serverServiceName;
+        QBluetoothAddress localAdapterAddress;
         // for BLE only
         QBluetoothUuid RxServiceUUID, RxCharacteristicUUID;
         QBluetoothUuid TxServiceUUID, TxCharacteristicUUID;
@@ -132,6 +135,7 @@ private:
     QUdpSocket* m_UDPSocket = nullptr;
 
     QList<QBluetoothSocket*> m_BTConnectedClients;
+    QBluetoothServiceInfo m_RfcommServiceInfo;
 
     // for characteristics without notify property in BLE, pinout signals in serialport
     QTimer* m_pollTimer = nullptr;
@@ -141,6 +145,8 @@ private:
     QSerialPort::PinoutSignals m_SP_lastSignals;
 
     void updateSignalSlot();
+    void BTServer_initServiceInfo();
+    void BTServer_updateServicePort();
 signals:
     void readyRead();
     void connected();
@@ -152,6 +158,9 @@ private slots:
     void onErrorOccurred();
     void onConnected();
     void onDisconnected();
+    void BTServer_onClientConnected();
+    void BTServer_onClientDisconnected();
+    void BTServer_onClientErrorOccurred();
     void onPollingTimeout();
 
 };
