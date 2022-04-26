@@ -14,6 +14,7 @@ Connection::Connection(QObject *parent)
 
     // might be replaced by m_BTServer->nextPendingConnection()
     m_BTSocket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+    BTServer_initServiceInfo();
 
     m_pollTimer->setInterval(100); // default interval
     connect(m_pollTimer, &QTimer::timeout, this, &Connection::onPollingTimeout);
@@ -233,6 +234,7 @@ void Connection::close(bool forced)
         m_BTServer->close();
         for(auto it = m_BTConnectedClients.begin(); it != m_BTConnectedClients.end(); ++it)
             (*it)->close();
+        onDisconnected();
         // the delete operation will be done in BTServer_onClientDisconnected()
     }
     else if(m_type == TCP_Client)
@@ -301,21 +303,20 @@ void Connection::BTServer_initServiceInfo()
 
     classId.clear();
     // Add user defined UUID there
-    // classId << QVariant::fromValue(QBluetoothUuid(serviceUuid));
+    // classId << QVariant::fromValue(QBluetoothUuid(serialServiceUuid));
     classId << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::SerialPort));
 
     m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceClassIds, classId);
 
     //! [Service name, description and provider]
     // m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceName, tr("Bt Chat Server"));
-    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceDescription,
-                                     tr("Example bluetooth chat server"));
-    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceProvider, tr("qt-project.org"));
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceDescription, tr("Bluetooth SPP Service"));
+    m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceProvider, "wh201906");
     //! [Service name, description and provider]
 
     //! [Service UUID set]
     // use QBluetoothUuid::SerialPort there
-    // m_RfcommServiceInfo.setServiceUuid(QBluetoothUuid(serviceUuid));
+    // m_RfcommServiceInfo.setServiceUuid(QBluetoothUuid(serialServiceUuid));
     m_RfcommServiceInfo.setServiceUuid(QBluetoothUuid::SerialPort);
     //! [Service UUID set]
 
@@ -342,6 +343,15 @@ void Connection::BTServer_updateServicePort()
     m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ProtocolDescriptorList,
                                      protocolDescriptorList);
     //! [Protocol descriptor list]
+}
+
+void Connection::onReadyRead()
+{
+    if(m_type == BT_Server)
+    {
+        m_lastReadyReadClient = qobject_cast<QBluetoothSocket*>(sender());
+    }
+    emit readyRead();
 }
 
 void Connection::onErrorOccurred()
@@ -399,6 +409,11 @@ QByteArray Connection::readAll()
     {
         return m_BTSocket->readAll();
     }
+    else if(m_type == BT_Server)
+    {
+        if(m_lastReadyReadClient != nullptr)
+            return m_lastReadyReadClient->readAll();
+    }
     else if(m_type == UDP)
     {
         return m_UDPSocket->receiveDatagram().data();
@@ -415,6 +430,18 @@ qint64 Connection::write(const char *data, qint64 len)
     else if(m_type == BT_Client)
     {
         return m_BTSocket->write(data, len);
+    }
+    else if(m_type == BT_Server)
+    {
+        quint64 maxLen = 0, currLen;
+        // write to all connected clients
+        for(auto it = m_BTConnectedClients.cbegin(); it != m_BTConnectedClients.cend(); ++it)
+        {
+            currLen = (*it)->write(data, len);
+            if(maxLen > currLen)
+                maxLen = currLen;
+        }
+        return maxLen;
     }
     else if(m_type == UDP)
     {
@@ -460,10 +487,11 @@ void Connection::BTServer_onClientConnected()
         return;
 
     m_state = Connected;
-    connect(socket, &QBluetoothSocket::readyRead, this, &Connection::readyRead);
+    connect(socket, &QBluetoothSocket::readyRead, this, &Connection::onReadyRead);
     connect(socket, &QBluetoothSocket::disconnected, this, &Connection::BTServer_onClientDisconnected);
     connect(m_BTSocket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this, &Connection::BTServer_onClientErrorOccurred);
     m_BTConnectedClients.append(socket);
+    emit connected();
 }
 
 void Connection::BTServer_onClientDisconnected()
@@ -472,6 +500,8 @@ void Connection::BTServer_onClientDisconnected()
     if(!socket)
         return;
 
+    if(m_lastReadyReadClient == socket)
+        m_lastReadyReadClient = nullptr;
     m_BTConnectedClients.removeOne(socket);
     if(m_BTConnectedClients.empty())
     {

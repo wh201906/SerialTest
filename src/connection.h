@@ -135,7 +135,9 @@ private:
     QUdpSocket* m_UDPSocket = nullptr;
 
     QList<QBluetoothSocket*> m_BTConnectedClients;
+    QBluetoothSocket* m_lastReadyReadClient = nullptr;
     QBluetoothServiceInfo m_RfcommServiceInfo;
+
 
     // for characteristics without notify property in BLE, pinout signals in serialport
     QTimer* m_pollTimer = nullptr;
@@ -155,6 +157,7 @@ signals:
     void errorOccurred();
     void SP_signalsChanged(QSerialPort::PinoutSignals signal);
 private slots:
+    void onReadyRead();
     void onErrorOccurred();
     void onConnected();
     void onDisconnected();
