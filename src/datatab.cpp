@@ -240,12 +240,20 @@ void DataTab::on_data_repeatCheckBox_stateChanged(int arg1)
 
 void DataTab::on_receivedCopyButton_clicked()
 {
-    QApplication::clipboard()->setText(ui->receivedEdit->toPlainText());
+    QString selection = ui->receivedEdit->textCursor().selectedText();
+    if(selection.isEmpty())
+        QApplication::clipboard()->setText(ui->receivedEdit->toPlainText());
+    else
+        QApplication::clipboard()->setText(selection);
 }
 
 void DataTab::on_sendedCopyButton_clicked()
 {
-    QApplication::clipboard()->setText(ui->sendedEdit->toPlainText());
+    QString selection = ui->sendedEdit->textCursor().selectedText();
+    if(selection.isEmpty())
+        QApplication::clipboard()->setText(ui->sendedEdit->toPlainText());
+    else
+        QApplication::clipboard()->setText(selection);
 }
 
 void DataTab::on_receivedExportButton_clicked()
@@ -256,7 +264,7 @@ void DataTab::on_receivedExportButton_clicked()
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
-    selection = ui->receivedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
+    selection = ui->receivedEdit->textCursor().selectedText();
     if(selection.isEmpty())
     {
         flag &= file.open(QFile::WriteOnly);
@@ -265,7 +273,7 @@ void DataTab::on_receivedExportButton_clicked()
     else
     {
         flag &= file.open(QFile::WriteOnly | QFile::Text);
-        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+        flag &= file.write(dataCodec->fromUnicode(selection.replace(QChar(0x2029), '\n'))) != -1;
     }
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
@@ -279,7 +287,7 @@ void DataTab::on_sendedExportButton_clicked()
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
-    selection = ui->sendedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
+    selection = ui->sendedEdit->textCursor().selectedText();
     if(selection.isEmpty())
     {
         flag &= file.open(QFile::WriteOnly);
@@ -288,7 +296,7 @@ void DataTab::on_sendedExportButton_clicked()
     else
     {
         flag &= file.open(QFile::WriteOnly | QFile::Text);
-        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+        flag &= file.write(dataCodec->fromUnicode(selection.replace(QChar(0x2029), '\n'))) != -1;
     }
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
@@ -441,5 +449,34 @@ void DataTab::on_data_flowRTSBox_clicked(bool checked)
 void DataTab::on_data_unescapeBox_stateChanged(int arg1)
 {
     unescapeSendedData = (arg1 == Qt::Checked);
+}
+
+void DataTab::on_sendedEdit_selectionChanged()
+{
+    if(ui->sendedEdit->textCursor().hasSelection())
+    {
+        ui->sendedExportButton->setText(tr("Export Selected"));
+        ui->sendedCopyButton->setText(tr("Copy Selected"));
+    }
+    else
+    {
+        ui->sendedExportButton->setText(tr("Export"));
+        ui->sendedCopyButton->setText(tr("Copy All"));
+    }
+}
+
+
+void DataTab::on_receivedEdit_selectionChanged()
+{
+    if(ui->receivedEdit->textCursor().hasSelection())
+    {
+        ui->receivedExportButton->setText(tr("Export Selected"));
+        ui->receivedCopyButton->setText(tr("Copy Selected"));
+    }
+    else
+    {
+        ui->receivedExportButton->setText(tr("Export"));
+        ui->receivedCopyButton->setText(tr("Copy All"));
+    }
 }
 

@@ -257,7 +257,7 @@
         <location filename="../ui/datatab.ui" line="117"/>
         <location filename="../ui/datatab.ui" line="204"/>
         <source>Copy All</source>
-        <translation>全部复制</translation>
+        <translation>复制全部</translation>
     </message>
     <message>
         <location filename="../ui/datatab.ui" line="130"/>

@@ -143,7 +143,8 @@ void PlotTab::onQCPMouseRelease(QMouseEvent *event)
         return;
     ulong pressTimestamp = longPressCounter[item]; // default value is 0
     ulong releaseTimestamp = event->timestamp();
-    if(pressTimestamp != 0 && releaseTimestamp > pressTimestamp && releaseTimestamp - pressTimestamp > 1000)
+    // timeout=700 is used in QTapAndHoldGesture, so this threshold should be fine
+    if(pressTimestamp != 0 && releaseTimestamp > pressTimestamp && releaseTimestamp - pressTimestamp > 700)
     {
         qDebug() << "long pressed!";
         setGraphProperty(item);

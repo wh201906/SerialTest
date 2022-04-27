@@ -2,6 +2,12 @@
 
 #include "QDebug"
 #include <QString>
+#include <QGestureEvent>
+#include <QTouchEvent>
+#include <QContextMenuEvent>
+#include <QApplication>
+#include <QPlainTextEdit>
+#include <QLineEdit>
 
 Util::Util()
 {
@@ -122,4 +128,27 @@ void Util::disableItem(QStandardItemModel* model, int id, bool enabled)
     Qt::ItemFlags flags = item->flags();
     flags.setFlag(Qt::ItemIsEnabled, enabled);
     item->setFlags(flags);
+}
+
+// use TapAndHold gesture to show the context menu
+// call widget->grabGesture(Qt::TapAndHoldGesture) then use the event filte
+// for QLineEdit, the edit menu will be shown
+// for QPlainTextEdit, the parent's context menu will be shown
+// useless now...
+
+bool GestureConverter::eventFilter(QObject *obj, QEvent *event)
+{
+    qDebug() << obj->objectName() << event->type();
+    if(event->type() == QEvent::Gesture || event->type() == QEvent::GestureOverride)
+    {
+        QGestureEvent *ge = static_cast<QGestureEvent*>(event);
+        qDebug() << obj->objectName() << ge->gestures();
+        QGesture *ges = ge->gesture(Qt::TapAndHoldGesture);
+        if(ges->state() == Qt::GestureFinished)
+        {
+            QContextMenuEvent newEvent(QContextMenuEvent::Mouse, ge->mapToGraphicsScene(ges->hotSpot()).toPoint());
+            QApplication::sendEvent(obj, &newEvent);
+        }
+    }
+    return QObject::eventFilter(obj, event);
 }

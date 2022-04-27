@@ -58,6 +58,11 @@ private slots:
     void on_data_flowDTRBox_clicked(bool checked);
     void on_data_flowRTSBox_clicked(bool checked);
     void on_data_unescapeBox_stateChanged(int arg1);
+
+    void on_sendedEdit_selectionChanged();
+
+    void on_receivedEdit_selectionChanged();
+
 private:
     Ui::DataTab *ui;
 

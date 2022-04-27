@@ -16,4 +16,12 @@ private:
     static int unescapeHelper(QStringRef text, int &result, int baseBits);
 };
 
+class GestureConverter : public QObject
+{
+    Q_OBJECT
+
+protected:
+    bool eventFilter(QObject* obj, QEvent *event) override;
+};
+
 #endif // UTIL_H
