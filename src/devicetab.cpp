@@ -171,7 +171,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     QHostAddress currNetLocalAddr;
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->typeBox->model());
     QVector<Connection::Type> invalid =
-    {Connection::BLE_Central, Connection::BLE_Peripheral, Connection::TCP_Client, Connection::TCP_Server};
+    {Connection::BLE_Central, Connection::BLE_Peripheral};
     const QMap<Connection::Type, QString> typeNameMap =
     {
         {Connection::SerialPort, tr("SerialPort")},
@@ -338,6 +338,41 @@ void DeviceTab::on_openButton_clicked()
         // show "..." in statusBar
         emit updateStatusBar();
     }
+    else if(currType == Connection::TCP_Client)
+    {
+        if(m_connection->isConnected())
+        {
+            QMessageBox::warning(this, tr("Error"), tr("The device is already connected."));
+            return;
+        }
+        else if(m_connection->state() == Connection::Connecting)
+        {
+            // force disconnect
+            m_connection->close(true);
+        }
+        Connection::NetworkArgument arg;
+        arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        arg.localPort = ui->Net_localPortEdit->text().toUInt();
+        arg.remoteName = ui->Net_remoteAddrEdit->text();
+        arg.remotePort = ui->Net_remotePortEdit->text().toUInt();
+        m_connection->setArgument(arg);
+        m_connection->open();
+        emit updateStatusBar();
+    }
+    else if(currType == Connection::TCP_Server)
+    {
+        if(m_connection->state() != Connection::Unconnected)
+        {
+            QMessageBox::warning(this, tr("Error"), tr("The server is already running."));
+            return;
+        }
+        Connection::NetworkArgument arg;
+        arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        arg.localPort = ui->Net_localPortEdit->text().toUInt();
+        m_connection->setArgument(arg);
+        m_connection->open();
+        emit updateStatusBar();
+    }
     else if(currType == Connection::UDP)
     {
         if(m_connection->state() != Connection::Unconnected)
@@ -348,7 +383,7 @@ void DeviceTab::on_openButton_clicked()
         Connection::NetworkArgument arg;
         arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
         arg.localPort = ui->Net_localPortEdit->text().toUInt();
-        arg.remoteAddress = QHostAddress(ui->Net_remoteAddrEdit->text());
+        arg.remoteName = ui->Net_remoteAddrEdit->text();
         arg.remotePort = ui->Net_remotePortEdit->text().toUInt();
         m_connection->setArgument(arg);
         m_connection->open();
@@ -505,11 +540,41 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->targetListStack->setCurrentWidget(ui->BTServerListPage);
         ui->argsStack->setCurrentWidget(ui->BTServerArgsPage);
     }
+    else if(newType == Connection::TCP_Client)
+    {
+        ui->Net_localAddrBox->show();
+        ui->Net_localAddrBox->setEditable(false);
+        ui->Net_localPortEdit->show();
+        ui->Net_remoteAddrLabel->show();
+        ui->Net_remoteAddrLabel->setText(tr("Remote Address/Name:"));
+        ui->Net_remotePortLabel->show();
+        ui->Net_remoteAddrEdit->show();
+        ui->Net_remotePortEdit->show();
+        ui->Net_tipLabel->hide();
+        ui->targetListStack->setCurrentWidget(ui->NetListPage);
+        ui->argsStack->setCurrentWidget(ui->NetArgsPage);
+    }
+    else if(newType == Connection::TCP_Server)
+    {
+        ui->Net_localAddrBox->show();
+        ui->Net_localAddrBox->setEditable(true);
+        ui->Net_localPortEdit->show();
+        ui->Net_remoteAddrLabel->hide();
+        ui->Net_remotePortLabel->hide();
+        ui->Net_remoteAddrEdit->hide();
+        ui->Net_remotePortEdit->hide();
+        ui->Net_tipLabel->hide();
+        ui->targetListStack->setCurrentWidget(ui->NetListPage);
+        ui->argsStack->setCurrentWidget(ui->NetArgsPage);
+    }
     else if(newType == Connection::UDP)
     {
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(true);
         ui->Net_localPortEdit->show();
+        ui->Net_remoteAddrLabel->show();
+        ui->Net_remoteAddrLabel->setText(tr("Remote Address:"));
+        ui->Net_remotePortLabel->show();
         ui->Net_remoteAddrEdit->show();
         ui->Net_remotePortEdit->show();
         ui->Net_tipLabel->show();
@@ -583,9 +648,9 @@ void DeviceTab::Net_onRemoteChanged()
     {
         bool convOk = false;
         quint16 port = ui->Net_remotePortEdit->text().toUInt(&convOk);
-        QHostAddress addr;
+        QHostAddress addr; // test validity
         if(convOk && addr.setAddress(ui->Net_remoteAddrEdit->text()))
-            m_connection->UDP_setRemote(addr, port);
+            m_connection->UDP_setRemote(ui->Net_remoteAddrEdit->text(), port);
     }
 }
 

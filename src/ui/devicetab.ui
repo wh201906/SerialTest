@@ -647,7 +647,7 @@
            <widget class="QLineEdit" name="Net_localPortEdit"/>
           </item>
           <item>
-           <widget class="QLabel" name="label_7">
+           <widget class="QLabel" name="Net_remoteAddrLabel">
             <property name="text">
              <string>Remote Address:</string>
             </property>
@@ -657,7 +657,7 @@
            <widget class="QLineEdit" name="Net_remoteAddrEdit"/>
           </item>
           <item>
-           <widget class="QLabel" name="label_8">
+           <widget class="QLabel" name="Net_remotePortLabel">
             <property name="text">
              <string>Remote Port:</string>
             </property>

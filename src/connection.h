@@ -62,9 +62,10 @@ public:
 
     struct NetworkArgument
     {
-        QHostAddress remoteAddress, localAddress;
-        bool useRemoteName = false; // false: connect to remoteAddress rather than remoteName(for client)
-        QString remotetName;
+        QHostAddress localAddress;
+        // connectToHost() supports hostName and hostAddress, writeDatagram() only supports hostAddress
+        // use QString to store all hostName/hostAddress
+        QString remoteName;
         quint16 remotePort, localPort;
     };
 
@@ -101,7 +102,7 @@ public:
     QString BTClient_remoteName();
     QBluetoothAddress BT_localAddress();
 
-    void UDP_setRemote(QHostAddress addr, quint16 port);
+    void UDP_setRemote(const QString& addr, quint16 port);
 public slots:
     // general
     void setPolling(bool enabled);
@@ -124,7 +125,7 @@ private:
     QMetaObject::Connection m_lastOnDisconnectedConn;
 
     // establish connetion and reconnect
-    bool m_lastSPArgumentValid = false, m_lastBTArgumentValid = false, m_lastNetworkArgumentValid = false;
+    bool m_lastSPArgumentValid = false, m_lastBTArgumentValid = false, m_lastNetArgumentValid = false;
     SerialPortArgument m_lastSPArgument, m_currSPArgument;
     BTArgument m_lastBTArgument, m_currBTArgument;
     NetworkArgument m_lastNetArgument, m_currNetArgument;
@@ -132,10 +133,12 @@ private:
     QSerialPort* m_serialPort = nullptr;
     QBluetoothServer* m_BTServer = nullptr;
     QBluetoothSocket* m_BTSocket = nullptr;
+    QTcpServer* m_TCPServer = nullptr;
     QTcpSocket* m_TCPSocket = nullptr;
     QUdpSocket* m_UDPSocket = nullptr;
 
     QList<QBluetoothSocket*> m_BTConnectedClients;
+    QList<QTcpSocket*> m_TCPConnectedClients;
     QBluetoothServiceInfo m_RfcommServiceInfo;
 
 
@@ -163,9 +166,9 @@ private slots:
     void onErrorOccurred();
     void onConnected();
     void onDisconnected();
-    void BTServer_onClientConnected();
-    void BTServer_onClientDisconnected();
-    void BTServer_onClientErrorOccurred();
+    void Server_onClientConnected();
+    void Server_onClientDisconnected();
+    void Server_onClientErrorOccurred();
     void onPollingTimeout();
 
 };
