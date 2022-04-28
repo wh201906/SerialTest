@@ -60,6 +60,7 @@ private slots:
     void on_BTClient_adapterBox_activated(int index);
     void on_BTServer_serviceNameEdit_editingFinished();
     void on_BTServer_adapterBox_activated(int index);
+    void Net_onRemoteChanged();
 };
 
 #endif // DEVICETAB_H

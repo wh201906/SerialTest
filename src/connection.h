@@ -101,6 +101,7 @@ public:
     QString BTClient_remoteName();
     QBluetoothAddress BT_localAddress();
 
+    void UDP_setRemote(QHostAddress addr, quint16 port);
 public slots:
     // general
     void setPolling(bool enabled);
@@ -135,7 +136,6 @@ private:
     QUdpSocket* m_UDPSocket = nullptr;
 
     QList<QBluetoothSocket*> m_BTConnectedClients;
-    QBluetoothSocket* m_lastReadyReadClient = nullptr;
     QBluetoothServiceInfo m_RfcommServiceInfo;
 
 
@@ -145,6 +145,8 @@ private:
 
     //
     QSerialPort::PinoutSignals m_SP_lastSignals;
+
+    QByteArray m_buf;
 
     void updateSignalSlot();
     void BTServer_initServiceInfo();

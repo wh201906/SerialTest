@@ -211,6 +211,12 @@ bool Connection::reopen()
             return false;
         setArgument(m_lastBTArgument);
     }
+    else if(m_type == UDP)
+    {
+        if(!m_lastNetworkArgumentValid)
+            return false;
+        setArgument(m_lastNetArgument);
+    }
     open();
     return true;
 }
@@ -259,12 +265,12 @@ void Connection::updateSignalSlot()
     disconnect(m_lastOnDisconnectedConn);
     if(m_type == SerialPort)
     {
-        m_lastReadyReadConn = connect(m_serialPort, &QIODevice::readyRead, this, &Connection::readyRead);
+        m_lastReadyReadConn = connect(m_serialPort, &QIODevice::readyRead, this, &Connection::onReadyRead);
         m_lastOnErrorConn = connect(m_serialPort, &QSerialPort::errorOccurred, this, &Connection::onErrorOccurred);
     }
     else if(m_type == BT_Client)
     {
-        m_lastReadyReadConn = connect(m_BTSocket, &QIODevice::readyRead, this, &Connection::readyRead);
+        m_lastReadyReadConn = connect(m_BTSocket, &QIODevice::readyRead, this, &Connection::onReadyRead);
         m_lastOnErrorConn = connect(m_BTSocket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this, &Connection::onErrorOccurred);
         m_lastOnConnectedConn = connect(m_BTSocket, &QBluetoothSocket::connected, this, &Connection::onConnected);
         m_lastOnDisconnectedConn = connect(m_BTSocket, &QBluetoothSocket::disconnected, this, &Connection::onDisconnected);
@@ -277,14 +283,14 @@ void Connection::updateSignalSlot()
     }
     else if(m_type == TCP_Client || m_type == TCP_Server)
     {
-        m_lastReadyReadConn = connect(m_TCPSocket, &QIODevice::readyRead, this, &Connection::readyRead);
+        m_lastReadyReadConn = connect(m_TCPSocket, &QIODevice::readyRead, this, &Connection::onReadyRead);
         m_lastOnErrorConn = connect(m_TCPSocket, &QAbstractSocket::errorOccurred, this, &Connection::onErrorOccurred);
         m_lastOnConnectedConn = connect(m_TCPSocket, &QAbstractSocket::connected, this, &Connection::onConnected);
         m_lastOnDisconnectedConn = connect(m_TCPSocket, &QAbstractSocket::disconnected, this, &Connection::onDisconnected);
     }
     else if(m_type == UDP)
     {
-        m_lastReadyReadConn = connect(m_UDPSocket, &QIODevice::readyRead, this, &Connection::readyRead);
+        m_lastReadyReadConn = connect(m_UDPSocket, &QIODevice::readyRead, this, &Connection::onReadyRead);
         m_lastOnErrorConn = connect(m_UDPSocket, &QAbstractSocket::errorOccurred, this, &Connection::onErrorOccurred);
         m_lastOnConnectedConn = connect(m_UDPSocket, &QAbstractSocket::connected, this, &Connection::onConnected);
         m_lastOnDisconnectedConn = connect(m_UDPSocket, &QAbstractSocket::disconnected, this, &Connection::onDisconnected);
@@ -347,9 +353,24 @@ void Connection::BTServer_updateServicePort()
 
 void Connection::onReadyRead()
 {
-    if(m_type == BT_Server)
+    if(m_type == SerialPort)
     {
-        m_lastReadyReadClient = qobject_cast<QBluetoothSocket*>(sender());
+        m_buf += m_serialPort->readAll();
+    }
+    else if(m_type == BT_Client)
+    {
+        m_buf += m_BTSocket->readAll();
+    }
+    else if(m_type == BT_Server)
+    {
+        m_buf += qobject_cast<QBluetoothSocket*>(sender())->readAll();
+    }
+    else if(m_type == UDP)
+    {
+        // readyRead() will not be emitted unless all pending datagrams are handled
+        // this should be handled as soon as possible
+        while(m_UDPSocket->hasPendingDatagrams())
+            m_buf += m_UDPSocket->receiveDatagram().data();
     }
     emit readyRead();
 }
@@ -396,29 +417,20 @@ void Connection::onErrorOccurred()
             close(true);
         }
     }
+    else if(m_type == UDP)
+    {
+        QAbstractSocket::SocketError error;
+        error = m_UDPSocket->error();
+        qDebug() << "UDP Error:" << error;
+    }
     emit errorOccurred();
 }
 
 QByteArray Connection::readAll()
 {
-    if(m_type == SerialPort)
-    {
-        return m_serialPort->readAll();
-    }
-    else if(m_type == BT_Client)
-    {
-        return m_BTSocket->readAll();
-    }
-    else if(m_type == BT_Server)
-    {
-        if(m_lastReadyReadClient != nullptr)
-            return m_lastReadyReadClient->readAll();
-    }
-    else if(m_type == UDP)
-    {
-        return m_UDPSocket->receiveDatagram().data();
-    }
-    return QByteArray();
+    QByteArray result(m_buf);
+    m_buf.clear();
+    return result;
 }
 
 qint64 Connection::write(const char *data, qint64 len)
@@ -500,8 +512,6 @@ void Connection::BTServer_onClientDisconnected()
     if(!socket)
         return;
 
-    if(m_lastReadyReadClient == socket)
-        m_lastReadyReadClient = nullptr;
     m_BTConnectedClients.removeOne(socket);
     if(m_BTConnectedClients.empty())
     {
@@ -585,4 +595,10 @@ QBluetoothAddress Connection::BT_localAddress()
     else if(m_type == BT_Server && m_BTServer != nullptr)
         return m_BTServer->serverAddress();
     return QBluetoothAddress();
+}
+
+void Connection::UDP_setRemote(QHostAddress addr, quint16 port)
+{
+    m_currNetArgument.remoteAddress = addr;
+    m_currNetArgument.remotePort = port;
 }

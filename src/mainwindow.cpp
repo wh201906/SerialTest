@@ -208,7 +208,12 @@ void MainWindow::updateStatusBar()
             deviceLabel->setText(tr("Address") + ": " + IOConnection->getBTArgument().deviceAddress.toString());
             QString text;
             text.append((tr("Device Name") + ": %1 ").arg(IOConnection->BTClient_remoteName()));
-            text.append((tr("Local") + ": %1 ").arg(IOConnection->BT_localAddress().toString()));
+#ifdef Q_OS_ANDROID
+            if(IOConnection->BT_localAddress().toString() != "02:00:00:00:00:00")
+#else
+            if(true)
+#endif
+                text.append((tr("Local") + ": %1 ").arg(IOConnection->BT_localAddress().toString()));
             connArgsLabel->setText(text);
         }
         else
