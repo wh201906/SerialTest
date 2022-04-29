@@ -273,6 +273,33 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     ui->typeBox->blockSignals(false);
 }
 
+void DeviceTab::onClientCountChanged()
+{
+    if(m_connection->type() == Connection::BT_Server)
+    {
+        ui->BTServer_deviceList->setRowCount(0);
+        auto list = m_connection->BTServer_clientList();
+        ui->BTServer_deviceList->setRowCount(list.size());
+        for(int i = 0; i < list.size(); i++)
+        {
+            ui->BTServer_deviceList->setItem(i, 0, new QTableWidgetItem(list[i]->peerName()));
+            ui->BTServer_deviceList->setItem(i, 1, new QTableWidgetItem(list[i]->peerAddress().toString()));
+        }
+    }
+    else if(m_connection->type() == Connection::TCP_Server)
+    {
+        ui->Net_addrPortList->setRowCount(0);
+        auto list = m_connection->TCPServer_clientList();
+        ui->Net_addrPortList->setRowCount(list.size());
+        for(int i = 0; i < list.size(); i++)
+        {
+            ui->Net_addrPortList->setItem(i, 0, new QTableWidgetItem(list[i]->peerAddress().toString()));
+            ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->peerPort()));
+            ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->peerName()));
+        }
+    }
+}
+
 void DeviceTab::on_SP_advancedBox_clicked(bool checked)
 {
     ui->SP_dataBitsLabel->setVisible(checked);
@@ -537,6 +564,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::TCP_Client)
     {
+        ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(false);
         ui->Net_localPortEdit->show();
@@ -551,8 +579,9 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::TCP_Server)
     {
+        ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
-        ui->Net_localAddrBox->setEditable(true);
+        ui->Net_localAddrBox->setEditable(false);
         ui->Net_localPortEdit->show();
         ui->Net_remoteAddrLabel->hide();
         ui->Net_remotePortLabel->hide();
@@ -564,6 +593,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::UDP)
     {
+        ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(true);
         ui->Net_localPortEdit->show();
@@ -647,5 +677,15 @@ void DeviceTab::Net_onRemoteChanged()
         if(convOk && addr.setAddress(ui->Net_remoteAddrEdit->text()))
             m_connection->UDP_setRemote(ui->Net_remoteAddrEdit->text(), port);
     }
+}
+
+void DeviceTab::on_Net_localAddrBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+    if(ui->Net_remoteAddrEdit->isHidden())
+        return;
+    // fill the remoteAddrEdit if user doesn't specify it
+    if(ui->Net_remoteAddrEdit->text().isEmpty() || ui->Net_localAddrBox->findText(ui->Net_remoteAddrEdit->text(), Qt::MatchExactly) != -1) // case insensitive
+        ui->Net_remoteAddrEdit->setText(ui->Net_localAddrBox->currentText());
 }
 

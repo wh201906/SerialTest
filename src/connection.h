@@ -101,8 +101,11 @@ public:
     // Bluetooth
     QString BTClient_remoteName();
     QBluetoothAddress BT_localAddress();
+    QList<QBluetoothSocket*> BTServer_clientList() const;
 
+    // Network
     void UDP_setRemote(const QString& addr, quint16 port);
+    QList<QTcpSocket*> TCPServer_clientList() const;
 public slots:
     // general
     void setPolling(bool enabled);
@@ -165,6 +168,12 @@ signals:
     // the slot can accept newState only
     void stateChanged(State newState, State oldState);
     void SP_signalsChanged(QSerialPort::PinoutSignals signal);
+    // for BT_Server
+    void BT_clientConnected();
+    void BT_clientDisconnected();
+    // for TCP_Server
+    void TCP_clientConnected();
+    void TCP_clientDisconnected();
 private slots:
     void onReadyRead();
     void onErrorOccurred();

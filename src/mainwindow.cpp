@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(IOConnection, &Connection::connected, this, &MainWindow::onIODeviceConnected);
     connect(IOConnection, &Connection::disconnected, this, &MainWindow::onIODeviceDisconnected);
     connect(IOConnection, &Connection::connectFailed, this, &MainWindow::onIODeviceConnectFailed);
+    connect(IOConnection, &Connection::stateChanged, this, &MainWindow::updateStatusBar);
+
 #ifdef Q_OS_ANDROID
     setStyleSheet("QCheckBox{min-width:15px;min-height:15px;}QCheckBox::indicator{min-width:15px;min-height:15px;}");
 
@@ -59,7 +61,11 @@ MainWindow::MainWindow(QWidget *parent)
     deviceTab = new DeviceTab();
     deviceTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateStatusBar);
-    connect(IOConnection, &Connection::stateChanged, this, &MainWindow::updateStatusBar);
+    connect(IOConnection, &Connection::BT_clientConnected, deviceTab, &DeviceTab::onClientCountChanged);
+    connect(IOConnection, &Connection::TCP_clientConnected, deviceTab, &DeviceTab::onClientCountChanged);
+    connect(IOConnection, &Connection::BT_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
+    connect(IOConnection, &Connection::TCP_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
+
     ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
     dataTab = new DataTab(rawReceivedData, rawSendedData);
     dataTab->setConnection(IOConnection);

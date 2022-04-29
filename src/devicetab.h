@@ -29,6 +29,7 @@ public slots:
     void refreshTargetList();
     void saveDevicesPreference(const QString &deviceName);
     void getAvailableTypes(bool useFirstValid = false);
+    void onClientCountChanged();
 private:
     Ui::DeviceTab *ui;
 
@@ -60,6 +61,7 @@ private slots:
     void on_BTServer_serviceNameEdit_editingFinished();
     void on_BTServer_adapterBox_activated(int index);
     void Net_onRemoteChanged();
+    void on_Net_localAddrBox_currentIndexChanged(int index);
 };
 
 #endif // DEVICETAB_H

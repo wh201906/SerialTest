@@ -532,6 +532,7 @@ qint64 Connection::write(const QByteArray &data)
 
 void Connection::onConnected()
 {
+    // m_lastXXArgument for servers is stored in open()
     qDebug() << "Connection::onConnected()";
     changeState(Connected);
     if(m_type == SerialPort)
@@ -539,12 +540,12 @@ void Connection::onConnected()
         m_lastSPArgument = m_currSPArgument;
         m_lastSPArgumentValid = true;
     }
-    else if(m_type == BT_Client || m_type == BT_Server)
+    else if(m_type == BT_Client)
     {
         m_lastBTArgument = m_currBTArgument;
         m_lastBTArgumentValid = true;
     }
-    else if(m_type == TCP_Client || m_type == TCP_Server || m_type == UDP)
+    else if(m_type == TCP_Client || m_type == UDP)
     {
         m_lastNetArgument = m_currNetArgument;
         m_lastNetArgumentValid = true;
@@ -578,6 +579,7 @@ void Connection::Server_onClientConnected()
         connect(socket, &QBluetoothSocket::disconnected, this, &Connection::Server_onClientDisconnected);
         connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this, &Connection::Server_onClientErrorOccurred);
         m_BTConnectedClients.append(socket);
+        emit BT_clientConnected();
     }
     else if(m_type == TCP_Server)
     {
@@ -590,8 +592,8 @@ void Connection::Server_onClientConnected()
         connect(socket, &QTcpSocket::disconnected, this, &Connection::Server_onClientDisconnected);
         connect(socket, &QAbstractSocket::errorOccurred, this, &Connection::onErrorOccurred);
         m_TCPConnectedClients.append(socket);
+        emit TCP_clientConnected();
     }
-    emit connected();
 }
 
 // this will be called by cliendDisconnected() and clientErrorOccurred()
@@ -615,6 +617,8 @@ void Connection::Server_onClientDisconnectedHandler(QObject* clientObj)
                 changeState(Unconnected);
         }
         socket->deleteLater();
+        if(firstCall)
+            emit BT_clientDisconnected();
     }
     else if(m_type == TCP_Server)
     {
@@ -631,8 +635,9 @@ void Connection::Server_onClientDisconnectedHandler(QObject* clientObj)
                 changeState(Unconnected);
         }
         socket->deleteLater();
+        if(firstCall)
+            emit TCP_clientDisconnected();
     }
-    // emit BT/TCPclientDisconnect()?
 }
 
 void Connection::Server_onClientDisconnected()
@@ -737,8 +742,18 @@ QBluetoothAddress Connection::BT_localAddress()
     return QBluetoothAddress();
 }
 
+QList<QBluetoothSocket *> Connection::BTServer_clientList() const
+{
+    return m_BTConnectedClients;
+}
+
 void Connection::UDP_setRemote(const QString& addr, quint16 port)
 {
     m_currNetArgument.remoteName = addr;
     m_currNetArgument.remotePort = port;
+}
+
+QList<QTcpSocket *> Connection::TCPServer_clientList() const
+{
+    return m_TCPConnectedClients;
 }
