@@ -126,6 +126,8 @@ void DeviceTab::initUI()
 {
     ui->SP_portList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->BTClient_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->BTServer_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->Net_addrPortList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     ui->SP_flowControlBox->addItem(tr("NoFlowControl"));
     ui->SP_flowControlBox->addItem(tr("HardwareControl"));
@@ -320,8 +322,6 @@ void DeviceTab::on_openButton_clicked()
         arg.deviceAddress = QBluetoothAddress(ui->BTClient_targetAddrBox->currentText());
         m_connection->setArgument(arg);
         m_connection->open();
-        // show "..." in statusBar
-        emit updateStatusBar();
     }
     else if(currType == Connection::BT_Server)
     {
@@ -335,8 +335,6 @@ void DeviceTab::on_openButton_clicked()
         arg.serverServiceName = ui->BTServer_serviceNameEdit->text();
         m_connection->setArgument(arg);
         m_connection->open();
-        // show "..." in statusBar
-        emit updateStatusBar();
     }
     else if(currType == Connection::TCP_Client)
     {
@@ -357,7 +355,6 @@ void DeviceTab::on_openButton_clicked()
         arg.remotePort = ui->Net_remotePortEdit->text().toUInt();
         m_connection->setArgument(arg);
         m_connection->open();
-        emit updateStatusBar();
     }
     else if(currType == Connection::TCP_Server)
     {
@@ -371,7 +368,6 @@ void DeviceTab::on_openButton_clicked()
         arg.localPort = ui->Net_localPortEdit->text().toUInt();
         m_connection->setArgument(arg);
         m_connection->open();
-        emit updateStatusBar();
     }
     else if(currType == Connection::UDP)
     {
@@ -387,7 +383,6 @@ void DeviceTab::on_openButton_clicked()
         arg.remotePort = ui->Net_remotePortEdit->text().toUInt();
         m_connection->setArgument(arg);
         m_connection->open();
-        emit updateStatusBar();
     }
 }
 

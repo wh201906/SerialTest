@@ -58,8 +58,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     deviceTab = new DeviceTab();
     deviceTab->setConnection(IOConnection);
-    connect(deviceTab, &DeviceTab::updateStatusBar, this, &MainWindow::updateStatusBar);
     connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateStatusBar);
+    connect(IOConnection, &Connection::stateChanged, this, &MainWindow::updateStatusBar);
     ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
     dataTab = new DataTab(rawReceivedData, rawSendedData);
     dataTab->setConnection(IOConnection);
@@ -125,7 +125,7 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 void MainWindow::onStateButtonClicked()
 {
-    if(IOConnection->isConnected())
+    if(IOConnection->state() != Connection::Unconnected)
     {
         IOConnection->close();
     }
@@ -136,8 +136,6 @@ void MainWindow::onStateButtonClicked()
             QMessageBox::warning(this, tr("Error"), tr("Plz connect to a port first."));
             return;
         }
-        // show "..." in statusBar for async connection
-        updateStatusBar();
     }
 }
 
@@ -299,9 +297,9 @@ void MainWindow::sendData(const QByteArray& data)
         dataTab->setRepeat(false);
         return;
     }
-    rawSendedData->append(data);
-    dataTab->syncSendedEditWithData();
     IOConnection->write(data);
+    rawSendedData->append(data);
+    dataTab->appendSendedData(data);
     updateRxTxLen(false, true);
 }
 

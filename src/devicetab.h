@@ -45,7 +45,6 @@ private:
 #endif
     void setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress = QBluetoothAddress());
 signals:
-    void updateStatusBar();
     void connTypeChanged(Connection::Type type);
 private slots:
     void on_SP_advancedBox_clicked(bool checked);

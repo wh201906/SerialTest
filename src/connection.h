@@ -154,19 +154,25 @@ private:
     void updateSignalSlot();
     void BTServer_initServiceInfo();
     void BTServer_updateServicePort();
+    void changeState(State newState);
+    void Server_onClientDisconnectedHandler(QObject *clientObj);
 signals:
     void readyRead();
     void connected();
     void disconnected();
     void connectFailed();
     void errorOccurred();
+    // the slot can accept newState only
+    void stateChanged(State newState, State oldState);
     void SP_signalsChanged(QSerialPort::PinoutSignals signal);
 private slots:
     void onReadyRead();
     void onErrorOccurred();
     void onConnected();
+    // onDisconnected() might be called more than once
     void onDisconnected();
     void Server_onClientConnected();
+    // Server_onClientDisconnected() might be called more than once
     void Server_onClientDisconnected();
     void Server_onClientErrorOccurred();
     void onPollingTimeout();

@@ -21,6 +21,7 @@ public:
     explicit DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent = nullptr);
     ~DataTab();
 
+    void appendSendedData(const QByteArray &data);
     void appendReceivedData(const QByteArray &data);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
@@ -84,7 +85,7 @@ private:
     QTextCodec* dataCodec = nullptr; // for Tx and generating Rx decoder
     QTextDecoder* RxDecoder = nullptr; // for Rx UI, a multi-byte character might be split.
     char lastReceivedByte = '\0';
-    int hexCounter = 0;
+    int RxHexCounter = 0, TxHexCounter = 0;
     QByteArray* rawReceivedData = nullptr;
     QByteArray* rawSendedData = nullptr;
 

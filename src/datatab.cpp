@@ -52,7 +52,8 @@ void DataTab::initSettings()
     connect(ui->data_suffixBox, &QGroupBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_suffixTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DataTab::saveDataPreference);
     connect(ui->data_suffixEdit, &QLineEdit::editingFinished, this, &DataTab::saveDataPreference);
-    connect(ui->data_repeatCheckBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+    // this might be changed by the program, so use stateChanged() rather than clicked()
+    connect(ui->data_repeatCheckBox, &QCheckBox::stateChanged, this, &DataTab::saveDataPreference);
     connect(ui->repeatDelayEdit, &QLineEdit::editingFinished, this, &DataTab::saveDataPreference);
     connect(ui->data_flowDTRBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_flowRTSBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
@@ -224,7 +225,7 @@ void DataTab::on_sendEdit_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
     repeatTimer->stop();
-    ui->data_repeatBox->setChecked(false);
+    ui->data_repeatCheckBox->setChecked(false);
 }
 
 void DataTab::on_data_repeatCheckBox_stateChanged(int arg1)
@@ -377,7 +378,7 @@ void DataTab::onConnEstablished()
 void DataTab::setRepeat(bool state)
 {
     ui->data_repeatCheckBox->setChecked(state);
-    on_data_repeatCheckBox_stateChanged(state);
+    // stateChanged() will be emitted
 }
 
 bool DataTab::getRxRealtimeState()
@@ -385,10 +386,29 @@ bool DataTab::getRxRealtimeState()
     return ui->receivedRealtimeBox->isChecked();
 }
 
+
+void DataTab::appendSendedData(const QByteArray& data)
+{
+    ui->sendedEdit->moveCursor(QTextCursor::End);
+    if(isSendedDataHex)
+    {
+        ui->sendedEdit->insertPlainText(data.toHex(' ') + ' ');
+        TxHexCounter += data.length();
+        if(TxHexCounter > 5000)
+        {
+            ui->sendedEdit->insertPlainText("\n");
+            TxHexCounter = 0;
+        }
+    }
+    else
+    {
+        ui->sendedEdit->insertPlainText(dataCodec->toUnicode(data));
+    }
+}
+
 // TODO:
 // split sync process, add processEvents()
 // void MainWindow::syncEditWithData()
-
 void DataTab::appendReceivedData(const QByteArray& data)
 {
     int cursorPos;
@@ -412,13 +432,13 @@ void DataTab::appendReceivedData(const QByteArray& data)
     if(isReceivedDataHex)
     {
         ui->receivedEdit->insertPlainText(data.toHex(' ') + ' ');
-        hexCounter += data.length();
+        RxHexCounter += data.length();
         // QPlainTextEdit is not good at handling long line
         // Seperate for better realtime receiving response
-        if(hexCounter > 5000)
+        if(RxHexCounter > 5000)
         {
             ui->receivedEdit->insertPlainText("\n");
-            hexCounter = 0;
+            RxHexCounter = 0;
         }
     }
     else
