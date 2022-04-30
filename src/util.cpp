@@ -150,5 +150,5 @@ bool GestureConverter::eventFilter(QObject *obj, QEvent *event)
             QApplication::sendEvent(obj, &newEvent);
         }
     }
-    return QObject::eventFilter(obj, event);
+    return false;
 }

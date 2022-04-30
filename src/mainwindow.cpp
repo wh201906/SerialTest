@@ -61,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent)
     deviceTab = new DeviceTab();
     deviceTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateStatusBar);
+    connect(deviceTab, &DeviceTab::argumentChanged, this, &MainWindow::updateStatusBar);
+    connect(deviceTab, &DeviceTab::clientCountChanged, this, &MainWindow::updateStatusBar);
     connect(IOConnection, &Connection::BT_clientConnected, deviceTab, &DeviceTab::onClientCountChanged);
     connect(IOConnection, &Connection::TCP_clientConnected, deviceTab, &DeviceTab::onClientCountChanged);
     connect(IOConnection, &Connection::BT_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
@@ -209,7 +211,7 @@ void MainWindow::updateStatusBar()
         serialPinout->hide();
         if(IOConnection->isConnected())
         {
-            deviceLabel->setText(tr("Address") + ": " + IOConnection->getBTArgument().deviceAddress.toString());
+            deviceLabel->setText(tr("Remote") + ": " + IOConnection->getBTArgument().deviceAddress.toString());
             QString text;
             text.append((tr("Device Name") + ": %1 ").arg(IOConnection->BTClient_remoteName()));
 #ifdef Q_OS_ANDROID
@@ -225,6 +227,28 @@ void MainWindow::updateStatusBar()
             deviceLabel->setText(tr("Address") + ": ");
             connArgsLabel->setText("");
         }
+    }
+    else if(type == Connection::BT_Server)
+    {
+        serialPinout->hide();
+        QString text;
+        text.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->BTServer_clientCount()));
+        connArgsLabel->setText(text);
+    }
+    else if(type == Connection::TCP_Client)
+    {
+        serialPinout->hide();
+    }
+    else if(type == Connection::TCP_Server)
+    {
+        serialPinout->hide();
+        QString text;
+        text.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->TCPServer_clientCount()));
+        connArgsLabel->setText(text);
+    }
+    else if(type == Connection::UDP)
+    {
+        serialPinout->hide();
     }
     Connection::State currState = IOConnection->state();
     if(currState == Connection::Connected)

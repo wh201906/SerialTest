@@ -22,6 +22,7 @@ DeviceTab::DeviceTab(QWidget *parent) :
     connect(ui->BTClient_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->Net_remoteAddrEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
     connect(ui->Net_remotePortEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
+    ui->SP_baudRateBox->installEventFilter(this);
 
     initUI();
     refreshTargetList();
@@ -235,7 +236,6 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
         // for multicast address
         currNetLocalAddr = QHostAddress(ui->Net_localAddrBox->currentText());
     ui->Net_localAddrBox->clear();
-    id = 0;
     auto netInterfaceList = QNetworkInterface::allAddresses();
     for(auto it = netInterfaceList.cbegin(); it != netInterfaceList.cend(); ++it)
         ui->Net_localAddrBox->addItem((*it).toString());
@@ -298,6 +298,23 @@ void DeviceTab::onClientCountChanged()
             ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->peerName()));
         }
     }
+    emit clientCountChanged();
+}
+
+bool DeviceTab::eventFilter(QObject *watched, QEvent *event)
+{
+    if(watched == ui->SP_baudRateBox && event->type() == QEvent::FocusOut)
+    {
+        // like editFinished()
+        QComboBox* box = qobject_cast<QComboBox*>(watched);
+        qint32 baud = box->currentText().toInt();
+        if(baud != 0 && baud != m_connection->SP_baudRate() && m_connection->type() == Connection::SerialPort && m_connection->isConnected())
+        {
+            m_connection->SP_setBaudRate(baud);
+            emit argumentChanged();
+        }
+    }
+    return false;
 }
 
 void DeviceTab::on_SP_advancedBox_clicked(bool checked)
@@ -324,7 +341,7 @@ void DeviceTab::on_openButton_clicked()
         }
         Connection::SerialPortArgument arg;
         arg.name = ui->SP_portNameBox->currentText();
-        arg.baudRate = ui->SP_baudRateBox->currentText().toUInt();
+        arg.baudRate = ui->SP_baudRateBox->currentText().toInt();
         arg.dataBits = (QSerialPort::DataBits)ui->SP_dataBitsBox->currentData().toInt();
         arg.stopBits = (QSerialPort::StopBits)ui->SP_stopBitsBox->currentData().toInt();
         arg.parity = (QSerialPort::Parity)ui->SP_parityBox->currentData().toInt();
@@ -687,5 +704,55 @@ void DeviceTab::on_Net_localAddrBox_currentIndexChanged(int index)
     // fill the remoteAddrEdit if user doesn't specify it
     if(ui->Net_remoteAddrEdit->text().isEmpty() || ui->Net_localAddrBox->findText(ui->Net_remoteAddrEdit->text(), Qt::MatchExactly) != -1) // case insensitive
         ui->Net_remoteAddrEdit->setText(ui->Net_localAddrBox->currentText());
+}
+
+
+void DeviceTab::on_SP_baudRateBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+    if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
+        return;
+    if(m_connection->SP_setBaudRate(ui->SP_baudRateBox->currentText().toInt()))
+        emit argumentChanged();
+}
+
+
+void DeviceTab::on_SP_dataBitsBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+    if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
+        return;
+    if(m_connection->SP_setDataBits((QSerialPort::DataBits)ui->SP_dataBitsBox->currentData().toInt()))
+        emit argumentChanged();
+}
+
+
+void DeviceTab::on_SP_stopBitsBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+    if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
+        return;
+    if(m_connection->SP_setStopBits((QSerialPort::StopBits)ui->SP_stopBitsBox->currentData().toInt()))
+        emit argumentChanged();
+}
+
+
+void DeviceTab::on_SP_parityBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+    if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
+        return;
+    if(m_connection->SP_setParity((QSerialPort::Parity)ui->SP_parityBox->currentData().toInt()))
+        emit argumentChanged();
+}
+
+
+void DeviceTab::on_SP_flowControlBox_currentIndexChanged(int index)
+{
+    Q_UNUSED(index)
+    if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
+        return;
+    if(m_connection->SP_setFlowControl((QSerialPort::FlowControl)ui->SP_flowControlBox->currentData().toInt()))
+        emit argumentChanged();
 }
 

@@ -725,6 +725,61 @@ bool Connection::SP_isRequestToSend()
     return m_serialPort->isRequestToSend();
 }
 
+bool Connection::SP_setBaudRate(qint32 baudRate)
+{
+    if(m_type != SerialPort)
+        return false;
+    if(!m_serialPort->setBaudRate(baudRate))
+        return false;
+    m_currSPArgument.baudRate = baudRate;
+    return true;
+}
+
+qint32 Connection::SP_baudRate()
+{
+    return m_serialPort->baudRate();
+}
+
+bool Connection::SP_setDataBits(QSerialPort::DataBits dataBits)
+{
+    if(m_type != SerialPort)
+        return false;
+    if(!m_serialPort->setDataBits(dataBits))
+        return false;
+    m_currSPArgument.dataBits = dataBits;
+    return true;
+}
+
+bool Connection::SP_setStopBits(QSerialPort::StopBits stopBits)
+{
+    if(m_type != SerialPort)
+        return false;
+    if(!m_serialPort->setStopBits(stopBits))
+        return false;
+    m_currSPArgument.stopBits = stopBits;
+    return true;
+}
+
+bool Connection::SP_setParity(QSerialPort::Parity parity)
+{
+    if(m_type != SerialPort)
+        return false;
+    if(!m_serialPort->setParity(parity))
+        return false;
+    m_currSPArgument.parity = parity;
+    return true;
+}
+
+bool Connection::SP_setFlowControl(QSerialPort::FlowControl flowControl)
+{
+    if(m_type != SerialPort)
+        return false;
+    if(!m_serialPort->setFlowControl(flowControl))
+        return false;
+    m_currSPArgument.flowControl = flowControl;
+    return true;
+}
+
 QString Connection::BTClient_remoteName()
 {
     if(m_type == BT_Client && m_BTSocket != nullptr)
@@ -747,6 +802,11 @@ QList<QBluetoothSocket *> Connection::BTServer_clientList() const
     return m_BTConnectedClients;
 }
 
+int Connection::BTServer_clientCount()
+{
+    return m_BTConnectedClients.count();
+}
+
 void Connection::UDP_setRemote(const QString& addr, quint16 port)
 {
     m_currNetArgument.remoteName = addr;
@@ -756,4 +816,9 @@ void Connection::UDP_setRemote(const QString& addr, quint16 port)
 QList<QTcpSocket *> Connection::TCPServer_clientList() const
 {
     return m_TCPConnectedClients;
+}
+
+int Connection::TCPServer_clientCount()
+{
+    return m_TCPConnectedClients.count();
 }

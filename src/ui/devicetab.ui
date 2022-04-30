@@ -65,7 +65,7 @@
      <item>
       <widget class="QStackedWidget" name="targetListStack">
        <property name="currentIndex">
-        <number>2</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="SPListPage">
         <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -350,7 +350,7 @@
       <item>
        <widget class="QStackedWidget" name="argsStack">
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="SPArgsPage">
          <layout class="QGridLayout" name="gridLayout">

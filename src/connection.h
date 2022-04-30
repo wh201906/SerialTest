@@ -41,7 +41,7 @@ public:
     struct SerialPortArgument
     {
         QString name;
-        quint32 baudRate;
+        qint32 baudRate;
         QSerialPort::DataBits dataBits;
         QSerialPort::StopBits stopBits;
         QSerialPort::Parity parity;
@@ -97,15 +97,24 @@ public:
     bool SP_isDataTerminalReady();
     bool SP_setRequestToSend(bool set);
     bool SP_isRequestToSend();
+    bool SP_setBaudRate(qint32 baudRate);
+    qint32 SP_baudRate();
+    bool SP_setDataBits(QSerialPort::DataBits dataBits);
+    bool SP_setStopBits(QSerialPort::StopBits stopBits);
+    bool SP_setParity(QSerialPort::Parity parity);
+    bool SP_setFlowControl(QSerialPort::FlowControl flowControl);
 
     // Bluetooth
     QString BTClient_remoteName();
     QBluetoothAddress BT_localAddress();
     QList<QBluetoothSocket*> BTServer_clientList() const;
+    int BTServer_clientCount();
+
 
     // Network
     void UDP_setRemote(const QString& addr, quint16 port);
     QList<QTcpSocket*> TCPServer_clientList() const;
+    int TCPServer_clientCount();
 public slots:
     // general
     void setPolling(bool enabled);
