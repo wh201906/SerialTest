@@ -139,11 +139,10 @@ void Connection::open()
             emit connectFailed();
             return;
         }
-        // m_lastBTArgument is updated there rather than in onConnected()
-        m_lastBTArgument = m_currBTArgument;
-        m_lastBTArgumentValid = true;
         changeState(Bound);
         // onClientConnected() will be called when client is connected
+        // onConnected() = changeState(Connected) + afterConnected()
+        afterConnected();
     }
     else if(m_type == TCP_Client)
     {
@@ -160,11 +159,10 @@ void Connection::open()
             emit connectFailed();
             return;
         }
-        // m_lastNetArgument is updated there rather than in onConnected()
-        m_lastNetArgument = m_currNetArgument;
-        m_lastNetArgumentValid = true;
         changeState(Bound);
         // onClientConnected() will be called when client is connected
+        // onConnected() = changeState(Connected) + afterConnected()
+        afterConnected();
     }
     else if(m_type == UDP)
     {
@@ -455,17 +453,30 @@ void Connection::onErrorOccurred()
             close(); // this will emit disconnected()
     }
     // untested yet
+    // for server, the m_state need to be changed there
     if(m_type == BT_Server)
     {
         QBluetoothServer::Error error;
         error = m_BTServer->error();
         qDebug() << "BT Server Error:" << error;
+        if(!m_BTServer->isListening())
+        {
+            // the server is always listening when the server is running, according to my implementation
+            onDisconnected();
+        }
     }
     else if(m_type == TCP_Server || m_type == UDP)
     {
         QAbstractSocket::SocketError error;
         if(m_type == TCP_Server)
+        {
             error = m_TCPServer->serverError();
+            if(!m_TCPServer->isListening())
+            {
+                // the server is always listening when the server is running, according to my implementation
+                onDisconnected();
+            }
+        }
         else // UDP
             error = m_UDPSocket->error();
         qDebug() << "Net Error:" << error;
@@ -532,20 +543,24 @@ qint64 Connection::write(const QByteArray &data)
 
 void Connection::onConnected()
 {
-    // m_lastXXArgument for servers is stored in open()
     qDebug() << "Connection::onConnected()";
     changeState(Connected);
+    afterConnected();
+}
+
+void Connection::afterConnected()
+{
     if(m_type == SerialPort)
     {
         m_lastSPArgument = m_currSPArgument;
         m_lastSPArgumentValid = true;
     }
-    else if(m_type == BT_Client)
+    else if(m_type == BT_Client || m_type == BT_Server)
     {
         m_lastBTArgument = m_currBTArgument;
         m_lastBTArgumentValid = true;
     }
-    else if(m_type == TCP_Client || m_type == UDP)
+    else if(m_type == TCP_Client || m_type == TCP_Server || m_type == UDP)
     {
         m_lastNetArgument = m_currNetArgument;
         m_lastNetArgumentValid = true;

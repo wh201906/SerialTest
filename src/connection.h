@@ -168,6 +168,7 @@ private:
     void BTServer_updateServicePort();
     void changeState(State newState);
     void Server_onClientDisconnectedHandler(QObject *clientObj);
+    void afterConnected();
 signals:
     void readyRead();
     void connected();
