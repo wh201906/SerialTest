@@ -39,6 +39,7 @@ private:
     Connection* m_connection = nullptr;
 
     QBluetoothDeviceDiscoveryAgent *BTClient_discoveryAgent = nullptr;
+    QHash<QString, int> m_shownBTDevices;
 
     void loadDevicesPreference(const QString &id);
 

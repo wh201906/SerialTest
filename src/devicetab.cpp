@@ -80,6 +80,7 @@ void DeviceTab::refreshTargetList()
     else if(currType == Connection::BT_Client)
     {
         ui->BTClient_deviceList->setRowCount(0);
+        m_shownBTDevices.clear();
         ui->BTClient_targetAddrBox->clear();
         ui->refreshButton->setText(tr("Searching..."));
 #ifdef Q_OS_ANDROID
@@ -90,6 +91,7 @@ void DeviceTab::refreshTargetList()
     else if(currType == Connection::BLE_Central)
     {
         ui->BLEC_deviceList->setRowCount(0);
+        m_shownBTDevices.clear();
         ui->BLEC_currAddrBox->clear();
         ui->refreshButton->setText(tr("Searching..."));
 #ifdef Q_OS_ANDROID
@@ -132,6 +134,8 @@ void DeviceTab::getBondedTarget(bool isBLE)
         deviceList->setItem(i, 0, new QTableWidgetItem(name));
         deviceList->setItem(i, 1, new QTableWidgetItem(address));
         deviceList->setItem(i, 2, new QTableWidgetItem(tr("Bonded")));
+        deviceList->setItem(i, 3, new QTableWidgetItem());
+        m_shownBTDevices[address] = i;
         deviceBox->addItem(address);
     }
 }
@@ -578,28 +582,28 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo& device)
     QString name = device.name();
     QString rssi = QString::number(device.rssi());
     Connection::Type currType = m_connection->type();
-    if(currType == Connection::BT_Client)
+    QTableWidget* deviceList = (currType == Connection::BT_Client) ? ui->BTClient_deviceList : ui->BLEC_deviceList;
+    QComboBox* deviceBox = (currType == Connection::BT_Client) ? ui->BTClient_targetAddrBox : ui->BLEC_currAddrBox;
+
+    int i;
+    if(m_shownBTDevices.contains(address))
     {
-        int i = ui->BTClient_deviceList->rowCount();
-        ui->BTClient_deviceList->setRowCount(i + 1);
-        ui->BTClient_deviceList->setItem(i, 0, new QTableWidgetItem(name));
-        ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
-        ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
-        ui->BTClient_deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
-        ui->BTClient_targetAddrBox->addItem(address);
-        ui->BTClient_targetAddrBox->adjustSize();
+        // just update rssi
+        i = m_shownBTDevices[address];
+        deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
     }
-    else if(currType == Connection::BLE_Central)
+    else
     {
-        int i = ui->BLEC_deviceList->rowCount();
-        ui->BLEC_deviceList->setRowCount(i + 1);
-        ui->BLEC_deviceList->setItem(i, 0, new QTableWidgetItem(name));
-        ui->BLEC_deviceList->setItem(i, 1, new QTableWidgetItem(address));
-        ui->BLEC_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
-        ui->BLEC_deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
-        ui->BLEC_currAddrBox->addItem(address);
-        ui->BLEC_currAddrBox->adjustSize();
+        i = deviceList->rowCount();
+        deviceList->setRowCount(i + 1);
+        deviceList->setItem(i, 0, new QTableWidgetItem(name));
+        deviceList->setItem(i, 1, new QTableWidgetItem(address));
+        deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
+        deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
+        deviceBox->addItem(address);
+        m_shownBTDevices[address] = i;
     }
+    ui->BTClient_targetAddrBox->adjustSize();
     qDebug() << name
              << address
              << device.isValid()
