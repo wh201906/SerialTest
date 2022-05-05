@@ -71,6 +71,7 @@ private slots:
     void on_SP_stopBitsBox_currentIndexChanged(int index);
     void on_SP_parityBox_currentIndexChanged(int index);
     void on_SP_flowControlBox_currentIndexChanged(int index);
+    void on_BLEC_connectButton_clicked();
 };
 
 #endif // DEVICETAB_H

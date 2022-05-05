@@ -26,21 +26,21 @@
    <item>
     <widget class="QSplitter" name="dataTabSplitter">
      <property name="styleSheet">
-      <string notr="true">QSplitter::handle {
-    background-color: #000000;
-}</string>
+      <string notr="true">QSplitter::handle {background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+  stop:0 rgba(255, 255, 255, 0), 
+  stop:0.3 rgba(255, 255, 255, 0), 
+  stop:0.5 rgba(128, 128, 128, 200),
+  stop:0.7 rgba(255, 255, 255, 0), 
+  stop:1 rgba(255, 255, 255, 0))}</string>
      </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="handleWidth">
-      <number>2</number>
+      <number>10</number>
      </property>
      <widget class="QWidget" name="verticalLayoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="bottomMargin">
-        <number>3</number>
-       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
@@ -153,9 +153,6 @@
      </widget>
      <widget class="QWidget" name="verticalLayoutWidget_2">
       <layout class="QVBoxLayout" name="verticalLayout_6">
-       <property name="topMargin">
-        <number>3</number>
-       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>

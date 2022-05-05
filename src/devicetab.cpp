@@ -20,9 +20,11 @@ DeviceTab::DeviceTab(QWidget *parent) :
 
     connect(ui->SP_portList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BTClient_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
+    connect(ui->BLEC_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->Net_remoteAddrEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
     connect(ui->Net_remotePortEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
     ui->SP_baudRateBox->installEventFilter(this);
+    ui->BLECentralListSplitter->handle(1)->installEventFilter(this);
 
     initUI();
     refreshTargetList();
@@ -85,6 +87,16 @@ void DeviceTab::refreshTargetList()
 #endif
         BTClient_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod);
     }
+    else if(currType == Connection::BLE_Central)
+    {
+        ui->BLEC_deviceList->setRowCount(0);
+        ui->BLEC_currAddrBox->clear();
+        ui->refreshButton->setText(tr("Searching..."));
+#ifdef Q_OS_ANDROID
+        getBondedTarget(true);
+#endif
+        BTClient_discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    }
 }
 
 #ifdef Q_OS_ANDROID
@@ -108,17 +120,19 @@ void DeviceTab::getBondedTarget(bool isBLE)
     QAndroidJniObject array = helper.callObjectMethod("getBondedDevices", "(Z)[Ljava/lang/String;", isBLE);
     int arraylen = env->GetArrayLength(array.object<jarray>());
     qDebug() << "arraylen:" << arraylen;
-    ui->BTClient_deviceList->setRowCount(arraylen);
+    QTableWidget* deviceList = isBLE ? ui->BLEC_deviceList : ui->BTClient_deviceList;
+    QComboBox* deviceBox = isBLE ? ui->BLEC_currAddrBox : ui->BTClient_targetAddrBox;
+    deviceList->setRowCount(arraylen);
     for(int i = 0; i < arraylen; i++)
     {
         QString info = QAndroidJniObject::fromLocalRef(env->GetObjectArrayElement(array.object<jobjectArray>(), i)).toString();
         QString address = info.left(info.indexOf(' '));
         QString name = info.right(info.length() - info.indexOf(' ') - 1);
         qDebug() << address << name;
-        ui->BTClient_deviceList->setItem(i, 0, new QTableWidgetItem(name));
-        ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
-        ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Bonded")));
-        ui->BTClient_targetAddrBox->addItem(address);
+        deviceList->setItem(i, 0, new QTableWidgetItem(name));
+        deviceList->setItem(i, 1, new QTableWidgetItem(address));
+        deviceList->setItem(i, 2, new QTableWidgetItem(tr("Bonded")));
+        deviceBox->addItem(address);
     }
 }
 #endif
@@ -128,6 +142,8 @@ void DeviceTab::initUI()
     ui->SP_portList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->BTClient_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->BTServer_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->BLEC_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->BLEC_UUIDList->header()->setSectionResizeMode(QHeaderView::Stretch);
     ui->Net_addrPortList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     ui->SP_flowControlBox->addItem(tr("NoFlowControl"));
@@ -173,8 +189,9 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     Connection::Type currType = ui->typeBox->currentData().value<Connection::Type>();
     QHostAddress currNetLocalAddr;
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->typeBox->model());
+    // need some code to check if BLE is supported
     QVector<Connection::Type> invalid =
-    {Connection::BLE_Central, Connection::BLE_Peripheral};
+    {Connection::BLE_Peripheral};
     const QMap<Connection::Type, QString> typeNameMap =
     {
         {Connection::SerialPort, tr("SerialPort")},
@@ -195,6 +212,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     // check Bluetooth adapters, add adapter info into adapterBox
     ui->BTClient_adapterBox->clear();
     ui->BTServer_adapterBox->clear();
+    ui->BTClient_adapterBox->clear();
     int id = 0;
 #ifdef Q_OS_ANDROID
     // need modify
@@ -208,8 +226,10 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
         QBluetoothLocalDevice dev(it->address());
         if(dev.isValid() && dev.hostMode() != QBluetoothLocalDevice::HostPoweredOff)
         {
-            ui->BTClient_adapterBox->addItem(QString("%1:%2").arg(id + 1).arg(it->name()), it->address().toString());
-            ui->BTServer_adapterBox->addItem(QString("%1:%2").arg(id + 1).arg(it->name()), it->address().toString());
+            QString name = QString("%1:%2").arg(id + 1).arg(it->name());
+            ui->BTClient_adapterBox->addItem(name, it->address().toString());
+            ui->BTServer_adapterBox->addItem(name, it->address().toString());
+            ui->BTClient_adapterBox->addItem(name, it->address().toString());
             id++;
         }
     }
@@ -223,10 +243,12 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     else if(id == 1)
     {
         ui->BTClient_localAdapterWidget->hide();
+        ui->BLEC_localAdapterWidget->hide();
     }
     else // more than one adapter
     {
         ui->BTClient_localAdapterWidget->show();
+        ui->BLEC_localAdapterWidget->show();
     }
     on_BTClient_adapterBox_activated(0); // index is unused there
     on_BTServer_adapterBox_activated(0); // index is unused there
@@ -312,6 +334,27 @@ bool DeviceTab::eventFilter(QObject *watched, QEvent *event)
         {
             m_connection->SP_setBaudRate(baud);
             emit argumentChanged();
+        }
+    }
+    else if(watched == ui->BLECentralListSplitter->handle(1))
+    {
+        // double click the handle to reset the size
+        if(event->type() == QEvent::MouseButtonDblClick)
+        {
+            QList<int> newSizes = ui->BLECentralListSplitter->sizes(); // 2 elements
+            newSizes[1] += newSizes[0];
+            newSizes[0] = newSizes[1] * 0.5;
+            newSizes[1] -= newSizes[0];
+            ui->BLECentralListSplitter->setSizes(newSizes);
+        }
+        // save layout when mouse button is released
+        else if(event->type() == QEvent::MouseButtonRelease)
+        {
+            QList<int> sizes = ui->BLECentralListSplitter->sizes(); // 2 elements
+            double ratio = (double)sizes[0] / (sizes[0] + sizes[1]);
+            settings->beginGroup("SerialTest_Connect");
+            settings->setValue("BLEC_SplitRatio", ratio);
+            settings->endGroup();
         }
     }
     return false;
@@ -440,7 +483,8 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
     Q_UNUSED(column);
     if(m_connection == nullptr)
         return;
-    if(m_connection->type() == Connection::SerialPort)
+    Connection::Type currType = m_connection->type();
+    if(currType == Connection::SerialPort)
     {
         ui->SP_portNameBox->setCurrentIndex(row);
 
@@ -473,9 +517,20 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
             }
         }
     }
-    else if(m_connection->type() == Connection::BT_Client)
+    else if(currType == Connection::BT_Client)
     {
         ui->BTClient_targetAddrBox->setCurrentIndex(row);
+    }
+    else if(currType == Connection::BLE_Central)
+    {
+        if(sender() == ui->BLEC_deviceList)
+        {
+            ui->BLEC_currAddrBox->setCurrentIndex(row);
+        }
+        else if(sender() == ui->BLEC_UUIDList)
+        {
+
+        }
     }
 }
 
@@ -517,19 +572,34 @@ void DeviceTab::BTdiscoverFinished()
     ui->refreshButton->setText(tr("Refresh"));
 }
 
-void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo & device)
+void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo& device)
 {
     QString address = device.address().toString();
     QString name = device.name();
     QString rssi = QString::number(device.rssi());
-    int i = ui->BTClient_deviceList->rowCount();
-    ui->BTClient_deviceList->setRowCount(i + 1);
-    ui->BTClient_deviceList->setItem(i, 0, new QTableWidgetItem(name));
-    ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
-    ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
-    ui->BTClient_deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
-    ui->BTClient_targetAddrBox->addItem(address);
-    ui->BTClient_targetAddrBox->adjustSize();
+    Connection::Type currType = m_connection->type();
+    if(currType == Connection::BT_Client)
+    {
+        int i = ui->BTClient_deviceList->rowCount();
+        ui->BTClient_deviceList->setRowCount(i + 1);
+        ui->BTClient_deviceList->setItem(i, 0, new QTableWidgetItem(name));
+        ui->BTClient_deviceList->setItem(i, 1, new QTableWidgetItem(address));
+        ui->BTClient_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
+        ui->BTClient_deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
+        ui->BTClient_targetAddrBox->addItem(address);
+        ui->BTClient_targetAddrBox->adjustSize();
+    }
+    else if(currType == Connection::BLE_Central)
+    {
+        int i = ui->BLEC_deviceList->rowCount();
+        ui->BLEC_deviceList->setRowCount(i + 1);
+        ui->BLEC_deviceList->setItem(i, 0, new QTableWidgetItem(name));
+        ui->BLEC_deviceList->setItem(i, 1, new QTableWidgetItem(address));
+        ui->BLEC_deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
+        ui->BLEC_deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
+        ui->BLEC_currAddrBox->addItem(address);
+        ui->BLEC_currAddrBox->adjustSize();
+    }
     qDebug() << name
              << address
              << device.isValid()
@@ -578,6 +648,11 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     {
         ui->targetListStack->setCurrentWidget(ui->BTServerListPage);
         ui->argsStack->setCurrentWidget(ui->BTServerArgsPage);
+    }
+    else if(newType == Connection::BLE_Central)
+    {
+        ui->targetListStack->setCurrentWidget(ui->BLECentralListPage);
+        ui->argsStack->setCurrentWidget(ui->BLECentralArgsPage);
     }
     else if(newType == Connection::TCP_Client)
     {
@@ -754,5 +829,13 @@ void DeviceTab::on_SP_flowControlBox_currentIndexChanged(int index)
         return;
     if(m_connection->SP_setFlowControl((QSerialPort::FlowControl)ui->SP_flowControlBox->currentData().toInt()))
         emit argumentChanged();
+}
+
+
+void DeviceTab::on_BLEC_connectButton_clicked()
+{
+    ui->BLEC_UUIDList->clear();
+    QLowEnergyController *controller;
+    controller = QLowEnergyController::createCentral(QBluetoothAddress(ui->BTClient_targetAddrBox->currentText()), QBluetoothAddress(ui->BTClient_adapterBox->currentData().toString()));
 }
 
