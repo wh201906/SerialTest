@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     dataTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, dataTab, &DataTab::onConnTypeChanged);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
+    connect(dataTab, &DataTab::updateRxTxLen, this, &MainWindow::updateRxTxLen);
     ui->funcTab->insertTab(1, dataTab, tr("Data"));
     plotTab = new PlotTab();
     connect(dataTab, &DataTab::setPlotDecoder, plotTab, &PlotTab::setDecoder);
