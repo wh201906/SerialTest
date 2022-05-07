@@ -11,6 +11,9 @@ public:
     Util();
     static QByteArray unescape(const QString& text, QTextCodec* codec);
     static void disableItem(QStandardItemModel* model, int id, bool enabled = false);
+#ifdef Q_OS_ANDROID
+    static void showToast(const QString &message, bool isLong = false);
+#endif
 private:
     static const char unescapeTable[];
     static int unescapeHelper(QStringRef text, int &result, int baseBits);

@@ -2,6 +2,7 @@
 #include "ui_ctrltab.h"
 
 #include "controlitem.h"
+#include "util.h"
 
 #include <QDateTime>
 #ifndef Q_OS_ANDROID
@@ -163,6 +164,7 @@ void CtrlTab::on_ctrl_exportButton_clicked()
         ui->ctrl_itemArea->setVisible(false);
         ui->ctrl_dataEdit->setVisible(true);
         ui->ctrl_exportButton->setText(tr("Done"));
+        Util::showToast(tr("Copied to clipboard"));
     }
     else
     {

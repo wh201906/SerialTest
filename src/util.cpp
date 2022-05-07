@@ -8,6 +8,10 @@
 #include <QApplication>
 #include <QPlainTextEdit>
 #include <QLineEdit>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#include <QAndroidJniEnvironment>
+#endif
 
 Util::Util()
 {
@@ -130,8 +134,26 @@ void Util::disableItem(QStandardItemModel* model, int id, bool enabled)
     item->setFlags(flags);
 }
 
+
+#ifdef Q_OS_ANDROID
+void Util::showToast(const QString& message, bool isLong)
+{
+    // all the magic must happen on Android UI thread
+    QtAndroid::runOnAndroidThread([&]
+    {
+        QAndroidJniObject javaString = QAndroidJniObject::fromString(message);
+        QAndroidJniObject toast = QAndroidJniObject::callStaticObjectMethod("android/widget/Toast", "makeText",
+                "(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;",
+                QtAndroid::androidActivity().object(),
+                javaString.object(),
+                jint(isLong ? 1 : 0));
+        toast.callMethod<void>("show");
+    });
+}
+#endif
+
 // use TapAndHold gesture to show the context menu
-// call widget->grabGesture(Qt::TapAndHoldGesture) then use the event filte
+// call widget->grabGesture(Qt::TapAndHoldGesture) then use the event filter
 // for QLineEdit, the edit menu will be shown
 // for QPlainTextEdit, the parent's context menu will be shown
 // useless now...

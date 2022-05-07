@@ -2,6 +2,7 @@
 #define DEVICETAB_H
 
 #include <QWidget>
+#include <QTreeWidget>
 #include <QBluetoothHostInfo>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QSerialPortInfo>
@@ -41,6 +42,9 @@ private:
     QBluetoothDeviceDiscoveryAgent *BTClient_discoveryAgent = nullptr;
     QHash<QString, int> m_shownBTDevices;
 
+    QLowEnergyController *m_BLEController = nullptr;
+    QHash<QBluetoothUuid, QTreeWidgetItem*> m_discoveredBLEServices;
+
     void loadDevicesPreference(const QString &id);
 
     void initUI();
@@ -48,6 +52,8 @@ private:
     void getBondedTarget(bool isBLE);
 #endif
     void setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress = QBluetoothAddress());
+    void BLEC_addService(const QBluetoothUuid &serviceUUID, QTreeWidgetItem *parentItem = nullptr);
+    QString BLE_getCharacteristicPropertyString(const QLowEnergyCharacteristic &c);
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();
@@ -73,6 +79,8 @@ private slots:
     void on_SP_parityBox_currentIndexChanged(int index);
     void on_SP_flowControlBox_currentIndexChanged(int index);
     void on_BLEC_connectButton_clicked();
+    void BLEC_onRootServiceDiscovered(const QBluetoothUuid &newService);
+    void BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState);
 };
 
 #endif // DEVICETAB_H

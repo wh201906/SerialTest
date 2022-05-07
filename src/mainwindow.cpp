@@ -235,6 +235,14 @@ void MainWindow::updateStatusBar()
         text.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->BTServer_clientCount()));
         connArgsLabel->setText(text);
     }
+    else if(type == Connection::BLE_Central)
+    {
+        serialPinout->hide();
+    }
+    else if(type == Connection::BLE_Peripheral)
+    {
+        serialPinout->hide();
+    }
     else if(type == Connection::TCP_Client)
     {
         serialPinout->hide();

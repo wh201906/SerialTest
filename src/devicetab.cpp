@@ -143,12 +143,13 @@ void DeviceTab::getBondedTarget(bool isBLE)
 
 void DeviceTab::initUI()
 {
-    ui->SP_portList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->BTClient_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->BTServer_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->BLEC_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->BLEC_UUIDList->header()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->Net_addrPortList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->SP_portList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->BTClient_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->BTServer_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->BLEC_deviceList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->BLEC_UUIDList->header()->setStretchLastSection(false); // when stretchLastSection is true, sectionResizeMode will be ignored
+    ui->BLEC_UUIDList->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->Net_addrPortList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     ui->SP_flowControlBox->addItem(tr("NoFlowControl"));
     ui->SP_flowControlBox->addItem(tr("HardwareControl"));
@@ -216,7 +217,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     // check Bluetooth adapters, add adapter info into adapterBox
     ui->BTClient_adapterBox->clear();
     ui->BTServer_adapterBox->clear();
-    ui->BTClient_adapterBox->clear();
+    ui->BLEC_adapterBox->clear();
     int id = 0;
 #ifdef Q_OS_ANDROID
     // need modify
@@ -233,7 +234,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
             QString name = QString("%1:%2").arg(id + 1).arg(it->name());
             ui->BTClient_adapterBox->addItem(name, it->address().toString());
             ui->BTServer_adapterBox->addItem(name, it->address().toString());
-            ui->BTClient_adapterBox->addItem(name, it->address().toString());
+            ui->BLEC_adapterBox->addItem(name, it->address().toString());
             id++;
         }
     }
@@ -838,8 +839,99 @@ void DeviceTab::on_SP_flowControlBox_currentIndexChanged(int index)
 
 void DeviceTab::on_BLEC_connectButton_clicked()
 {
+    // stage 1: connect to device
     ui->BLEC_UUIDList->clear();
-    QLowEnergyController *controller;
-    controller = QLowEnergyController::createCentral(QBluetoothAddress(ui->BTClient_targetAddrBox->currentText()), QBluetoothAddress(ui->BTClient_adapterBox->currentData().toString()));
+    if(m_BLEController != nullptr)
+    {
+        m_BLEController->disconnectFromDevice();
+        delete m_BLEController;
+        m_BLEController = nullptr;
+    }
+    m_BLEController = QLowEnergyController::createCentral(QBluetoothAddress(ui->BLEC_currAddrBox->currentText()), QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString()));
+    connect(m_BLEController, &QLowEnergyController::connected, m_BLEController, &QLowEnergyController::discoverServices);
+    connect(m_BLEController, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), [ = ](QLowEnergyController::Error newError)
+    {
+        qDebug() << newError;
+    });
+
+    connect(m_BLEController, &QLowEnergyController::serviceDiscovered, this, &DeviceTab::BLEC_onRootServiceDiscovered);
+    m_discoveredBLEServices.clear();
+    m_BLEController->connectToDevice();
 }
 
+void DeviceTab::BLEC_onRootServiceDiscovered(const QBluetoothUuid& newService)
+{
+    BLEC_addService(newService);
+}
+
+void DeviceTab::BLEC_addService(const QBluetoothUuid& serviceUUID, QTreeWidgetItem* parentItem)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setText(0, serviceUUID.toString());
+    item->setText(1, tr("Service"));
+    if(parentItem == nullptr)
+        ui->BLEC_UUIDList->addTopLevelItem(item);
+    else
+        parentItem->addChild(item);
+    auto service = m_BLEController->createServiceObject(serviceUUID);
+    m_discoveredBLEServices[serviceUUID] = item;
+    connect(service, &QLowEnergyService::stateChanged, this, &DeviceTab::BLEC_onServiceDetailDiscovered);
+    service->discoverDetails();
+}
+
+void DeviceTab::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState)
+{
+    auto service = qobject_cast<QLowEnergyService*>(sender());
+    QTreeWidgetItem* parentItem = m_discoveredBLEServices[service->serviceUuid()];
+    if(newState == QLowEnergyService::InvalidService)
+        service->deleteLater();
+    else if(newState == QLowEnergyService::ServiceDiscovered)
+    {
+        // add included services
+        const QList<QBluetoothUuid> includedServices = service->includedServices();
+        for(auto it = includedServices.cbegin(); it != includedServices.cend(); ++it)
+        {
+            // prevent circular dependency
+            if(m_discoveredBLEServices.contains(*it))
+                continue;
+            BLEC_addService(*it, parentItem);
+        }
+        // add characters
+        const QList<QLowEnergyCharacteristic> chars = service->characteristics();
+        for(auto it = chars.cbegin(); it != chars.cend(); ++it)
+        {
+            it->properties();
+            QTreeWidgetItem* item = new QTreeWidgetItem;
+            item->setText(0, it->uuid().toString());
+            item->setText(1, tr("Characteristic"));
+            item->setText(2, BLE_getCharacteristicPropertyString(*it));
+            parentItem->addChild(item);
+        }
+        service->deleteLater();
+    }
+}
+
+QString DeviceTab::BLE_getCharacteristicPropertyString(const QLowEnergyCharacteristic& c)
+{
+    QString result;
+    auto properties = c.properties();
+    const QMap<QLowEnergyCharacteristic::PropertyType, QString> map =
+    {
+        {QLowEnergyCharacteristic::Broadcasting, tr("Broadcast")},
+        {QLowEnergyCharacteristic::Read, tr("Read")},
+        {QLowEnergyCharacteristic::WriteNoResponse, tr("WriteNoResponse")},
+        {QLowEnergyCharacteristic::Write, tr("Write")},
+        {QLowEnergyCharacteristic::Notify, tr("Notify")},
+        {QLowEnergyCharacteristic::Indicate, tr("Indicate")},
+        {QLowEnergyCharacteristic::WriteSigned, tr("WriteSigned")},
+        {QLowEnergyCharacteristic::ExtendedProperty, tr("ExtendedProperty")}
+    };
+    for(auto it = map.cbegin(); it != map.cend(); ++it)
+    {
+        if(properties.testFlag(it.key()))
+            result += ", " + it.value();
+    }
+    if(!result.isEmpty())
+        result.remove(0, 2);
+    return result;
+}
