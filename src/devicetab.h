@@ -53,6 +53,8 @@ private:
 #endif
     void setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress = QBluetoothAddress());
     void BLEC_addService(const QBluetoothUuid &serviceUUID, QTreeWidgetItem *parentItem = nullptr);
+    void BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeWidgetItem *parentItem);
+    void BLEC_addDescriptor(const QLowEnergyDescriptor &descriptor, QTreeWidgetItem *parentItem);
     QString BLE_getCharacteristicPropertyString(const QLowEnergyCharacteristic &c);
 signals:
     void connTypeChanged(Connection::Type type);

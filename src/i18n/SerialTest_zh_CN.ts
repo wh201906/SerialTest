@@ -4,7 +4,7 @@
 <context>
     <name>Connection</name>
     <message>
-        <location filename="../connection.cpp" line="324"/>
+        <location filename="../connection.cpp" line="322"/>
         <source>Bluetooth SPP Service</source>
         <translation></translation>
     </message>
@@ -161,72 +161,77 @@
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="64"/>
-        <location filename="../ctrltab.cpp" line="83"/>
-        <location filename="../ctrltab.cpp" line="111"/>
+        <location filename="../ctrltab.cpp" line="84"/>
+        <location filename="../ctrltab.cpp" line="112"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="71"/>
-        <location filename="../ctrltab.cpp" line="145"/>
-        <location filename="../ctrltab.cpp" line="172"/>
+        <location filename="../ctrltab.cpp" line="146"/>
+        <location filename="../ctrltab.cpp" line="174"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="86"/>
+        <location filename="../ctrltab.cpp" line="87"/>
         <source>Paste the exported data in the box.</source>
         <translation>将导出的数据粘贴到此框中。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="90"/>
-        <location filename="../ctrltab.cpp" line="165"/>
+        <location filename="../ctrltab.cpp" line="91"/>
+        <location filename="../ctrltab.cpp" line="166"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="117"/>
+        <location filename="../ctrltab.cpp" line="118"/>
         <source>Import Control Panel</source>
         <translation>导入控制面板</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="137"/>
-        <location filename="../ctrltab.cpp" line="149"/>
-        <location filename="../ctrltab.cpp" line="177"/>
-        <location filename="../ctrltab.cpp" line="195"/>
+        <location filename="../ctrltab.cpp" line="138"/>
+        <location filename="../ctrltab.cpp" line="150"/>
+        <location filename="../ctrltab.cpp" line="179"/>
+        <location filename="../ctrltab.cpp" line="197"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="137"/>
-        <location filename="../ctrltab.cpp" line="195"/>
+        <location filename="../ctrltab.cpp" line="138"/>
+        <location filename="../ctrltab.cpp" line="197"/>
         <source>Successed!</source>
         <translation>成功！</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="137"/>
-        <location filename="../ctrltab.cpp" line="195"/>
+        <location filename="../ctrltab.cpp" line="138"/>
+        <location filename="../ctrltab.cpp" line="197"/>
         <source>Failed!</source>
         <translation>失败！</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="149"/>
-        <location filename="../ctrltab.cpp" line="177"/>
+        <location filename="../ctrltab.cpp" line="150"/>
+        <location filename="../ctrltab.cpp" line="179"/>
         <source>Please add item first</source>
         <translation>请先添加控制项</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="153"/>
+        <location filename="../ctrltab.cpp" line="154"/>
         <source>Copy all text in this box and save it to somewhere.</source>
         <translation>将此文本框中的内容复制并保存。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="154"/>
+        <location filename="../ctrltab.cpp" line="155"/>
         <source>To import, click the Import button, then paste the text back.</source>
         <translation>需要导入时，单击“导入”按钮，将复制的内容粘贴回来即可。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="183"/>
+        <location filename="../ctrltab.cpp" line="167"/>
+        <source>Copied to clipboard</source>
+        <translation>已复制到剪贴板</translation>
+    </message>
+    <message>
+        <location filename="../ctrltab.cpp" line="185"/>
         <source>Export Control Panel</source>
         <translation>导出控制面板</translation>
     </message>
@@ -241,7 +246,7 @@
     <message>
         <location filename="../ui/datatab.ui" line="59"/>
         <location filename="../ui/datatab.ui" line="174"/>
-        <location filename="../ui/datatab.ui" line="296"/>
+        <location filename="../ui/datatab.ui" line="299"/>
         <source>Hex</source>
         <translation>16进制</translation>
     </message>
@@ -288,85 +293,85 @@
         <translation>已发送：</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="255"/>
+        <location filename="../ui/datatab.ui" line="258"/>
         <source>Send</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="266"/>
-        <location filename="../ui/datatab.ui" line="320"/>
+        <location filename="../ui/datatab.ui" line="269"/>
+        <location filename="../ui/datatab.ui" line="323"/>
         <location filename="../datatab.cpp" line="182"/>
         <source>Suffix</source>
         <translation>后缀</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="291"/>
+        <location filename="../ui/datatab.ui" line="294"/>
         <source>String</source>
         <translation>字符串</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="301"/>
+        <location filename="../ui/datatab.ui" line="304"/>
         <source>\r\n</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="306"/>
+        <location filename="../ui/datatab.ui" line="309"/>
         <source>\n</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="343"/>
-        <location filename="../ui/datatab.ui" line="367"/>
+        <location filename="../ui/datatab.ui" line="346"/>
+        <location filename="../ui/datatab.ui" line="370"/>
         <source>Repeat</source>
         <translation>重复</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="377"/>
+        <location filename="../ui/datatab.ui" line="380"/>
         <source>ms</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="400"/>
+        <location filename="../ui/datatab.ui" line="403"/>
         <source>Flow Control</source>
         <translation>流控</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="418"/>
+        <location filename="../ui/datatab.ui" line="421"/>
         <source>DTR</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="425"/>
+        <location filename="../ui/datatab.ui" line="428"/>
         <source>RTS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="448"/>
+        <location filename="../ui/datatab.ui" line="451"/>
         <source>Encoding</source>
         <translation>编码</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="476"/>
+        <location filename="../ui/datatab.ui" line="479"/>
         <source>UTF-8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="481"/>
+        <location filename="../ui/datatab.ui" line="484"/>
         <source>GB18030</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="486"/>
+        <location filename="../ui/datatab.ui" line="489"/>
         <source>BIG5</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="494"/>
+        <location filename="../ui/datatab.ui" line="497"/>
         <source>Set</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../ui/datatab.ui" line="501"/>
+        <location filename="../ui/datatab.ui" line="504"/>
         <source>Unescape</source>
         <translation>转义</translation>
     </message>
@@ -421,8 +426,8 @@
     <name>DeviceTab</name>
     <message>
         <location filename="../ui/devicetab.ui" line="59"/>
-        <location filename="../devicetab.cpp" line="473"/>
-        <location filename="../devicetab.cpp" line="586"/>
+        <location filename="../devicetab.cpp" line="585"/>
+        <location filename="../devicetab.cpp" line="725"/>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
@@ -469,22 +474,23 @@
         <translation>波特率</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="354"/>
+        <location filename="../ui/devicetab.ui" line="430"/>
+        <location filename="../ui/devicetab.ui" line="527"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="398"/>
+        <location filename="../ui/devicetab.ui" line="571"/>
         <source>StopBits:</source>
         <translation>停止位：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="512"/>
+        <location filename="../ui/devicetab.ui" line="685"/>
         <source>FlowControl:</source>
         <translation>流控：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="505"/>
+        <location filename="../ui/devicetab.ui" line="678"/>
         <source>DataBits:</source>
         <translation>数据位：</translation>
     </message>
@@ -505,197 +511,236 @@
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="176"/>
-        <location filename="../ui/devicetab.ui" line="718"/>
+        <location filename="../ui/devicetab.ui" line="342"/>
+        <location filename="../ui/devicetab.ui" line="805"/>
         <source>Local Adapter:</source>
         <translation>本机适配器：</translation>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="226"/>
         <location filename="../ui/devicetab.ui" line="275"/>
+        <location filename="../ui/devicetab.ui" line="392"/>
         <source>Device Name</source>
         <translation>设备名</translation>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="241"/>
-        <location filename="../ui/devicetab.ui" line="290"/>
+        <location filename="../ui/devicetab.ui" line="407"/>
         <source>RSSI</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="324"/>
+        <location filename="../ui/devicetab.ui" line="444"/>
+        <source>UUID</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="454"/>
+        <source>Properties</source>
+        <translation>属性</translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="459"/>
+        <source>Name</source>
+        <translation>名称</translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="497"/>
         <source>IP/Hostname</source>
         <translation>IP/主机名</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="334"/>
+        <location filename="../ui/devicetab.ui" line="507"/>
         <source>Alias</source>
         <translation>别名</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="405"/>
+        <location filename="../ui/devicetab.ui" line="578"/>
         <source>Port:</source>
         <translation>端口：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="422"/>
+        <location filename="../ui/devicetab.ui" line="595"/>
         <source>1200</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="427"/>
+        <location filename="../ui/devicetab.ui" line="600"/>
         <source>2400</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="432"/>
+        <location filename="../ui/devicetab.ui" line="605"/>
         <source>4800</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="437"/>
+        <location filename="../ui/devicetab.ui" line="610"/>
         <source>9600</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="442"/>
+        <location filename="../ui/devicetab.ui" line="615"/>
         <source>19200</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="447"/>
+        <location filename="../ui/devicetab.ui" line="620"/>
         <source>38400</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="452"/>
+        <location filename="../ui/devicetab.ui" line="625"/>
         <source>57600</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="457"/>
+        <location filename="../ui/devicetab.ui" line="630"/>
         <source>76800</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="462"/>
+        <location filename="../ui/devicetab.ui" line="635"/>
         <source>115200</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="467"/>
+        <location filename="../ui/devicetab.ui" line="640"/>
         <source>128000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="472"/>
+        <location filename="../ui/devicetab.ui" line="645"/>
         <source>230400</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="477"/>
+        <location filename="../ui/devicetab.ui" line="650"/>
         <source>256000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="482"/>
+        <location filename="../ui/devicetab.ui" line="655"/>
         <source>460800</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="487"/>
+        <location filename="../ui/devicetab.ui" line="660"/>
         <source>512000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="492"/>
+        <location filename="../ui/devicetab.ui" line="665"/>
         <source>576000</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="497"/>
+        <location filename="../ui/devicetab.ui" line="670"/>
         <source>921600</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="329"/>
+        <location filename="../ui/devicetab.ui" line="502"/>
         <source>Port</source>
         <translation>端口</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="556"/>
+        <location filename="../ui/devicetab.ui" line="729"/>
         <source>Parity:</source>
         <translation>校验：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="529"/>
+        <location filename="../ui/devicetab.ui" line="702"/>
         <source>BaudRate:</source>
         <translation>波特率：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="563"/>
+        <location filename="../ui/devicetab.ui" line="736"/>
         <source>Advanced</source>
         <translation>高级</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="586"/>
+        <location filename="../ui/devicetab.ui" line="759"/>
+        <location filename="../ui/devicetab.ui" line="891"/>
         <source>Target Address:</source>
         <translation>目标地址：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="632"/>
+        <location filename="../ui/devicetab.ui" line="905"/>
+        <source>Rx Service UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="919"/>
+        <source>Rx Characteristic UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="933"/>
+        <source>Tx Service UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="947"/>
+        <source>Tx Characteristic UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="1024"/>
         <source>Local Address:</source>
         <translation>本机地址：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="642"/>
+        <location filename="../ui/devicetab.ui" line="1034"/>
         <source>Local Port:</source>
         <translation>本机端口号：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="652"/>
-        <location filename="../devicetab.cpp" line="571"/>
+        <location filename="../ui/devicetab.ui" line="1044"/>
+        <location filename="../devicetab.cpp" line="710"/>
         <source>Remote Address:</source>
         <translation>远端地址：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="662"/>
+        <location filename="../ui/devicetab.ui" line="1054"/>
         <source>Remote Port:</source>
         <translation>远端端口号：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="678"/>
+        <location filename="../ui/devicetab.ui" line="1070"/>
         <source>In UDP mode, 
 you can change the remote address and port on the fly.</source>
         <translation>在UDP模式下，你可以随时直接修改远端地址和端口号。</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="731"/>
+        <location filename="../ui/devicetab.ui" line="818"/>
         <source>Service Name:</source>
         <translation>服务名称：</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="738"/>
-        <location filename="../devicetab.cpp" line="625"/>
+        <location filename="../ui/devicetab.ui" line="825"/>
+        <location filename="../devicetab.cpp" line="764"/>
         <source>SerialTest_BT</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="767"/>
+        <location filename="../ui/devicetab.ui" line="1107"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="777"/>
+        <location filename="../ui/devicetab.ui" line="1117"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="81"/>
+        <location filename="../devicetab.cpp" line="85"/>
+        <location filename="../devicetab.cpp" line="96"/>
         <source>Searching...</source>
         <translation>搜索中...</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="119"/>
+        <location filename="../devicetab.cpp" line="136"/>
         <source>Bonded</source>
         <translation>已配对</translation>
     </message>
@@ -705,13 +750,15 @@ you can change the remote address and port on the fly.</source>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="236"/>
-        <location filename="../ui/devicetab.ui" line="285"/>
+        <location filename="../ui/devicetab.ui" line="402"/>
+        <location filename="../ui/devicetab.ui" line="449"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="231"/>
         <location filename="../ui/devicetab.ui" line="280"/>
+        <location filename="../ui/devicetab.ui" line="397"/>
         <source>MAC Address</source>
         <translation>MAC地址</translation>
     </message>
@@ -720,138 +767,199 @@ you can change the remote address and port on the fly.</source>
         <translation type="vanished">设备</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="132"/>
+        <location filename="../devicetab.cpp" line="154"/>
         <source>NoFlowControl</source>
         <translation>无流控</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="133"/>
+        <location filename="../devicetab.cpp" line="155"/>
         <source>HardwareControl</source>
         <translation>软件流控</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="134"/>
+        <location filename="../devicetab.cpp" line="156"/>
         <source>SoftwareControl</source>
         <translation>硬件流控</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="139"/>
+        <location filename="../devicetab.cpp" line="161"/>
         <source>NoParity</source>
         <translation>无校验</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="140"/>
+        <location filename="../devicetab.cpp" line="162"/>
         <source>EvenParity</source>
         <translation>偶校验</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="141"/>
+        <location filename="../devicetab.cpp" line="163"/>
         <source>OddParity</source>
         <translation>奇校验</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="142"/>
+        <location filename="../devicetab.cpp" line="164"/>
         <source>SpaceParity</source>
         <translation>固定0</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="143"/>
+        <location filename="../devicetab.cpp" line="165"/>
         <source>MarkParity</source>
         <translation>固定1</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="179"/>
+        <location filename="../devicetab.cpp" line="202"/>
         <source>SerialPort</source>
         <translation>串口</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="180"/>
+        <location filename="../devicetab.cpp" line="203"/>
         <source>Bluetooth Client</source>
         <translation>蓝牙客户端</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="181"/>
+        <location filename="../devicetab.cpp" line="204"/>
         <source>Bluetooth Server</source>
         <translation>蓝牙服务器</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="182"/>
+        <location filename="../devicetab.cpp" line="205"/>
         <source>BLE Central</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="183"/>
+        <location filename="../devicetab.cpp" line="206"/>
         <source>BLE Peripheral</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="184"/>
+        <location filename="../devicetab.cpp" line="207"/>
         <source>TCP Client</source>
         <translation>TCP客户端</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="185"/>
+        <location filename="../devicetab.cpp" line="208"/>
         <source>TCP Server</source>
         <translation>TCP服务器</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="186"/>
+        <location filename="../devicetab.cpp" line="209"/>
         <source>UDP</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="295"/>
-        <location filename="../devicetab.cpp" line="312"/>
-        <location filename="../devicetab.cpp" line="330"/>
-        <location filename="../devicetab.cpp" line="343"/>
-        <location filename="../devicetab.cpp" line="363"/>
-        <location filename="../devicetab.cpp" line="376"/>
-        <location filename="../devicetab.cpp" line="512"/>
-        <location filename="../devicetab.cpp" line="514"/>
+        <location filename="../devicetab.cpp" line="315"/>
+        <location filename="../devicetab.cpp" line="331"/>
+        <source>Disconnect</source>
+        <translation>断开</translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="395"/>
+        <location filename="../devicetab.cpp" line="412"/>
+        <location filename="../devicetab.cpp" line="430"/>
+        <location filename="../devicetab.cpp" line="443"/>
+        <location filename="../devicetab.cpp" line="463"/>
+        <location filename="../devicetab.cpp" line="476"/>
+        <location filename="../devicetab.cpp" line="639"/>
+        <location filename="../devicetab.cpp" line="641"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="295"/>
+        <location filename="../devicetab.cpp" line="395"/>
         <source>The port has been opened.</source>
         <translation>串口已打开。</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="312"/>
-        <location filename="../devicetab.cpp" line="343"/>
+        <location filename="../devicetab.cpp" line="412"/>
+        <location filename="../devicetab.cpp" line="443"/>
         <source>The device is already connected.</source>
         <translation>设备已连接。</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="330"/>
-        <location filename="../devicetab.cpp" line="363"/>
+        <location filename="../devicetab.cpp" line="430"/>
+        <location filename="../devicetab.cpp" line="463"/>
         <source>The server is already running.</source>
         <translation>服务器正在运行中。</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="376"/>
+        <location filename="../devicetab.cpp" line="476"/>
         <source>(Something to say)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="485"/>
+        <location filename="../devicetab.cpp" line="610"/>
         <source>Discovered</source>
         <translation>已发现</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="512"/>
+        <location filename="../devicetab.cpp" line="639"/>
         <source>Please close the current connection first.</source>
         <translation>请先关闭当前连接。</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="514"/>
+        <location filename="../devicetab.cpp" line="641"/>
         <source>Unsupported interface.</source>
         <translation>尚未支持此连接类型。</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="544"/>
+        <location filename="../devicetab.cpp" line="678"/>
         <source>Remote Address/Name:</source>
         <translation>远端地址/主机名：</translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="884"/>
+        <source>Service</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="900"/>
+        <source>Characteristic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="913"/>
+        <source>Descriptor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="950"/>
+        <source>Broadcast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="951"/>
+        <source>Read</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="952"/>
+        <source>WriteNoResponse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="953"/>
+        <source>Write</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="954"/>
+        <source>Notify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="955"/>
+        <source>Indicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="956"/>
+        <source>WriteSigned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../devicetab.cpp" line="957"/>
+        <source>ExtendedProperty</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -875,47 +983,53 @@ you can change the remote address and port on the fly.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="68"/>
+        <location filename="../mainwindow.cpp" line="77"/>
         <source>Data</source>
         <translation>数据</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="71"/>
+        <location filename="../mainwindow.cpp" line="80"/>
         <source>Plot</source>
         <translation>绘图</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="75"/>
+        <location filename="../mainwindow.cpp" line="84"/>
         <source>Control</source>
         <translation>控制</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="29"/>
+        <location filename="../mainwindow.cpp" line="31"/>
         <source>On Top</source>
         <translation>窗口置顶</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="36"/>
+        <location filename="../mainwindow.cpp" line="38"/>
         <source>Dock all windows</source>
         <translation>吸附所有悬浮窗口</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="89"/>
+        <location filename="../mainwindow.cpp" line="98"/>
         <source>Ver: </source>
         <translation>版本： </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="90"/>
+        <location filename="../mainwindow.cpp" line="99"/>
         <source>Check Update</source>
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="136"/>
+        <location filename="../mainwindow.cpp" line="145"/>
         <source>Plz connect to a port first.</source>
         <translation>请先打开串口。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="270"/>
+        <location filename="../mainwindow.cpp" line="236"/>
+        <location filename="../mainwindow.cpp" line="255"/>
+        <source>Connected Clients</source>
+        <translation>客户端数</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="309"/>
         <source>Cannot open the serial port.</source>
         <translation>无法打开串口。</translation>
     </message>
@@ -924,96 +1038,100 @@ you can change the remote address and port on the fly.</source>
         <translation type="vanished">串口已打开。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="183"/>
+        <location filename="../mainwindow.cpp" line="192"/>
         <source>NoParity</source>
         <translation>无校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="183"/>
+        <location filename="../mainwindow.cpp" line="192"/>
         <source>EvenParity</source>
         <translation>偶校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="183"/>
+        <location filename="../mainwindow.cpp" line="192"/>
         <source>OddParity</source>
         <translation>奇校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="183"/>
+        <location filename="../mainwindow.cpp" line="192"/>
         <source>SpaceParity</source>
         <translation>固定0</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="183"/>
+        <location filename="../mainwindow.cpp" line="192"/>
         <source>MarkParity</source>
         <translation>固定1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="182"/>
+        <location filename="../mainwindow.cpp" line="191"/>
         <source>OneStop</source>
         <translation>1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="63"/>
+        <location filename="../mainwindow.cpp" line="71"/>
         <source>Connect</source>
         <translation>连接</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="182"/>
+        <location filename="../mainwindow.cpp" line="191"/>
         <source>TwoStop</source>
         <translation>2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="182"/>
+        <location filename="../mainwindow.cpp" line="191"/>
         <source>OneAndHalfStop</source>
         <translation>1.5</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="188"/>
+        <location filename="../mainwindow.cpp" line="197"/>
         <source>BaudRate</source>
         <translation>波特率</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="189"/>
+        <location filename="../mainwindow.cpp" line="198"/>
         <source>DataBits</source>
         <translation>数据位</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="190"/>
+        <location filename="../mainwindow.cpp" line="199"/>
         <source>StopBits</source>
         <translation>停止位</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="191"/>
+        <location filename="../mainwindow.cpp" line="200"/>
         <source>Parity</source>
         <translation>校验</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="206"/>
-        <location filename="../mainwindow.cpp" line="219"/>
+        <location filename="../mainwindow.cpp" line="215"/>
+        <source>Remote</source>
+        <translation>远端</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="228"/>
         <source>Address</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="208"/>
+        <location filename="../mainwindow.cpp" line="217"/>
         <source>Device Name</source>
         <translation>设备名</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="214"/>
+        <location filename="../mainwindow.cpp" line="223"/>
         <source>Local</source>
         <translation>本机</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="225"/>
-        <location filename="../mainwindow.cpp" line="227"/>
-        <location filename="../mainwindow.cpp" line="229"/>
+        <location filename="../mainwindow.cpp" line="264"/>
+        <location filename="../mainwindow.cpp" line="266"/>
+        <location filename="../mainwindow.cpp" line="268"/>
         <source>State</source>
         <translation>状态</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="186"/>
-        <location filename="../mainwindow.cpp" line="197"/>
+        <location filename="../mainwindow.cpp" line="195"/>
+        <location filename="../mainwindow.cpp" line="206"/>
         <source>Port</source>
         <translation>端口</translation>
     </message>
@@ -1026,30 +1144,30 @@ you can change the remote address and port on the fly.</source>
         <translation type="vanished">请先打开蓝牙！</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="236"/>
+        <location filename="../mainwindow.cpp" line="275"/>
         <source>Rx</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="238"/>
+        <location filename="../mainwindow.cpp" line="277"/>
         <source>Tx</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="136"/>
-        <location filename="../mainwindow.cpp" line="270"/>
-        <location filename="../mainwindow.cpp" line="274"/>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="145"/>
+        <location filename="../mainwindow.cpp" line="309"/>
+        <location filename="../mainwindow.cpp" line="313"/>
+        <location filename="../mainwindow.cpp" line="335"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="274"/>
+        <location filename="../mainwindow.cpp" line="313"/>
         <source>Cannot establish the connection.</source>
         <translation>无法建立连接。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="296"/>
+        <location filename="../mainwindow.cpp" line="335"/>
         <source>No port is opened.</source>
         <translation>未打开串口。</translation>
     </message>

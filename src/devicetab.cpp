@@ -196,7 +196,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->typeBox->model());
     // need some code to check if BLE is supported
     QVector<Connection::Type> invalid =
-    {Connection::BLE_Peripheral};
+    {Connection::BLE_Central, Connection::BLE_Peripheral};
     const QMap<Connection::Type, QString> typeNameMap =
     {
         {Connection::SerialPort, tr("SerialPort")},
@@ -311,6 +311,10 @@ void DeviceTab::onClientCountChanged()
         {
             ui->BTServer_deviceList->setItem(i, 0, new QTableWidgetItem(list[i]->peerName()));
             ui->BTServer_deviceList->setItem(i, 1, new QTableWidgetItem(list[i]->peerAddress().toString()));
+            QPushButton* disconnectButton = new QPushButton;
+            disconnectButton->setText(tr("Disconnect"));
+            connect(disconnectButton, &QPushButton::clicked, list[i], &QBluetoothSocket::disconnectFromService);
+            ui->BTServer_deviceList->setIndexWidget(ui->BTServer_deviceList->model()->index(i, 2), disconnectButton);
         }
     }
     else if(m_connection->type() == Connection::TCP_Server)
@@ -322,7 +326,11 @@ void DeviceTab::onClientCountChanged()
         {
             ui->Net_addrPortList->setItem(i, 0, new QTableWidgetItem(list[i]->peerAddress().toString()));
             ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->peerPort()));
-            ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->peerName()));
+            ui->Net_addrPortList->setItem(i, 2, new QTableWidgetItem(list[i]->peerName()));
+            QPushButton* disconnectButton = new QPushButton;
+            disconnectButton->setText(tr("Disconnect"));
+            connect(disconnectButton, &QPushButton::clicked, list[i], &QTcpSocket::disconnectFromHost);
+            ui->Net_addrPortList->setIndexWidget(ui->Net_addrPortList->model()->index(i, 3), disconnectButton);
         }
     }
     emit clientCountChanged();
@@ -661,6 +669,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::TCP_Client)
     {
+        ui->Net_addrPortList->setColumnCount(3);
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(false);
@@ -676,6 +685,8 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::TCP_Server)
     {
+        ui->Net_addrPortList->setColumnCount(4);
+        ui->Net_addrPortList->setHorizontalHeaderItem(3, new QTableWidgetItem(" "));
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(false);
@@ -690,6 +701,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::UDP)
     {
+        ui->Net_addrPortList->setColumnCount(3);
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(true);
@@ -867,16 +879,40 @@ void DeviceTab::BLEC_onRootServiceDiscovered(const QBluetoothUuid& newService)
 void DeviceTab::BLEC_addService(const QBluetoothUuid& serviceUUID, QTreeWidgetItem* parentItem)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem;
+    auto service = m_BLEController->createServiceObject(serviceUUID);
     item->setText(0, serviceUUID.toString());
     item->setText(1, tr("Service"));
+    item->setText(3, service->serviceName());
     if(parentItem == nullptr)
         ui->BLEC_UUIDList->addTopLevelItem(item);
     else
         parentItem->addChild(item);
-    auto service = m_BLEController->createServiceObject(serviceUUID);
+
     m_discoveredBLEServices[serviceUUID] = item;
     connect(service, &QLowEnergyService::stateChanged, this, &DeviceTab::BLEC_onServiceDetailDiscovered);
     service->discoverDetails();
+}
+
+void DeviceTab::BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeWidgetItem* parentItem)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setText(0, c.uuid().toString());
+    item->setText(1, tr("Characteristic"));
+    item->setText(2, BLE_getCharacteristicPropertyString(c));
+    item->setText(3, c.name());
+    parentItem->addChild(item);
+    const QList<QLowEnergyDescriptor> descriptors = c.descriptors();
+    for(auto it = descriptors.cbegin(); it != descriptors.cend(); ++it)
+        BLEC_addDescriptor(*it, item);
+}
+
+void DeviceTab::BLEC_addDescriptor(const QLowEnergyDescriptor& descriptor, QTreeWidgetItem* parentItem)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem;
+    item->setText(0, descriptor.uuid().toString());
+    item->setText(1, tr("Descriptor"));
+    item->setText(3, descriptor.name());
+    parentItem->addChild(item);
 }
 
 void DeviceTab::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState)
@@ -899,14 +935,8 @@ void DeviceTab::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState n
         // add characters
         const QList<QLowEnergyCharacteristic> chars = service->characteristics();
         for(auto it = chars.cbegin(); it != chars.cend(); ++it)
-        {
-            it->properties();
-            QTreeWidgetItem* item = new QTreeWidgetItem;
-            item->setText(0, it->uuid().toString());
-            item->setText(1, tr("Characteristic"));
-            item->setText(2, BLE_getCharacteristicPropertyString(*it));
-            parentItem->addChild(item);
-        }
+            BLEC_addCharacteristic(*it, parentItem);
+
         service->deleteLater();
     }
 }

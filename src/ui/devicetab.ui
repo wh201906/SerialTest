@@ -65,7 +65,7 @@
      <item>
       <widget class="QStackedWidget" name="targetListStack">
        <property name="currentIndex">
-        <number>3</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="SPListPage">
         <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -280,6 +280,11 @@
              <string>MAC Address</string>
             </property>
            </column>
+           <column>
+            <property name="text">
+             <string> </string>
+            </property>
+           </column>
           </widget>
          </item>
         </layout>
@@ -447,6 +452,11 @@
                <column>
                 <property name="text">
                  <string>Properties</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Name</string>
                 </property>
                </column>
               </widget>
@@ -858,8 +868,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>200</width>
-               <height>334</height>
+               <width>159</width>
+               <height>351</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -950,6 +960,12 @@
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
                </spacer>
               </item>
              </layout>
@@ -985,8 +1001,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>200</width>
-               <height>334</height>
+               <width>100</width>
+               <height>283</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -1063,6 +1079,12 @@ you can change the remote address and port on the fly.</string>
                <spacer name="verticalSpacer_4">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
                 </property>
                </spacer>
               </item>
