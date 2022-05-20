@@ -73,10 +73,11 @@ private:
 
     Connection* IOConnection = nullptr;
 
-    QLabel* deviceLabel;
     QPushButton* stateButton;
     QLabel* TxLabel;
     QLabel* RxLabel;
+    QLabel* connArgsLabel;
+    SerialPinout* serialPinout;
 
     QByteArray* rawReceivedData;
     QByteArray* rawSendedData;
@@ -89,9 +90,6 @@ private:
     CtrlTab* ctrlTab;
     DataTab* dataTab;
     DeviceTab* deviceTab;
-
-    QLabel* connArgsLabel;
-    SerialPinout* serialPinout;
 
 #ifndef Q_OS_ANDROID
     QList<QDockWidget*> dockList;

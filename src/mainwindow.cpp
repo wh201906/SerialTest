@@ -45,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     contextMenu->addSeparator();
 #endif
     settings = MySettings::defaultSettings();
-    deviceLabel = new QLabel();
     stateButton = new QPushButton();
     TxLabel = new QLabel();
     RxLabel = new QLabel();
@@ -150,12 +149,11 @@ void MainWindow::onStateButtonClicked()
 
 void MainWindow::initUI()
 {
-    statusBar()->addPermanentWidget(deviceLabel, 1);
-    statusBar()->addPermanentWidget(stateButton, 1);
-    statusBar()->addPermanentWidget(RxLabel, 1);
-    statusBar()->addPermanentWidget(TxLabel, 1);
+    statusBar()->addPermanentWidget(stateButton, 0);
     statusBar()->addPermanentWidget(connArgsLabel, 1);
-    statusBar()->addPermanentWidget(serialPinout, 1);
+    statusBar()->addPermanentWidget(RxLabel, 0);
+    statusBar()->addPermanentWidget(TxLabel, 0);
+    statusBar()->addPermanentWidget(serialPinout, 0);
 #ifdef Q_OS_ANDROID
     // keep screen on
 
@@ -170,7 +168,7 @@ void MainWindow::initUI()
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setFixedSize(QApplication::primaryScreen()->availableGeometry().size());
 #else
-    statusBar()->addPermanentWidget(onTopBox, 1);
+    statusBar()->addPermanentWidget(onTopBox, 0);
     dockInit();
 #endif
     stateButton->setMinimumHeight(1);
@@ -182,29 +180,23 @@ void MainWindow::initUI()
 void MainWindow::updateStatusBar()
 {
     Connection::Type type;
+    QString connArgsText;
     type = IOConnection->type();
     if(type == Connection::SerialPort)
     {
         serialPinout->show();
-        Connection::SerialPortArgument arg;
-        arg = IOConnection->getSerialPortArgument();
-        const QString stopbits[4] = {"", tr("OneStop"), tr("TwoStop"), tr("OneAndHalfStop")};
-        const QString parities[6] = {tr("NoParity"), "", tr("EvenParity"), tr("OddParity"), tr("SpaceParity"), tr("MarkParity")};
         if(IOConnection->isConnected())
         {
-            deviceLabel->setText(tr("Port") + ": " + arg.name);
-            QString text;
-            text.append((tr("BaudRate") + ": %1 ").arg(arg.baudRate));
-            text.append((tr("DataBits") + ": %1 ").arg(arg.dataBits));
-            text.append(tr("StopBits") + ": " + stopbits[(int)arg.stopBits] + " ");
-            text.append(tr("Parity") + ": " + parities[(int)arg.parity] + " ");
+            const QString stopbits[4] = {"", tr("OneStop"), tr("TwoStop"), tr("OneAndHalfStop")};
+            const QString parities[6] = {tr("NoParity"), "", tr("EvenParity"), tr("OddParity"), tr("SpaceParity"), tr("MarkParity")};
+
+            Connection::SerialPortArgument arg = IOConnection->getSerialPortArgument();
+            connArgsText.append((tr("Port") + ": %1 ").arg(arg.name));
+            connArgsText.append((tr("BaudRate") + ": %1 ").arg(arg.baudRate));
+            connArgsText.append((tr("DataBits") + ": %1 ").arg(arg.dataBits));
+            connArgsText.append(tr("StopBits") + ": " + stopbits[(int)arg.stopBits] + " ");
+            connArgsText.append(tr("Parity") + ": " + parities[(int)arg.parity] + " ");
             // the value of flowcontrol is not specified
-            connArgsLabel->setText(text);
-        }
-        else
-        {
-            deviceLabel->setText(tr("Port") + ": ");
-            connArgsLabel->setText("");
         }
     }
     else if(type == Connection::BT_Client)
@@ -212,29 +204,34 @@ void MainWindow::updateStatusBar()
         serialPinout->hide();
         if(IOConnection->isConnected())
         {
-            deviceLabel->setText(tr("Remote") + ": " + IOConnection->getBTArgument().deviceAddress.toString());
-            QString text;
-            text.append((tr("Device Name") + ": %1 ").arg(IOConnection->BTClient_remoteName()));
+            connArgsText.append((tr("Remote") + ": %1 ").arg(IOConnection->getBTArgument().deviceAddress.toString()));
+            connArgsText.append((tr("Remote Name") + ": %1 ").arg(IOConnection->BTClient_remoteName()));
 #ifdef Q_OS_ANDROID
             if(IOConnection->BT_localAddress().toString() != "02:00:00:00:00:00")
 #else
             if(true)
 #endif
-                text.append((tr("Local") + ": %1 ").arg(IOConnection->BT_localAddress().toString()));
-            connArgsLabel->setText(text);
+            {
+                connArgsText.append((tr("Local") + ": %1 ").arg(IOConnection->BT_localAddress().toString()));
+            }
         }
-        else
-        {
-            deviceLabel->setText(tr("Address") + ": ");
-            connArgsLabel->setText("");
-        }
+        connArgsLabel->setText(connArgsText);
     }
     else if(type == Connection::BT_Server)
     {
         serialPinout->hide();
-        QString text;
-        text.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->BTServer_clientCount()));
-        connArgsLabel->setText(text);
+        if(IOConnection->state() != Connection::Unconnected)
+        {
+#ifdef Q_OS_ANDROID
+            if(IOConnection->BT_localAddress().toString() != "02:00:00:00:00:00")
+#else
+            if(true)
+#endif
+            {
+                connArgsText.append((tr("Local") + ": %1 ").arg(IOConnection->BT_localAddress().toString()));
+            }
+        }
+        connArgsText.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->BTServer_clientCount()));
     }
     else if(type == Connection::BLE_Central)
     {
@@ -247,18 +244,34 @@ void MainWindow::updateStatusBar()
     else if(type == Connection::TCP_Client)
     {
         serialPinout->hide();
+        if(IOConnection->isConnected())
+        {
+            Connection::NetworkArgument netArg = IOConnection->getNetworkArgument();
+            connArgsText.append((tr("Local") + ": (%1, %2) ").arg(netArg.localAddress.toString()).arg(netArg.localPort));
+            connArgsText.append((tr("Remote") + ": (%1, %2) ").arg(netArg.remoteName).arg(netArg.remotePort));
+        }
     }
     else if(type == Connection::TCP_Server)
     {
         serialPinout->hide();
-        QString text;
-        text.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->TCPServer_clientCount()));
-        connArgsLabel->setText(text);
+        if(IOConnection->state() != Connection::Unconnected)
+        {
+            Connection::NetworkArgument netArg = IOConnection->getNetworkArgument();
+            connArgsText.append((tr("Local") + ": (%1, %2) ").arg(netArg.localAddress.toString()).arg(netArg.localPort));
+        }
+        connArgsText.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->TCPServer_clientCount()));
     }
     else if(type == Connection::UDP)
     {
         serialPinout->hide();
+        Connection::NetworkArgument netArg = IOConnection->getNetworkArgument();
+        if(IOConnection->isConnected())
+        {
+            connArgsText.append((tr("Local") + ": (%1, %2) ").arg(netArg.localAddress.toString()).arg(netArg.localPort));
+        }
+        connArgsText.append((tr("Remote") + ": (%1, %2) ").arg(netArg.remoteName).arg(netArg.remotePort));
     }
+    connArgsLabel->setText(connArgsText);
     Connection::State currState = IOConnection->state();
     if(currState == Connection::Connected)
         stateButton->setText(tr("State") + ": √");

@@ -560,8 +560,24 @@ void Connection::afterConnected()
         m_lastBTArgument = m_currBTArgument;
         m_lastBTArgumentValid = true;
     }
-    else if(m_type == TCP_Client || m_type == TCP_Server || m_type == UDP)
+    else if(m_type == TCP_Client)
     {
+        if(m_currNetArgument.localPort == 0) // a random port is used
+            m_currNetArgument.localPort = m_TCPSocket->localPort();
+        m_lastNetArgument = m_currNetArgument;
+        m_lastNetArgumentValid = true;
+    }
+    else if(m_type == TCP_Server)
+    {
+        if(m_currNetArgument.localPort == 0) // a random port is used
+            m_currNetArgument.localPort = m_TCPServer->serverPort();
+        m_lastNetArgument = m_currNetArgument;
+        m_lastNetArgumentValid = true;
+    }
+    else if(m_type == UDP)
+    {
+        if(m_currNetArgument.localPort == 0) // a random port is used
+            m_currNetArgument.localPort = m_UDPSocket->localPort();
         m_lastNetArgument = m_currNetArgument;
         m_lastNetArgumentValid = true;
     }
@@ -824,6 +840,8 @@ int Connection::BTServer_clientCount()
 
 void Connection::UDP_setRemote(const QString& addr, quint16 port)
 {
+    if(m_type != UDP)
+        return;
     m_currNetArgument.remoteName = addr;
     m_currNetArgument.remotePort = port;
 }

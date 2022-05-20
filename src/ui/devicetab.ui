@@ -1036,7 +1036,11 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="Net_localPortEdit"/>
+               <widget class="QLineEdit" name="Net_localPortEdit">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="Net_remoteAddrLabel">

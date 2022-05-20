@@ -704,7 +704,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->Net_addrPortList->setColumnCount(3);
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
-        ui->Net_localAddrBox->setEditable(true);
+        ui->Net_localAddrBox->setEditable(true); // support multicast address and broadcast address
         ui->Net_localPortEdit->show();
         ui->Net_remoteAddrLabel->show();
         ui->Net_remoteAddrLabel->setText(tr("Remote Address:"));
@@ -784,7 +784,10 @@ void DeviceTab::Net_onRemoteChanged()
         quint16 port = ui->Net_remotePortEdit->text().toUInt(&convOk);
         QHostAddress addr; // test validity
         if(convOk && addr.setAddress(ui->Net_remoteAddrEdit->text()))
+        {
             m_connection->UDP_setRemote(ui->Net_remoteAddrEdit->text(), port);
+            emit argumentChanged();
+        }
     }
 }
 
