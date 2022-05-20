@@ -232,6 +232,7 @@ void Connection::close(bool forced)
     {
         m_RfcommServiceInfo.unregisterService();
         m_BTServer->close();
+        m_BTTxClients.clear();
         for(auto it = m_BTConnectedClients.begin(); it != m_BTConnectedClients.end(); ++it)
             (*it)->close();
         // the delete operation will be done in Server_onClientDisconnected()
@@ -243,6 +244,7 @@ void Connection::close(bool forced)
     else if(m_type == TCP_Server)
     {
         m_TCPServer->close();
+        m_TCPTxClients.clear();
         for(auto it = m_TCPConnectedClients.begin(); it != m_TCPConnectedClients.end(); ++it)
             (*it)->close();
         // the delete operation will be done in Server_onClientDisconnected()
@@ -505,7 +507,7 @@ qint64 Connection::write(const char *data, qint64 len)
     {
         quint64 maxLen = 0, currLen;
         // write to all connected clients
-        for(auto it = m_BTConnectedClients.cbegin(); it != m_BTConnectedClients.cend(); ++it)
+        for(auto it = m_BTTxClients.cbegin(); it != m_BTTxClients.cend(); ++it)
         {
             currLen = (*it)->write(data, len);
             if(maxLen > currLen)
@@ -521,7 +523,7 @@ qint64 Connection::write(const char *data, qint64 len)
     {
         quint64 maxLen = 0, currLen;
         // write to all connected clients
-        for(auto it = m_TCPConnectedClients.cbegin(); it != m_TCPConnectedClients.cend(); ++it)
+        for(auto it = m_TCPTxClients.cbegin(); it != m_TCPTxClients.cend(); ++it)
         {
             currLen = (*it)->write(data, len);
             if(maxLen > currLen)
@@ -610,6 +612,7 @@ void Connection::Server_onClientConnected()
         connect(socket, &QBluetoothSocket::disconnected, this, &Connection::Server_onClientDisconnected);
         connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this, &Connection::Server_onClientErrorOccurred);
         m_BTConnectedClients.append(socket);
+        m_BTTxClients.append(socket);
         emit BT_clientConnected();
     }
     else if(m_type == TCP_Server)
@@ -623,6 +626,7 @@ void Connection::Server_onClientConnected()
         connect(socket, &QTcpSocket::disconnected, this, &Connection::Server_onClientDisconnected);
         connect(socket, &QAbstractSocket::errorOccurred, this, &Connection::onErrorOccurred);
         m_TCPConnectedClients.append(socket);
+        m_TCPTxClients.append(socket);
         emit TCP_clientConnected();
     }
 }
@@ -640,6 +644,7 @@ void Connection::Server_onClientDisconnectedHandler(QObject* clientObj)
             return;
 
         firstCall = m_BTConnectedClients.removeOne(socket);
+        m_BTTxClients.removeOne(socket);
         if(m_BTConnectedClients.empty())
         {
             if(m_BTServer->isListening())
@@ -658,6 +663,7 @@ void Connection::Server_onClientDisconnectedHandler(QObject* clientObj)
             return;
 
         firstCall = m_TCPConnectedClients.removeOne(socket);
+        m_TCPTxClients.removeOne(socket);
         if(m_TCPConnectedClients.empty())
         {
             if(m_TCPServer->isListening())
@@ -838,6 +844,29 @@ int Connection::BTServer_clientCount()
     return m_BTConnectedClients.count();
 }
 
+bool Connection::BTServer_setClientMode(QBluetoothSocket* clientSocket, bool RxEnabled, bool TxEnabled)
+{
+    if(!m_BTConnectedClients.contains(clientSocket))
+        return false;
+    if(RxEnabled)
+    {
+        disconnect(clientSocket, &QBluetoothSocket::readyRead, this, &Connection::blackhole);
+        connect(clientSocket, &QBluetoothSocket::readyRead, this, &Connection::onReadyRead);
+    }
+    else
+    {
+        disconnect(clientSocket, &QBluetoothSocket::readyRead, this, &Connection::onReadyRead);
+        connect(clientSocket, &QBluetoothSocket::readyRead, this, &Connection::blackhole);
+    }
+
+    if(TxEnabled && !m_BTTxClients.contains(clientSocket))
+        m_BTTxClients.append(clientSocket);
+    else if(!TxEnabled)
+        m_BTTxClients.removeOne(clientSocket);
+
+    return true;
+}
+
 void Connection::UDP_setRemote(const QString& addr, quint16 port)
 {
     if(m_type != UDP)
@@ -854,4 +883,34 @@ QList<QTcpSocket *> Connection::TCPServer_clientList() const
 int Connection::TCPServer_clientCount()
 {
     return m_TCPConnectedClients.count();
+}
+
+bool Connection::TCPServer_setClientMode(QTcpSocket* clientSocket, bool RxEnabled, bool TxEnabled)
+{
+    if(!m_TCPConnectedClients.contains(clientSocket))
+        return false;
+    if(RxEnabled)
+    {
+        disconnect(clientSocket, &QTcpSocket::readyRead, this, &Connection::blackhole);
+        connect(clientSocket, &QTcpSocket::readyRead, this, &Connection::onReadyRead);
+    }
+    else
+    {
+        disconnect(clientSocket, &QTcpSocket::readyRead, this, &Connection::onReadyRead);
+        connect(clientSocket, &QTcpSocket::readyRead, this, &Connection::blackhole);
+    }
+
+    if(TxEnabled && !m_TCPTxClients.contains(clientSocket))
+        m_TCPTxClients.append(clientSocket);
+    else if(!TxEnabled)
+        m_TCPTxClients.removeOne(clientSocket);
+
+    return true;
+}
+
+void Connection::blackhole()
+{
+    // discard received data
+    // not efficient, but works
+    qobject_cast<QIODevice*>(sender())->readAll();
 }

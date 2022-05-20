@@ -109,12 +109,14 @@ public:
     QBluetoothAddress BT_localAddress();
     QList<QBluetoothSocket*> BTServer_clientList() const;
     int BTServer_clientCount();
+    bool BTServer_setClientMode(QBluetoothSocket* clientSocket, bool RxEnabled = true, bool TxEnabled = true);
 
 
     // Network
     void UDP_setRemote(const QString& addr, quint16 port);
     QList<QTcpSocket*> TCPServer_clientList() const;
     int TCPServer_clientCount();
+    bool TCPServer_setClientMode(QTcpSocket* clientSocket, bool RxEnabled = true, bool TxEnabled = true);
 public slots:
     // general
     void setPolling(bool enabled);
@@ -150,7 +152,9 @@ private:
     QUdpSocket* m_UDPSocket = nullptr;
 
     QList<QBluetoothSocket*> m_BTConnectedClients;
+    QList<QBluetoothSocket*> m_BTTxClients;
     QList<QTcpSocket*> m_TCPConnectedClients;
+    QList<QTcpSocket*> m_TCPTxClients;
     QBluetoothServiceInfo m_RfcommServiceInfo;
 
 
@@ -195,7 +199,7 @@ private slots:
     void Server_onClientDisconnected();
     void Server_onClientErrorOccurred();
     void onPollingTimeout();
-
+    void blackhole();
 };
 
 #endif // CONNECTION_H

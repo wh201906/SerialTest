@@ -83,6 +83,8 @@ private slots:
     void on_BLEC_connectButton_clicked();
     void BLEC_onRootServiceDiscovered(const QBluetoothUuid &newService);
     void BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState);
+    void on_BTServer_deviceList_cellChanged(int row, int column);
+    void on_Net_addrPortList_cellChanged(int row, int column);
 };
 
 #endif // DEVICETAB_H

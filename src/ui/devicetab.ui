@@ -282,7 +282,17 @@
            </column>
            <column>
             <property name="text">
-             <string> </string>
+             <string/>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Receive</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Send</string>
             </property>
            </column>
           </widget>
@@ -308,10 +318,18 @@
            <property name="styleSheet">
             <string notr="true">QSplitter::handle {background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
   stop:0 rgba(255, 255, 255, 0), 
-  stop:0.3 rgba(255, 255, 255, 0), 
-  stop:0.5 rgba(128, 128, 128, 200),
-  stop:0.7 rgba(255, 255, 255, 0), 
-  stop:1 rgba(255, 255, 255, 0))}</string>
+  stop:0.25 rgba(255, 255, 255, 0), 
+  stop:0.26 dimgray, stop:0.35 dimgray,
+  stop:0.36 white, stop:0.45 white,
+  stop:0.46 rgba(255, 255, 255, 0),
+  stop:0.54 rgba(255, 255, 255, 0),
+  stop:0.55 white, stop:0.64 white,
+  stop:0.65 dimgray, stop:0.74 dimgray,
+  stop:0.75 rgba(255, 255, 255, 0), 
+  stop:1 rgba(255, 255, 255, 0));
+margin-top:3em;
+margin-bottom:3em;
+}</string>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>

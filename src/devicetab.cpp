@@ -196,7 +196,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->typeBox->model());
     // need some code to check if BLE is supported
     QVector<Connection::Type> invalid =
-    {Connection::BLE_Central, Connection::BLE_Peripheral};
+    {Connection::BLE_Peripheral};
     const QMap<Connection::Type, QString> typeNameMap =
     {
         {Connection::SerialPort, tr("SerialPort")},
@@ -307,31 +307,59 @@ void DeviceTab::onClientCountChanged()
         ui->BTServer_deviceList->setRowCount(0);
         auto list = m_connection->BTServer_clientList();
         ui->BTServer_deviceList->setRowCount(list.size());
+        ui->BTServer_deviceList->blockSignals(true); // avoid emitting cellChanged()
         for(int i = 0; i < list.size(); i++)
         {
-            ui->BTServer_deviceList->setItem(i, 0, new QTableWidgetItem(list[i]->peerName()));
+            QTableWidgetItem* tmpItem;
+            tmpItem = new QTableWidgetItem(list[i]->peerName());
+            tmpItem->setData(Qt::UserRole, QVariant((quintptr)list[i]));
+            ui->BTServer_deviceList->setItem(i, 0, tmpItem);
             ui->BTServer_deviceList->setItem(i, 1, new QTableWidgetItem(list[i]->peerAddress().toString()));
+
             QPushButton* disconnectButton = new QPushButton;
             disconnectButton->setText(tr("Disconnect"));
             connect(disconnectButton, &QPushButton::clicked, list[i], &QBluetoothSocket::disconnectFromService);
             ui->BTServer_deviceList->setIndexWidget(ui->BTServer_deviceList->model()->index(i, 2), disconnectButton);
+            tmpItem = new QTableWidgetItem();
+            tmpItem->setFlags(tmpItem->flags() | Qt::ItemIsUserCheckable);
+            tmpItem->setCheckState(Qt::Checked);
+            ui->BTServer_deviceList->setItem(i, 3, tmpItem);
+            tmpItem = new QTableWidgetItem();
+            tmpItem->setFlags(tmpItem->flags() | Qt::ItemIsUserCheckable);
+            tmpItem->setCheckState(Qt::Checked);
+            ui->BTServer_deviceList->setItem(i, 4, tmpItem);
         }
+        ui->BTServer_deviceList->blockSignals(false);
     }
     else if(m_connection->type() == Connection::TCP_Server)
     {
         ui->Net_addrPortList->setRowCount(0);
         auto list = m_connection->TCPServer_clientList();
         ui->Net_addrPortList->setRowCount(list.size());
+        ui->Net_addrPortList->blockSignals(true); // avoid emitting cellChanged()
         for(int i = 0; i < list.size(); i++)
         {
-            ui->Net_addrPortList->setItem(i, 0, new QTableWidgetItem(list[i]->peerAddress().toString()));
+            QTableWidgetItem* tmpItem;
+            tmpItem = new QTableWidgetItem(list[i]->peerAddress().toString());
+            tmpItem->setData(Qt::UserRole, QVariant((quintptr)list[i]));
+            ui->Net_addrPortList->setItem(i, 0, tmpItem);
             ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->peerPort()));
             ui->Net_addrPortList->setItem(i, 2, new QTableWidgetItem(list[i]->peerName()));
+
             QPushButton* disconnectButton = new QPushButton;
             disconnectButton->setText(tr("Disconnect"));
             connect(disconnectButton, &QPushButton::clicked, list[i], &QTcpSocket::disconnectFromHost);
             ui->Net_addrPortList->setIndexWidget(ui->Net_addrPortList->model()->index(i, 3), disconnectButton);
+            tmpItem = new QTableWidgetItem();
+            tmpItem->setFlags(tmpItem->flags() | Qt::ItemIsUserCheckable);
+            tmpItem->setCheckState(Qt::Checked);
+            ui->Net_addrPortList->setItem(i, 4, tmpItem);
+            tmpItem = new QTableWidgetItem();
+            tmpItem->setFlags(tmpItem->flags() | Qt::ItemIsUserCheckable);
+            tmpItem->setCheckState(Qt::Checked);
+            ui->Net_addrPortList->setItem(i, 5, tmpItem);
         }
+        ui->Net_addrPortList->blockSignals(false);
     }
     emit clientCountChanged();
 }
@@ -685,8 +713,10 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::TCP_Server)
     {
-        ui->Net_addrPortList->setColumnCount(4);
+        ui->Net_addrPortList->setColumnCount(6);
         ui->Net_addrPortList->setHorizontalHeaderItem(3, new QTableWidgetItem(" "));
+        ui->Net_addrPortList->setHorizontalHeaderItem(4, new QTableWidgetItem(tr("Receive")));
+        ui->Net_addrPortList->setHorizontalHeaderItem(5, new QTableWidgetItem(tr("Send")));
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(false);
@@ -968,3 +998,31 @@ QString DeviceTab::BLE_getCharacteristicPropertyString(const QLowEnergyCharacter
         result.remove(0, 2);
     return result;
 }
+
+void DeviceTab::on_BTServer_deviceList_cellChanged(int row, int column)
+{
+    // 3:Rx 4:Tx
+    QTableWidget* widget = ui->BTServer_deviceList;
+    if(column != 3 && column != 4)
+        return;
+
+    QBluetoothSocket* socket = (QBluetoothSocket*)widget->item(row, 0)->data(Qt::UserRole).value<quintptr>();
+    m_connection->BTServer_setClientMode(socket, widget->item(row, 3)->checkState() == Qt::Checked, widget->item(row, 4)->checkState() == Qt::Checked);
+}
+
+void DeviceTab::on_Net_addrPortList_cellChanged(int row, int column)
+{
+
+    if(m_connection->type() != Connection::TCP_Server)
+        return;
+
+    // 4:Rx 5:Tx
+    QTableWidget* widget = ui->Net_addrPortList;
+    if(column != 4 && column != 5)
+        return;
+
+    QTcpSocket* socket = (QTcpSocket*)widget->item(row, 0)->data(Qt::UserRole).value<quintptr>();
+    m_connection->TCPServer_setClientMode(socket, widget->item(row, 4)->checkState() == Qt::Checked, widget->item(row, 5)->checkState() == Qt::Checked);
+
+}
+
