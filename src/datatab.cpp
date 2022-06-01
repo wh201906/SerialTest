@@ -48,6 +48,7 @@ void DataTab::initSettings()
     connect(ui->receivedLatestBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->receivedRealtimeBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->sendedHexBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+    connect(ui->sendedEnableBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_unescapeBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_suffixBox, &QGroupBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_suffixTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DataTab::saveDataPreference);
@@ -137,6 +138,7 @@ void DataTab::saveDataPreference()
     settings->setValue("Recv_Latest", ui->receivedLatestBox->isChecked());
     settings->setValue("Recv_Realtime", ui->receivedRealtimeBox->isChecked());
     settings->setValue("Send_Hex", ui->sendedHexBox->isChecked());
+    settings->setValue("Send_Enabled", ui->sendedEnableBox->isChecked());
     settings->setValue("Send_Unescape", ui->data_unescapeBox->isChecked());
     settings->setValue("Suffix_Enabled", ui->data_suffixBox->isChecked());
     settings->setValue("Suffix_Type", ui->data_suffixTypeBox->currentIndex());
@@ -163,6 +165,7 @@ void DataTab::loadPreference()
     ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", false).toBool());
     ui->receivedRealtimeBox->setChecked(settings->value("Recv_Realtime", true).toBool());
     ui->sendedHexBox->setChecked(settings->value("Send_Hex", false).toBool());
+    ui->sendedEnableBox->setChecked(settings->value("Send_Enabled", true).toBool());
     ui->data_unescapeBox->setChecked(settings->value("Send_Unescape", false).toBool());
     ui->data_suffixBox->setChecked(settings->value("Suffix_Enabled", false).toBool());
     ui->data_suffixTypeBox->setCurrentIndex(settings->value("Suffix_Type", 2).toInt());
@@ -209,15 +212,13 @@ void DataTab::on_receivedHexBox_stateChanged(int arg1)
 void DataTab::on_receivedClearButton_clicked()
 {
     lastReceivedByte = '\0'; // anything but '\r'
-    rawReceivedData->clear();
-    emit updateRxTxLen(true, false);
+    emit clearReceivedData();
     syncReceivedEditWithData();
 }
 
 void DataTab::on_sendedClearButton_clicked()
 {
-    rawSendedData->clear();
-    emit updateRxTxLen(false, true);
+    emit clearSendedData();
     syncSendedEditWithData();
 }
 
@@ -498,5 +499,10 @@ void DataTab::on_receivedEdit_selectionChanged()
         ui->receivedExportButton->setText(tr("Export"));
         ui->receivedCopyButton->setText(tr("Copy All"));
     }
+}
+
+void DataTab::on_sendedEnableBox_stateChanged(int arg1)
+{
+    emit setTxDataRecording(arg1 == Qt::Checked);
 }
 

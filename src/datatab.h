@@ -64,6 +64,8 @@ private slots:
 
     void on_receivedEdit_selectionChanged();
 
+    void on_sendedEnableBox_stateChanged(int arg1);
+
 private:
     Ui::DataTab *ui;
 
@@ -95,6 +97,9 @@ signals:
     void setDataCodec(QTextCodec* codec);
     void setPlotDecoder(QTextDecoder* decoder);
     void updateRxTxLen(bool updateRx, bool updateTx);
+    void clearSendedData();
+    void clearReceivedData();
+    void setTxDataRecording(bool enabled);
 };
 
 #endif // DATATAB_H

@@ -47,6 +47,9 @@ public slots:
     void sendData(const QByteArray &data);
     void updateStatusBar();
     void updateRxTxLen(bool updateRx = true, bool updateTx = true);
+    void clearSendedData();
+    void clearReceivedData();
+    void setTxDataRecording(bool enabled);
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 private slots:
@@ -79,9 +82,12 @@ private:
     QLabel* connArgsLabel;
     SerialPinout* serialPinout;
 
-    QByteArray* rawReceivedData;
-    QByteArray* rawSendedData;
-    QByteArray* RxUIBuf;
+    bool m_TxDataRecording = true;
+    QByteArray rawReceivedData;
+    qsizetype m_RxCount = 0;
+    QByteArray rawSendedData;
+    qsizetype m_TxCount = 0;
+    QByteArray RxUIBuf;
 
     QTimer* updateUITimer;
 

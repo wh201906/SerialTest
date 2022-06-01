@@ -53,10 +53,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(IOConnection, &Connection::SP_signalsChanged, serialPinout, &SerialPinout::setPinout);
     connect(serialPinout, &SerialPinout::enableStateChanged, IOConnection, &Connection::setPolling);
 
-    rawReceivedData = new QByteArray();
-    rawSendedData = new QByteArray();
-    RxUIBuf = new QByteArray();
-
     deviceTab = new DeviceTab();
     deviceTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateStatusBar);
@@ -68,11 +64,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(IOConnection, &Connection::TCP_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
 
     ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
-    dataTab = new DataTab(rawReceivedData, rawSendedData);
+    dataTab = new DataTab(&rawReceivedData, &rawSendedData);
     dataTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, dataTab, &DataTab::onConnTypeChanged);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
     connect(dataTab, &DataTab::updateRxTxLen, this, &MainWindow::updateRxTxLen);
+    connect(dataTab, &DataTab::clearReceivedData, this, &MainWindow::clearReceivedData);
+    connect(dataTab, &DataTab::clearSendedData, this, &MainWindow::clearSendedData);
+    connect(dataTab, &DataTab::setTxDataRecording, this, &MainWindow::setTxDataRecording);
     ui->funcTab->insertTab(1, dataTab, tr("Data"));
     plotTab = new PlotTab();
     connect(dataTab, &DataTab::setPlotDecoder, plotTab, &PlotTab::setDecoder);
@@ -282,12 +281,31 @@ void MainWindow::updateStatusBar()
     updateRxTxLen();
 }
 
+void MainWindow::clearSendedData()
+{
+    rawSendedData.clear();
+    m_TxCount = 0;
+    updateRxTxLen(false, true);
+}
+
+void MainWindow::clearReceivedData()
+{
+    rawReceivedData.clear();
+    m_RxCount = 0;
+    updateRxTxLen(true, false);
+}
+
+void MainWindow::setTxDataRecording(bool enabled)
+{
+    m_TxDataRecording = enabled;
+}
+
 void MainWindow::updateRxTxLen(bool updateRx, bool updateTx)
 {
     if(updateRx)
-        RxLabel->setText(tr("Rx") + ": " + QString::number(rawReceivedData->length()));
+        RxLabel->setText(tr("Rx") + ": " + QString::number(m_RxCount));
     if(updateTx)
-        TxLabel->setText(tr("Tx") + ": " + QString::number(rawSendedData->length()));
+        TxLabel->setText(tr("Tx") + ": " + QString::number(m_TxCount));
 }
 
 void MainWindow::onIODeviceConnected()
@@ -335,9 +353,10 @@ void MainWindow::readData()
     QByteArray newData = IOConnection->readAll();
     if(newData.isEmpty())
         return;
-    rawReceivedData->append(newData);
+    rawReceivedData += newData;
+    m_RxCount += newData.length();
     updateRxTxLen(true, false);
-    RxUIBuf->append(newData);
+    RxUIBuf += newData;
     QApplication::processEvents();
 }
 
@@ -350,8 +369,12 @@ void MainWindow::sendData(const QByteArray& data)
         return;
     }
     IOConnection->write(data);
-    rawSendedData->append(data);
-    dataTab->appendSendedData(data);
+    if(m_TxDataRecording)
+    {
+        rawSendedData += data;
+        dataTab->appendSendedData(data);
+    }
+    m_TxCount += data.length();
     updateRxTxLen(false, true);
 }
 
@@ -360,12 +383,12 @@ void MainWindow::sendData(const QByteArray& data)
 // maybe standalone decoder?
 void MainWindow::updateRxUI()
 {
-    if(RxUIBuf->isEmpty())
+    if(RxUIBuf.isEmpty())
         return;
     if(dataTab->getRxRealtimeState())
-        dataTab->appendReceivedData(*RxUIBuf);
-    plotTab->newData(*RxUIBuf);
-    RxUIBuf->clear();
+        dataTab->appendReceivedData(RxUIBuf);
+    plotTab->newData(RxUIBuf);
+    RxUIBuf.clear();
 }
 
 // platform specific
