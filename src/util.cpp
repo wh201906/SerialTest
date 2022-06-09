@@ -139,7 +139,8 @@ void Util::disableItem(QStandardItemModel* model, int id, bool enabled)
 void Util::showToast(const QString& message, bool isLong)
 {
     // all the magic must happen on Android UI thread
-    QtAndroid::runOnAndroidThread([&]
+    // don't capture by reference there
+    QtAndroid::runOnAndroidThread([ = ]
     {
         QAndroidJniObject javaString = QAndroidJniObject::fromString(message);
         QAndroidJniObject toast = QAndroidJniObject::callStaticObjectMethod("android/widget/Toast", "makeText",
