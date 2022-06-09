@@ -52,6 +52,7 @@ public slots:
     void setTxDataRecording(bool enabled);
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void keyReleaseEvent(QKeyEvent* e) override;
 private slots:
     void readData();
     void onStateButtonClicked();
@@ -102,6 +103,8 @@ private:
     QCheckBox* onTopBox;
 
     void dockInit();
+#else
+    qint64 m_keyBackTick = 0;
 #endif
     void initTabs();
 };

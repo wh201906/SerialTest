@@ -1,5 +1,6 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "util.h"
 
 #include <QBluetoothLocalDevice>
 #ifdef Q_OS_ANDROID
@@ -128,6 +129,29 @@ void MainWindow::initTabs()
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
     contextMenu->exec(event->globalPos());
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent* e)
+{
+    if(e->key() == Qt::Key_Back)
+    {
+#ifdef Q_OS_ANDROID
+        // press Key_Back twice to exit, rather than once
+        qint64 currTick = QDateTime::currentMSecsSinceEpoch();
+        if(currTick - m_keyBackTick > 3000)
+        {
+            // block the first release of Key_Back
+            m_keyBackTick = currTick;
+            Util::showToast(tr("Press Back again to exit."));
+        }
+        else // exit
+        {
+            QMainWindow::keyReleaseEvent(e);
+        }
+#endif
+    }
+    else // bypass
+        QMainWindow::keyReleaseEvent(e);
 }
 
 void MainWindow::onStateButtonClicked()

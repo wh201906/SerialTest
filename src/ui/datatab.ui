@@ -269,6 +269,9 @@ margin-right:3em;
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLineEdit" name="sendEdit">
+       <property name="maxLength">
+        <number>2147483647</number>
+       </property>
        <property name="clearButtonEnabled">
         <bool>true</bool>
        </property>

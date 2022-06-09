@@ -89,6 +89,14 @@ void CtrlTab::on_ctrl_importButton_clicked()
         ui->ctrl_itemArea->setVisible(false);
         ui->ctrl_dataEdit->setVisible(true);
         ui->ctrl_importButton->setText(tr("Done"));
+        // on PC, the file dialog is a modal dialog so the user can't edit the page when importing/exporting
+        // on Android, the editing function should be disabled when importing/exporting
+        ui->ctrl_clearButton->setEnabled(false);
+        ui->ctrl_exportButton->setEnabled(false);
+        ui->ctrl_addCMDButton->setEnabled(false);
+        ui->ctrl_addSliderButton->setEnabled(false);
+        ui->ctrl_addCheckBoxButton->setEnabled(false);
+        ui->ctrl_addSpinBoxButton->setEnabled(false);
     }
     else
     {
@@ -110,6 +118,12 @@ void CtrlTab::on_ctrl_importButton_clicked()
         ui->ctrl_itemArea->setVisible(true);
         ui->ctrl_dataEdit->setVisible(false);
         ui->ctrl_importButton->setText(tr("Import"));
+        ui->ctrl_clearButton->setEnabled(true);
+        ui->ctrl_exportButton->setEnabled(true);
+        ui->ctrl_addCMDButton->setEnabled(true);
+        ui->ctrl_addSliderButton->setEnabled(true);
+        ui->ctrl_addCheckBoxButton->setEnabled(true);
+        ui->ctrl_addSpinBoxButton->setEnabled(true);
     }
 #else
     bool flag = true;
@@ -165,6 +179,12 @@ void CtrlTab::on_ctrl_exportButton_clicked()
         ui->ctrl_dataEdit->setVisible(true);
         ui->ctrl_exportButton->setText(tr("Done"));
         Util::showToast(tr("Copied to clipboard"));
+        ui->ctrl_clearButton->setEnabled(false);
+        ui->ctrl_importButton->setEnabled(false);
+        ui->ctrl_addCMDButton->setEnabled(false);
+        ui->ctrl_addSliderButton->setEnabled(false);
+        ui->ctrl_addCheckBoxButton->setEnabled(false);
+        ui->ctrl_addSpinBoxButton->setEnabled(false);
     }
     else
     {
@@ -172,6 +192,12 @@ void CtrlTab::on_ctrl_exportButton_clicked()
         ui->ctrl_itemArea->setVisible(true);
         ui->ctrl_dataEdit->setVisible(false);
         ui->ctrl_exportButton->setText(tr("Export"));
+        ui->ctrl_clearButton->setEnabled(true);
+        ui->ctrl_importButton->setEnabled(true);
+        ui->ctrl_addCMDButton->setEnabled(true);
+        ui->ctrl_addSliderButton->setEnabled(true);
+        ui->ctrl_addCheckBoxButton->setEnabled(true);
+        ui->ctrl_addSpinBoxButton->setEnabled(true);
     }
 #else
     if(ctrlItemCount == 0)
