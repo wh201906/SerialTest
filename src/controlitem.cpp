@@ -3,6 +3,7 @@
 #include "util.h"
 
 #include <QTextCodec>
+#include <QTimer>
 
 ControlItem::ControlItem(Type type, QWidget *parent) :
     QWidget(parent),
@@ -51,6 +52,16 @@ ControlItem::~ControlItem()
 void ControlItem::on_slider_valueChanged(int value)
 {
     ui->sliderEdit->setText(QString::number(value));
+    if(m_sliderPageChanged)
+    {
+        m_sliderPageChanged = false;
+        // emit ui->slider->sliderReleased();
+        // on_sendButton_clicked()
+        // the on_sendButton_clicked() should be called a little bit later,
+        // otherwise, the slider will go wrong
+        if(ui->autoBox->isChecked())
+            QTimer::singleShot(200, this, &ControlItem::on_sendButton_clicked);
+    }
 }
 
 
@@ -331,3 +342,12 @@ void ControlItem::setDataCodec(QTextCodec *codec)
 {
     this->dataCodec = codec;
 }
+
+void ControlItem::on_slider_actionTriggered(int action)
+{
+    if(action == QSlider::SliderPageStepAdd || action == QSlider::SliderPageStepSub)
+    {
+        m_sliderPageChanged = true;
+    }
+}
+

@@ -62,12 +62,15 @@ private slots:
 
     void on_hexBox_stateChanged(int arg1);
 
+    void on_slider_actionTriggered(int action);
+
 private:
     Ui::ControlItem *ui;
     Type type;
 
     void initUI();
     QTextCodec* dataCodec;
+    bool m_sliderPageChanged = false;
 signals:
     void send(const QByteArray& data);
 
