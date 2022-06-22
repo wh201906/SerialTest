@@ -50,6 +50,7 @@ public slots:
     void clearSendedData();
     void clearReceivedData();
     void setTxDataRecording(bool enabled);
+    void showUpTab(int id);
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void keyReleaseEvent(QKeyEvent* e) override;

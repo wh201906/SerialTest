@@ -79,7 +79,7 @@ DISTFILES += \
     android/gradle/wrapper/gradle-wrapper.properties \
     android/gradlew \
     android/gradlew.bat \
-    android/java/priv/wh201906/serialtest/BTHelper.java \
+    android/java/priv/wh201906/serialtest/MainActivity.java \
     android/res/values/libs.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android

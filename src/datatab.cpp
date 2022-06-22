@@ -18,7 +18,19 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
     rawSendedData(TxBuf)
 {
     ui->setupUi(this);
+#ifdef Q_OS_ANDROID
+    m_currInstance = this;
 
+    // register native method
+    JNINativeMethod methods[] {{"shareText", "(Ljava/lang/String;)V", reinterpret_cast<void *>(onSharedTextReceived)}};
+    QAndroidJniEnvironment env;
+    jclass javaClass = env->FindClass("priv/wh201906/serialtest/MainActivity");
+    env->RegisterNatives(javaClass,
+                         methods,
+                         sizeof(methods) / sizeof(methods[0]));
+    env->DeleteLocalRef(javaClass);
+
+#endif
     repeatTimer = new QTimer();
     RxSlider = ui->receivedEdit->verticalScrollBar();
     ui->dataTabSplitter->handle(1)->installEventFilter(this); // the id of the 1st visible handle is 1 rather than 0
@@ -506,3 +518,24 @@ void DataTab::on_sendedEnableBox_stateChanged(int arg1)
     emit setTxDataRecording(arg1 == Qt::Checked);
 }
 
+void DataTab::showUpTabHelper(int id)
+{
+    emit showUpTab(id);
+}
+
+#ifdef Q_OS_ANDROID
+void DataTab::onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text)
+{
+    // append the received text to the end of the sendEdit
+    Q_UNUSED(thiz)
+    const char* str = env->GetStringUTFChars(text, nullptr);
+    //QTimer::singleShot(0, QApplication::instance(), )
+    QString ori = m_currInstance->ui->sendEdit->text();
+    m_currInstance->ui->sendEdit->setText(ori + QString(str));
+    env->ReleaseStringUTFChars(text, str);
+    m_currInstance->showUpTabHelper(1);
+}
+
+DataTab* DataTab::m_currInstance = nullptr;
+
+#endif

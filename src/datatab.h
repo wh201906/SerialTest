@@ -5,6 +5,11 @@
 #include <QScrollBar>
 #include <QTextDecoder>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#endif
+
 #include "mysettings.h"
 #include "connection.h"
 
@@ -92,6 +97,11 @@ private:
     QByteArray* rawSendedData = nullptr;
 
     void loadPreference();
+    void showUpTabHelper(int id);
+#ifdef Q_OS_ANDROID
+    static DataTab* m_currInstance;
+    static void onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text);
+#endif
 signals:
     void send(const QByteArray& data);
     void setDataCodec(QTextCodec* codec);
@@ -100,6 +110,7 @@ signals:
     void clearSendedData();
     void clearReceivedData();
     void setTxDataRecording(bool enabled);
+    void showUpTab(int id);
 };
 
 #endif // DATATAB_H

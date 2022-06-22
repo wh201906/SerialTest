@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(dataTab, &DataTab::clearReceivedData, this, &MainWindow::clearReceivedData);
     connect(dataTab, &DataTab::clearSendedData, this, &MainWindow::clearSendedData);
     connect(dataTab, &DataTab::setTxDataRecording, this, &MainWindow::setTxDataRecording);
+    connect(dataTab, &DataTab::showUpTab, this, &MainWindow::showUpTab);
     ui->funcTab->insertTab(1, dataTab, tr("Data"));
     plotTab = new PlotTab();
     connect(dataTab, &DataTab::setPlotDecoder, plotTab, &PlotTab::setDecoder);
@@ -178,18 +179,13 @@ void MainWindow::initUI()
     statusBar()->addPermanentWidget(TxLabel, 0);
     statusBar()->addPermanentWidget(serialPinout, 0);
 #ifdef Q_OS_ANDROID
-    // keep screen on
-
-    QAndroidJniObject helper("priv/wh201906/serialtest/BTHelper");
-    QtAndroid::runOnAndroidThread([&]
-    {
-        helper.callMethod<void>("keepScreenOn", "(Landroid/app/Activity;)V", QtAndroid::androidActivity().object());
-    });
 
     // Strange resize behavior on Android
     // Need a fixed size
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     setFixedSize(QApplication::primaryScreen()->availableGeometry().size());
+
+    QtAndroid::androidActivity().callMethod<void>("handleStartIntent");
 #else
     statusBar()->addPermanentWidget(onTopBox, 0);
     dockInit();
@@ -322,6 +318,16 @@ void MainWindow::clearReceivedData()
 void MainWindow::setTxDataRecording(bool enabled)
 {
     m_TxDataRecording = enabled;
+}
+
+void MainWindow::showUpTab(int id)
+{
+#ifdef Q_OS_ANDROID
+    ui->funcTab->setCurrentIndex(id);
+#else
+    dockList[id]->setVisible(true);
+    dockList[id]->raise();
+#endif
 }
 
 void MainWindow::updateRxTxLen(bool updateRx, bool updateTx)

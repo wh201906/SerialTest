@@ -1,0 +1,15 @@
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+*.txt
+.idea/caches/build_file_checksums.ser
+*.apk
+app/release/output.json
+/app/release

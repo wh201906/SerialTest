@@ -116,10 +116,7 @@ void DeviceTab::getBondedTarget(bool isBLE)
         }
     }
     qDebug() << "has permission";
-
-    QAndroidJniObject helper("priv/wh201906/serialtest/BTHelper");
-    qDebug() << "test:" << helper.callObjectMethod<jstring>("TestStr").toString();
-    QAndroidJniObject array = helper.callObjectMethod("getBondedDevices", "(Z)[Ljava/lang/String;", isBLE);
+    QAndroidJniObject array = QtAndroid::androidActivity().callObjectMethod("getBondedDevices", "(Z)[Ljava/lang/String;", isBLE);
     int arraylen = env->GetArrayLength(array.object<jarray>());
     qDebug() << "arraylen:" << arraylen;
     QTableWidget* deviceList = isBLE ? ui->BLEC_deviceList : ui->BTClient_deviceList;
