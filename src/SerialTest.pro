@@ -80,7 +80,9 @@ DISTFILES += \
     android/gradlew \
     android/gradlew.bat \
     android/java/priv/wh201906/serialtest/MainActivity.java \
-    android/res/values/libs.xml
+    android/res/values/libs.xml \
+    android/res/values/strings.xml \
+    android/res/values-zh-rCN/strings.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

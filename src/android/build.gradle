@@ -70,7 +70,8 @@ android {
     }
 
     defaultConfig {
-        resConfig "en"
+        // "resConfig" should be commented, otherwise the res/values-zh-rCN will not work
+        // resConfig "en"
         minSdkVersion = qtMinSdkVersion
         targetSdkVersion = qtTargetSdkVersion
     }

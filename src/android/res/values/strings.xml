@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="intentFilter_send_text">Send text via SerialTest</string>
+    <string name="intentFilter_send_file">Send file via SerialTest</string>
+</resources>

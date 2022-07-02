@@ -15,12 +15,12 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter android:label="Send text via SerialTest">
+            <intent-filter android:label="@string/intentFilter_send_text">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/*" />
             </intent-filter>
-            <intent-filter android:label="Send file via SerialTest">
+            <intent-filter android:label="@string/intentFilter_send_file">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/*" />
