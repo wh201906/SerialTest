@@ -398,13 +398,17 @@ void MainWindow::sendData(const QByteArray& data)
         dataTab->setRepeat(false);
         return;
     }
-    IOConnection->write(data);
+    qint64 len = IOConnection->write(data);
+    // this happens if an error occurred,
+    // or the Tx switch of all clients are disabled.
+    if(len <= 0)
+        return;
     if(m_TxDataRecording)
     {
         rawSendedData += data;
         dataTab->appendSendedData(data);
     }
-    m_TxCount += data.length();
+    m_TxCount += len;
     updateRxTxLen(false, true);
 }
 
