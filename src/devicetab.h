@@ -45,6 +45,9 @@ private:
     QLowEnergyController *m_BLEController = nullptr;
     QHash<QBluetoothUuid, QTreeWidgetItem*> m_discoveredBLEServices;
 
+    const QString m_autoLocalAddress = tr("(Auto)");
+    const QString m_anyLocalAddress = tr("(Any)");
+
     void loadDevicesPreference(const QString &id);
 
     void initUI();
@@ -56,6 +59,8 @@ private:
     void BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeWidgetItem *parentItem);
     void BLEC_addDescriptor(const QLowEnergyDescriptor &descriptor, QTreeWidgetItem *parentItem);
     QString BLE_getCharacteristicPropertyString(const QLowEnergyCharacteristic &c);
+    qsizetype updateBTAdapterList();
+    qsizetype updateNetInterfaceList();
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();

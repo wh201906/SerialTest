@@ -404,7 +404,7 @@ void Connection::onErrorOccurred()
         // connectFailed() is emitted in open()
         QSerialPort::SerialPortError error;
         error = m_serialPort->error();
-        qDebug() << "SerialPort Error:" << error;
+        qDebug() << "SerialPort Error:" << error << m_serialPort->errorString();
 
         // no error
         if(error == QSerialPort::NoError)
@@ -425,7 +425,8 @@ void Connection::onErrorOccurred()
     {
         QBluetoothSocket::SocketError error;
         error = m_BTSocket->error();
-        qDebug() << "BT Socket Error:" << error;
+        qDebug() << "BT Socket Error:" << error << m_BTSocket->errorString();
+        qDebug() << "State:" << m_BTSocket->state();
 
         // no error
         if(error == QBluetoothSocket::NoSocketError)
@@ -444,8 +445,8 @@ void Connection::onErrorOccurred()
     {
         QAbstractSocket::SocketError error;
         error = m_TCPSocket->error();
-        qDebug() << "TCP Socket Error:" << error;
-
+        qDebug() << "TCP Socket Error:" << error << m_TCPSocket->errorString();
+        qDebug() << "State:" << m_TCPSocket->state();
 
         // QTcpSocket::SocketTimeoutError? QTcpSocket::DatagramTooLargeError?
         // keep the statement in Server_onClientErrorOccurred() in same
@@ -461,6 +462,7 @@ void Connection::onErrorOccurred()
         QBluetoothServer::Error error;
         error = m_BTServer->error();
         qDebug() << "BT Server Error:" << error;
+
         if(!m_BTServer->isListening())
         {
             // the server is always listening when the server is running, according to my implementation
@@ -481,7 +483,9 @@ void Connection::onErrorOccurred()
         }
         else // UDP
             error = m_UDPSocket->error();
-        qDebug() << "Net Error:" << error;
+        qDebug() << "Net Error:" << error << m_UDPSocket->errorString() << m_TCPServer->errorString();
+        qDebug() << "UDP State:" << m_UDPSocket->state();
+
     }
     emit errorOccurred();
 }
@@ -564,6 +568,8 @@ void Connection::afterConnected()
     }
     else if(m_type == TCP_Client)
     {
+        if(m_currNetArgument.localAddress == QHostAddress::Any) // local address is not specified
+            m_currNetArgument.localAddress = m_TCPSocket->localAddress();
         if(m_currNetArgument.localPort == 0) // a random port is used
             m_currNetArgument.localPort = m_TCPSocket->localPort();
         m_lastNetArgument = m_currNetArgument;
@@ -571,6 +577,8 @@ void Connection::afterConnected()
     }
     else if(m_type == TCP_Server)
     {
+        // TODO:
+        // show local address of each connected socket, which might be different
         if(m_currNetArgument.localPort == 0) // a random port is used
             m_currNetArgument.localPort = m_TCPServer->serverPort();
         m_lastNetArgument = m_currNetArgument;
@@ -690,7 +698,8 @@ void Connection::Server_onClientErrorOccurred()
         QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
         QBluetoothSocket::SocketError socketError;
         socketError = socket->error();
-        qDebug() << "BT Socket Error:" << socketError;
+        qDebug() << "BT Socket Error:" << socketError << socket->errorString();
+        qDebug() << "State:" << socket->state();
 
         // no error
         if(socketError == QBluetoothSocket::NoSocketError)
@@ -709,7 +718,8 @@ void Connection::Server_onClientErrorOccurred()
         QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
         QTcpSocket::SocketError socketError;
         socketError = socket->error();
-        qDebug() << "TCP Socket Error:" << socketError;
+        qDebug() << "TCP Socket Error:" << socketError << socket->errorString();
+        qDebug() << "State:" << socket->state();
 
         if(socketError == QTcpSocket::OperationError || socketError == QTcpSocket::TemporaryError || socketError == QTcpSocket::UnsupportedSocketOperationError)
             ;

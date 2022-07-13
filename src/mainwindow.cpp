@@ -276,7 +276,8 @@ void MainWindow::updateStatusBar()
         if(IOConnection->state() != Connection::Unconnected)
         {
             Connection::NetworkArgument netArg = IOConnection->getNetworkArgument();
-            connArgsText.append((tr("Local") + ": (%1, %2) ").arg(netArg.localAddress.toString()).arg(netArg.localPort));
+            QString localAddr = netArg.localAddress == QHostAddress::Any ? tr("Any") : netArg.localAddress.toString();
+            connArgsText.append((tr("Local") + ": (%1, %2) ").arg(localAddr).arg(netArg.localPort));
         }
         connArgsText.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->TCPServer_clientCount()));
     }
@@ -286,7 +287,8 @@ void MainWindow::updateStatusBar()
         Connection::NetworkArgument netArg = IOConnection->getNetworkArgument();
         if(IOConnection->isConnected())
         {
-            connArgsText.append((tr("Local") + ": (%1, %2) ").arg(netArg.localAddress.toString()).arg(netArg.localPort));
+            QString localAddr = netArg.localAddress == QHostAddress::Any ? tr("Any") : netArg.localAddress.toString();
+            connArgsText.append((tr("Local") + ": (%1, %2) ").arg(localAddr).arg(netArg.localPort));
         }
         connArgsText.append((tr("Remote") + ": (%1, %2) ").arg(netArg.remoteName).arg(netArg.remotePort));
     }

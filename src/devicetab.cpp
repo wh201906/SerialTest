@@ -188,8 +188,8 @@ void DeviceTab::initUI()
 void DeviceTab::getAvailableTypes(bool useFirstValid)
 {
     int firstValid = -1;
+    int num = 0;
     Connection::Type currType = ui->typeBox->currentData().value<Connection::Type>();
-    QHostAddress currNetLocalAddr;
     QStandardItemModel* model = static_cast<QStandardItemModel*>(ui->typeBox->model());
     // need some code to check if BLE is supported
     QVector<Connection::Type> invalid =
@@ -212,37 +212,15 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     invalid += Connection::BLE_Peripheral;
 #endif
     // check Bluetooth adapters, add adapter info into adapterBox
-    ui->BTClient_adapterBox->clear();
-    ui->BTServer_adapterBox->clear();
-    ui->BLEC_adapterBox->clear();
-    int id = 0;
-#ifdef Q_OS_ANDROID
-    // need modify
-    if(QtAndroid::checkPermission("android.permission.BLUETOOTH_CONNECT") == QtAndroid::PermissionResult::Denied)
-        QtAndroid::requestPermissionsSync({"android.permission.BLUETOOTH_CONNECT"}, 10000);
-#endif
-    auto BTAdapterList = QBluetoothLocalDevice::allDevices();
-    for(auto it = BTAdapterList.cbegin(); it != BTAdapterList.cend(); ++it)
-    {
-        qDebug() << "dev:" << it->name() << it->address();
-        QBluetoothLocalDevice dev(it->address());
-        if(dev.isValid() && dev.hostMode() != QBluetoothLocalDevice::HostPoweredOff)
-        {
-            QString name = QString("%1:%2").arg(id + 1).arg(it->name());
-            ui->BTClient_adapterBox->addItem(name, it->address().toString());
-            ui->BTServer_adapterBox->addItem(name, it->address().toString());
-            ui->BLEC_adapterBox->addItem(name, it->address().toString());
-            id++;
-        }
-    }
-    if(id == 0)
+    num = updateBTAdapterList();
+    if(num == 0)
     {
         invalid += Connection::BT_Client;
         invalid += Connection::BT_Server;
         invalid += Connection::BLE_Central;
         invalid += Connection::BLE_Peripheral;
     }
-    else if(id == 1)
+    else if(num == 1)
     {
         ui->BTClient_localAdapterWidget->hide();
         ui->BLEC_localAdapterWidget->hide();
@@ -256,21 +234,13 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     on_BTServer_adapterBox_activated(0); // index is unused there
 
     // check network interfaces
-    if(currType == Connection::UDP)
-        // for multicast address
-        currNetLocalAddr = QHostAddress(ui->Net_localAddrBox->currentText());
-    ui->Net_localAddrBox->clear();
-    auto netInterfaceList = QNetworkInterface::allAddresses();
-    for(auto it = netInterfaceList.cbegin(); it != netInterfaceList.cend(); ++it)
-        ui->Net_localAddrBox->addItem((*it).toString());
-    if(netInterfaceList.empty())
+    num = updateNetInterfaceList();
+    if(num == 0)
     {
         invalid += Connection::TCP_Client;
         invalid += Connection::TCP_Server;
         invalid += Connection::UDP;
     }
-    if(currType == Connection::UDP && currNetLocalAddr.isMulticast())
-        ui->Net_localAddrBox->setCurrentText(currNetLocalAddr.toString());
 
     ui->typeBox->blockSignals(true);
     ui->typeBox->clear();
@@ -295,6 +265,60 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     if(!useFirstValid)
         ui->typeBox->setCurrentIndex(currType);
     ui->typeBox->blockSignals(false);
+}
+
+qsizetype DeviceTab::updateBTAdapterList()
+{
+    qsizetype id = 0;
+
+    ui->BTClient_adapterBox->clear();
+    ui->BTServer_adapterBox->clear();
+    ui->BLEC_adapterBox->clear();
+#ifdef Q_OS_ANDROID
+    // need modify
+    if(QtAndroid::checkPermission("android.permission.BLUETOOTH_CONNECT") == QtAndroid::PermissionResult::Denied)
+        QtAndroid::requestPermissionsSync({"android.permission.BLUETOOTH_CONNECT"}, 10000);
+#endif
+    auto BTAdapterList = QBluetoothLocalDevice::allDevices();
+    for(auto it = BTAdapterList.cbegin(); it != BTAdapterList.cend(); ++it)
+    {
+        qDebug() << "dev:" << it->name() << it->address();
+        QBluetoothLocalDevice dev(it->address());
+        if(dev.isValid() && dev.hostMode() != QBluetoothLocalDevice::HostPoweredOff)
+        {
+            QString name = QString("%1:%2").arg(id + 1).arg(it->name());
+            ui->BTClient_adapterBox->addItem(name, it->address().toString());
+            ui->BTServer_adapterBox->addItem(name, it->address().toString());
+            ui->BLEC_adapterBox->addItem(name, it->address().toString());
+            id++;
+        }
+    }
+    return id;
+}
+
+qsizetype DeviceTab::updateNetInterfaceList()
+{
+    Connection::Type currType = ui->typeBox->currentData().value<Connection::Type>();
+    QHostAddress currNetLocalAddr;
+
+    if(currType == Connection::UDP)
+    {
+        // for multicast address
+        if(ui->Net_localAddrBox->currentText() != m_autoLocalAddress && ui->Net_localAddrBox->currentText() != m_anyLocalAddress)
+            currNetLocalAddr = QHostAddress(ui->Net_localAddrBox->currentText());
+    }
+    ui->Net_localAddrBox->clear();
+    if(currType == Connection::TCP_Client)
+        ui->Net_localAddrBox->addItem(m_autoLocalAddress);
+    else if(currType == Connection::TCP_Server || currType == Connection::UDP)
+        ui->Net_localAddrBox->addItem(m_anyLocalAddress);
+    auto netInterfaceList = QNetworkInterface::allAddresses();
+    for(auto it = netInterfaceList.cbegin(); it != netInterfaceList.cend(); ++it)
+        ui->Net_localAddrBox->addItem((*it).toString());
+
+    if(currType == Connection::UDP && currNetLocalAddr.isMulticast())
+        ui->Net_localAddrBox->setCurrentText(currNetLocalAddr.toString());
+    return netInterfaceList.size();
 }
 
 void DeviceTab::onClientCountChanged()
@@ -474,7 +498,10 @@ void DeviceTab::on_openButton_clicked()
             m_connection->close(true);
         }
         Connection::NetworkArgument arg;
-        arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        if(ui->Net_localAddrBox->currentText() != m_autoLocalAddress)
+            arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        else
+            arg.localAddress = QHostAddress::Any;
         arg.localPort = ui->Net_localPortEdit->text().toUInt();
         arg.remoteName = ui->Net_remoteAddrEdit->text();
         arg.remotePort = ui->Net_remotePortEdit->text().toUInt();
@@ -489,7 +516,10 @@ void DeviceTab::on_openButton_clicked()
             return;
         }
         Connection::NetworkArgument arg;
-        arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        if(ui->Net_localAddrBox->currentText() != m_anyLocalAddress)
+            arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        else
+            arg.localAddress = QHostAddress::Any;
         arg.localPort = ui->Net_localPortEdit->text().toUInt();
         m_connection->setArgument(arg);
         m_connection->open();
@@ -502,7 +532,10 @@ void DeviceTab::on_openButton_clicked()
             return;
         }
         Connection::NetworkArgument arg;
-        arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        if(ui->Net_localAddrBox->currentText() != m_anyLocalAddress)
+            arg.localAddress = QHostAddress(ui->Net_localAddrBox->currentText());
+        else
+            arg.localAddress = QHostAddress::Any;
         arg.localPort = ui->Net_localPortEdit->text().toUInt();
         arg.remoteName = ui->Net_remoteAddrEdit->text();
         arg.remotePort = ui->Net_remotePortEdit->text().toUInt();
@@ -681,16 +714,19 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     {
         ui->targetListStack->setCurrentWidget(ui->BTClientListPage);
         ui->argsStack->setCurrentWidget(ui->BTClientArgsPage);
+        updateBTAdapterList();
     }
     else if(newType == Connection::BT_Server)
     {
         ui->targetListStack->setCurrentWidget(ui->BTServerListPage);
         ui->argsStack->setCurrentWidget(ui->BTServerArgsPage);
+        updateBTAdapterList();
     }
     else if(newType == Connection::BLE_Central)
     {
         ui->targetListStack->setCurrentWidget(ui->BLECentralListPage);
         ui->argsStack->setCurrentWidget(ui->BLECentralArgsPage);
+        updateBTAdapterList();
     }
     else if(newType == Connection::TCP_Client)
     {
@@ -707,6 +743,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->Net_tipLabel->hide();
         ui->targetListStack->setCurrentWidget(ui->NetListPage);
         ui->argsStack->setCurrentWidget(ui->NetArgsPage);
+        updateNetInterfaceList();
     }
     else if(newType == Connection::TCP_Server)
     {
@@ -725,6 +762,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->Net_tipLabel->hide();
         ui->targetListStack->setCurrentWidget(ui->NetListPage);
         ui->argsStack->setCurrentWidget(ui->NetArgsPage);
+        updateNetInterfaceList();
     }
     else if(newType == Connection::UDP)
     {
@@ -741,6 +779,7 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->Net_tipLabel->show();
         ui->targetListStack->setCurrentWidget(ui->NetListPage);
         ui->argsStack->setCurrentWidget(ui->NetArgsPage);
+        updateNetInterfaceList();
     }
     emit connTypeChanged(newType);
     refreshTargetList();
@@ -821,7 +860,7 @@ void DeviceTab::Net_onRemoteChanged()
 void DeviceTab::on_Net_localAddrBox_currentIndexChanged(int index)
 {
     Q_UNUSED(index)
-    if(ui->Net_remoteAddrEdit->isHidden())
+    if(ui->Net_remoteAddrEdit->isHidden() || ui->Net_localAddrBox->currentText() == m_autoLocalAddress || ui->Net_localAddrBox->currentText() == m_anyLocalAddress)
         return;
     // fill the remoteAddrEdit if user doesn't specify it
     if(ui->Net_remoteAddrEdit->text().isEmpty() || ui->Net_localAddrBox->findText(ui->Net_remoteAddrEdit->text(), Qt::MatchExactly) != -1) // case insensitive
