@@ -514,7 +514,7 @@ qint64 Connection::write(const char *data, qint64 len)
         for(auto it = m_BTTxClients.cbegin(); it != m_BTTxClients.cend(); ++it)
         {
             currLen = (*it)->write(data, len);
-            if(maxLen > currLen)
+            if(currLen > maxLen)
                 maxLen = currLen;
         }
         return maxLen;
@@ -530,7 +530,7 @@ qint64 Connection::write(const char *data, qint64 len)
         for(auto it = m_TCPTxClients.cbegin(); it != m_TCPTxClients.cend(); ++it)
         {
             currLen = (*it)->write(data, len);
-            if(maxLen > currLen)
+            if(currLen > maxLen)
                 maxLen = currLen;
         }
         return maxLen;
