@@ -82,6 +82,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ctrlTab, &CtrlTab::send, this, &MainWindow::sendData);
     connect(dataTab, &DataTab::setDataCodec, ctrlTab, &CtrlTab::setDataCodec);
     ui->funcTab->insertTab(3, ctrlTab, tr("Control"));
+    fileTab = new FileTab();
+    ui->funcTab->insertTab(4, fileTab, tr("File"));
     deviceTab->getAvailableTypes(true);
     initTabs();
 

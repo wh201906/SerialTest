@@ -19,11 +19,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    asynccrc.cpp \
     connection.cpp \
     controlitem.cpp \
     ctrltab.cpp \
     datatab.cpp \
     devicetab.cpp \
+    filetab.cpp \
     legenditemdialog.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -34,11 +36,13 @@ SOURCES += \
     util.cpp
 
 HEADERS += \
+    asynccrc.h \
     connection.h \
     controlitem.h \
     ctrltab.h \
     datatab.h \
     devicetab.h \
+    filetab.h \
     legenditemdialog.h \
     mainwindow.h \
     mycustomplot.h \
@@ -48,6 +52,7 @@ HEADERS += \
     util.h
 
 FORMS += \
+    ui/filetab.ui \
     ui/legenditemdialog.ui \
     ui/serialpinout.ui \
     ui/devicetab.ui \

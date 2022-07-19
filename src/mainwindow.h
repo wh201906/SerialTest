@@ -25,6 +25,7 @@
 #include "ctrltab.h"
 #include "datatab.h"
 #include "devicetab.h"
+#include "filetab.h"
 #include "serialpinout.h"
 #include "connection.h"
 
@@ -98,6 +99,7 @@ private:
     CtrlTab* ctrlTab;
     DataTab* dataTab;
     DeviceTab* deviceTab;
+    FileTab* fileTab;
 
 #ifndef Q_OS_ANDROID
     QList<QDockWidget*> dockList;
