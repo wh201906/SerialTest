@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(dataTab, &DataTab::setDataCodec, ctrlTab, &CtrlTab::setDataCodec);
     ui->funcTab->insertTab(3, ctrlTab, tr("Control"));
     fileTab = new FileTab();
+    connect(fileTab, &FileTab::showUpTab, this, &MainWindow::showUpTab);
     ui->funcTab->insertTab(4, fileTab, tr("File"));
     deviceTab->getAvailableTypes(true);
     initTabs();

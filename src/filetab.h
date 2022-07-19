@@ -5,6 +5,11 @@
 #include <QRadioButton>
 #include <QThread>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#endif
+
 #include "asynccrc.h"
 
 namespace Ui
@@ -21,7 +26,7 @@ public:
     ~FileTab();
 
 public slots:
-    void onChecksumUpdated(quint32 checksum);
+    void onChecksumUpdated(quint64 checksum);
 private slots:
     void on_fileBrowseButton_clicked();
 
@@ -34,6 +39,16 @@ private:
 
     QThread* m_checksumThread;
     AsyncCRC* m_checksumCalc;
+
+    void showUpTabHelper(int id);
+
+#ifdef Q_OS_ANDROID
+    static FileTab* m_currInstance;
+    static void onSharedFileReceived(JNIEnv *env, jobject thiz, jstring text);
+#endif
+
+signals:
+    void showUpTab(int id);
 };
 
 #endif // FILETAB_H

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.net.Uri;
 import android.bluetooth.*;
+import android.os.Process;
 
 import java.util.Set;
 import java.lang.String;
@@ -81,9 +82,11 @@ public class MainActivity extends QtActivity
         {
             Log.i("", "handle file");
             Uri fileUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            Log.i("Uri Permission:", String.valueOf(checkUriPermission(fileUri, Process.myPid(), Process.myUid(), Intent.FLAG_GRANT_READ_URI_PERMISSION)));
             if (fileUri == null)
                 return;
             Log.i("fileUri", fileUri.toString());
+            shareFile(fileUri.toString());
         }
     }
 
@@ -105,4 +108,5 @@ public class MainActivity extends QtActivity
     }
 
     private static native void shareText(String text);
+    private static native void shareFile(String text);
 }

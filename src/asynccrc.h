@@ -11,7 +11,7 @@ public:
 
     Q_INVOKABLE void addData(const char* data, qsizetype length);
     Q_INVOKABLE void addData(const QByteArray& data);
-    Q_INVOKABLE void getResult();
+    Q_INVOKABLE quint64 getResult();
     Q_INVOKABLE void setNotify(bool state);
     Q_INVOKABLE void setParam(quint8 width, quint64 poly, quint64 init = 0ULL, bool refIn = false, bool refOut = false, quint64 xorOut = 0ULL);
     Q_INVOKABLE void reset();

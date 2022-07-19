@@ -26,9 +26,11 @@ void AsyncCRC::addData(const char *data, qsizetype length)
             m_crc = (m_crc >> 8) ^ m_table[(m_crc & 0xFF) ^ *data++];
         m_crc &= (1ULL << m_width) - 1ULL; // mask, not necessary
     }
+
     if(m_refIn != m_refOut)
         m_crc = reflect(m_crc, m_width);
     m_crc ^= m_xorOut;
+
     if(m_notify)
         emit result(m_crc);
 }
@@ -55,9 +57,10 @@ quint64 AsyncCRC::reflect(quint64 data, quint8 len)
     return result;
 }
 
-void AsyncCRC::getResult()
+quint64 AsyncCRC::getResult()
 {
     emit result(m_crc);
+    return m_crc;
 }
 
 void AsyncCRC::setNotify(bool state)
