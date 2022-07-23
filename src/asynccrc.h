@@ -9,6 +9,14 @@ class AsyncCRC : public QObject
 public:
     explicit AsyncCRC(QObject *parent = nullptr);
 
+    enum CRCFileError
+    {
+        OpenFileError = 0,
+        ReadFileError
+    };
+    Q_ENUM(CRCFileError);
+
+    Q_INVOKABLE void loadFile(const QString& path);
     Q_INVOKABLE void addData(const char* data, qsizetype length);
     Q_INVOKABLE void addData(const QByteArray& data);
     Q_INVOKABLE quint64 getResult();
@@ -21,6 +29,7 @@ protected:
 
     quint64 m_crc;
     quint64 m_table[256];
+    bool m_isInitVal = true;
 
     quint8 m_width;
     quint64 m_initVal, m_xorOut;
@@ -29,6 +38,7 @@ protected:
     quint64 reflect(quint64 data, quint8 len);
 signals:
     void result(quint64 crcResult);
+    void fileError(AsyncCRC::CRCFileError error);
 };
 
 #endif // ASYNCCRC_H
