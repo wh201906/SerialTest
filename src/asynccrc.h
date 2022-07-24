@@ -28,7 +28,7 @@ protected:
     bool m_notify = false;
 
     quint64 m_crc;
-    quint64 m_table[256];
+    quint64 m_table[8][256];
     bool m_isInitVal = true;
 
     quint8 m_width;

@@ -14,7 +14,7 @@ void AsyncCRC::loadFile(const QString &path)
     // call reset() outside for new file
     bool notifyState = m_notify;
     m_notify = false;
-    qint64 threshold = 1024 * 1024 * 64;
+    qint64 threshold = 1024 * 1024 * 128;
 
     QFile file(path);
     if(!file.open(QFile::ReadOnly))
@@ -62,15 +62,32 @@ void AsyncCRC::addData(const char *data, qsizetype length)
         while(length--)
         {
             tmp = m_crc >> offset; // & 0xFF
-            m_crc = (m_crc << 8) ^ m_table[tmp ^ (quint8)(*data++)];
+            m_crc = (m_crc << 8) ^ m_table[0][tmp ^ (quint8)(*data++)];
         }
-        m_crc &= (1ULL << m_width) - 1ULL; // mask
+        m_crc &= (2ULL << (m_width - 1)) - 1ULL; // mask
     }
     else
     {
+        quint64* slice = (quint64*)data;
+        while(length >= 8)
+        {
+            m_crc ^= *slice++;
+
+            m_crc = m_table[7][ m_crc        & 0xFF] ^
+                    m_table[6][(m_crc >> 8)  & 0xFF] ^
+                    m_table[5][(m_crc >> 16) & 0xFF] ^
+                    m_table[4][(m_crc >> 24) & 0xFF] ^
+                    m_table[3][(m_crc >> 32) & 0xFF] ^
+                    m_table[2][(m_crc >> 40) & 0xFF] ^
+                    m_table[1][(m_crc >> 48) & 0xFF] ^
+                    m_table[0][ m_crc >> 56];
+            length -= 8;
+        }
+        data = (const char*)slice;
         while(length--)
-            m_crc = (m_crc >> 8) ^ m_table[(m_crc & 0xFF) ^ (quint8)(*data++)];
-        m_crc &= (1ULL << m_width) - 1ULL; // mask, not necessary
+            m_crc = (m_crc >> 8) ^ m_table[0][(m_crc & 0xFF) ^ (quint8)(*data++)];
+
+        m_crc &= (2ULL << (m_width - 1)) - 1ULL; // mask, not necessary
     }
 
     if(m_refIn != m_refOut)
@@ -124,18 +141,20 @@ void AsyncCRC::setParam(quint8 width, quint64 poly, quint64 init, bool refIn, bo
     m_xorOut = xorOut;
 
     quint64 tmp;
-    quint64 mask = (1ULL << m_width) - 1ULL;
+    // the result of (1ULL << 64) - 1ULL is undefined.
+    // (2ULL << 63) - 1ULL will be fine.
+    quint64 mask = (2ULL << (m_width - 1)) - 1ULL;
 
     if(!m_refIn)
     {
         quint8 offset = m_width - 8;
         quint64 MSB = 1ULL << (m_width - 1);
-        for(quint16 i = 0; i < 256; i++)
+        for(quint64 i = 0; i < 256; i++)
         {
             tmp = i << offset;
             for(quint8 j = 0; j < 8; j++)
                 tmp = (tmp & MSB) ? ((tmp << 1) ^ poly) : (tmp << 1);
-            m_table[i] = tmp & mask;
+            m_table[0][i] = tmp & mask;
         }
     }
     else
@@ -146,7 +165,12 @@ void AsyncCRC::setParam(quint8 width, quint64 poly, quint64 init, bool refIn, bo
             tmp = i;
             for(quint8 j = 0; j < 8; j++)
                 tmp = (tmp & 1) ? ((tmp >> 1) ^ poly) : (tmp >> 1);
-            m_table[i] = tmp & mask;
+            m_table[0][i] = tmp & mask;
+        }
+        for(quint8 i = 1; i < 8; i++)
+        {
+            for(quint16 j = 0; j < 256; j++)
+                m_table[i][j] = (m_table[i - 1][j] >> 8) ^ m_table[0][m_table[i - 1][j] & 0xFF];
         }
     }
     reset();
