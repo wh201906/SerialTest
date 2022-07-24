@@ -8,6 +8,9 @@ class AsyncCRC : public QObject
     Q_OBJECT
 public:
     explicit AsyncCRC(QObject *parent = nullptr);
+    AsyncCRC(quint8 width, quint64 poly, quint64 init = 0ULL, bool refIn = false, bool refOut = false, quint64 xorOut = 0ULL);
+    AsyncCRC(const AsyncCRC& obj);
+    AsyncCRC &operator= (const AsyncCRC& obj);
 
     enum CRCFileError
     {
@@ -24,6 +27,8 @@ public:
     Q_INVOKABLE void setParam(quint8 width, quint64 poly, quint64 init = 0ULL, bool refIn = false, bool refOut = false, quint64 xorOut = 0ULL);
     Q_INVOKABLE void reset();
 
+    // for debug
+    bool Test_UseSlice8 = true;
 protected:
     bool m_notify = false;
 
@@ -32,7 +37,7 @@ protected:
     bool m_isInitVal = true;
 
     quint8 m_width;
-    quint64 m_initVal, m_xorOut;
+    quint64 m_poly, m_initVal, m_xorOut, m_mask;
     bool m_refIn, m_refOut;
 
     quint64 reflect(quint64 data, quint8 len);
