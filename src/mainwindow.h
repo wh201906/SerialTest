@@ -47,6 +47,7 @@ public:
 public slots:
     void sendData(const QByteArray &data);
     void updateStatusBar();
+    void updateWindowTitle(Connection::Type type);
     void updateRxTxLen(bool updateRx = true, bool updateTx = true);
     void clearSendedData();
     void clearReceivedData();

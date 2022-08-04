@@ -79,6 +79,8 @@ public:
     bool polling();
     void setPollingInterval(int msec);
     int pollingInterval();
+    static QString getTypeName(Type type);
+    static QMap<Connection::Type, QLatin1String> getTypeNameMap();
 
     // connection
     SerialPortArgument getSerialPortArgument();
@@ -166,6 +168,8 @@ private:
     QSerialPort::PinoutSignals m_SP_lastSignals;
 
     QByteArray m_buf;
+
+    static const QMap<Connection::Type, QLatin1String> m_typeNameMap;
 
     void updateSignalSlot();
     void BTServer_initServiceInfo();

@@ -71,6 +71,16 @@ int Connection::pollingInterval()
     return m_pollTimer->interval();
 }
 
+QString Connection::getTypeName(Type type)
+{
+    return tr(m_typeNameMap[type].data());
+}
+
+QMap<Connection::Type, QLatin1String> Connection::getTypeNameMap()
+{
+    return m_typeNameMap;
+}
+
 void Connection::setArgument(SerialPortArgument arg)
 {
     m_currSPArgument = arg;
@@ -924,3 +934,15 @@ void Connection::blackhole()
     // not efficient, but works
     qobject_cast<QIODevice*>(sender())->readAll();
 }
+
+const QMap<Connection::Type, QLatin1String> Connection::m_typeNameMap
+{
+    {Connection::SerialPort, QLatin1String(QT_TR_NOOP("SerialPort"))},
+    {Connection::BT_Client, QLatin1String(QT_TR_NOOP("Bluetooth Client"))},
+    {Connection::BT_Server, QLatin1String(QT_TR_NOOP("Bluetooth Server"))},
+    {Connection::BLE_Central, QLatin1String(QT_TR_NOOP("BLE Central"))},
+    {Connection::BLE_Peripheral, QLatin1String(QT_TR_NOOP("BLE Peripheral"))},
+    {Connection::TCP_Client, QLatin1String(QT_TR_NOOP("TCP Client"))},
+    {Connection::TCP_Server, QLatin1String(QT_TR_NOOP("TCP Server"))},
+    {Connection::UDP, QLatin1String(QT_TR_NOOP("UDP"))}
+};

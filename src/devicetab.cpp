@@ -7,6 +7,7 @@
 #include <QBluetoothUuid>
 #include <QBluetoothLocalDevice>
 #include <QNetworkInterface>
+#include <QTreeWidgetItem>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
@@ -21,6 +22,8 @@ DeviceTab::DeviceTab(QWidget *parent) :
     connect(ui->SP_portList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BTClient_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BLEC_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
+    connect(ui->BLEC_RxServiceUUIDBox, &QComboBox::currentTextChanged, this, &DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged);
+    connect(ui->BLEC_TxServiceUUIDBox, &QComboBox::currentTextChanged, this, &DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged);
     connect(ui->Net_remoteAddrEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
     connect(ui->Net_remotePortEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
     ui->SP_baudRateBox->installEventFilter(this);
@@ -92,6 +95,7 @@ void DeviceTab::refreshTargetList()
     {
         ui->BLEC_deviceList->setRowCount(0);
         m_shownBTDevices.clear();
+        ui->BLEC_targetAddrBox->clear();
         ui->BLEC_currAddrBox->clear();
         ui->refreshButton->setText(tr("Searching..."));
 #ifdef Q_OS_ANDROID
@@ -120,7 +124,6 @@ void DeviceTab::getBondedTarget(bool isBLE)
     int arraylen = env->GetArrayLength(array.object<jarray>());
     qDebug() << "arraylen:" << arraylen;
     QTableWidget* deviceList = isBLE ? ui->BLEC_deviceList : ui->BTClient_deviceList;
-    QComboBox* deviceBox = isBLE ? ui->BLEC_currAddrBox : ui->BTClient_targetAddrBox;
     deviceList->setRowCount(arraylen);
     for(int i = 0; i < arraylen; i++)
     {
@@ -133,7 +136,15 @@ void DeviceTab::getBondedTarget(bool isBLE)
         deviceList->setItem(i, 2, new QTableWidgetItem(tr("Bonded")));
         deviceList->setItem(i, 3, new QTableWidgetItem());
         m_shownBTDevices[address] = i;
-        deviceBox->addItem(address);
+        if(isBLE)
+        {
+            ui->BLEC_currAddrBox->addItem(address);
+            ui->BLEC_targetAddrBox->addItem(address);
+        }
+        else
+        {
+            ui->BTClient_targetAddrBox->addItem(address);
+        }
     }
 }
 #endif
@@ -194,17 +205,6 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     // need some code to check if BLE is supported
     QVector<Connection::Type> invalid =
     {Connection::BLE_Peripheral};
-    const QMap<Connection::Type, QString> typeNameMap =
-    {
-        {Connection::SerialPort, tr("SerialPort")},
-        {Connection::BT_Client, tr("Bluetooth Client")},
-        {Connection::BT_Server, tr("Bluetooth Server")},
-        {Connection::BLE_Central, tr("BLE Central")},
-        {Connection::BLE_Peripheral, tr("BLE Peripheral")},
-        {Connection::TCP_Client, tr("TCP Client")},
-        {Connection::TCP_Server, tr("TCP Server")},
-        {Connection::UDP, tr("UDP")}
-    };
 #ifdef Q_OS_ANDROID
     invalid += Connection::SerialPort;
 #endif
@@ -244,21 +244,21 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
 
     ui->typeBox->blockSignals(true);
     ui->typeBox->clear();
-    for(auto it = typeNameMap.cbegin(); it != typeNameMap.cend(); ++it)
+    for(auto it : Connection::getTypeNameMap().keys())
     {
-        if(invalid.contains(it.key()))
+        if(invalid.contains(it))
         {
-            ui->typeBox->addItem("!" + it.value(), it.key());
-            Util::disableItem(model, it.key());
+            ui->typeBox->addItem("!" + Connection::getTypeName(it), it);
+            Util::disableItem(model, it);
         }
         else
         {
-            ui->typeBox->addItem(it.value(), it.key());
+            ui->typeBox->addItem(Connection::getTypeName(it), it);
             if(firstValid < 0 && useFirstValid)
             {
-                ui->typeBox->setCurrentIndex(it.key());
-                on_typeBox_currentIndexChanged(it.key()); // this signal is blocked now
-                firstValid = it.key();
+                ui->typeBox->setCurrentIndex(it);
+                on_typeBox_currentIndexChanged(it); // this signal is blocked now
+                firstValid = it;
             }
         }
     }
@@ -596,6 +596,7 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
     {
         if(sender() == ui->BLEC_deviceList)
         {
+            ui->BLEC_targetAddrBox->setCurrentIndex(row);
             ui->BLEC_currAddrBox->setCurrentIndex(row);
         }
         else if(sender() == ui->BLEC_UUIDList)
@@ -650,8 +651,6 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo& device)
     QString rssi = QString::number(device.rssi());
     Connection::Type currType = m_connection->type();
     QTableWidget* deviceList = (currType == Connection::BT_Client) ? ui->BTClient_deviceList : ui->BLEC_deviceList;
-    QComboBox* deviceBox = (currType == Connection::BT_Client) ? ui->BTClient_targetAddrBox : ui->BLEC_currAddrBox;
-
     int i;
     if(m_shownBTDevices.contains(address))
     {
@@ -667,10 +666,17 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo& device)
         deviceList->setItem(i, 1, new QTableWidgetItem(address));
         deviceList->setItem(i, 2, new QTableWidgetItem(tr("Discovered")));
         deviceList->setItem(i, 3, new QTableWidgetItem(rssi));
-        deviceBox->addItem(address);
+        if(currType == Connection::BT_Client)
+        {
+            ui->BTClient_targetAddrBox->addItem(address);
+        }
+        else
+        {
+            ui->BLEC_currAddrBox->addItem(address);
+            ui->BLEC_targetAddrBox->addItem(address);
+        }
         m_shownBTDevices[address] = i;
     }
-    ui->BTClient_targetAddrBox->adjustSize();
     qDebug() << name
              << address
              << device.isValid()
@@ -920,24 +926,53 @@ void DeviceTab::on_SP_flowControlBox_currentIndexChanged(int index)
 
 void DeviceTab::on_BLEC_connectButton_clicked()
 {
-    // stage 1: connect to device
-    ui->BLEC_UUIDList->clear();
-    if(m_BLEController != nullptr)
+    if(ui->BLEC_connectButton->text() == tr("Connect"))
     {
-        m_BLEController->disconnectFromDevice();
-        delete m_BLEController;
-        m_BLEController = nullptr;
-    }
-    m_BLEController = QLowEnergyController::createCentral(QBluetoothAddress(ui->BLEC_currAddrBox->currentText()), QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString()));
-    connect(m_BLEController, &QLowEnergyController::connected, m_BLEController, &QLowEnergyController::discoverServices);
-    connect(m_BLEController, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), [ = ](QLowEnergyController::Error newError)
-    {
-        qDebug() << newError;
-    });
+        // stage 1: connect to device
+        ui->BLEC_UUIDList->clear();
+        if(m_BLEController != nullptr)
+        {
+            m_BLEController->disconnectFromDevice();
+            delete m_BLEController;
+            m_BLEController = nullptr;
+        }
+        ui->BLEC_connectButton->setText(tr("Disconnect"));
+        ui->BLEC_currAddrLabel->setText(ui->BLEC_currAddrBox->currentText());
+        m_BLEController = QLowEnergyController::createCentral(QBluetoothAddress(ui->BLEC_currAddrBox->currentText()), QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString()));
+        connect(m_BLEController, &QLowEnergyController::connected, m_BLEController, &QLowEnergyController::discoverServices);
+        connect(m_BLEController, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), [ = ](QLowEnergyController::Error newError)
+        {
+            qDebug() << newError;
+        });
 
-    connect(m_BLEController, &QLowEnergyController::serviceDiscovered, this, &DeviceTab::BLEC_onRootServiceDiscovered);
-    m_discoveredBLEServices.clear();
-    m_BLEController->connectToDevice();
+        connect(m_BLEController, &QLowEnergyController::serviceDiscovered, this, &DeviceTab::BLEC_onRootServiceDiscovered);
+
+        // stash user input
+        auto lastServiceList = m_discoveredBLEServices.keys();
+        QBluetoothUuid lastService;
+        lastService = QBluetoothUuid(ui->BLEC_RxServiceUUIDBox->currentText());
+        ui->BLEC_RxServiceUUIDBox->clear();
+        if(!lastService.isNull() && !lastServiceList.contains(lastService))
+            ui->BLEC_RxServiceUUIDBox->addItem(lastService.toString());
+        lastService = QBluetoothUuid(ui->BLEC_TxServiceUUIDBox->currentText());
+        ui->BLEC_TxServiceUUIDBox->clear();
+        if(!lastService.isNull() && !lastServiceList.contains(lastService))
+            ui->BLEC_TxServiceUUIDBox->addItem(lastService.toString());
+
+        m_discoveredBLEServices.clear();
+        m_BLEController->connectToDevice();
+    }
+    else
+    {
+        if(m_BLEController != nullptr)
+        {
+            m_BLEController->disconnectFromDevice();
+            delete m_BLEController;
+            m_BLEController = nullptr;
+        }
+        ui->BLEC_connectButton->setText(tr("Connect"));
+    }
+
 }
 
 void DeviceTab::BLEC_onRootServiceDiscovered(const QBluetoothUuid& newService)
@@ -948,8 +983,9 @@ void DeviceTab::BLEC_onRootServiceDiscovered(const QBluetoothUuid& newService)
 void DeviceTab::BLEC_addService(const QBluetoothUuid& serviceUUID, QTreeWidgetItem* parentItem)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem;
+    QString UUIDString = serviceUUID.toString();
     auto service = m_BLEController->createServiceObject(serviceUUID);
-    item->setText(0, serviceUUID.toString());
+    item->setText(0, UUIDString);
     item->setText(1, tr("Service"));
     item->setText(3, service->serviceName());
     if(parentItem == nullptr)
@@ -960,16 +996,28 @@ void DeviceTab::BLEC_addService(const QBluetoothUuid& serviceUUID, QTreeWidgetIt
     m_discoveredBLEServices[serviceUUID] = item;
     connect(service, &QLowEnergyService::stateChanged, this, &DeviceTab::BLEC_onServiceDetailDiscovered);
     service->discoverDetails();
+
+    if(ui->BLEC_RxServiceUUIDBox->findText(UUIDString, Qt::MatchExactly) == -1)
+        ui->BLEC_RxServiceUUIDBox->addItem(UUIDString);
+    if(ui->BLEC_TxServiceUUIDBox->findText(UUIDString, Qt::MatchExactly) == -1)
+        ui->BLEC_TxServiceUUIDBox->addItem(UUIDString);
 }
 
 void DeviceTab::BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeWidgetItem* parentItem)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setText(0, c.uuid().toString());
+    QString UUIDString = c.uuid().toString();
+    item->setText(0, UUIDString);
     item->setText(1, tr("Characteristic"));
     item->setText(2, BLE_getCharacteristicPropertyString(c));
     item->setText(3, c.name());
     parentItem->addChild(item);
+
+    if(ui->BLEC_RxServiceUUIDBox->currentText() == parentItem->text(0))
+        ui->BLEC_RxCharacteristicUUIDBox->addItem(UUIDString);
+    if(ui->BLEC_TxServiceUUIDBox->currentText() == parentItem->text(0))
+        ui->BLEC_TxCharacteristicUUIDBox->addItem(UUIDString);
+
     const QList<QLowEnergyDescriptor> descriptors = c.descriptors();
     for(auto it = descriptors.cbegin(); it != descriptors.cend(); ++it)
         BLEC_addDescriptor(*it, item);
@@ -1060,5 +1108,35 @@ void DeviceTab::on_Net_addrPortList_cellChanged(int row, int column)
     QTcpSocket* socket = (QTcpSocket*)widget->item(row, 0)->data(Qt::UserRole).value<quintptr>();
     m_connection->TCPServer_setClientMode(socket, widget->item(row, 4)->checkState() == Qt::Checked, widget->item(row, 5)->checkState() == Qt::Checked);
 
+}
+
+void DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged(const QString &arg1)
+{
+    QComboBox* serviceBox = qobject_cast<QComboBox*>(sender());
+    QComboBox* characteristicBox = (serviceBox == ui->BLEC_RxServiceUUIDBox) ? ui->BLEC_RxCharacteristicUUIDBox : ui->BLEC_TxCharacteristicUUIDBox;
+    QBluetoothUuid currServiceUUID(arg1);
+    QString stashedUUIDString;
+    if(currServiceUUID.isNull())
+        return;
+    auto itemList = ui->BLEC_UUIDList->findItems(arg1, Qt::MatchExactly);
+    if(itemList.isEmpty())
+        return;
+
+    // stash user input
+    QBluetoothUuid currCharacteristicUUID(characteristicBox->currentText());
+    if(!currCharacteristicUUID.isNull() && characteristicBox->findText(currCharacteristicUUID.toString(), Qt::MatchExactly) == -1)
+    {
+        stashedUUIDString = currCharacteristicUUID.toString();
+    }
+    characteristicBox->clear();
+
+    auto serviceItem = itemList[0];
+    for(int i = 0; i < serviceItem->childCount(); i++)
+    {
+        QString UUIDString = serviceItem->child(i)->text(0);
+        characteristicBox->addItem(UUIDString);
+    }
+    if(!stashedUUIDString.isEmpty())
+        characteristicBox->setCurrentText(stashedUUIDString);
 }
 

@@ -90,6 +90,7 @@ private slots:
     void BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState);
     void on_BTServer_deviceList_cellChanged(int row, int column);
     void on_Net_addrPortList_cellChanged(int row, int column);
+    void on_BLEC_ServiceUUIDBox_currentTextChanged(const QString &arg1);
 };
 
 #endif // DEVICETAB_H

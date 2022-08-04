@@ -38,6 +38,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
         </widget>
        </item>
        <item>
@@ -65,7 +68,7 @@
      <item>
       <widget class="QStackedWidget" name="targetListStack">
        <property name="currentIndex">
-        <number>2</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="SPListPage">
         <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -180,7 +183,11 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <widget class="QComboBox" name="BTClient_adapterBox"/>
+               <widget class="QComboBox" name="BTClient_adapterBox">
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="BTClient_localAddrLabel">
@@ -364,7 +371,11 @@ margin-bottom:3em;
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_5">
                   <item>
-                   <widget class="QComboBox" name="BLEC_adapterBox"/>
+                   <widget class="QComboBox" name="BLEC_adapterBox">
+                    <property name="sizeAdjustPolicy">
+                     <enum>QComboBox::AdjustToContents</enum>
+                    </property>
+                   </widget>
                   </item>
                   <item>
                    <widget class="QLabel" name="BLEC_localAddrLabel">
@@ -440,6 +451,9 @@ margin-bottom:3em;
                  <property name="editable">
                   <bool>true</bool>
                  </property>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
+                 </property>
                 </widget>
                </item>
                <item>
@@ -455,6 +469,9 @@ margin-bottom:3em;
            </widget>
            <widget class="QWidget" name="verticalLayoutWidget_2">
             <layout class="QVBoxLayout" name="verticalLayout_14">
+             <item>
+              <widget class="QLabel" name="BLEC_currAddrLabel"/>
+             </item>
              <item>
               <widget class="QTreeWidget" name="BLEC_UUIDList">
                <column>
@@ -568,7 +585,11 @@ margin-bottom:3em;
            <number>0</number>
           </property>
           <item row="5" column="1">
-           <widget class="QComboBox" name="SP_flowControlBox"/>
+           <widget class="QComboBox" name="SP_flowControlBox">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
+           </widget>
           </item>
           <item row="2" column="1">
            <widget class="QComboBox" name="SP_dataBitsBox">
@@ -578,10 +599,17 @@ margin-bottom:3em;
             <property name="currentIndex">
              <number>-1</number>
             </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
            </widget>
           </item>
           <item row="4" column="1">
-           <widget class="QComboBox" name="SP_parityBox"/>
+           <widget class="QComboBox" name="SP_parityBox">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
+           </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="SP_stopBitsLabel">
@@ -739,6 +767,9 @@ margin-bottom:3em;
             <property name="editable">
              <bool>false</bool>
             </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
            </widget>
           </item>
           <item row="4" column="0">
@@ -825,7 +856,11 @@ margin-bottom:3em;
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="BTServer_adapterBox"/>
+           <widget class="QComboBox" name="BTServer_adapterBox">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="BTServer_localAddrLabel"/>
@@ -911,9 +946,12 @@ margin-bottom:3em;
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_5">
+               <widget class="QComboBox" name="BLEC_targetAddrBox">
                 <property name="editable">
                  <bool>true</bool>
+                </property>
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
                 </property>
                </widget>
               </item>
@@ -925,9 +963,15 @@ margin-bottom:3em;
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_3">
+               <widget class="QComboBox" name="BLEC_RxServiceUUIDBox">
                 <property name="editable">
                  <bool>true</bool>
+                </property>
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
+                <property name="minimumContentsLength">
+                 <number>38</number>
                 </property>
                </widget>
               </item>
@@ -939,9 +983,15 @@ margin-bottom:3em;
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_4">
+               <widget class="QComboBox" name="BLEC_RxCharacteristicUUIDBox">
                 <property name="editable">
                  <bool>true</bool>
+                </property>
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
+                <property name="minimumContentsLength">
+                 <number>38</number>
                 </property>
                </widget>
               </item>
@@ -953,9 +1003,15 @@ margin-bottom:3em;
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox">
+               <widget class="QComboBox" name="BLEC_TxServiceUUIDBox">
                 <property name="editable">
                  <bool>true</bool>
+                </property>
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
+                <property name="minimumContentsLength">
+                 <number>38</number>
                 </property>
                </widget>
               </item>
@@ -967,9 +1023,15 @@ margin-bottom:3em;
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_2">
+               <widget class="QComboBox" name="BLEC_TxCharacteristicUUIDBox">
                 <property name="editable">
                  <bool>true</bool>
+                </property>
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
+                <property name="minimumContentsLength">
+                 <number>38</number>
                 </property>
                </widget>
               </item>
@@ -1044,7 +1106,11 @@ margin-bottom:3em;
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="Net_localAddrBox"/>
+               <widget class="QComboBox" name="Net_localAddrBox">
+                <property name="sizeAdjustPolicy">
+                 <enum>QComboBox::AdjustToContents</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_6">

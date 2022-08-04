@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     deviceTab = new DeviceTab();
     deviceTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateStatusBar);
+    connect(deviceTab, &DeviceTab::connTypeChanged, this, &MainWindow::updateWindowTitle);
     connect(deviceTab, &DeviceTab::argumentChanged, this, &MainWindow::updateStatusBar);
     connect(deviceTab, &DeviceTab::clientCountChanged, this, &MainWindow::updateStatusBar);
     connect(IOConnection, &Connection::BT_clientConnected, deviceTab, &DeviceTab::onClientCountChanged);
@@ -304,6 +305,11 @@ void MainWindow::updateStatusBar()
     else
         stateButton->setText(tr("State") + ": X");
     updateRxTxLen();
+}
+
+void MainWindow::updateWindowTitle(Connection::Type type)
+{
+    setWindowTitle("SerialTest - " + Connection::getTypeName(type));
 }
 
 void MainWindow::clearSendedData()
