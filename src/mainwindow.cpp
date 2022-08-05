@@ -222,13 +222,15 @@ void MainWindow::updateStatusBar()
             // the value of flowcontrol is not specified
         }
     }
-    else if(type == Connection::BT_Client)
+    else if(type == Connection::BT_Client || type == Connection::BLE_Central)
     {
         serialPinout->hide();
         if(IOConnection->isConnected())
         {
+            QString remoteName = IOConnection->BT_remoteName();
             connArgsText.append((tr("Remote") + ": %1 ").arg(IOConnection->getBTArgument().deviceAddress.toString()));
-            connArgsText.append((tr("Remote Name") + ": %1 ").arg(IOConnection->BTClient_remoteName()));
+            if(!remoteName.isEmpty())
+                connArgsText.append((tr("Remote Name") + ": %1 ").arg(IOConnection->BT_remoteName()));
 #ifdef Q_OS_ANDROID
             if(IOConnection->BT_localAddress().toString() != "02:00:00:00:00:00")
 #else
@@ -238,7 +240,6 @@ void MainWindow::updateStatusBar()
                 connArgsText.append((tr("Local") + ": %1 ").arg(IOConnection->BT_localAddress().toString()));
             }
         }
-        connArgsLabel->setText(connArgsText);
     }
     else if(type == Connection::BT_Server)
     {
@@ -255,10 +256,6 @@ void MainWindow::updateStatusBar()
             }
         }
         connArgsText.append((tr("Connected Clients") + ": %1 ").arg(IOConnection->BTServer_clientCount()));
-    }
-    else if(type == Connection::BLE_Central)
-    {
-        serialPinout->hide();
     }
     else if(type == Connection::BLE_Peripheral)
     {

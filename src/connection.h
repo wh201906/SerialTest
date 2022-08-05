@@ -107,12 +107,11 @@ public:
     bool SP_setFlowControl(QSerialPort::FlowControl flowControl);
 
     // Bluetooth
-    QString BTClient_remoteName();
+    QString BT_remoteName();
     QBluetoothAddress BT_localAddress();
     QList<QBluetoothSocket*> BTServer_clientList() const;
     int BTServer_clientCount();
     bool BTServer_setClientMode(QBluetoothSocket* clientSocket, bool RxEnabled = true, bool TxEnabled = true);
-
 
     // Network
     void UDP_setRemote(const QString& addr, quint16 port);
@@ -130,7 +129,16 @@ public slots:
     void open(); // async
     bool reopen(); // async, return false if no argument is stored in the previous connection
     void close(bool forced = false); // async
+
+    // BLE
+    void BLEC_onDataArrived(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 private:
+    enum BLE_RxTxMode
+    {
+        BLE_1S1C = 0, // Tx and Rx use the same service and characteristic
+        BLE_1S2C, // Tx and Rx use the same service but different characteristics
+        BLE_2S2C, // Tx and Rx use different services
+    };
     Type m_type = SerialPort;
     State m_state = Unconnected;
 
@@ -149,15 +157,23 @@ private:
     QSerialPort* m_serialPort = nullptr;
     QBluetoothServer* m_BTServer = nullptr;
     QBluetoothSocket* m_BTSocket = nullptr;
+    QLowEnergyController* m_BLEController = nullptr;
+    QLowEnergyService* m_BLERxTxService = nullptr; // Rx of all mode, Tx of BLE_1S1C and BLE 1S2C mode
+    QLowEnergyService* m_BLETxService = nullptr; // Tx of BLE_2S2C mode
+    bool m_BLERxCharacteristicValid = false;
+    bool m_BLETxCharacteristicValid = false;
+    QLowEnergyCharacteristic m_BLETxCharacteristic;
     QTcpServer* m_TCPServer = nullptr;
     QTcpSocket* m_TCPSocket = nullptr;
     QUdpSocket* m_UDPSocket = nullptr;
 
     QList<QBluetoothSocket*> m_BTConnectedClients;
     QList<QBluetoothSocket*> m_BTTxClients;
+    QList<QBluetoothUuid> m_BLEDiscoveredServices;
     QList<QTcpSocket*> m_TCPConnectedClients;
     QList<QTcpSocket*> m_TCPTxClients;
     QBluetoothServiceInfo m_RfcommServiceInfo;
+    BLE_RxTxMode m_BLERxTxMode;
 
 
     // for characteristics without notify property in BLE, pinout signals in serialport
@@ -204,6 +220,10 @@ private slots:
     void Server_onClientErrorOccurred();
     void onPollingTimeout();
     void blackhole();
+    // BLE
+    void BLEC_onServiceDiscovered(const QBluetoothUuid& serviceUUID);
+    void BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState);
+
 };
 
 #endif // CONNECTION_H

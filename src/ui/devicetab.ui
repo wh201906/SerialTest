@@ -971,7 +971,7 @@ margin-bottom:3em;
                  <enum>QComboBox::AdjustToContents</enum>
                 </property>
                 <property name="minimumContentsLength">
-                 <number>38</number>
+                 <number>30</number>
                 </property>
                </widget>
               </item>
@@ -991,7 +991,7 @@ margin-bottom:3em;
                  <enum>QComboBox::AdjustToContents</enum>
                 </property>
                 <property name="minimumContentsLength">
-                 <number>38</number>
+                 <number>30</number>
                 </property>
                </widget>
               </item>
@@ -1011,7 +1011,7 @@ margin-bottom:3em;
                  <enum>QComboBox::AdjustToContents</enum>
                 </property>
                 <property name="minimumContentsLength">
-                 <number>38</number>
+                 <number>30</number>
                 </property>
                </widget>
               </item>
@@ -1031,7 +1031,7 @@ margin-bottom:3em;
                  <enum>QComboBox::AdjustToContents</enum>
                 </property>
                 <property name="minimumContentsLength">
-                 <number>38</number>
+                 <number>30</number>
                 </property>
                </widget>
               </item>

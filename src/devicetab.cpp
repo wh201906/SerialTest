@@ -485,6 +485,30 @@ void DeviceTab::on_openButton_clicked()
         m_connection->setArgument(arg);
         m_connection->open();
     }
+    else if(currType == Connection::BLE_Central)
+    {
+        if(m_connection->isConnected())
+        {
+            QMessageBox::warning(this, tr("Error"), tr("The device is already connected."));
+            return;
+        }
+        else if(m_connection->state() == Connection::Connecting)
+        {
+            m_connection->close(true);
+        }
+        if(m_BLEController != nullptr)
+            m_BLEController->disconnectFromDevice();
+        Connection::BTArgument arg;
+        arg.localAdapterAddress = QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString());
+        arg.deviceAddress = QBluetoothAddress(ui->BLEC_targetAddrBox->currentText());
+        arg.RxServiceUUID = QBluetoothUuid(ui->BLEC_RxServiceUUIDBox->currentText());
+        arg.RxCharacteristicUUID = QBluetoothUuid(ui->BLEC_RxCharacteristicUUIDBox->currentText());
+        arg.TxServiceUUID = QBluetoothUuid(ui->BLEC_TxServiceUUIDBox->currentText());
+        arg.TxCharacteristicUUID = QBluetoothUuid(ui->BLEC_TxCharacteristicUUIDBox->currentText());
+        arg.TxServiceUUID = QBluetoothUuid(ui->BLEC_TxServiceUUIDBox->currentText());
+        m_connection->setArgument(arg);
+        m_connection->open();
+    }
     else if(currType == Connection::TCP_Client)
     {
         if(m_connection->isConnected())
@@ -598,10 +622,6 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
         {
             ui->BLEC_targetAddrBox->setCurrentIndex(row);
             ui->BLEC_currAddrBox->setCurrentIndex(row);
-        }
-        else if(sender() == ui->BLEC_UUIDList)
-        {
-
         }
     }
 }
@@ -821,7 +841,7 @@ void DeviceTab::setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress)
         disconnect(BTClient_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &DeviceTab::BTdeviceDiscovered);
         disconnect(BTClient_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &DeviceTab::BTdiscoverFinished);
         disconnect(BTClient_discoveryAgent, QOverload<QBluetoothDeviceDiscoveryAgent::Error>::of(&QBluetoothDeviceDiscoveryAgent::error), this, &DeviceTab::BTdiscoverFinished);
-        delete BTClient_discoveryAgent;
+        BTClient_discoveryAgent->deleteLater();
     }
     BTClient_discoveryAgent = new QBluetoothDeviceDiscoveryAgent(adapterAddress, this);
     connect(BTClient_discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this, &DeviceTab::BTdeviceDiscovered);
@@ -926,16 +946,16 @@ void DeviceTab::on_SP_flowControlBox_currentIndexChanged(int index)
 
 void DeviceTab::on_BLEC_connectButton_clicked()
 {
+    if(m_BLEController != nullptr)
+    {
+        m_BLEController->disconnectFromDevice();
+        m_BLEController->deleteLater();
+        m_BLEController = nullptr;
+    }
     if(ui->BLEC_connectButton->text() == tr("Connect"))
     {
         // stage 1: connect to device
         ui->BLEC_UUIDList->clear();
-        if(m_BLEController != nullptr)
-        {
-            m_BLEController->disconnectFromDevice();
-            delete m_BLEController;
-            m_BLEController = nullptr;
-        }
         ui->BLEC_connectButton->setText(tr("Disconnect"));
         ui->BLEC_currAddrLabel->setText(ui->BLEC_currAddrBox->currentText());
         m_BLEController = QLowEnergyController::createCentral(QBluetoothAddress(ui->BLEC_currAddrBox->currentText()), QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString()));
@@ -964,12 +984,6 @@ void DeviceTab::on_BLEC_connectButton_clicked()
     }
     else
     {
-        if(m_BLEController != nullptr)
-        {
-            m_BLEController->disconnectFromDevice();
-            delete m_BLEController;
-            m_BLEController = nullptr;
-        }
         ui->BLEC_connectButton->setText(tr("Connect"));
     }
 
@@ -1049,7 +1063,7 @@ void DeviceTab::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState n
                 continue;
             BLEC_addService(*it, parentItem);
         }
-        // add characters
+        // add characteristics
         const QList<QLowEnergyCharacteristic> chars = service->characteristics();
         for(auto it = chars.cbegin(); it != chars.cend(); ++it)
             BLEC_addCharacteristic(*it, parentItem);

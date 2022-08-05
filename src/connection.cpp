@@ -154,6 +154,20 @@ void Connection::open()
         // onConnected() = changeState(Connected) + afterConnected()
         afterConnected();
     }
+    else if(m_type == BLE_Central)
+    {
+        changeState(Connecting);
+        if(m_currBTArgument.RxServiceUUID != m_currBTArgument.TxServiceUUID)
+            m_BLERxTxMode = BLE_2S2C;
+        else
+            m_BLERxTxMode = m_currBTArgument.RxCharacteristicUUID == m_currBTArgument.TxCharacteristicUUID ? BLE_1S1C : BLE_1S2C;
+        m_BLEController = QLowEnergyController::createCentral(m_currBTArgument.deviceAddress, m_currBTArgument.localAdapterAddress);
+        connect(m_BLEController, &QLowEnergyController::connected, m_BLEController, &QLowEnergyController::discoverServices);
+        connect(m_BLEController, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), this, &Connection::onErrorOccurred);
+        connect(m_BLEController, &QLowEnergyController::serviceDiscovered, this, &Connection::BLEC_onServiceDiscovered);
+        m_BLEDiscoveredServices.clear();
+        m_BLEController->connectToDevice();
+    }
     else if(m_type == TCP_Client)
     {
         changeState(Connecting);
@@ -209,7 +223,7 @@ bool Connection::reopen()
             return false;
         setArgument(m_lastSPArgument);
     }
-    else if(m_type == BT_Client || m_type == BT_Server)
+    else if(m_type == BT_Client || m_type == BT_Server || m_type == BLE_Central)
     {
         if(!m_lastBTArgumentValid)
             return false;
@@ -246,6 +260,27 @@ void Connection::close(bool forced)
         for(auto it = m_BTConnectedClients.begin(); it != m_BTConnectedClients.end(); ++it)
             (*it)->close();
         // the delete operation will be done in Server_onClientDisconnected()
+    }
+    else if(m_type == BLE_Central)
+    {
+        m_BLERxCharacteristicValid = false;
+        m_BLETxCharacteristicValid = false;
+        if(m_BLERxTxService != nullptr)
+        {
+            m_BLERxTxService->deleteLater();
+            m_BLERxTxService = nullptr;
+        }
+        if(m_BLETxService != nullptr)
+        {
+            m_BLETxService->deleteLater();
+            m_BLETxService = nullptr;
+        }
+        if(m_BLEController != nullptr)
+        {
+            m_BLEController->disconnectFromDevice();
+            m_BLEController->deleteLater();
+            m_BLEController = nullptr;
+        }
     }
     else if(m_type == TCP_Client)
     {
@@ -289,6 +324,14 @@ void Connection::updateSignalSlot()
         // readyRead(), disconnected() is connected in onClientConnected()
         m_lastOnErrorConn = connect(m_BTServer, QOverload<QBluetoothServer::Error>::of(&QBluetoothServer::error), this, &Connection::onErrorOccurred);
         m_lastOnConnectedConn = connect(m_BTServer, &QBluetoothServer::newConnection, this, &Connection::Server_onClientConnected);
+    }
+    else if(m_type == BLE_Central)
+    {
+        // The BLE related object is not persistent, so the related signals/slots are not handled there.
+        // readyRead(), readAll() -> BLEC_onDataArrived()
+        // error() -> onErrorOccurred() (signals are connected when the object is created)
+        // connected() -> onConnected() (called in BLEC_onServiceDetailDiscovered())
+        // disconnected() -> onErrorOccurred() (no disconnected() signal)
     }
     else if(m_type == TCP_Client)
     {
@@ -451,6 +494,40 @@ void Connection::onErrorOccurred()
             close(true);
         }
     }
+    else if(m_type == BLE_Central)
+    {
+        if(sender() == m_BLEController)
+        {
+            QLowEnergyController::Error error;
+            error = m_BLEController->error();
+            qDebug() << "BLE Central Controller Error:" << error << m_BLEController->errorString();
+            qDebug() << "State:" << m_BLEController->state();
+
+            if(error == QLowEnergyController::NoError)
+                ;
+            else
+            {
+                onDisconnected();
+            }
+        }
+        else if(sender() == m_BLERxTxService || sender() == m_BLETxService)
+        {
+            QLowEnergyService* service = qobject_cast<QLowEnergyService*>(sender());
+            QLowEnergyService::ServiceError error;
+            error = service->error();
+            qDebug() << "BLE Central Service Error:" << error;
+            qDebug() << "State:" << service->state();
+
+            if(error == QLowEnergyService::NoError)
+                ;
+            else if(error == QLowEnergyService::CharacteristicReadError || error == QLowEnergyService::CharacteristicWriteError || error == QLowEnergyService::DescriptorReadError || error == QLowEnergyService::DescriptorWriteError)
+                ;
+            else
+            {
+                onDisconnected();
+            }
+        }
+    }
     else if(m_type == TCP_Client)
     {
         QAbstractSocket::SocketError error;
@@ -529,6 +606,14 @@ qint64 Connection::write(const char *data, qint64 len)
         }
         return maxLen;
     }
+    else if(m_type == BLE_Central)
+    {
+        if(m_BLERxTxMode == BLE_2S2C)
+            m_BLETxService->writeCharacteristic(m_BLETxCharacteristic, QByteArray::fromRawData(data, len));
+        else
+            m_BLERxTxService->writeCharacteristic(m_BLETxCharacteristic, QByteArray::fromRawData(data, len));
+        return len; // no feedback
+    }
     else if(m_type == TCP_Client)
     {
         return m_TCPSocket->write(data, len);
@@ -571,7 +656,7 @@ void Connection::afterConnected()
         m_lastSPArgument = m_currSPArgument;
         m_lastSPArgumentValid = true;
     }
-    else if(m_type == BT_Client || m_type == BT_Server)
+    else if(m_type == BT_Client || m_type == BT_Server || m_type == BLE_Central)
     {
         m_lastBTArgument = m_currBTArgument;
         m_lastBTArgumentValid = true;
@@ -837,10 +922,12 @@ bool Connection::SP_setFlowControl(QSerialPort::FlowControl flowControl)
     return true;
 }
 
-QString Connection::BTClient_remoteName()
+QString Connection::BT_remoteName()
 {
     if(m_type == BT_Client && m_BTSocket != nullptr)
         return m_BTSocket->peerName();
+    else if(m_type == BLE_Central && m_BLEController != nullptr)
+        return m_BLEController->remoteName();
 
     return QString();
 }
@@ -933,6 +1020,147 @@ void Connection::blackhole()
     // discard received data
     // not efficient, but works
     qobject_cast<QIODevice*>(sender())->readAll();
+}
+
+void Connection::BLEC_onServiceDiscovered(const QBluetoothUuid& serviceUUID)
+{
+    m_BLEDiscoveredServices.append(serviceUUID);
+    if(m_BLERxTxService != nullptr && (m_BLETxService != nullptr || m_currBTArgument.RxServiceUUID == m_currBTArgument.TxServiceUUID))
+        return;
+    auto service = m_BLEController->createServiceObject(serviceUUID);
+    if(m_BLERxTxService == nullptr && m_currBTArgument.RxServiceUUID == serviceUUID)
+        m_BLERxTxService = service;
+    if(m_BLETxService == nullptr && m_currBTArgument.RxServiceUUID != m_currBTArgument.TxServiceUUID && m_currBTArgument.TxServiceUUID == serviceUUID)
+        m_BLETxService = service;
+    // for characteristics and included services
+    connect(service, &QLowEnergyService::stateChanged, this, &Connection::BLEC_onServiceDetailDiscovered);
+    service->discoverDetails();
+}
+
+void Connection::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState)
+{
+    bool deleteService = true;
+    auto service = qobject_cast<QLowEnergyService*>(sender());
+    if(newState == QLowEnergyService::InvalidService)
+        deleteService = true;
+    else if(newState == QLowEnergyService::ServiceDiscovered)
+    {
+        deleteService = true;
+        // add included services
+        const QList<QBluetoothUuid> includedServices = service->includedServices();
+        for(auto it = includedServices.cbegin(); it != includedServices.cend(); ++it)
+        {
+            // prevent circular dependency
+            if(m_BLEDiscoveredServices.contains(*it))
+                continue;
+            BLEC_onServiceDiscovered(*it);
+        }
+
+        const QList<QLowEnergyCharacteristic> chars = service->characteristics();
+        // delete unused service
+        if(service != m_BLERxTxService && service != m_BLETxService)
+        {
+            deleteService = true;
+        }
+        else if(m_BLERxTxMode == BLE_1S1C && service == m_BLERxTxService)
+        {
+            for(auto it = chars.cbegin(); it != chars.cend(); ++it)
+            {
+                if(!m_BLERxCharacteristicValid && it->uuid() == m_currBTArgument.RxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Notify) && it->properties().testFlag(QLowEnergyCharacteristic::Write))
+                {
+                    m_BLERxCharacteristicValid = true;
+                    m_BLETxCharacteristicValid = true;
+                    deleteService = false;
+                }
+            }
+        }
+        else if(m_BLERxTxMode == BLE_1S2C && service == m_BLERxTxService)
+        {
+            for(auto it = chars.cbegin(); it != chars.cend(); ++it)
+            {
+                if(!m_BLERxCharacteristicValid && it->uuid() == m_currBTArgument.RxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Notify))
+                {
+                    m_BLERxCharacteristicValid = true;
+                    deleteService = false;
+                }
+                if(!m_BLETxCharacteristicValid && it->uuid() == m_currBTArgument.TxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Write))
+                {
+                    m_BLETxCharacteristicValid = true;
+                    deleteService = false;
+                }
+            }
+        }
+        else if(m_BLERxTxMode == BLE_2S2C && service == m_BLERxTxService)
+        {
+            for(auto it = chars.cbegin(); it != chars.cend(); ++it)
+            {
+                if(!m_BLERxCharacteristicValid && it->uuid() == m_currBTArgument.RxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Notify))
+                {
+                    m_BLERxCharacteristicValid = true;
+                    deleteService = false;
+                }
+            }
+        }
+        else if(service == m_BLETxService && m_BLERxTxMode == BLE_2S2C)
+        {
+            for(auto it = chars.cbegin(); it != chars.cend(); ++it)
+            {
+                if(!m_BLETxCharacteristicValid && it->uuid() == m_currBTArgument.TxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Write))
+                {
+                    m_BLETxCharacteristicValid = true;
+                    deleteService = false;
+                }
+            }
+        }
+
+
+        if(!deleteService)
+        {
+            if(m_BLERxCharacteristicValid && m_BLETxCharacteristicValid)
+            {
+                // Rx
+                connect(m_BLERxTxService, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &Connection::onErrorOccurred);
+                connect(m_BLERxTxService, &QLowEnergyService::characteristicChanged, this, &Connection::BLEC_onDataArrived);
+                connect(m_BLERxTxService, &QLowEnergyService::characteristicRead, this, &Connection::BLEC_onDataArrived);
+                QLowEnergyDescriptor desc = m_BLERxTxService->characteristic(m_currBTArgument.RxCharacteristicUUID).descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+                m_BLERxTxService->writeDescriptor(desc, QByteArray::fromHex("0100"));
+                // Tx
+                if(m_BLERxTxMode == BLE_2S2C)
+                {
+                    connect(m_BLETxService, QOverload<QLowEnergyService::ServiceError>::of(&QLowEnergyService::error), this, &Connection::onErrorOccurred);
+                    m_BLETxCharacteristic = m_BLETxService->characteristic(m_currBTArgument.TxCharacteristicUUID);
+                }
+                else
+                    m_BLETxCharacteristic = m_BLERxTxService->characteristic(m_currBTArgument.TxCharacteristicUUID);
+                onConnected();
+            }
+        }
+        else
+        {
+            m_BLEDiscoveredServices.removeOne(service->serviceUuid());
+            if(service == m_BLERxTxService) // characteristic not found
+            {
+                m_BLERxTxService = nullptr;
+                onDisconnected();
+            }
+            else if(service == m_BLETxService) // characteristic not found
+            {
+                m_BLETxService = nullptr;
+                onDisconnected();
+            }
+            service->deleteLater();
+            // all root services and included services are handled
+            if(m_BLEDiscoveredServices.isEmpty() && m_BLEController->state() == QLowEnergyController::DiscoveredState)
+                onDisconnected();
+        }
+    }
+}
+
+void Connection::BLEC_onDataArrived(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+{
+    Q_UNUSED(characteristic)
+    m_buf += newValue;
+    emit readyRead();
 }
 
 const QMap<Connection::Type, QLatin1String> Connection::m_typeNameMap
