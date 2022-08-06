@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QLocale loc = QLocale::system();
     QTranslator trans;
-    if(loc.language() == QLocale::Chinese)
+    if(loc.language() == QLocale::Chinese || loc.country() == QLocale::China)
     {
         trans.load(":/lang/SerialTest_zh_CN.qm");
         a.installTranslator(&trans);

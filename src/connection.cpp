@@ -267,6 +267,8 @@ void Connection::close(bool forced)
         m_BLETxCharacteristicValid = false;
         if(m_BLERxTxService != nullptr)
         {
+            QLowEnergyDescriptor desc = m_BLERxTxService->characteristic(m_currBTArgument.RxCharacteristicUUID).descriptor(QBluetoothUuid::ClientCharacteristicConfiguration);
+            m_BLERxTxService->writeDescriptor(desc, QByteArray::fromHex("0000"));
             m_BLERxTxService->deleteLater();
             m_BLERxTxService = nullptr;
         }

@@ -61,6 +61,8 @@ private:
     QString BLE_getCharacteristicPropertyString(const QLowEnergyCharacteristic &c);
     qsizetype updateBTAdapterList();
     qsizetype updateNetInterfaceList();
+    QBluetoothUuid String2UUID(const QString &string);
+    QString UUID2String(const QBluetoothUuid &UUID);
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();

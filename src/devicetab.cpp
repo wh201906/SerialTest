@@ -501,11 +501,10 @@ void DeviceTab::on_openButton_clicked()
         Connection::BTArgument arg;
         arg.localAdapterAddress = QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString());
         arg.deviceAddress = QBluetoothAddress(ui->BLEC_targetAddrBox->currentText());
-        arg.RxServiceUUID = QBluetoothUuid(ui->BLEC_RxServiceUUIDBox->currentText());
-        arg.RxCharacteristicUUID = QBluetoothUuid(ui->BLEC_RxCharacteristicUUIDBox->currentText());
-        arg.TxServiceUUID = QBluetoothUuid(ui->BLEC_TxServiceUUIDBox->currentText());
-        arg.TxCharacteristicUUID = QBluetoothUuid(ui->BLEC_TxCharacteristicUUIDBox->currentText());
-        arg.TxServiceUUID = QBluetoothUuid(ui->BLEC_TxServiceUUIDBox->currentText());
+        arg.RxServiceUUID = String2UUID(ui->BLEC_RxServiceUUIDBox->currentText());
+        arg.RxCharacteristicUUID = String2UUID(ui->BLEC_RxCharacteristicUUIDBox->currentText());
+        arg.TxServiceUUID = String2UUID(ui->BLEC_TxServiceUUIDBox->currentText());
+        arg.TxCharacteristicUUID = String2UUID(ui->BLEC_TxCharacteristicUUIDBox->currentText());
         m_connection->setArgument(arg);
         m_connection->open();
     }
@@ -970,14 +969,14 @@ void DeviceTab::on_BLEC_connectButton_clicked()
         // stash user input
         auto lastServiceList = m_discoveredBLEServices.keys();
         QBluetoothUuid lastService;
-        lastService = QBluetoothUuid(ui->BLEC_RxServiceUUIDBox->currentText());
+        lastService = String2UUID(ui->BLEC_RxServiceUUIDBox->currentText());
         ui->BLEC_RxServiceUUIDBox->clear();
         if(!lastService.isNull() && !lastServiceList.contains(lastService))
-            ui->BLEC_RxServiceUUIDBox->addItem(lastService.toString());
-        lastService = QBluetoothUuid(ui->BLEC_TxServiceUUIDBox->currentText());
+            ui->BLEC_RxServiceUUIDBox->addItem(UUID2String(lastService));
+        lastService = String2UUID(ui->BLEC_TxServiceUUIDBox->currentText());
         ui->BLEC_TxServiceUUIDBox->clear();
         if(!lastService.isNull() && !lastServiceList.contains(lastService))
-            ui->BLEC_TxServiceUUIDBox->addItem(lastService.toString());
+            ui->BLEC_TxServiceUUIDBox->addItem(UUID2String(lastService));
 
         m_discoveredBLEServices.clear();
         m_BLEController->connectToDevice();
@@ -997,7 +996,7 @@ void DeviceTab::BLEC_onRootServiceDiscovered(const QBluetoothUuid& newService)
 void DeviceTab::BLEC_addService(const QBluetoothUuid& serviceUUID, QTreeWidgetItem* parentItem)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem;
-    QString UUIDString = serviceUUID.toString();
+    QString UUIDString = UUID2String(serviceUUID);
     auto service = m_BLEController->createServiceObject(serviceUUID);
     item->setText(0, UUIDString);
     item->setText(1, tr("Service"));
@@ -1020,7 +1019,7 @@ void DeviceTab::BLEC_addService(const QBluetoothUuid& serviceUUID, QTreeWidgetIt
 void DeviceTab::BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeWidgetItem* parentItem)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem;
-    QString UUIDString = c.uuid().toString();
+    QString UUIDString = UUID2String(c.uuid());
     item->setText(0, UUIDString);
     item->setText(1, tr("Characteristic"));
     item->setText(2, BLE_getCharacteristicPropertyString(c));
@@ -1040,7 +1039,7 @@ void DeviceTab::BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeW
 void DeviceTab::BLEC_addDescriptor(const QLowEnergyDescriptor& descriptor, QTreeWidgetItem* parentItem)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem;
-    item->setText(0, descriptor.uuid().toString());
+    item->setText(0, UUID2String(descriptor.uuid()));
     item->setText(1, tr("Descriptor"));
     item->setText(3, descriptor.name());
     parentItem->addChild(item);
@@ -1128,19 +1127,20 @@ void DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged(const QString &arg1)
 {
     QComboBox* serviceBox = qobject_cast<QComboBox*>(sender());
     QComboBox* characteristicBox = (serviceBox == ui->BLEC_RxServiceUUIDBox) ? ui->BLEC_RxCharacteristicUUIDBox : ui->BLEC_TxCharacteristicUUIDBox;
-    QBluetoothUuid currServiceUUID(arg1);
+    QBluetoothUuid currServiceUUID = String2UUID(arg1);
     QString stashedUUIDString;
     if(currServiceUUID.isNull())
         return;
-    auto itemList = ui->BLEC_UUIDList->findItems(arg1, Qt::MatchExactly);
+    // don't use arg1 there, useUUID2String(currServiceUUID)
+    auto itemList = ui->BLEC_UUIDList->findItems(UUID2String(currServiceUUID), Qt::MatchExactly);
     if(itemList.isEmpty())
         return;
 
     // stash user input
-    QBluetoothUuid currCharacteristicUUID(characteristicBox->currentText());
-    if(!currCharacteristicUUID.isNull() && characteristicBox->findText(currCharacteristicUUID.toString(), Qt::MatchExactly) == -1)
+    QBluetoothUuid currCharacteristicUUID = String2UUID(characteristicBox->currentText());
+    if(!currCharacteristicUUID.isNull() && characteristicBox->findText(UUID2String(currCharacteristicUUID), Qt::MatchExactly) == -1)
     {
-        stashedUUIDString = currCharacteristicUUID.toString();
+        stashedUUIDString = UUID2String(currCharacteristicUUID);
     }
     characteristicBox->clear();
 
@@ -1154,3 +1154,26 @@ void DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged(const QString &arg1)
         characteristicBox->setCurrentText(stashedUUIDString);
 }
 
+QBluetoothUuid DeviceTab::String2UUID(const QString& string)
+{
+    bool ok;
+    quint32 val = string.toUInt(&ok, 16);
+    if(ok)
+        return QBluetoothUuid(val);
+    QByteArray data = QByteArray::fromHex(string.toLatin1());
+    if(data.length() == 2 || data.length() == 4)
+        val = data.toHex().toUInt(&ok, 16);
+    if(ok)
+        return QBluetoothUuid(val);
+    return QBluetoothUuid(string);
+}
+
+QString DeviceTab::UUID2String(const QBluetoothUuid& UUID)
+{
+    bool ok;
+    QString result = QString("%1").arg(UUID.toUInt32(&ok), UUID.minimumSize() * 2, 16, QLatin1Char('0'));
+    if(ok)
+        return result;
+    else
+        return UUID.toString();
+}
