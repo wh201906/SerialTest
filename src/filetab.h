@@ -27,10 +27,13 @@ public:
     ~FileTab();
 
     FileXceiver* fileXceiver();
+    bool receiving();
 public slots:
     void onChecksumUpdated(quint64 checksum);
     void onChecksumError(AsyncCRC::CRCFileError error);
     void onDataTransmitted(qsizetype num);
+    void onDataReceived(qsizetype num);
+    void onFinished();
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
@@ -43,10 +46,9 @@ private slots:
 
     void on_clearButton_clicked();
 
-    void on_startButton_clicked();
+    void on_startStopButton_clicked();
 
-    void on_stopButton_clicked();
-
+    void showMessage(const QString &msg);
 private:
     Ui::FileTab *ui;
 
@@ -55,10 +57,15 @@ private:
     QThread* m_checksumThread = nullptr;
     AsyncCRC* m_checksumCalc = nullptr;
     FileXceiver* m_fileXceiver = nullptr;
+    bool m_working = false;
     static FileTab* m_currInstance;
 
     void showUpTabHelper(int id);
     void onFilePathSet(const QString &path);
+    void stop();
+    void updateFileSize();
+    QString getValidFilename(const QList<QUrl> urlList);
+    void setParameterWidgetEnabled(bool state);
 
 #ifdef Q_OS_ANDROID
     static void onSharedFileReceived(JNIEnv *env, jobject thiz, jstring text);

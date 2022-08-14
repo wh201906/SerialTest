@@ -435,7 +435,10 @@ void MainWindow::updateRxUI()
         return;
     if(dataTab->getRxRealtimeState())
         dataTab->appendReceivedData(RxUIBuf);
-    plotTab->newData(RxUIBuf);
+    if(plotTab->enabled())
+        plotTab->newData(RxUIBuf);
+    if(fileTab->receiving())
+        fileTab->fileXceiver()->newData(RxUIBuf);
     RxUIBuf.clear();
 }
 

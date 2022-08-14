@@ -22,6 +22,7 @@ public:
     void initQCP();
     void initSettings();
     void setReplotInterval(int msec);
+    bool enabled();
 public slots:
     void newData(const QByteArray &data);
     void setDecoder(QTextDecoder* decoder);

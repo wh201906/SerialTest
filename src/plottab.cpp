@@ -495,11 +495,13 @@ void PlotTab::loadPreference()
         ui->qcpWidget->graph(i)->setName(nameList[i]);
 }
 
+bool PlotTab::enabled()
+{
+    return ui->plot_enaBox->isChecked();
+}
+
 void PlotTab::newData(const QByteArray& data)
 {
-    if(!ui->plot_enaBox->isChecked())
-        return;
-
     plotBuf->append(decoder->toUnicode(data));
 }
 

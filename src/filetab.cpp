@@ -2,9 +2,11 @@
 #include "ui_filetab.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QDebug>
 #include <QMimeData>
 #include <QElapsedTimer>
+#include <QDateTime>
 
 FileTab* FileTab::m_currInstance = nullptr;
 
@@ -26,6 +28,8 @@ FileTab::FileTab(QWidget *parent) :
     connect(m_checksumCalc, &AsyncCRC::fileError, this, &FileTab::onChecksumError);
 
     connect(m_fileXceiver, &FileXceiver::dataTransmitted, this, &FileTab::onDataTransmitted);
+    connect(m_fileXceiver, &FileXceiver::dataReceived, this, &FileTab::onDataReceived);
+    connect(m_fileXceiver, &FileXceiver::finished, this, &FileTab::onFinished);
 
 
     m_currInstance = this;
@@ -44,6 +48,7 @@ FileTab::FileTab(QWidget *parent) :
 #endif
 
     ui->centralLayout->setStretchFactor(ui->statusEdit, 1);
+    ui->protoBox->addItem(tr("Raw"), QVariant::fromValue(FileXceiver::RawProtocol));
     on_Raw_throttleGrp_buttonClicked(nullptr);
     setAcceptDrops(true);
 }
@@ -75,7 +80,7 @@ void FileTab::onFilePathSet(const QString& path)
     m_currInstance->ui->filePathEdit->setText(path);
     QFileInfo info(path);
     m_currInstance->m_fileSize = info.size();
-    m_currInstance->ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
+    m_currInstance->updateFileSize();
 }
 
 void FileTab::on_Raw_throttleGrp_buttonClicked(QAbstractButton* button)
@@ -153,24 +158,27 @@ void FileTab::onChecksumError(AsyncCRC::CRCFileError error)
         ui->checksumLabel->setText(tr("Failed to read file."));
 }
 
+QString FileTab::getValidFilename(const QList<QUrl> urlList)
+{
+    for(auto url : urlList)
+    {
+        if(url.isLocalFile() && QFileInfo(url.toLocalFile()).isFile())
+            return url.toLocalFile();
+    }
+    return QString();
+}
+
 void FileTab::dragEnterEvent(QDragEnterEvent *event)
 {
-    if(event->mimeData()->hasUrls())
+    if(!getValidFilename(event->mimeData()->urls()).isEmpty())
         event->acceptProposedAction();
 }
 
 void FileTab::dropEvent(QDropEvent *event)
 {
-    const QMimeData* mimeData = event->mimeData();
-    QList<QUrl> urls = mimeData->urls();
-    for(auto url : urls)
-    {
-        if(url.isLocalFile())
-        {
-            onFilePathSet(url.toLocalFile());
-            break;
-        }
-    }
+    QString filename = getValidFilename(event->mimeData()->urls());
+    if(!filename.isEmpty())
+        onFilePathSet(filename);
 }
 
 void FileTab::showUpTabHelper(int id)
@@ -207,22 +215,97 @@ void FileTab::on_clearButton_clicked()
 }
 
 
-void FileTab::on_startButton_clicked()
+void FileTab::on_startStopButton_clicked()
 {
-    ui->progressBar->reset();
-    m_handledSize = 0;
-    m_fileXceiver->setProtocol(FileXceiver::RawProtocol);
-    m_fileXceiver->startTransmit(ui->filePathEdit->text());
-}
+    if(!m_working)
+    {
+        if(ui->receiveModeButton->isChecked() && QFileInfo::exists(ui->filePathEdit->text()))
+        {
+            if(QMessageBox::warning(this, tr("Receive"), tr("File already exists\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+                return;
+        }
+        ui->progressBar->reset();
+        m_handledSize = 0;
+        m_fileXceiver->setProtocol(ui->protoBox->currentData().value<FileXceiver::Protocol>());
+        updateFileSize();
 
-
-void FileTab::on_stopButton_clicked()
-{
-    m_fileXceiver->stop();
+        if(ui->sendModeButton->isChecked())
+            m_working = m_fileXceiver->startTransmit(ui->filePathEdit->text());
+        else
+            m_working = m_fileXceiver->startReceive(ui->filePathEdit->text());
+        if(m_working)
+        {
+            if(ui->receiveModeButton->isChecked() && ui->protoBox->currentData().value<FileXceiver::Protocol>() == FileXceiver::RawProtocol)
+                ui->progressBar->setMaximum(0);
+            setParameterWidgetEnabled(false);
+            ui->startStopButton->setText(tr("Stop"));
+            showMessage(tr("Started"));
+        }
+        else
+        {
+            showMessage(tr("Failed to start."));
+        }
+    }
+    else
+    {
+        stop();
+        showMessage(tr("Stopped"));
+    }
 }
 
 void FileTab::onDataTransmitted(qsizetype num)
 {
     m_handledSize += num;
     ui->progressBar->setValue((double)m_handledSize / m_fileSize * 100.0);
+    ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_handledSize) + "/" + QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
+}
+
+void FileTab::onDataReceived(qsizetype num)
+{
+    m_handledSize += num;
+    ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_handledSize) + " Bytes");
+}
+
+bool FileTab::receiving()
+{
+    return (ui->receiveModeButton->isChecked() && m_working);
+}
+
+void FileTab::showMessage(const QString& msg)
+{
+    ui->statusEdit->appendPlainText(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " " + msg);
+}
+
+void FileTab::onFinished()
+{
+    if(m_working)
+    {
+        stop();
+        showMessage(tr("Finished"));
+    }
+}
+
+void FileTab::stop()
+{
+    m_working = false;
+    m_fileXceiver->stop();
+    ui->startStopButton->setText(tr("Start"));
+    setParameterWidgetEnabled(true);
+    ui->progressBar->setMaximum(100); // for Raw receive
+}
+
+void FileTab::updateFileSize()
+{
+    if(ui->receiveModeButton->isChecked() && ui->protoBox->currentData().value<FileXceiver::Protocol>() == FileXceiver::RawProtocol)
+        ui->sizeLabel->setText("");
+    else
+        ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
+}
+
+void FileTab::setParameterWidgetEnabled(bool state)
+{
+    ui->sendReceiveWidget->setEnabled(state);
+    ui->protoParamWidget->setEnabled(state);
+    ui->filePathEdit->setEnabled(state);
+    ui->fileBrowseButton->setEnabled(state);
 }
