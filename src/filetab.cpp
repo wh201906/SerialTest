@@ -101,53 +101,6 @@ void FileTab::on_checksumButton_clicked()
 void FileTab::onChecksumUpdated(quint64 checksum)
 {
     ui->checksumLabel->setText(QString("%1").arg(checksum, 8, 16, QLatin1Char('0')));
-
-    // for test
-    QElapsedTimer timer;
-    bool hasError = false;
-    qDebug() << ui->filePathEdit->text();
-    QMap<QString, AsyncCRC> testMap;
-    testMap.insert("CRC64_XZ", AsyncCRC(64, 0x42F0E1EBA9EA3693ULL, 0xFFFFFFFFFFFFFFFFULL, true, true, 0xFFFFFFFFFFFFFFFFULL));
-    testMap.insert("CRC64_ECMA_182", AsyncCRC(64, 0x42F0E1EBA9EA3693ULL));
-    testMap.insert("CRC64_GO_ISO", AsyncCRC(64, 0x000000000000001BULL, 0xFFFFFFFFFFFFFFFFULL, true, true, 0xFFFFFFFFFFFFFFFFULL));
-    testMap.insert("CRC32", AsyncCRC(32, 0x04C11DB7ULL, 0xFFFFFFFFULL, true, true, 0xFFFFFFFFULL));
-    testMap.insert("CRC32_POSIX", AsyncCRC(32, 0x4C11DB7ULL, 0ULL, false, false, 0xFFFFFFFFULL));
-    testMap.insert("CRC16_CDMA2000", AsyncCRC(16, 0xC867ULL, 0xFFFFULL));
-    testMap.insert("CRC16_KERMIT", AsyncCRC(16, 0x1021ULL, 0ULL, true, true));
-    testMap.insert("CRC16_MODBUS", AsyncCRC(16, 0x8005ULL, 0xFFFFULL, true, true));
-    testMap.insert("CRC16_XMODEM", AsyncCRC(16, 0x1021ULL));
-    testMap.insert("CRC8", AsyncCRC(8, 0x7ULL));
-    testMap.insert("CRC8_MAXIM", AsyncCRC(8, 0x31ULL, 0ULL, true, true));
-    for(auto it = testMap.begin(); it != testMap.end(); ++it)
-    {
-        qint64 time;
-        quint64 test1, test2;
-        it->Test_UseSlice8 = false;
-        it.value().reset();
-
-        timer.start();
-        it.value().loadFile(ui->filePathEdit->text());
-        time = timer.elapsed();
-
-        test1 = it.value().getResult();
-        qDebug() << it.key() << QString("%1").arg(test1, 16, 16, QLatin1Char('0')) << QString::number(time) + "ms";
-
-        it->Test_UseSlice8 = true;
-        it.value().reset();
-
-        timer.start();
-        it.value().loadFile(ui->filePathEdit->text());
-        time = timer.elapsed();
-
-        test2 = it.value().getResult();
-        qDebug() << it.key() << QString("%1").arg(test2, 16, 16, QLatin1Char('0')) << "slice8" << ((test1 != test2) ? "!" : "") << QString::number(time) + "ms";
-
-        hasError |= (test1 != test2);
-    }
-    if(hasError)
-    {
-        qDebug() << "Error occurred!";
-    }
 }
 
 void FileTab::onChecksumError(AsyncCRC::CRCFileError error)

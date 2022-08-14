@@ -26,9 +26,6 @@ public:
     Q_INVOKABLE void setNotify(bool state);
     Q_INVOKABLE void setParam(quint8 width, quint64 poly, quint64 init = 0ULL, bool refIn = false, bool refOut = false, quint64 xorOut = 0ULL);
     Q_INVOKABLE void reset();
-
-    // for debug
-    bool Test_UseSlice8 = true;
 protected:
     bool m_notify = false;
 

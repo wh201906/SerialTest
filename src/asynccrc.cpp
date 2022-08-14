@@ -83,33 +83,33 @@ void AsyncCRC::addData(const char *data, qsizetype length)
         quint8 offset;
         quint8 tmp;
         quint64 shiftedCRC;
-        if(Test_UseSlice8)
+
+        offset = m_width - 8;
+        while(length && ((quintptr)data & 7) != 0)
         {
-            offset = m_width - 8;
-            while(length && ((quintptr)data & 7) != 0)
-            {
-                tmp = m_crc >> offset; // & 0xFF
-                m_crc = (m_crc << 8) ^ m_table[0][tmp ^ (quint8)(*data++)];
-                length--;
-            }
-            offset = 64 - m_width;
-            slice = (quint64*)data;
-            while(length >= 8)
-            {
-                shiftedCRC = m_crc << offset;
-                m_crc = m_table[7][(quint8)(*slice)       ^ (quint8)(shiftedCRC >> 56)] ^
-                        m_table[6][(quint8)(*slice >> 8)  ^ (quint8)(shiftedCRC >> 48)] ^
-                        m_table[5][(quint8)(*slice >> 16) ^ (quint8)(shiftedCRC >> 40)] ^
-                        m_table[4][(quint8)(*slice >> 24) ^ (quint8)(shiftedCRC >> 32)] ^
-                        m_table[3][(quint8)(*slice >> 32) ^ (quint8)(shiftedCRC >> 24)] ^
-                        m_table[2][(quint8)(*slice >> 40) ^ (quint8)(shiftedCRC >> 16)] ^
-                        m_table[1][(quint8)(*slice >> 48) ^ (quint8)(shiftedCRC >> 8) ] ^
-                        m_table[0][(quint8)(*slice >> 56) ^ (quint8)(shiftedCRC)      ];
-                slice++;
-                length -= 8;
-            }
-            data = (const char*)slice;
+            tmp = m_crc >> offset; // & 0xFF
+            m_crc = (m_crc << 8) ^ m_table[0][tmp ^ (quint8)(*data++)];
+            length--;
         }
+
+        offset = 64 - m_width;
+        slice = (quint64*)data;
+        while(length >= 8)
+        {
+            shiftedCRC = m_crc << offset;
+            m_crc = m_table[7][(quint8)(*slice)       ^ (quint8)(shiftedCRC >> 56)] ^
+                    m_table[6][(quint8)(*slice >> 8)  ^ (quint8)(shiftedCRC >> 48)] ^
+                    m_table[5][(quint8)(*slice >> 16) ^ (quint8)(shiftedCRC >> 40)] ^
+                    m_table[4][(quint8)(*slice >> 24) ^ (quint8)(shiftedCRC >> 32)] ^
+                    m_table[3][(quint8)(*slice >> 32) ^ (quint8)(shiftedCRC >> 24)] ^
+                    m_table[2][(quint8)(*slice >> 40) ^ (quint8)(shiftedCRC >> 16)] ^
+                    m_table[1][(quint8)(*slice >> 48) ^ (quint8)(shiftedCRC >> 8) ] ^
+                    m_table[0][(quint8)(*slice >> 56) ^ (quint8)(shiftedCRC)      ];
+            slice++;
+            length -= 8;
+        }
+
+        data = (const char*)slice;
         offset = m_width - 8;
         while(length--)
         {
@@ -120,30 +120,30 @@ void AsyncCRC::addData(const char *data, qsizetype length)
     }
     else
     {
-        if(Test_UseSlice8)
-        {
-            while(length && ((quintptr)data & 7) != 0)
-            {
-                m_crc = (m_crc >> 8) ^ m_table[0][(quint8)m_crc ^ (quint8)(*data++)];
-                length--;
-            }
-            slice = (quint64*)data;
-            while(length >= 8)
-            {
-                m_crc ^= *slice++;
 
-                m_crc = m_table[7][(quint8)(m_crc)      ] ^
-                        m_table[6][(quint8)(m_crc >> 8) ] ^
-                        m_table[5][(quint8)(m_crc >> 16)] ^
-                        m_table[4][(quint8)(m_crc >> 24)] ^
-                        m_table[3][(quint8)(m_crc >> 32)] ^
-                        m_table[2][(quint8)(m_crc >> 40)] ^
-                        m_table[1][(quint8)(m_crc >> 48)] ^
-                        m_table[0][(quint8)(m_crc >> 56)];
-                length -= 8;
-            }
-            data = (const char*)slice;
+        while(length && ((quintptr)data & 7) != 0)
+        {
+            m_crc = (m_crc >> 8) ^ m_table[0][(quint8)m_crc ^ (quint8)(*data++)];
+            length--;
         }
+
+        slice = (quint64*)data;
+        while(length >= 8)
+        {
+            m_crc ^= *slice++;
+
+            m_crc = m_table[7][(quint8)(m_crc)      ] ^
+                    m_table[6][(quint8)(m_crc >> 8) ] ^
+                    m_table[5][(quint8)(m_crc >> 16)] ^
+                    m_table[4][(quint8)(m_crc >> 24)] ^
+                    m_table[3][(quint8)(m_crc >> 32)] ^
+                    m_table[2][(quint8)(m_crc >> 40)] ^
+                    m_table[1][(quint8)(m_crc >> 48)] ^
+                    m_table[0][(quint8)(m_crc >> 56)];
+            length -= 8;
+        }
+
+        data = (const char*)slice;
         while(length--)
         {
             m_crc = (m_crc >> 8) ^ m_table[0][(quint8)m_crc ^ (quint8)(*data++)];
