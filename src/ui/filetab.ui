@@ -83,18 +83,18 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
       </spacer>
      </item>
     </layout>
    </item>
    <item>
     <widget class="QStackedWidget" name="protoParamWidget">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -113,85 +113,121 @@
         <number>0</number>
        </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QRadioButton" name="Raw_throttleNoneButton">
+             <property name="text">
+              <string>None</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">Raw_throttleGrp</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="Raw_throttleByteButton">
+             <property name="text">
+              <string>Bytes:</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">Raw_throttleGrp</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="Raw_throttleByteBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximum">
+              <number>2147483647</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="Raw_throttleMsButton">
+             <property name="text">
+              <string>ms:</string>
+             </property>
+             <attribute name="buttonGroup">
+              <string notr="true">Raw_throttleGrp</string>
+             </attribute>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="Raw_throttleMsBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximum">
+              <number>2147483647</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="0">
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Throttle</string>
+            <string>Throttle:</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QRadioButton" name="Raw_throttleNoneButton">
-           <property name="text">
-            <string>None</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">Raw_throttleGrp</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="Raw_throttleByteButton">
-           <property name="text">
-            <string>Bytes:</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">Raw_throttleGrp</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="Raw_throttleByteBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximum">
-            <number>2147483647</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="Raw_throttleMsButton">
-           <property name="text">
-            <string>ms:</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">Raw_throttleGrp</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="Raw_throttleMsBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximum">
-            <number>2147483647</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
+         <item row="1" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Wait for</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="Raw_throttleWaitMsBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximum">
+              <number>2147483647</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>ms</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </spacer>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -235,12 +271,6 @@
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
       </spacer>
      </item>
      <item>
@@ -278,7 +308,11 @@
     </layout>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="statusEdit"/>
+    <widget class="QPlainTextEdit" name="statusEdit">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

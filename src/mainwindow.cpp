@@ -1,6 +1,7 @@
 ﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "util.h"
+#include "filexceiver.h"
 
 #include <QBluetoothLocalDevice>
 #ifdef Q_OS_ANDROID
@@ -64,8 +65,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(IOConnection, &Connection::TCP_clientConnected, deviceTab, &DeviceTab::onClientCountChanged);
     connect(IOConnection, &Connection::BT_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
     connect(IOConnection, &Connection::TCP_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
-
     ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
+
     dataTab = new DataTab(&rawReceivedData, &rawSendedData);
     dataTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, dataTab, &DataTab::onConnTypeChanged);
@@ -76,16 +77,21 @@ MainWindow::MainWindow(QWidget *parent)
     connect(dataTab, &DataTab::setTxDataRecording, this, &MainWindow::setTxDataRecording);
     connect(dataTab, &DataTab::showUpTab, this, &MainWindow::showUpTab);
     ui->funcTab->insertTab(1, dataTab, tr("Data"));
+
     plotTab = new PlotTab();
     connect(dataTab, &DataTab::setPlotDecoder, plotTab, &PlotTab::setDecoder);
     ui->funcTab->insertTab(2, plotTab, tr("Plot"));
+
     ctrlTab = new CtrlTab();
     connect(ctrlTab, &CtrlTab::send, this, &MainWindow::sendData);
     connect(dataTab, &DataTab::setDataCodec, ctrlTab, &CtrlTab::setDataCodec);
     ui->funcTab->insertTab(3, ctrlTab, tr("Control"));
+
     fileTab = new FileTab();
     connect(fileTab, &FileTab::showUpTab, this, &MainWindow::showUpTab);
+    connect(fileTab->fileXceiver(), &FileXceiver::send, this, &MainWindow::sendData);
     ui->funcTab->insertTab(4, fileTab, tr("File"));
+
     deviceTab->getAvailableTypes(true);
     initTabs();
 

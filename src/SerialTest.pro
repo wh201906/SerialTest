@@ -26,6 +26,7 @@ SOURCES += \
     datatab.cpp \
     devicetab.cpp \
     filetab.cpp \
+    filexceiver.cpp \
     legenditemdialog.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -43,6 +44,7 @@ HEADERS += \
     datatab.h \
     devicetab.h \
     filetab.h \
+    filexceiver.h \
     legenditemdialog.h \
     mainwindow.h \
     mycustomplot.h \

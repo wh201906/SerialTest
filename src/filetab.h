@@ -11,6 +11,7 @@
 #endif
 
 #include "asynccrc.h"
+#include "filexceiver.h"
 
 namespace Ui
 {
@@ -25,8 +26,14 @@ public:
     explicit FileTab(QWidget *parent = nullptr);
     ~FileTab();
 
+    FileXceiver* fileXceiver();
 public slots:
     void onChecksumUpdated(quint64 checksum);
+    void onChecksumError(AsyncCRC::CRCFileError error);
+    void onDataTransmitted(qsizetype num);
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 private slots:
     void on_fileBrowseButton_clicked();
 
@@ -34,16 +41,26 @@ private slots:
 
     void on_checksumButton_clicked();
 
+    void on_clearButton_clicked();
+
+    void on_startButton_clicked();
+
+    void on_stopButton_clicked();
+
 private:
     Ui::FileTab *ui;
 
-    QThread* m_checksumThread;
-    AsyncCRC* m_checksumCalc;
+    qsizetype m_fileSize = -1;
+    qsizetype m_handledSize = -1;
+    QThread* m_checksumThread = nullptr;
+    AsyncCRC* m_checksumCalc = nullptr;
+    FileXceiver* m_fileXceiver = nullptr;
+    static FileTab* m_currInstance;
 
     void showUpTabHelper(int id);
+    void onFilePathSet(const QString &path);
 
 #ifdef Q_OS_ANDROID
-    static FileTab* m_currInstance;
     static void onSharedFileReceived(JNIEnv *env, jobject thiz, jstring text);
 #endif
 
