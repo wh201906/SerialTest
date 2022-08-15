@@ -50,6 +50,10 @@ private slots:
     void on_startStopButton_clicked();
 
     void showMessage(const QString &msg);
+    void on_tipsButton_clicked();
+
+    void on_tipsBackButton_clicked();
+
 private:
     Ui::FileTab *ui;
 

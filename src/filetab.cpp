@@ -168,6 +168,8 @@ void FileTab::onSharedFileReceived(JNIEnv *env, jobject thiz, jstring text)
     env->ReleaseStringUTFChars(text, str);
     m_currInstance->onFilePathSet(fileName);
 
+    m_currInstance->ui->receiveModeButton->setChecked(false);
+    m_currInstance->ui->sendModeButton->setChecked(true);
     m_currInstance->showUpTabHelper(4);
 }
 
@@ -307,3 +309,15 @@ FileXceiver::Protocol FileTab::currentProtocol()
 {
     return ui->protoBox->currentData().value<FileXceiver::Protocol>();
 }
+
+void FileTab::on_tipsButton_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->tipsPage);
+}
+
+
+void FileTab::on_tipsBackButton_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(ui->mainPage);
+}
+
