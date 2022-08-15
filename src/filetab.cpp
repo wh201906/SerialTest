@@ -16,9 +16,10 @@ FileTab::FileTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_checksumThread = new QThread();
-    m_checksumCalc = new AsyncCRC();
-    m_fileXceiver = new FileXceiver();
+    m_checksumThread = new QThread(this);
+    m_checksumCalc = new AsyncCRC(this);
+    m_fileXceiverThread = new QThread(this);
+    m_fileXceiver = new FileXceiver(this);
 
     m_checksumCalc->setNotify(true);
     m_checksumCalc->setParam(32, 0x04C11DB7ULL, 0xFFFFFFFFULL, true, true, 0xFFFFFFFFULL); // CRC-32
@@ -27,6 +28,9 @@ FileTab::FileTab(QWidget *parent) :
     connect(m_checksumCalc, &AsyncCRC::result, this, &FileTab::onChecksumUpdated);
     connect(m_checksumCalc, &AsyncCRC::fileError, this, &FileTab::onChecksumError);
 
+    m_fileXceiver->moveToThread(m_fileXceiverThread);
+    m_fileXceiverThread->start();
+    connect(m_fileXceiver, &FileXceiver::startResult, this, &FileTab::onStartResultArrived);
     connect(m_fileXceiver, &FileXceiver::dataTransmitted, this, &FileTab::onDataTransmitted);
     connect(m_fileXceiver, &FileXceiver::dataReceived, this, &FileTab::onDataReceived);
     connect(m_fileXceiver, &FileXceiver::finished, this, &FileTab::onFinished);
@@ -51,11 +55,21 @@ FileTab::FileTab(QWidget *parent) :
     ui->protoBox->addItem(tr("Raw"), QVariant::fromValue(FileXceiver::RawProtocol));
     on_Raw_throttleGrp_buttonClicked(nullptr);
     setAcceptDrops(true);
+
+    // not implemented yet
+    ui->Raw_throttleMsButton->setHidden(true);
+    ui->Raw_throttleMsBox->setHidden(true);
 }
 
 FileTab::~FileTab()
 {
+    QMetaObject::invokeMethod(m_fileXceiver, "stop", Qt::QueuedConnection);
     delete ui;
+    m_checksumThread->terminate();
+    m_checksumThread->wait(3000);
+    delete m_fileXceiver;
+    m_fileXceiverThread->terminate();
+    m_fileXceiverThread->wait(3000);
 }
 
 FileXceiver *FileTab::fileXceiver()
@@ -78,8 +92,6 @@ void FileTab::on_fileBrowseButton_clicked()
 void FileTab::onFilePathSet(const QString& path)
 {
     m_currInstance->ui->filePathEdit->setText(path);
-    QFileInfo info(path);
-    m_currInstance->m_fileSize = info.size();
     m_currInstance->updateFileSize();
 }
 
@@ -170,35 +182,41 @@ void FileTab::on_clearButton_clicked()
 
 void FileTab::on_startStopButton_clicked()
 {
+    // "Start" button
     if(!m_working)
     {
+        // precheck
         if(ui->receiveModeButton->isChecked() && QFileInfo::exists(ui->filePathEdit->text()))
         {
             if(QMessageBox::warning(this, tr("Receive"), tr("File already exists\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
                 return;
         }
+
+
         ui->progressBar->reset();
         m_handledSize = 0;
-        m_fileXceiver->setProtocol(ui->protoBox->currentData().value<FileXceiver::Protocol>());
+        QMetaObject::invokeMethod(m_fileXceiver, "setProtocol", Qt::QueuedConnection, Q_ARG(FileXceiver::Protocol, currentProtocol()));
         updateFileSize();
 
         if(ui->sendModeButton->isChecked())
-            m_working = m_fileXceiver->startTransmit(ui->filePathEdit->text());
-        else
-            m_working = m_fileXceiver->startReceive(ui->filePathEdit->text());
-        if(m_working)
         {
-            if(ui->receiveModeButton->isChecked() && ui->protoBox->currentData().value<FileXceiver::Protocol>() == FileXceiver::RawProtocol)
-                ui->progressBar->setMaximum(0);
-            setParameterWidgetEnabled(false);
-            ui->startStopButton->setText(tr("Stop"));
-            showMessage(tr("Started"));
+            if(currentProtocol() == FileXceiver::RawProtocol)
+            {
+                qsizetype waitTime = (ui->Raw_throttleNoneButton->isChecked() ? -1 : ui->Raw_throttleWaitMsBox->value());
+                qsizetype batchByteNum = ui->Raw_throttleByteBox->value();
+                FileXceiver::ThrottleArgument arg;
+                arg.waitTime = waitTime;
+                arg.batchByteNum = batchByteNum;
+                QMetaObject::invokeMethod(m_fileXceiver, "setThrottleArgument", Qt::QueuedConnection, Q_ARG(FileXceiver::ThrottleArgument, arg));
+            }
+            QMetaObject::invokeMethod(m_fileXceiver, "startTransmit", Qt::QueuedConnection, Q_ARG(QString, ui->filePathEdit->text()));
         }
         else
         {
-            showMessage(tr("Failed to start."));
+            QMetaObject::invokeMethod(m_fileXceiver, "startReceive", Qt::QueuedConnection, Q_ARG(QString, ui->filePathEdit->text()));
         }
     }
+    // "Stop" button
     else
     {
         stop();
@@ -238,10 +256,28 @@ void FileTab::onFinished()
     }
 }
 
+void FileTab::onStartResultArrived(bool result)
+{
+    m_working = result;
+    if(result)
+    {
+        if(ui->receiveModeButton->isChecked() && currentProtocol() == FileXceiver::RawProtocol)
+            ui->progressBar->setMaximum(0);
+        setParameterWidgetEnabled(false);
+        ui->startStopButton->setText(tr("Stop"));
+        showMessage(tr("Started"));
+    }
+    else
+    {
+        showMessage(tr("Failed to start."));
+    }
+}
+
+
 void FileTab::stop()
 {
     m_working = false;
-    m_fileXceiver->stop();
+    QMetaObject::invokeMethod(m_fileXceiver, "stop", Qt::QueuedConnection);
     ui->startStopButton->setText(tr("Start"));
     setParameterWidgetEnabled(true);
     ui->progressBar->setMaximum(100); // for Raw receive
@@ -249,10 +285,13 @@ void FileTab::stop()
 
 void FileTab::updateFileSize()
 {
-    if(ui->receiveModeButton->isChecked() && ui->protoBox->currentData().value<FileXceiver::Protocol>() == FileXceiver::RawProtocol)
+    if(ui->receiveModeButton->isChecked() && currentProtocol() == FileXceiver::RawProtocol)
         ui->sizeLabel->setText("");
     else
+    {
+        m_fileSize = QFileInfo(ui->filePathEdit->text()).size();
         ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
+    }
 }
 
 void FileTab::setParameterWidgetEnabled(bool state)
@@ -261,4 +300,10 @@ void FileTab::setParameterWidgetEnabled(bool state)
     ui->protoParamWidget->setEnabled(state);
     ui->filePathEdit->setEnabled(state);
     ui->fileBrowseButton->setEnabled(state);
+    ui->checksumButton->setEnabled(state);
+}
+
+FileXceiver::Protocol FileTab::currentProtocol()
+{
+    return ui->protoBox->currentData().value<FileXceiver::Protocol>();
 }

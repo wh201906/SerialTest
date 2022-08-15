@@ -34,6 +34,7 @@ public slots:
     void onDataTransmitted(qsizetype num);
     void onDataReceived(qsizetype num);
     void onFinished();
+    void onStartResultArrived(bool result);
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
@@ -56,6 +57,7 @@ private:
     qsizetype m_handledSize = -1;
     QThread* m_checksumThread = nullptr;
     AsyncCRC* m_checksumCalc = nullptr;
+    QThread* m_fileXceiverThread = nullptr;
     FileXceiver* m_fileXceiver = nullptr;
     bool m_working = false;
     static FileTab* m_currInstance;
@@ -71,6 +73,7 @@ private:
     static void onSharedFileReceived(JNIEnv *env, jobject thiz, jstring text);
 #endif
 
+    FileXceiver::Protocol currentProtocol();
 signals:
     void showUpTab(int id);
 };
