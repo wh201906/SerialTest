@@ -30,7 +30,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
+    <widget class="AdaptiveStackedWidget" name="stackedWidget">
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -112,7 +112,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="protoBox"/>
+          <widget class="QComboBox" name="protoBox">
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer">
@@ -130,7 +134,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QStackedWidget" name="protoParamWidget">
+        <widget class="AdaptiveStackedWidget" name="protoParamWidget">
          <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
@@ -140,7 +144,7 @@
          <property name="currentIndex">
           <number>0</number>
          </property>
-         <widget class="QWidget" name="rawParamWidget">
+         <widget class="QWidget" name="rawTxParamWidget">
           <layout class="QVBoxLayout" name="verticalLayout">
            <property name="leftMargin">
             <number>0</number>
@@ -159,7 +163,7 @@
              <item row="0" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_6">
                <item>
-                <widget class="QRadioButton" name="Raw_throttleNoneButton">
+                <widget class="QRadioButton" name="RawTx_throttleNoneButton">
                  <property name="text">
                   <string>None</string>
                  </property>
@@ -167,56 +171,97 @@
                   <bool>true</bool>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">Raw_throttleGrp</string>
+                  <string notr="true">RawTx_throttleGrp</string>
                  </attribute>
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="Raw_throttleByteButton">
+                <widget class="QRadioButton" name="RawTx_throttleByteButton">
                  <property name="text">
                   <string>Bytes:</string>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">Raw_throttleGrp</string>
+                  <string notr="true">RawTx_throttleGrp</string>
                  </attribute>
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="Raw_throttleByteBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                <widget class="QComboBox" name="RawTx_throttleByteBox">
+                 <property name="editable">
+                  <bool>true</bool>
                  </property>
-                 <property name="minimum">
-                  <number>1</number>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
                  </property>
-                 <property name="maximum">
-                  <number>2147483647</number>
-                 </property>
+                 <item>
+                  <property name="text">
+                   <string>1048576</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>65536</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>8940</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>1440</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>1220</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>1024</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>536</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>512</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>256</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>16</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="Raw_throttleMsButton">
+                <widget class="QRadioButton" name="RawTx_throttleMsButton">
                  <property name="text">
                   <string>ms:</string>
                  </property>
                  <attribute name="buttonGroup">
-                  <string notr="true">Raw_throttleGrp</string>
+                  <string notr="true">RawTx_throttleGrp</string>
                  </attribute>
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="Raw_throttleMsBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                <widget class="QComboBox" name="RawTx_throttleMsBox">
+                 <property name="editable">
+                  <bool>true</bool>
                  </property>
-                 <property name="maximum">
-                  <number>2147483647</number>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
                  </property>
                 </widget>
                </item>
@@ -252,16 +297,58 @@
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="Raw_throttleWaitMsBox">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                <widget class="QComboBox" name="RawTx_throttleWaitMsBox">
+                 <property name="editable">
+                  <bool>true</bool>
                  </property>
-                 <property name="maximum">
-                  <number>2147483647</number>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
                  </property>
+                 <item>
+                  <property name="text">
+                   <string>20</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>50</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>100</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>200</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>500</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>1000</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>2000</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>5000</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>10000</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item>
@@ -290,7 +377,129 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page_2"/>
+         <widget class="QWidget" name="rawRxParamWidget">
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Autostop:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="RawRx_autostopNoneButton">
+               <property name="text">
+                <string>None</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">RawRx_autostopGrp</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="RawRx_autostopByteButton">
+               <property name="text">
+                <string>Bytes:</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">RawRx_autostopGrp</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="RawRx_autostopByteBox">
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+               <property name="sizeAdjustPolicy">
+                <enum>QComboBox::AdjustToContents</enum>
+               </property>
+               <item>
+                <property name="text">
+                 <string>1048576</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>65536</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>8940</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1440</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1220</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>1024</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>536</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>512</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>256</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>16</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </item>
        <item>
@@ -388,6 +597,12 @@
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
           </spacer>
          </item>
          <item>
@@ -417,9 +632,18 @@ In Receive mode, turn off &quot;Realtime&quot; in DataTab, and disable Plot.</st
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AdaptiveStackedWidget</class>
+   <extends>QStackedWidget</extends>
+   <header>adaptivestackedwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="Raw_throttleGrp"/>
+  <buttongroup name="RawTx_throttleGrp"/>
+  <buttongroup name="RawRx_autostopGrp"/>
  </buttongroups>
 </ui>

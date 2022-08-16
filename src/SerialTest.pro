@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    adaptivestackedwidget.cpp \
     asynccrc.cpp \
     connection.cpp \
     controlitem.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
     util.cpp
 
 HEADERS += \
+    adaptivestackedwidget.h \
     asynccrc.h \
     connection.h \
     controlitem.h \

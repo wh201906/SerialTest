@@ -53,12 +53,19 @@ FileTab::FileTab(QWidget *parent) :
 
     ui->centralLayout->setStretchFactor(ui->statusEdit, 1);
     ui->protoBox->addItem(tr("Raw"), QVariant::fromValue(FileXceiver::RawProtocol));
-    on_Raw_throttleGrp_buttonClicked(nullptr);
+
+    onModeProtocolChanged();
+    on_tipsBackButton_clicked();
+    on_RawTx_throttleGrp_buttonClicked(nullptr);
+    on_RawRx_autostopGrp_buttonClicked(nullptr);
     setAcceptDrops(true);
 
+    connect(ui->protoBox, &QComboBox::currentTextChanged, this, &FileTab::onModeProtocolChanged);
+    connect(ui->sendModeButton, &QRadioButton::toggled, this, &FileTab::onModeProtocolChanged); // just set one of them
+
     // not implemented yet
-    ui->Raw_throttleMsButton->setHidden(true);
-    ui->Raw_throttleMsBox->setHidden(true);
+    ui->RawTx_throttleMsButton->setHidden(true);
+    ui->RawTx_throttleMsBox->setHidden(true);
 }
 
 FileTab::~FileTab()
@@ -95,12 +102,18 @@ void FileTab::onFilePathSet(const QString& path)
     m_currInstance->updateFileSize();
 }
 
-void FileTab::on_Raw_throttleGrp_buttonClicked(QAbstractButton* button)
+void FileTab::on_RawTx_throttleGrp_buttonClicked(QAbstractButton* button)
 {
     Q_UNUSED(button)
-    ui->Raw_throttleByteBox->setEnabled(ui->Raw_throttleByteButton->isChecked());
-    ui->Raw_throttleMsBox->setEnabled(ui->Raw_throttleMsButton->isChecked());
-    ui->Raw_throttleWaitMsBox->setEnabled(!ui->Raw_throttleNoneButton->isChecked());
+    ui->RawTx_throttleByteBox->setEnabled(ui->RawTx_throttleByteButton->isChecked());
+    ui->RawTx_throttleMsBox->setEnabled(ui->RawTx_throttleMsButton->isChecked());
+    ui->RawTx_throttleWaitMsBox->setEnabled(!ui->RawTx_throttleNoneButton->isChecked());
+}
+
+void FileTab::on_RawRx_autostopGrp_buttonClicked(QAbstractButton* button)
+{
+    Q_UNUSED(button)
+    ui->RawRx_autostopByteBox->setEnabled(ui->RawRx_autostopByteButton->isChecked());
 }
 
 void FileTab::on_checksumButton_clicked()
@@ -204,8 +217,8 @@ void FileTab::on_startStopButton_clicked()
         {
             if(currentProtocol() == FileXceiver::RawProtocol)
             {
-                qsizetype waitTime = (ui->Raw_throttleNoneButton->isChecked() ? -1 : ui->Raw_throttleWaitMsBox->value());
-                qsizetype batchByteNum = ui->Raw_throttleByteBox->value();
+                qsizetype waitTime = (ui->RawTx_throttleNoneButton->isChecked() ? -1 : ui->RawTx_throttleWaitMsBox->currentText().toLongLong());
+                qsizetype batchByteNum = ui->RawTx_throttleByteBox->currentText().toLongLong();
                 FileXceiver::ThrottleArgument arg;
                 arg.waitTime = waitTime;
                 arg.batchByteNum = batchByteNum;
@@ -321,3 +334,22 @@ void FileTab::on_tipsBackButton_clicked()
     ui->stackedWidget->setCurrentWidget(ui->mainPage);
 }
 
+void FileTab::onModeProtocolChanged()
+{
+    QWidget* widget = ui->protoParamWidget->currentWidget();
+    if(ui->sendModeButton->isChecked())
+    {
+        if(currentProtocol() == FileXceiver::RawProtocol)
+        {
+            widget = ui->rawTxParamWidget;
+        }
+    }
+    else
+    {
+        if(currentProtocol() == FileXceiver::RawProtocol)
+        {
+            widget = ui->rawRxParamWidget;
+        }
+    }
+    ui->protoParamWidget->setCurrentWidget(widget);
+}

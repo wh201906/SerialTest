@@ -41,7 +41,8 @@ protected:
 private slots:
     void on_fileBrowseButton_clicked();
 
-    void on_Raw_throttleGrp_buttonClicked(QAbstractButton *button);
+    void on_RawTx_throttleGrp_buttonClicked(QAbstractButton *button);
+    void on_RawRx_autostopGrp_buttonClicked(QAbstractButton *button);
 
     void on_checksumButton_clicked();
 
@@ -54,6 +55,7 @@ private slots:
 
     void on_tipsBackButton_clicked();
 
+    void onModeProtocolChanged();
 private:
     Ui::FileTab *ui;
 

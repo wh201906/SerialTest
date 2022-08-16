@@ -98,6 +98,9 @@
          <height>1</height>
         </size>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
        <item>
         <property name="text">
          <string>Count</string>
@@ -248,6 +251,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="plot_frameSpTypeBox">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>String</string>
@@ -282,6 +288,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="plot_dataSpTypeBox">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>String</string>
@@ -316,6 +325,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="plot_clearFlagTypeBox">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>None</string>

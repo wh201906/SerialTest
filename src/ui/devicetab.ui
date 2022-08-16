@@ -66,7 +66,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QStackedWidget" name="targetListStack">
+      <widget class="AdaptiveStackedWidget" name="targetListStack">
        <property name="currentIndex">
         <number>3</number>
        </property>
@@ -566,7 +566,7 @@ margin-bottom:3em;
        <number>7</number>
       </property>
       <item>
-       <widget class="QStackedWidget" name="argsStack">
+       <widget class="AdaptiveStackedWidget" name="argsStack">
         <property name="currentIndex">
          <number>3</number>
         </property>
@@ -1213,6 +1213,14 @@ you can change the remote address and port on the fly.</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AdaptiveStackedWidget</class>
+   <extends>QStackedWidget</extends>
+   <header>adaptivestackedwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

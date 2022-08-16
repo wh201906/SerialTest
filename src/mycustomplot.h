@@ -7,7 +7,7 @@ class MyCustomPlot : public QCustomPlot
 {
     Q_OBJECT
 public:
-    MyCustomPlot(QWidget *parent = nullptr);
+    explicit MyCustomPlot(QWidget *parent = nullptr);
 protected:
     bool event(QEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;

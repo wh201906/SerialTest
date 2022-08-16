@@ -293,6 +293,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="prefixTypeBox">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>String</string>
@@ -341,6 +344,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="suffixTypeBox">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>String</string>
