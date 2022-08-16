@@ -12,6 +12,7 @@
 
 #include "asynccrc.h"
 #include "filexceiver.h"
+#include "mysettings.h"
 
 namespace Ui
 {
@@ -26,6 +27,7 @@ public:
     explicit FileTab(QWidget *parent = nullptr);
     ~FileTab();
 
+    void initSettings();
     FileXceiver* fileXceiver();
     bool receiving();
 public slots:
@@ -57,6 +59,8 @@ private slots:
     void on_tipsBackButton_clicked();
 
     void onModeProtocolChanged();
+    void loadPreference();
+    void saveFilePreference();
 private:
     Ui::FileTab *ui;
 
@@ -68,6 +72,7 @@ private:
     FileXceiver* m_fileXceiver = nullptr;
     bool m_working = false;
     static FileTab* m_currInstance;
+    MySettings *settings;
 
     void showUpTabHelper(int id);
     void onFilePathSet(const QString &path);

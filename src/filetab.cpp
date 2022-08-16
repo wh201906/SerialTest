@@ -54,14 +54,13 @@ FileTab::FileTab(QWidget *parent) :
     ui->centralLayout->setStretchFactor(ui->statusEdit, 1);
     ui->protoBox->addItem(tr("Raw"), QVariant::fromValue(FileXceiver::RawProtocol));
 
-    onModeProtocolChanged();
     on_tipsBackButton_clicked();
-    on_RawTx_throttleGrp_buttonClicked(nullptr);
-    on_RawRx_autostopGrp_buttonClicked(nullptr);
     setAcceptDrops(true);
 
     connect(ui->protoBox, &QComboBox::currentTextChanged, this, &FileTab::onModeProtocolChanged);
-    connect(ui->sendModeButton, &QRadioButton::toggled, this, &FileTab::onModeProtocolChanged); // just set one of them
+    connect(ui->sendModeButton, &QRadioButton::toggled, this, &FileTab::onModeProtocolChanged); // just set one of them, the slot will be called when setChecked() is called
+
+
 
     // not implemented yet
     ui->RawTx_throttleMsButton->setHidden(true);
@@ -77,6 +76,29 @@ FileTab::~FileTab()
     delete m_fileXceiver;
     m_fileXceiverThread->terminate();
     m_fileXceiverThread->wait(3000);
+}
+
+void FileTab::initSettings()
+{
+    settings = MySettings::defaultSettings();
+    loadPreference();
+
+    connect(ui->sendModeButton, &QRadioButton::clicked, this, &FileTab::saveFilePreference);
+    connect(ui->receiveModeButton, &QRadioButton::clicked, this, &FileTab::saveFilePreference);
+    connect(ui->protoBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &FileTab::saveFilePreference);
+
+    connect(ui->RawTx_throttleNoneButton, &QRadioButton::clicked, this, &FileTab::saveFilePreference);
+    connect(ui->RawTx_throttleByteButton, &QRadioButton::clicked, this, &FileTab::saveFilePreference);
+    connect(ui->RawTx_throttleMsButton, &QRadioButton::clicked, this, &FileTab::saveFilePreference);
+    connect(ui->RawTx_throttleByteBox, &QComboBox::currentTextChanged, this, &FileTab::saveFilePreference);
+    connect(ui->RawTx_throttleMsBox, &QComboBox::currentTextChanged, this, &FileTab::saveFilePreference);
+    connect(ui->RawTx_throttleWaitMsBox, &QComboBox::currentTextChanged, this, &FileTab::saveFilePreference);
+
+    connect(ui->RawRx_autostopNoneButton, &QRadioButton::clicked, this, &FileTab::saveFilePreference);
+    connect(ui->RawRx_autostopByteButton, &QRadioButton::clicked, this, &FileTab::saveFilePreference);
+    connect(ui->RawRx_autostopByteBox, &QComboBox::currentTextChanged, this, &FileTab::saveFilePreference);
+
+    connect(ui->filePathEdit, &QLineEdit::editingFinished, this, &FileTab::saveFilePreference);
 }
 
 FileXceiver *FileTab::fileXceiver()
@@ -357,4 +379,55 @@ void FileTab::onModeProtocolChanged()
         }
     }
     ui->protoParamWidget->setCurrentWidget(widget);
+}
+
+void FileTab::loadPreference()
+{
+    // default preferences are defined in this function
+    settings->beginGroup("SerialTest_File");
+
+    ui->sendModeButton->setChecked(settings->value("SendMode", true).toBool());
+    ui->receiveModeButton->setChecked(!(settings->value("SendMode", true).toBool()));
+    ui->protoBox->setCurrentIndex(settings->value("Protocol", 0).toInt());
+
+
+    ui->RawTx_throttleNoneButton->setChecked(settings->value("RawTx_throttleMode", 0).toInt() == 0);
+    ui->RawTx_throttleByteButton->setChecked(settings->value("RawTx_throttleMode", 0).toInt() == 1);
+    ui->RawTx_throttleMsButton->setChecked(settings->value("RawTx_throttleMode", 0).toInt() == 2);
+    ui->RawTx_throttleByteBox->setCurrentText(settings->value("RawTx_throttleByteNum", "1048576").toString());
+    ui->RawTx_throttleMsBox->setCurrentText(settings->value("RawTx_throttleTimeMs", "0").toString());
+    ui->RawTx_throttleWaitMsBox->setCurrentText(settings->value("RawTx_throttleWaitMs", "20").toString());
+
+    ui->RawRx_autostopNoneButton->setChecked(!(settings->value("RawTx_autostopEnabled", false).toBool()));
+    ui->RawRx_autostopByteButton->setChecked(settings->value("RawTx_autostopEnabled", false).toBool());
+    ui->RawRx_autostopByteBox->setCurrentText(settings->value("RawTx_autostopByteNum", "1048576").toString());
+
+    ui->filePathEdit->setText(settings->value("FilePath", "").toString());
+    settings->endGroup();
+
+    onModeProtocolChanged();
+    on_RawTx_throttleGrp_buttonClicked(nullptr);
+    on_RawRx_autostopGrp_buttonClicked(nullptr);
+}
+
+void FileTab::saveFilePreference()
+{
+    if(settings->group() != "")
+        return;
+    settings->beginGroup("SerialTest_File");
+    settings->setValue("SendMode", ui->sendModeButton->isChecked());
+    settings->setValue("Protocol", ui->protoBox->currentIndex());
+
+    int mode;
+    mode = ui->RawTx_throttleNoneButton->isChecked() ? 0 : (ui->RawTx_throttleByteButton->isChecked() ? 1 : 2);
+    settings->setValue("RawTx_throttleMode", mode);
+    settings->setValue("RawTx_throttleByteNum", ui->RawTx_throttleByteBox->currentText());
+    settings->setValue("RawTx_throttleTimeMs", ui->RawTx_throttleMsBox->currentText());
+    settings->setValue("RawTx_throttleWaitMs", ui->RawTx_throttleWaitMsBox->currentText());
+
+    settings->setValue("RawTx_autostopEnabled", ui->RawRx_autostopByteButton->isChecked());
+    settings->setValue("RawTx_autostopByteNum", ui->RawRx_autostopByteBox->currentText());
+
+    settings->setValue("FilePath", ui->filePathEdit->text());
+    settings->endGroup();
 }

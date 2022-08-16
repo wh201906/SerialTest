@@ -135,6 +135,7 @@ void MainWindow::initTabs()
     dataTab->initSettings();
     plotTab->initQCP();
     plotTab->initSettings();
+    fileTab->initSettings();
 }
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
