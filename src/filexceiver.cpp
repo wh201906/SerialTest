@@ -74,6 +74,11 @@ void FileXceiver::setThrottleArgument(ThrottleArgument arg)
     m_throttleArgument = arg;
 }
 
+void FileXceiver::setAutostop(qsizetype num)
+{
+    m_expectedNum = num;
+}
+
 void FileXceiver::newData(const QByteArray &data)
 {
     if(!m_isRunning)
@@ -83,10 +88,21 @@ void FileXceiver::newData(const QByteArray &data)
     }
     if(m_protocol == RawProtocol)
     {
-        qsizetype num = m_file.write(data);
+        qsizetype num;
+        qsizetype limit = -1;
+        if(m_expectedNum != -1)
+        {
+            limit = m_expectedNum - m_handledNum;
+            limit = limit < data.size() ? limit : data.size();
+            num = m_file.write(data.constData(), limit);
+        }
+        else
+            num = m_file.write(data);
         m_file.flush();
         m_handledNum += num;
         emit dataReceived(num);
+        if(m_expectedNum != -1 && limit != data.size())
+            emit finished();
     }
 }
 

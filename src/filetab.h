@@ -35,6 +35,7 @@ public slots:
     void onDataReceived(qsizetype num);
     void onFinished();
     void onStartResultArrived(bool result);
+    void stop();
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
@@ -70,7 +71,6 @@ private:
 
     void showUpTabHelper(int id);
     void onFilePathSet(const QString &path);
-    void stop();
     void updateFileSize();
     QString getValidFilename(const QList<QUrl> urlList);
     void setParameterWidgetEnabled(bool state);

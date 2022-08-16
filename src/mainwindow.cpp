@@ -410,6 +410,7 @@ void MainWindow::sendData(const QByteArray& data)
     {
         QMessageBox::warning(this, tr("Error"), tr("No port is opened."));
         dataTab->setRepeat(false);
+        fileTab->stop();
         return;
     }
     qint64 len = IOConnection->write(data);

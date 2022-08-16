@@ -228,7 +228,12 @@ void FileTab::on_startStopButton_clicked()
         }
         else
         {
-            QMetaObject::invokeMethod(m_fileXceiver, "startReceive", Qt::QueuedConnection, Q_ARG(QString, ui->filePathEdit->text()));
+            if(currentProtocol() == FileXceiver::RawProtocol)
+            {
+                qsizetype num = ui->RawRx_autostopNoneButton->isChecked() ? -1 : ui->RawRx_autostopByteBox->currentText().toLongLong();
+                QMetaObject::invokeMethod(m_fileXceiver, "setAutostop", Qt::QueuedConnection, Q_ARG(qsizetype, num));
+                QMetaObject::invokeMethod(m_fileXceiver, "startReceive", Qt::QueuedConnection, Q_ARG(QString, ui->filePathEdit->text()));
+            }
         }
     }
     // "Stop" button

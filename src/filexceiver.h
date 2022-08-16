@@ -36,6 +36,7 @@ public:
     Q_INVOKABLE bool startReceive(const QString &filename);
     Q_INVOKABLE void setProtocol(FileXceiver::Protocol p);
     Q_INVOKABLE void setThrottleArgument(FileXceiver::ThrottleArgument arg);
+    Q_INVOKABLE void setAutostop(qsizetype num);
 
 public slots:
     void newData(const QByteArray& data);
@@ -43,6 +44,7 @@ protected:
     qsizetype m_handledNum = 0;
     qsizetype m_batchSize = 0; // default batcheSize is set in startTransmit()
     qsizetype m_waitTime = 0;
+    qsizetype m_expectedNum = -1; // -1: infinite
     QElapsedTimer m_speedAdjustTimer;
 
     QFile m_file;
@@ -63,6 +65,7 @@ signals:
     void startResult(bool result);
 };
 
+Q_DECLARE_METATYPE(qsizetype)
 Q_DECLARE_METATYPE(FileXceiver::ThrottleArgument)
 
 #endif // FILEXCEIVER_H

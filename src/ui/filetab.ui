@@ -396,7 +396,7 @@
              <item>
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>Autostop:</string>
+                <string>Auto Stop:</string>
                </property>
               </widget>
              </item>
