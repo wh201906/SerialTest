@@ -14,7 +14,7 @@ ControlItem::ControlItem(Type type, QWidget *parent) :
     on_prefixBox_stateChanged(Qt::Unchecked);
     on_suffixBox_stateChanged(Qt::Unchecked);
 
-    ui->confGrp->setVisible(false);
+    ui->confGrp->hide();
 
     this->type = type;
     initUI();

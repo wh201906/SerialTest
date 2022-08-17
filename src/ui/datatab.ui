@@ -530,7 +530,10 @@ margin-right:3em;
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="data_unescapeBox">
+         <widget class="QCheckBox" name="data_unescapeBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_9">
           <property name="text">
            <string>Unescape</string>
           </property>

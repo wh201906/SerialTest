@@ -14,6 +14,14 @@ SerialPinout::~SerialPinout()
     delete ui;
 }
 
+void SerialPinout::initSettings()
+{
+    m_settings = MySettings::defaultSettings();
+    loadPreference();
+
+    // savePreference() is called in mouseDoubleClickEvent() and on_enaBox_clicked()
+}
+
 bool SerialPinout::getEnableState()
 {
     return ui->enaBox->isChecked();
@@ -21,6 +29,7 @@ bool SerialPinout::getEnableState()
 
 void SerialPinout::setEnableState(bool state)
 {
+    // this function will not emit enableStateChanged() signal
     onEnableStateChanged(state);
 }
 
@@ -29,12 +38,35 @@ void SerialPinout::mouseDoubleClickEvent(QMouseEvent *event)
     Q_UNUSED(event)
     activeBGId++;
     activeBGId %= 3;
+    savePreference();
 }
 
 void SerialPinout::on_enaBox_clicked(bool checked)
 {
+    // this function will emit enableStateChanged() signal
+    // It indicates that the user changed the enable state
     onEnableStateChanged(checked);
     emit enableStateChanged(checked);
+    // Store the user preference
+    savePreference();
+}
+
+void SerialPinout::loadPreference()
+{
+    m_settings->beginGroup("SerialTest_Pinout");
+    ui->enaBox->setChecked(m_settings->value("Enabled", false).toBool());
+    activeBGId = m_settings->value("ColorId", 0).toInt();
+    activeBGId %= 3;
+    m_settings->endGroup();
+    on_enaBox_clicked(ui->enaBox->isChecked());
+}
+
+void SerialPinout::savePreference()
+{
+    m_settings->beginGroup("SerialTest_Pinout");
+    m_settings->setValue("Enabled", ui->enaBox->isChecked());
+    m_settings->setValue("ColorId", activeBGId);
+    m_settings->endGroup();
 }
 
 void SerialPinout::onEnableStateChanged(bool state)
@@ -63,6 +95,7 @@ void SerialPinout::onEnableStateChanged(bool state)
         ui->line4->setVisible(false);
         ui->enaBox->setText(tr("Pinouts"));
     }
+    ui->enaBox->setChecked(state);
 }
 
 void SerialPinout::setPinout(QSerialPort::PinoutSignals signal)

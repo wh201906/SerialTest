@@ -23,19 +23,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 #ifdef Q_OS_ANDROID
     setStyleSheet("QCheckBox{min-width:15px;min-height:15px;}QCheckBox::indicator{min-width:15px;min-height:15px;}");
-
-    // on Android, use default.
-    MySettings::init(QSettings::NativeFormat);
 #else
 
     IOConnection->setType(Connection::SerialPort);
 
     onTopBox = new QCheckBox(tr("On Top"));
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
-
-    // on PC, store preferences in files for portable use
-    MySettings::init(QSettings::IniFormat, "preference.ini");
-
 
     dockAllWindows = new QAction(tr("Dock all windows"), this);
     connect(dockAllWindows, &QAction::triggered, [ = ]()
@@ -54,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     serialPinout = new SerialPinout();
     connect(IOConnection, &Connection::SP_signalsChanged, serialPinout, &SerialPinout::setPinout);
     connect(serialPinout, &SerialPinout::enableStateChanged, IOConnection, &Connection::setPolling);
+    serialPinout->initSettings();
 
     deviceTab = new DeviceTab();
     deviceTab->setConnection(IOConnection);
@@ -91,6 +85,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(fileTab, &FileTab::showUpTab, this, &MainWindow::showUpTab);
     connect(fileTab->fileXceiver(), &FileXceiver::send, this, &MainWindow::sendData);
     ui->funcTab->insertTab(4, fileTab, tr("File"));
+
+    settingsTab = new SettingsTab();
+    connect(settingsTab, &SettingsTab::opacityChanged, this, &MainWindow::onOpacityChanged); // not a slot function, but works fine.
+    connect(settingsTab, &SettingsTab::fullScreenStateChanged, this, &MainWindow::setFullScreen);
+    ui->funcTab->insertTab(5, settingsTab, tr("Settings"));
 
     deviceTab->getAvailableTypes(true);
     initTabs();
@@ -136,6 +135,7 @@ void MainWindow::initTabs()
     plotTab->initQCP();
     plotTab->initSettings();
     fileTab->initSettings();
+    settingsTab->initSettings();
 }
 
 void MainWindow::contextMenuEvent(QContextMenuEvent *event)
@@ -158,6 +158,7 @@ void MainWindow::keyReleaseEvent(QKeyEvent* e)
         }
         else // exit
         {
+            Util::showToast(tr("Closing...")); // exit might be blocked by FileTab for 3s
             QMainWindow::keyReleaseEvent(e);
         }
 #endif
@@ -345,6 +346,21 @@ void MainWindow::showUpTab(int id)
 #endif
 }
 
+void MainWindow::setFullScreen(bool isFullScreen)
+{
+    if(isFullScreen)
+    {
+        setWindowState(windowState() | Qt::WindowFullScreen);
+        showFullScreen();
+    }
+    else
+    {
+        setWindowState(windowState() & ~Qt::WindowFullScreen);
+        showNormal();
+        show();
+    }
+}
+
 void MainWindow::updateRxTxLen(bool updateRx, bool updateTx)
 {
     if(updateRx)
@@ -444,6 +460,19 @@ void MainWindow::updateRxUI()
     RxUIBuf.clear();
 }
 
+
+void MainWindow::onOpacityChanged(qreal value)
+{
+    setWindowOpacity(value);
+#ifndef Q_OS_ANDROID
+    for(auto dock : qAsConst(dockList))
+    {
+        if(dock->isFloating())
+            dock->setWindowOpacity(value);
+    }
+#endif
+}
+
 // platform specific
 // **********************************************************************************************************************************************
 
@@ -466,13 +495,14 @@ void MainWindow::dockInit()
         dock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         widget = ui->funcTab->widget(0);
         dock->setWidget(widget);
+        connect(dock, &QDockWidget::topLevelChanged, this, &MainWindow::onDockTopLevelChanged);
         addDockWidget(Qt::BottomDockWidgetArea, dock);
         if(!dockList.isEmpty())
             tabifyDockWidget(dockList[0], dock);
         dockList.append(dock);
     }
-    ui->funcTab->setVisible(false);
-    ui->centralwidget->setVisible(false);
+    ui->funcTab->hide();
+    ui->centralwidget->hide();
     dockList[0]->setVisible(true);
     dockList[0]->raise();
 }
@@ -481,6 +511,12 @@ void MainWindow::onTopBoxClicked(bool checked)
 {
     setWindowFlag(Qt::WindowStaysOnTopHint, checked);
     show();
+}
+
+void MainWindow::onDockTopLevelChanged(bool topLevel)
+{
+    if(topLevel) // some widget is floating now
+        onOpacityChanged(windowOpacity());
 }
 
 #endif

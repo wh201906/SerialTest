@@ -243,5 +243,3 @@ void AsyncCRC::setParam(quint8 width, quint64 poly, quint64 init, bool refIn, bo
     }
     reset();
 }
-
-

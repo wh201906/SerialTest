@@ -80,3 +80,31 @@ QStringList MySettings::childGroups() const
         return QStringList();
     return m_settings->childGroups();
 }
+
+void MySettings::clear()
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->clear();
+}
+
+QString MySettings::fileName() const
+{
+    if(m_settings == nullptr)
+        return QString();
+    return m_settings->fileName();
+}
+
+void MySettings::sync()
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->sync();
+}
+
+QStringList MySettings::allKeys() const
+{
+    if(m_settings == nullptr)
+        return QStringList();
+    return m_settings->allKeys();
+}

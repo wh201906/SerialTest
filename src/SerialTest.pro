@@ -35,6 +35,7 @@ SOURCES += \
     mysettings.cpp \
     plottab.cpp \
     serialpinout.cpp \
+    settingstab.cpp \
     util.cpp
 
 HEADERS += \
@@ -53,9 +54,11 @@ HEADERS += \
     mysettings.h \
     plottab.h \
     serialpinout.h \
+    settingstab.h \
     util.h
 
 FORMS += \
+    ui/settingstab.ui \
     ui/filetab.ui \
     ui/legenditemdialog.ui \
     ui/serialpinout.ui \

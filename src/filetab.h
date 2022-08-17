@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QRadioButton>
 #include <QThread>
+#include <QIntValidator>
 
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniEnvironment>
@@ -72,7 +73,8 @@ private:
     FileXceiver* m_fileXceiver = nullptr;
     bool m_working = false;
     static FileTab* m_currInstance;
-    MySettings *settings;
+    MySettings *m_settings;
+    QIntValidator *m_intValidator;
 
     void showUpTabHelper(int id);
     void onFilePathSet(const QString &path);

@@ -26,6 +26,7 @@
 #include "datatab.h"
 #include "devicetab.h"
 #include "filetab.h"
+#include "settingstab.h"
 #include "serialpinout.h"
 #include "connection.h"
 
@@ -53,6 +54,11 @@ public slots:
     void clearReceivedData();
     void setTxDataRecording(bool enabled);
     void showUpTab(int id);
+    void setFullScreen(bool isFullScreen);
+    void onOpacityChanged(qreal value);
+#ifndef Q_OS_ANDROID
+    void onDockTopLevelChanged(bool topLevel);
+#endif
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void keyReleaseEvent(QKeyEvent* e) override;
@@ -101,6 +107,7 @@ private:
     DataTab* dataTab;
     DeviceTab* deviceTab;
     FileTab* fileTab;
+    SettingsTab* settingsTab;
 
 #ifndef Q_OS_ANDROID
     QList<QDockWidget*> dockList;

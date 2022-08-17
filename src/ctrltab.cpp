@@ -28,7 +28,7 @@ CtrlTab::CtrlTab(QWidget *parent) :
     commentRegExp = new QRegularExpression("^#.+$", QRegularExpression::MultilineOption);
     commentRegExp->optimize();
 
-    ui->ctrl_dataEdit->setVisible(false);
+    ui->ctrl_dataEdit->hide();
 }
 
 CtrlTab::~CtrlTab()

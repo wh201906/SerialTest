@@ -616,6 +616,9 @@
        </item>
        <item>
         <widget class="QPlainTextEdit" name="tipsEdit">
+         <property name="undoRedoEnabled">
+          <bool>false</bool>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>

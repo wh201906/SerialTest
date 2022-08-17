@@ -19,6 +19,10 @@ public:
     void endGroup();
     QString group() const;
     QStringList childGroups() const;
+    void clear();
+    QString fileName() const;
+    void sync();
+    QStringList allKeys() const;
 private:
     MySettings() {}
     MySettings(const MySettings&) {}
