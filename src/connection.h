@@ -88,6 +88,10 @@ public:
     SerialPortArgument getSerialPortArgument();
     BTArgument getBTArgument();
     NetworkArgument getNetworkArgument();
+    static QStringList arg2StringList(const SerialPortArgument& arg);
+    static QStringList arg2StringList(const BTArgument& arg);
+    static QStringList arg2StringList(const NetworkArgument& arg);
+    static SerialPortArgument stringList2SPArg(const QStringList& list);
 
 
     // IO

@@ -1,5 +1,6 @@
 #include "settingstab.h"
 #include "ui_settingstab.h"
+#include "devicetab.h"
 
 #include <QMessageBox>
 #include <QStandardPaths>
@@ -52,13 +53,18 @@ void SettingsTab::on_Font_setButton_clicked()
     font.setPointSize(ui->Font_sizeBox->value());
     QApplication::setFont(font, "QWidget");
     // QApplication::setFont(font) doesn't work fine on android
+
+    m_settings->beginGroup("SerialTest");
+    m_settings->setValue("Font_Name", ui->Font_nameBox->currentFont().family());
+    m_settings->setValue("Font_Size", ui->Font_sizeBox->value());
+    m_settings->endGroup();
 }
 
 
 void SettingsTab::on_Conf_clearButton_clicked()
 {
     QMessageBox::StandardButton btn;
-    btn = QMessageBox::warning(this, tr("Warning"), tr("All configurations will lost!\nAnd this app will be closed!\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    btn = QMessageBox::warning(this, tr("Warning"), tr("All configurations and history will lost!\nAnd this app will be closed!\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if(btn == QMessageBox::No)
         return;
     m_settings->clear();
@@ -121,6 +127,11 @@ void SettingsTab::on_DataFont_setButton_clicked()
     QFont font = ui->DataFont_nameBox->currentFont();
     font.setPointSize(ui->DataFont_sizeBox->value());
     QApplication::setFont(font, "QPlainTextEdit");
+
+    m_settings->beginGroup("SerialTest");
+    m_settings->setValue("DataFont_Name", ui->DataFont_nameBox->currentFont().family());
+    m_settings->setValue("DataFont_Size", ui->DataFont_sizeBox->value());
+    m_settings->endGroup();
 }
 
 
@@ -134,18 +145,12 @@ void SettingsTab::savePreference()
     if(m_settings->group() != "")
         return;
     m_settings->beginGroup("SerialTest");
-    m_settings->setValue("Lang_Name", ui->Lang_nameBox->currentData().toString());
-    m_settings->setValue("Lang_Path", ui->Lang_filePathEdit->text());
 #ifdef Q_OS_ANDROID
     m_settings->setValue("Android_FullScreen", ui->Android_fullScreenBox->isChecked());
     m_settings->setValue("Android_ForceLandscape", ui->Android_forceLandscapeBox->isChecked());
 #else
     m_settings->setValue("Opacity", ui->Opacity_Box->value());
 #endif
-    m_settings->setValue("Font_Name", ui->Font_nameBox->currentFont().family());
-    m_settings->setValue("Font_Size", ui->Font_sizeBox->value());
-    m_settings->setValue("DataFont_Name", ui->DataFont_nameBox->currentFont().family());
-    m_settings->setValue("DataFont_Size", ui->DataFont_sizeBox->value());
     m_settings->endGroup();
 }
 
@@ -153,6 +158,7 @@ void SettingsTab::loadPreference()
 {
     m_settings->beginGroup("SerialTest");
 
+    ui->Conf_maxHistoryBox->setValue(m_settings->value("History_MaxCount", 1024).toInt());
     int langId = ui->Lang_nameBox->findData(m_settings->value("Lang_Name", "(sys)").toString());
     ui->Lang_nameBox->setCurrentIndex((langId == -1) ? 0 : langId);
     ui->Lang_filePathEdit->setText(m_settings->value("Lang_Path", "").toString());
@@ -217,5 +223,29 @@ void SettingsTab::on_Android_forceLandscapeBox_clicked()
 void SettingsTab::on_Lang_nameBox_currentIndexChanged(int index)
 {
     ui->Lang_filePathEdit->setHidden(index != ui->Lang_nameBox->count() - 1);
+}
+
+
+void SettingsTab::on_Conf_setMaxHistoryButton_clicked()
+{
+    m_settings->beginGroup("SerialTest");
+    m_settings->setValue("History_MaxCount", ui->Conf_maxHistoryBox->value());
+    m_settings->endGroup();
+}
+
+
+void SettingsTab::on_Conf_clearHistoryButton_clicked()
+{
+    for(auto name : DeviceTab::m_historyPrefix)
+        m_settings->remove(name);
+}
+
+
+void SettingsTab::on_Lang_setButton_clicked()
+{
+    m_settings->beginGroup("SerialTest");
+    m_settings->setValue("Lang_Name", ui->Lang_nameBox->currentData().toString());
+    m_settings->setValue("Lang_Path", ui->Lang_filePathEdit->text());
+    m_settings->endGroup();
 }
 

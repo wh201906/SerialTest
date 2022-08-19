@@ -41,6 +41,12 @@ private slots:
 
     void on_Lang_nameBox_currentIndexChanged(int index);
 
+    void on_Conf_setMaxHistoryButton_clicked();
+
+    void on_Conf_clearHistoryButton_clicked();
+
+    void on_Lang_setButton_clicked();
+
 private:
     Ui::SettingsTab *ui;
     MySettings* m_settings;

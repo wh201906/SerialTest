@@ -13,6 +13,14 @@
 #include <QAndroidJniEnvironment>
 #endif
 
+const QMap<QString, QString> DeviceTab::m_historyPrefix =
+{
+    {QLatin1String("SP"), QLatin1String("SerialTest_History_SerialPort")},
+    {QLatin1String("BLEC"), QLatin1String("SerialTest_History_BLE_Central")},
+    {QLatin1String("TCPClient"), QLatin1String("SerialTest_History_TCP_Client")},
+    {QLatin1String("UDP"), QLatin1String("SerialTest_History_UDP")},
+};
+
 DeviceTab::DeviceTab(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DeviceTab)
@@ -42,6 +50,11 @@ void DeviceTab::initSettings()
 {
     settings = MySettings::defaultSettings();
 
+    // config and history are loaded in this function
+
+    settings->beginGroup("SerialTest");
+    m_maxHistoryNum = settings->value("History_MaxCount", 1024).toInt();
+    settings->endGroup();
     QStringList groups = settings->childGroups();
     int size;
     size = 0;
@@ -52,9 +65,16 @@ void DeviceTab::initSettings()
     for(int i = 0; i < size; i++)
     {
         settings->setArrayIndex(i);
-        Connection::SerialPortArgument arg = settings->value("Arg").value<Connection::SerialPortArgument>();
-        m_SPArgHistory.append(arg);
-        m_SPArgHistoryIndex[arg.id] = i;
+
+        QStringList argList = settings->value("Arg").toStringList();
+        Connection::SerialPortArgument arg = Connection::stringList2SPArg(argList);
+        if(!arg.name.isEmpty())
+        {
+            m_SPArgHistory.append(arg);
+            // don't use i as index there
+            // empty arguments are skipped
+            m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.size() - 1;
+        }
     }
     settings->endArray();
 //    if(!groups.contains(m_historyPrefix["BLEC"]))
@@ -624,29 +644,33 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
 
 void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
 {
+    int removeNum = 0;
     // remove existing one
     if(m_SPArgHistoryIndex.contains(arg.id))
     {
         m_SPArgHistory.removeAt(m_SPArgHistoryIndex[arg.id]);
         m_SPArgHistoryIndex.remove(arg.id);
+        removeNum = +1;
     }
 
     // add one
     m_SPArgHistory.append(arg);
-    m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.length() - 1;
+    m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.length() - 1 + removeNum;
 
     // remove oldest to fit the size limit
-    if(m_SPArgHistory.length() > m_maxHistoryNum)
+    removeNum = (m_SPArgHistory.length() > m_maxHistoryNum) ? (m_SPArgHistory.length() - m_maxHistoryNum) : 0;
+    if(removeNum)
     {
-        m_SPArgHistory.removeFirst();
+        for(int i = 0; i < removeNum; i++)
+            m_SPArgHistory.removeFirst();
         // Just update the index rather than rebuild it
         for(auto it = m_SPArgHistoryIndex.begin(); it != m_SPArgHistoryIndex.end();)
         {
-            if(it.value() == 0)
+            if(it.value() < removeNum)
                 it = m_SPArgHistoryIndex.erase(it);
             else
             {
-                it.value()--;
+                it.value() -= removeNum;
                 ++it;
             }
         }
@@ -655,14 +679,9 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
     for(int i = 0; i < m_SPArgHistory.length(); i++)
     {
         settings->setArrayIndex(i);
-        settings->setValue("Arg", QVariant::fromValue<Connection::SerialPortArgument>(m_SPArgHistory[i]));
+        settings->setValue("Arg", Connection::arg2StringList(arg));
     }
     settings->endArray();
-    settings->setValue("BaudRate", ui->SP_baudRateBox->currentText());
-    settings->setValue("DataBitsID", ui->SP_dataBitsBox->currentIndex());
-    settings->setValue("StopBitsID", ui->SP_stopBitsBox->currentIndex());
-    settings->setValue("ParityID", ui->SP_parityBox->currentIndex());
-    settings->setValue("FlowControlID", ui->SP_flowControlBox->currentIndex());
 }
 
 void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg)

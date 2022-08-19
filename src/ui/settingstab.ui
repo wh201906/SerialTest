@@ -41,9 +41,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-108</y>
+        <y>-188</y>
         <width>506</width>
-        <height>544</height>
+        <height>576</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -66,12 +66,6 @@
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
               </property>
              </spacer>
             </item>
@@ -120,13 +114,55 @@ If no config file is detected, This app will create one in the current working d
             </property>
            </widget>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Max History Count *:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="Conf_maxHistoryBox">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>2147483640</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="Conf_setMaxHistoryButton">
+              <property name="text">
+               <string>Set</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="Conf_clearHistoryButton">
+              <property name="text">
+               <string>Clear History</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="langGrpBox">
          <property name="title">
-          <string>Language</string>
+          <string>Language *</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
@@ -143,12 +179,6 @@ If no config file is detected, This app will create one in the current working d
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
              </spacer>
             </item>
             <item>
@@ -164,13 +194,6 @@ If no config file is detected, This app will create one in the current working d
            <widget class="QLineEdit" name="Lang_filePathEdit">
             <property name="placeholderText">
              <string>Language file path (*.qm)</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Restart the app to make language settings take effect</string>
             </property>
            </widget>
           </item>
@@ -323,6 +346,13 @@ If no config file is detected, This app will create one in the current working d
            </layout>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Restart the app to make settings with &quot;*&quot; take effect.</string>
+         </property>
         </widget>
        </item>
        <item>

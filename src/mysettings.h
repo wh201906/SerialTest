@@ -27,6 +27,7 @@ public:
     void beginWriteArray(const QString &prefix, int size = -1);
     void endArray();
     void setArrayIndex(int i);
+    void remove(const QString &key);
 private:
     MySettings() {}
     MySettings(const MySettings&) {}

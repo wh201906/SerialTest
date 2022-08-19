@@ -136,3 +136,10 @@ void MySettings::setArrayIndex(int i)
         return;
     m_settings->setArrayIndex(i);
 }
+
+void MySettings::remove(const QString &key)
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->remove(key);
+}

@@ -5,7 +5,6 @@
 Connection::Connection(QObject *parent)
     : QObject{parent}
 {
-    qRegisterMetaTypeStreamOperators<Connection::SerialPortArgument>("Connection::SerialPortArgument");
     // permanent
     m_pollTimer = new QTimer();
     m_serialPort = new QSerialPort();
@@ -110,6 +109,56 @@ Connection::BTArgument Connection::getBTArgument()
 Connection::NetworkArgument Connection::getNetworkArgument()
 {
     return m_currNetArgument;
+}
+
+QStringList Connection::arg2StringList(const SerialPortArgument& arg)
+{
+    QStringList argList
+    {
+        arg.name,
+        QString::number(arg.baudRate),
+        QString::number(arg.dataBits),
+        QString::number(arg.stopBits),
+        QString::number(arg.parity),
+        QString::number(arg.flowControl),
+    };
+    if(arg.name != arg.id)
+        argList += arg.id;
+    return argList;
+}
+
+Connection::SerialPortArgument Connection::stringList2SPArg(const QStringList& list)
+{
+    Connection::SerialPortArgument arg;
+    if(!list.isEmpty())
+    {
+        int tmp;
+        bool ok;
+        arg.name = list[0];
+        if(list.size() < 7)
+            arg.id = arg.name;
+        switch(list.size())
+        {
+        case 7:
+            arg.id = list[6];
+        case 6:
+            if((tmp = list[5].toInt(&ok)) || ok)
+                arg.flowControl = (QSerialPort::FlowControl)tmp;
+        case 5:
+            if((tmp = list[4].toInt(&ok)) || ok)
+                arg.parity = (QSerialPort::Parity)tmp;
+        case 4:
+            if((tmp = list[3].toInt(&ok)) || ok)
+                arg.stopBits = (QSerialPort::StopBits)tmp;
+        case 3:
+            if((tmp = list[2].toInt(&ok)) || ok)
+                arg.dataBits = (QSerialPort::DataBits)tmp;
+        case 2:
+            if((tmp = list[1].toInt(&ok)) || ok)
+                arg.baudRate = tmp;
+        }
+    }
+    return arg;
 }
 
 void Connection::open()
@@ -1177,30 +1226,3 @@ const QMap<Connection::Type, QLatin1String> Connection::m_typeNameMap
     {Connection::TCP_Server, QLatin1String(QT_TR_NOOP("TCP Server"))},
     {Connection::UDP, QLatin1String(QT_TR_NOOP("UDP"))}
 };
-
-// Remember to include QDataStream in this file
-// Then you can use the operator<<() and operator>>() defined in it.
-// TODO:
-// serialize them to text for lower space
-QDataStream& operator<<(QDataStream& out, const Connection::SerialPortArgument& arg)
-{
-    out << arg.name
-        << arg.baudRate
-        << arg.dataBits
-        << arg.stopBits
-        << arg.parity
-        << arg.flowControl
-        << arg.id;
-    return out;
-}
-QDataStream& operator>>(QDataStream& in, Connection::SerialPortArgument& arg)
-{
-    in >> arg.name
-       >> arg.baudRate
-       >> arg.dataBits
-       >> arg.stopBits
-       >> arg.parity
-       >> arg.flowControl
-       >> arg.id;
-    return in;
-}

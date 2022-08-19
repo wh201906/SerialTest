@@ -21,6 +21,9 @@ class DeviceTab : public QWidget
     Q_OBJECT
 
 public:
+
+    static const QMap<QString, QString> m_historyPrefix;
+
     explicit DeviceTab(QWidget *parent = nullptr);
     ~DeviceTab();
 
@@ -47,14 +50,9 @@ private:
 
     const QString m_autoLocalAddress = tr("(Auto)");
     const QString m_anyLocalAddress = tr("(Any)");
-    const int m_maxHistoryNum = 1024;
-    const QMap<QString, QString> m_historyPrefix =
-    {
-        {QLatin1String("SP"), QLatin1String("SerialTest_History_SerialPort")},
-        {QLatin1String("BLEC"), QLatin1String("SerialTest_History_BLE_Central")},
-        {QLatin1String("TCPClient"), QLatin1String("SerialTest_History_TCP_Client")},
-        {QLatin1String("UDP"), QLatin1String("SerialTest_History_UDP")},
-    };
+
+    int m_maxHistoryNum;
+    // default value is defined in initSettings() and SettingsTab::loadPreference()
     QList<Connection::SerialPortArgument> m_SPArgHistory;
     QMap<QString, int> m_SPArgHistoryIndex;
     QList<Connection::BTArgument> m_BLECArgHistory;
