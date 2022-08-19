@@ -1,6 +1,7 @@
 ﻿#include "connection.h"
 
 #include <QNetworkDatagram>
+#include <QMetaEnum>
 
 Connection::Connection(QObject *parent)
     : QObject{parent}
@@ -106,9 +107,35 @@ Connection::BTArgument Connection::getBTArgument()
     return m_currBTArgument;
 }
 
-Connection::NetworkArgument Connection::getNetworkArgument()
+Connection::NetworkArgument Connection::getNetworkArgument(bool fillLocalAddress, bool fillLocalPort)
 {
-    return m_currNetArgument;
+    // the NetworkArgument passed to Connection might have auto-filled arguments
+    // (localAddress == Any or localPort == 0)
+    // After connected, the actural argument can be fetched
+
+    if(!fillLocalAddress && !fillLocalPort)
+        return m_currNetArgument;
+    Connection::NetworkArgument arg = m_currNetArgument;
+
+    if(fillLocalAddress && arg.localAddress == QHostAddress::Any) // local address is not specified
+    {
+        if(m_type == TCP_Client)
+            arg.localAddress = m_TCPSocket->localAddress();
+        else if(m_type == TCP_Server)
+            arg.localAddress = m_TCPServer->serverAddress();
+        else if(m_type == UDP)
+            arg.localAddress = m_UDPSocket->localAddress();
+    }
+    if(fillLocalPort && arg.localPort == 0) // a random port is used
+    {
+        if(m_type == TCP_Client)
+            arg.localPort = m_TCPSocket->localPort();
+        else if(m_type == TCP_Server)
+            arg.localPort = m_TCPServer->serverPort();
+        else if(m_type == UDP)
+            arg.localPort = m_UDPSocket->localPort();
+    }
+    return arg;
 }
 
 QStringList Connection::arg2StringList(const SerialPortArgument& arg)
@@ -124,6 +151,20 @@ QStringList Connection::arg2StringList(const SerialPortArgument& arg)
     };
     if(arg.name != arg.id)
         argList += arg.id;
+    return argList;
+}
+
+QStringList Connection::arg2StringList(const NetworkArgument &arg)
+{
+    QStringList argList
+    {
+        (arg.localAddress == QHostAddress::Any) ? "(Any)" : arg.localAddress.toString(),
+        QString::number(arg.localPort),
+        arg.remoteName,
+        QString::number(arg.remotePort),
+    };
+    if(!arg.alias.isEmpty())
+        argList += arg.alias;
     return argList;
 }
 
@@ -161,6 +202,26 @@ Connection::SerialPortArgument Connection::stringList2SPArg(const QStringList& l
     return arg;
 }
 
+Connection::NetworkArgument Connection::stringList2NetArg(const QStringList &list)
+{
+    Connection::NetworkArgument arg;
+    if(list.size() >= 4)
+    {
+        QString name;
+        name = list[0];
+        if(name == "(Any)")
+            arg.localAddress = QHostAddress::Any;
+        else
+            arg.localAddress = QHostAddress(name);
+        arg.localPort = list[1].toUShort();
+        arg.remoteName = list[2];
+        arg.remotePort = list[3].toUShort();
+        if(list.size() >= 5)
+            arg.alias = list[4];
+    }
+    return arg;
+}
+
 void Connection::open()
 {
     if(m_type == SerialPort)
@@ -176,7 +237,7 @@ void Connection::open()
         if(m_serialPort->open(QIODevice::ReadWrite))
             onConnected();
         else
-            emit connectFailed();
+            emit connectFailed(m_serialPort->errorString());
     }
     else if(m_type == BT_Client)
     {
@@ -188,7 +249,7 @@ void Connection::open()
     {
         if(!m_BTServer->listen(m_currBTArgument.localAdapterAddress))
         {
-            emit connectFailed();
+            emit connectFailed(tr("Failed to listen on adapter") + "\n" + m_currBTArgument.localAdapterAddress.toString());
             return;
         }
         m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceName, m_currBTArgument.serverServiceName);
@@ -196,7 +257,7 @@ void Connection::open()
         if(!m_RfcommServiceInfo.registerService(m_currBTArgument.localAdapterAddress))
         {
             m_BTServer->close();
-            emit connectFailed();
+            emit connectFailed(tr("Failed to register service on adapter") + "\n" + m_currBTArgument.localAdapterAddress.toString());
             return;
         }
         changeState(Bound);
@@ -230,7 +291,10 @@ void Connection::open()
     {
         if(!m_TCPServer->listen(m_currNetArgument.localAddress, m_currNetArgument.localPort))
         {
-            emit connectFailed();
+            emit connectFailed(tr("Failed to listen to ") + "\n"
+                               + QString("(%1, %2)")
+                               .arg(m_currNetArgument.localAddress.toString())
+                               .arg(m_currNetArgument.localPort));
             return;
         }
         changeState(Bound);
@@ -245,13 +309,13 @@ void Connection::open()
         {
             if(!m_UDPSocket->bind(QHostAddress::Any, m_currNetArgument.localPort, QAbstractSocket::ShareAddress))
             {
-                emit connectFailed();
+                emit connectFailed(tr("(Multicast)Failed to listen to port ") + QString::number(m_currNetArgument.localPort));
                 return;
             }
             // remember to leave the group in close() or disconnect()
             if(!m_UDPSocket->joinMulticastGroup(m_currNetArgument.localAddress))
             {
-                emit connectFailed();
+                emit connectFailed(tr("(Multicast)Failed to join ") + "\n" + m_currNetArgument.localAddress.toString());
                 m_UDPSocket->close(); // necessary? call abort()?
                 return;
             }
@@ -261,7 +325,9 @@ void Connection::open()
             if(m_UDPSocket->bind(m_currNetArgument.localAddress, m_currNetArgument.localPort))
                 onConnected(); // no connection, bound = connected
             else
-                emit connectFailed();
+                emit connectFailed(QString("(%1, %2)")
+                                   .arg(m_currNetArgument.localAddress.toString())
+                                   .arg(m_currNetArgument.localPort));
     }
 }
 
@@ -337,6 +403,11 @@ void Connection::close(bool forced)
     else if(m_type == TCP_Client)
     {
         m_TCPSocket->close(); // will call disconnectFromHost()
+        // for some unknown reason, the QTCPSocket might keep the error state for a while
+        // use a new socket for fast reconnect
+        m_TCPSocket->deleteLater();
+        m_TCPSocket = new QTcpSocket();
+        updateSignalSlot();
     }
     else if(m_type == TCP_Server)
     {
@@ -542,7 +613,7 @@ void Connection::onErrorOccurred()
         else
         {
             if(m_state == Connecting)
-                emit connectFailed();
+                emit connectFailed(m_BTSocket->errorString());
             close(true);
         }
     }
@@ -559,7 +630,9 @@ void Connection::onErrorOccurred()
                 ;
             else
             {
-                onDisconnected();
+                if(m_state == Connecting)
+                    emit connectFailed(tr("Controller Error: ") + m_BLEController->errorString());
+                close(true);
             }
         }
         else if(sender() == m_BLERxTxService || sender() == m_BLETxService)
@@ -576,7 +649,10 @@ void Connection::onErrorOccurred()
                 ;
             else
             {
-                onDisconnected();
+                if(m_state == Connecting)
+                    emit connectFailed(tr("Service Error: ")
+                                       + QString::fromUtf8(QMetaEnum::fromType<QLowEnergyService::ServiceError>().valueToKey(error)));
+                close(true);
             }
         }
     }
@@ -592,7 +668,11 @@ void Connection::onErrorOccurred()
         if(error == QTcpSocket::OperationError || error == QTcpSocket::TemporaryError || error == QTcpSocket::UnsupportedSocketOperationError)
             ;
         else
-            close(); // this will emit disconnected()
+        {
+            if(m_state == Connecting)
+                emit connectFailed(m_TCPSocket->errorString());
+            close(true); // this will emit disconnected()
+        }
     }
     // untested yet
     // for server, the m_state need to be changed there
@@ -689,7 +769,7 @@ qint64 Connection::write(const char *data, qint64 len)
     return 0;
 }
 
-qint64 Connection::write(const QByteArray &data)
+qint64 Connection::write(const QByteArray & data)
 {
     return write(data.constData(), data.size());
 }
@@ -715,26 +795,16 @@ void Connection::afterConnected()
     }
     else if(m_type == TCP_Client)
     {
-        if(m_currNetArgument.localAddress == QHostAddress::Any) // local address is not specified
-            m_currNetArgument.localAddress = m_TCPSocket->localAddress();
-        if(m_currNetArgument.localPort == 0) // a random port is used
-            m_currNetArgument.localPort = m_TCPSocket->localPort();
         m_lastNetArgument = m_currNetArgument;
         m_lastNetArgumentValid = true;
     }
     else if(m_type == TCP_Server)
     {
-        // TODO:
-        // show local address of each connected socket, which might be different
-        if(m_currNetArgument.localPort == 0) // a random port is used
-            m_currNetArgument.localPort = m_TCPServer->serverPort();
         m_lastNetArgument = m_currNetArgument;
         m_lastNetArgumentValid = true;
     }
     else if(m_type == UDP)
     {
-        if(m_currNetArgument.localPort == 0) // a random port is used
-            m_currNetArgument.localPort = m_UDPSocket->localPort();
         m_lastNetArgument = m_currNetArgument;
         m_lastNetArgumentValid = true;
     }
@@ -787,7 +857,7 @@ void Connection::Server_onClientConnected()
 }
 
 // this will be called by cliendDisconnected() and clientErrorOccurred()
-void Connection::Server_onClientDisconnectedHandler(QObject* clientObj)
+void Connection::Server_onClientDisconnectedHandler(QObject * clientObj)
 {
     // send clientDisconnceted() only once
     bool firstCall = false;
@@ -1003,7 +1073,7 @@ int Connection::BTServer_clientCount()
     return m_BTConnectedClients.count();
 }
 
-bool Connection::BTServer_setClientMode(QBluetoothSocket* clientSocket, bool RxEnabled, bool TxEnabled)
+bool Connection::BTServer_setClientMode(QBluetoothSocket * clientSocket, bool RxEnabled, bool TxEnabled)
 {
     if(!m_BTConnectedClients.contains(clientSocket))
         return false;
@@ -1026,7 +1096,7 @@ bool Connection::BTServer_setClientMode(QBluetoothSocket* clientSocket, bool RxE
     return true;
 }
 
-void Connection::UDP_setRemote(const QString& addr, quint16 port)
+void Connection::UDP_setRemote(const QString & addr, quint16 port)
 {
     if(m_type != UDP)
         return;
@@ -1044,7 +1114,7 @@ int Connection::TCPServer_clientCount()
     return m_TCPConnectedClients.count();
 }
 
-bool Connection::TCPServer_setClientMode(QTcpSocket* clientSocket, bool RxEnabled, bool TxEnabled)
+bool Connection::TCPServer_setClientMode(QTcpSocket * clientSocket, bool RxEnabled, bool TxEnabled)
 {
     if(!m_TCPConnectedClients.contains(clientSocket))
         return false;
@@ -1074,7 +1144,7 @@ void Connection::blackhole()
     qobject_cast<QIODevice*>(sender())->readAll();
 }
 
-void Connection::BLEC_onServiceDiscovered(const QBluetoothUuid& serviceUUID)
+void Connection::BLEC_onServiceDiscovered(const QBluetoothUuid & serviceUUID)
 {
     m_BLEDiscoveredServices.append(serviceUUID);
     if(m_BLERxTxService != nullptr && (m_BLETxService != nullptr || m_currBTArgument.RxServiceUUID == m_currBTArgument.TxServiceUUID))
@@ -1208,7 +1278,7 @@ void Connection::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState 
     }
 }
 
-void Connection::BLEC_onDataArrived(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+void Connection::BLEC_onDataArrived(const QLowEnergyCharacteristic & characteristic, const QByteArray & newValue)
 {
     Q_UNUSED(characteristic)
     m_buf += newValue;
@@ -1226,3 +1296,12 @@ const QMap<Connection::Type, QLatin1String> Connection::m_typeNameMap
     {Connection::TCP_Server, QLatin1String(QT_TR_NOOP("TCP Server"))},
     {Connection::UDP, QLatin1String(QT_TR_NOOP("UDP"))}
 };
+
+bool Connection::NetworkArgument::operator==(const NetworkArgument &other) const
+{
+    // alias doesn't matter
+    return localAddress == other.localAddress
+           && localPort == other.localPort
+           && remoteName == other.remoteName
+           && remotePort == other.remotePort;
+}

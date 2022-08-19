@@ -68,12 +68,12 @@ private slots:
     void updateRxUI();
 
 #ifndef Q_OS_ANDROID
-    void onTopBoxClicked(bool checked);
+    void onTopBoxClicked();
 #endif
 
     void onIODeviceConnected();
     void onIODeviceDisconnected();
-    void onIODeviceConnectFailed();
+    void onIODeviceConnectFailed(const QString& info);
 private:
     Ui::MainWindow *ui;
     void initUI();

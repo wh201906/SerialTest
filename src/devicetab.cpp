@@ -16,7 +16,9 @@
 const QMap<QString, QString> DeviceTab::m_historyPrefix =
 {
     {QLatin1String("SP"), QLatin1String("SerialTest_History_SerialPort")},
+    {QLatin1String("BTServer"), QLatin1String("SerialTest_History_BT_Server")},
     {QLatin1String("BLEC"), QLatin1String("SerialTest_History_BLE_Central")},
+    {QLatin1String("TCPServer"), QLatin1String("SerialTest_History_TCP_Server")},
     {QLatin1String("TCPClient"), QLatin1String("SerialTest_History_TCP_Client")},
     {QLatin1String("UDP"), QLatin1String("SerialTest_History_UDP")},
 };
@@ -27,11 +29,15 @@ DeviceTab::DeviceTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m_netPortValidator = new QIntValidator(this);
+    m_netPortValidator->setBottom(0);
+
     connect(ui->SP_portList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BTClient_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BLEC_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BLEC_RxServiceUUIDBox, &QComboBox::currentTextChanged, this, &DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged);
     connect(ui->BLEC_TxServiceUUIDBox, &QComboBox::currentTextChanged, this, &DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged);
+    connect(ui->Net_addrPortList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->Net_remoteAddrEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
     connect(ui->Net_remotePortEdit, &QLineEdit::editingFinished, this, &DeviceTab::Net_onRemoteChanged);
     ui->SP_baudRateBox->installEventFilter(this);
@@ -53,8 +59,10 @@ void DeviceTab::initSettings()
     // config and history are loaded in this function
 
     settings->beginGroup("SerialTest");
-    m_maxHistoryNum = settings->value("History_MaxCount", 1024).toInt();
+    m_maxHistoryNum = settings->value("History_MaxCount", 200).toInt();
     settings->endGroup();
+
+    // arrays
     QStringList groups = settings->childGroups();
     int size;
     size = 0;
@@ -79,14 +87,55 @@ void DeviceTab::initSettings()
     settings->endArray();
 //    if(!groups.contains(m_historyPrefix["BLEC"]))
 //        settings->beginWriteArray(m_historyPrefix["BLEC"], 0);
-//    if(!groups.contains(m_historyPrefix["TCPClient"]))
-//        settings->beginWriteArray(m_historyPrefix["TCPClient"], 0);
-//    if(!groups.contains(m_historyPrefix["UDP"]))
-//        settings->beginWriteArray(m_historyPrefix["UDP"], 0);
+    size = 0;
+    if(!groups.contains(m_historyPrefix["TCPClient"]))
+        settings->beginWriteArray(m_historyPrefix["TCPClient"], 0);
+    else
+        size = settings->beginReadArray(m_historyPrefix["TCPClient"]);
+    for(int i = 0; i < size; i++)
+    {
+        settings->setArrayIndex(i);
+
+        QStringList argList = settings->value("Arg").toStringList();
+        Connection::NetworkArgument arg = Connection::stringList2NetArg(argList);
+        if(!arg.localAddress.isNull())
+        {
+            m_TCPClientHistory.append(arg);
+        }
+    }
+    settings->endArray();
+
+    size = 0;
+    if(!groups.contains(m_historyPrefix["UDP"]))
+        settings->beginWriteArray(m_historyPrefix["UDP"], 0);
+    else
+        size = settings->beginReadArray(m_historyPrefix["UDP"]);
+    for(int i = 0; i < size; i++)
+    {
+        settings->setArrayIndex(i);
+
+        QStringList argList = settings->value("Arg").toStringList();
+        Connection::NetworkArgument arg = Connection::stringList2NetArg(argList);
+        if(!arg.localAddress.isNull())
+        {
+            m_UDPHistory.append(arg);
+        }
+    }
+    settings->endArray();
+
     if(m_SPArgHistory.isEmpty())
         loadSPPreference();
     else
         loadSPPreference(m_SPArgHistory.last());
+
+    // TCP client preference(last connected) is loaded in on_typeBox_currentIndexChanged()
+
+    // non-arrays
+    settings->beginGroup(m_historyPrefix["BTServer"]);
+    ui->BTServer_serviceNameEdit->setText(settings->value("LastServiceName", "SerialTest_BT").toString());
+    settings->endGroup();
+
+    // TCP server preference(last connected) is loaded in on_typeBox_currentIndexChanged()
 }
 
 void DeviceTab::setConnection(Connection *conn)
@@ -223,6 +272,9 @@ void DeviceTab::initUI()
     ui->SP_dataBitsBox->addItem("6", QSerialPort::Data6);
     ui->SP_dataBitsBox->addItem("7", QSerialPort::Data7);
     ui->SP_dataBitsBox->addItem("8", QSerialPort::Data8);
+
+    ui->Net_localPortEdit->setValidator(m_netPortValidator);
+    ui->Net_remotePortEdit->setValidator(m_netPortValidator);
 
 }
 
@@ -390,29 +442,54 @@ void DeviceTab::onClientCountChanged()
         ui->Net_addrPortList->blockSignals(true); // avoid emitting cellChanged()
         for(int i = 0; i < list.size(); i++)
         {
+            ui->Net_addrPortList->setItem(i, 0, new QTableWidgetItem(list[i]->peerName()));
+            ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->localAddress().toString()));
+            ui->Net_addrPortList->setItem(i, 2, new QTableWidgetItem(QString::number(list[i]->localPort())));
             QTableWidgetItem* tmpItem;
             tmpItem = new QTableWidgetItem(list[i]->peerAddress().toString());
             tmpItem->setData(Qt::UserRole, QVariant((quintptr)list[i]));
-            ui->Net_addrPortList->setItem(i, 0, tmpItem);
-            ui->Net_addrPortList->setItem(i, 1, new QTableWidgetItem(list[i]->peerPort()));
-            ui->Net_addrPortList->setItem(i, 2, new QTableWidgetItem(list[i]->peerName()));
+            ui->Net_addrPortList->setItem(i, 3, tmpItem);
+            ui->Net_addrPortList->setItem(i, 4, new QTableWidgetItem(QString::number(list[i]->peerPort())));
 
             QPushButton* disconnectButton = new QPushButton;
             disconnectButton->setText(tr("Disconnect"));
             connect(disconnectButton, &QPushButton::clicked, list[i], &QTcpSocket::disconnectFromHost);
-            ui->Net_addrPortList->setIndexWidget(ui->Net_addrPortList->model()->index(i, 3), disconnectButton);
+            ui->Net_addrPortList->setIndexWidget(ui->Net_addrPortList->model()->index(i, 5), disconnectButton);
             tmpItem = new QTableWidgetItem();
             tmpItem->setFlags(tmpItem->flags() | Qt::ItemIsUserCheckable);
             tmpItem->setCheckState(Qt::Checked);
-            ui->Net_addrPortList->setItem(i, 4, tmpItem);
+            ui->Net_addrPortList->setItem(i, 6, tmpItem);
             tmpItem = new QTableWidgetItem();
             tmpItem->setFlags(tmpItem->flags() | Qt::ItemIsUserCheckable);
             tmpItem->setCheckState(Qt::Checked);
-            ui->Net_addrPortList->setItem(i, 5, tmpItem);
+            ui->Net_addrPortList->setItem(i, 7, tmpItem);
         }
         ui->Net_addrPortList->blockSignals(false);
     }
     emit clientCountChanged();
+}
+
+void DeviceTab::Net_onDeleteButtonClicked()
+{
+    QPushButton* btn = qobject_cast<QPushButton*>(sender());
+    Connection::Type currType = m_connection->type();
+    QVariant var = btn->property("ItemId");
+    if(!var.isValid())
+        return;
+    int id = var.toInt();
+    if(currType == Connection::TCP_Client)
+    {
+        m_TCPClientHistory.removeAt(id);
+        syncTCPClientPreference();
+        showNetArgumentHistory(m_TCPClientHistory, currType);
+    }
+    else if(currType == Connection::UDP)
+    {
+        m_UDPHistory.removeAt(id);
+        syncUDPPreference();
+        showNetArgumentHistory(m_UDPHistory, currType);
+    }
+
 }
 
 bool DeviceTab::eventFilter(QObject *watched, QEvent *event)
@@ -484,7 +561,7 @@ void DeviceTab::on_openButton_clicked()
     {
         if(m_connection->isConnected())
         {
-            QMessageBox::warning(this, tr("Error"), tr("The device is already connected."));
+            QMessageBox::warning(this, tr("Error"), tr("The device has already connected."));
             return;
         }
         else if(m_connection->state() == Connection::Connecting)
@@ -510,12 +587,16 @@ void DeviceTab::on_openButton_clicked()
         arg.serverServiceName = ui->BTServer_serviceNameEdit->text();
         m_connection->setArgument(arg);
         m_connection->open();
+
+        settings->beginGroup(m_historyPrefix["BTServer"]);
+        settings->setValue("LastServiceName", arg.serverServiceName);
+        settings->endGroup();
     }
     else if(currType == Connection::BLE_Central)
     {
         if(m_connection->isConnected())
         {
-            QMessageBox::warning(this, tr("Error"), tr("The device is already connected."));
+            QMessageBox::warning(this, tr("Error"), tr("The device has already connected."));
             return;
         }
         else if(m_connection->state() == Connection::Connecting)
@@ -538,7 +619,7 @@ void DeviceTab::on_openButton_clicked()
     {
         if(m_connection->isConnected())
         {
-            QMessageBox::warning(this, tr("Error"), tr("The device is already connected."));
+            QMessageBox::warning(this, tr("Error"), tr("The client has already connected to the server."));
             return;
         }
         else if(m_connection->state() == Connection::Connecting)
@@ -572,12 +653,16 @@ void DeviceTab::on_openButton_clicked()
         arg.localPort = ui->Net_localPortEdit->text().toUInt();
         m_connection->setArgument(arg);
         m_connection->open();
+
+        settings->beginGroup(m_historyPrefix["TCPServer"]);
+        settings->setValue("LastPort", arg.localPort);
+        settings->endGroup();
     }
     else if(currType == Connection::UDP)
     {
         if(m_connection->state() != Connection::Unconnected)
         {
-            QMessageBox::warning(this, tr("Error"), tr("(Something to say)"));
+            QMessageBox::warning(this, tr("Error"), tr("The socket has already bound to a port."));
             return;
         }
         Connection::NetworkArgument arg;
@@ -637,10 +722,79 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
             ui->BLEC_currAddrBox->setCurrentIndex(row);
         }
     }
+    else if(currType == Connection::TCP_Client || currType == Connection::UDP)
+    {
+        ui->Net_localAddrBox->setCurrentText(ui->Net_addrPortList->item(row, 1)->text());
+        ui->Net_localPortEdit->setText(ui->Net_addrPortList->item(row, 2)->text());
+        ui->Net_remoteAddrEdit->setText(ui->Net_addrPortList->item(row, 3)->text());
+        ui->Net_remotePortEdit->setText(ui->Net_addrPortList->item(row, 4)->text());
+    }
 }
 
 // platform specific
 // **********************************************************************************************************************************************
+
+void DeviceTab::saveTCPClientPreference(const Connection::NetworkArgument& arg)
+{
+    int id;
+    Connection::NetworkArgument newArg;
+    id = m_TCPClientHistory.indexOf(arg);
+    if(id != -1)
+        newArg = m_TCPClientHistory.takeAt(id);
+    else
+        newArg = arg;
+    m_TCPClientHistory.append(newArg);
+
+    syncTCPClientPreference();
+    showNetArgumentHistory(m_TCPClientHistory, Connection::TCP_Client);
+}
+
+void DeviceTab::syncTCPClientPreference()
+{
+    int num;
+    num = (m_TCPClientHistory.length() > m_maxHistoryNum) ? (m_TCPClientHistory.length() - m_maxHistoryNum) : 0;
+    for(int i = 0; i < num; i++)
+        m_TCPClientHistory.removeFirst();
+
+    settings->beginWriteArray(m_historyPrefix["TCPClient"], m_TCPClientHistory.length());
+    for(int i = 0; i < m_TCPClientHistory.length(); i++)
+    {
+        settings->setArrayIndex(i);
+        settings->setValue("Arg", Connection::arg2StringList(m_TCPClientHistory[i]));
+    }
+    settings->endArray();
+}
+
+void DeviceTab::saveUDPPreference(const Connection::NetworkArgument& arg)
+{
+    int id;
+    Connection::NetworkArgument newArg;
+    id = m_UDPHistory.indexOf(arg);
+    if(id != -1)
+        newArg = m_UDPHistory.takeAt(id);
+    else
+        newArg = arg;
+    m_UDPHistory.append(newArg);
+
+    syncUDPPreference();
+    showNetArgumentHistory(m_UDPHistory, Connection::UDP);
+}
+
+void DeviceTab::syncUDPPreference()
+{
+    int num;
+    num = (m_UDPHistory.length() > m_maxHistoryNum) ? (m_UDPHistory.length() - m_maxHistoryNum) : 0;
+    for(int i = 0; i < num; i++)
+        m_UDPHistory.removeFirst();
+
+    settings->beginWriteArray(m_historyPrefix["UDP"], m_UDPHistory.length());
+    for(int i = 0; i < m_UDPHistory.length(); i++)
+    {
+        settings->setArrayIndex(i);
+        settings->setValue("Arg", Connection::arg2StringList(m_UDPHistory[i]));
+    }
+    settings->endArray();
+}
 
 void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
 {
@@ -679,7 +833,7 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
     for(int i = 0; i < m_SPArgHistory.length(); i++)
     {
         settings->setArrayIndex(i);
-        settings->setValue("Arg", Connection::arg2StringList(arg));
+        settings->setValue("Arg", Connection::arg2StringList(m_SPArgHistory[i]));
     }
     settings->endArray();
 }
@@ -692,6 +846,53 @@ void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg)
     ui->SP_stopBitsBox->setCurrentIndex(ui->SP_stopBitsBox->findData(arg.stopBits));
     ui->SP_parityBox->setCurrentIndex(ui->SP_parityBox->findData(arg.parity));
     ui->SP_flowControlBox->setCurrentIndex(ui->SP_flowControlBox->findData(arg.flowControl));
+}
+
+void DeviceTab::loadNetPreference(const Connection::NetworkArgument& arg, Connection::Type type)
+{
+    // block currentIndexChanged()
+    ui->Net_localAddrBox->blockSignals(true);
+    const QString& anyAddr = (type == Connection::TCP_Client) ? m_autoLocalAddress : m_anyLocalAddress;
+    ui->Net_localAddrBox->setCurrentText(arg.localAddress == QHostAddress::Any ? anyAddr : arg.localAddress.toString());
+    ui->Net_localPortEdit->setText(QString::number(arg.localPort));
+    ui->Net_remoteAddrEdit->setText(arg.remoteName);
+    ui->Net_remotePortEdit->setText(QString::number(arg.remotePort));
+    ui->Net_localAddrBox->blockSignals(false);
+}
+
+void DeviceTab::showNetArgumentHistory(const QList<Connection::NetworkArgument> &argList, Connection::Type type)
+{
+    ui->Net_addrPortList->setRowCount(0);
+    ui->Net_addrPortList->setRowCount(argList.size());
+    ui->Net_addrPortList->blockSignals(true); // avoid emitting cellChanged()
+    const QString& anyAddr = (type == Connection::TCP_Client) ? m_autoLocalAddress : m_anyLocalAddress;
+    int size = argList.size();
+    for(int i = 0; i < size; i++)
+    {
+        // reversed order
+        QTableWidgetItem* tmpItem;
+        tmpItem = new QTableWidgetItem(argList[i].alias);
+        tmpItem->setFlags(tmpItem->flags() | Qt::ItemIsEditable);
+        ui->Net_addrPortList->setItem(size - i - 1, 0, tmpItem);
+        tmpItem = new QTableWidgetItem((argList[i].localAddress == QHostAddress::Any) ? anyAddr : argList[i].localAddress.toString());
+        tmpItem->setFlags(tmpItem->flags() & ~Qt::ItemIsEditable);
+        ui->Net_addrPortList->setItem(size - i - 1, 1, tmpItem);
+        tmpItem = new QTableWidgetItem(QString::number(argList[i].localPort));
+        tmpItem->setFlags(tmpItem->flags() & ~Qt::ItemIsEditable);
+        ui->Net_addrPortList->setItem(size - i - 1, 2, tmpItem);
+        tmpItem = new QTableWidgetItem(argList[i].remoteName);
+        tmpItem->setFlags(tmpItem->flags() & ~Qt::ItemIsEditable);
+        ui->Net_addrPortList->setItem(size - i - 1, 3, tmpItem);
+        tmpItem = new QTableWidgetItem(QString::number(argList[i].remotePort));
+        tmpItem->setFlags(tmpItem->flags() & ~Qt::ItemIsEditable);
+        ui->Net_addrPortList->setItem(size - i - 1, 4, tmpItem);
+        QPushButton* deleteButton = new QPushButton;
+        deleteButton->setText(tr("Delete"));
+        deleteButton->setProperty("ItemId", i);
+        connect(deleteButton, &QPushButton::clicked, this, &DeviceTab::Net_onDeleteButtonClicked);
+        ui->Net_addrPortList->setIndexWidget(ui->Net_addrPortList->model()->index(size - i - 1, 5), deleteButton);
+    }
+    ui->Net_addrPortList->blockSignals(false);
 }
 
 void DeviceTab::BTdiscoverFinished()
@@ -791,7 +992,8 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
     }
     else if(newType == Connection::TCP_Client)
     {
-        ui->Net_addrPortList->setColumnCount(3);
+        ui->Net_addrPortList->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
+        ui->Net_addrPortList->setColumnCount(6);
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(false);
@@ -804,14 +1006,20 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->Net_tipLabel->hide();
         ui->targetListStack->setCurrentWidget(ui->NetListPage);
         ui->argsStack->setCurrentWidget(ui->NetArgsPage);
+
         updateNetInterfaceList();
+        if(!m_TCPClientHistory.isEmpty())
+        {
+            loadNetPreference(m_TCPClientHistory.last(), newType);
+            showNetArgumentHistory(m_TCPClientHistory, newType);
+        }
     }
     else if(newType == Connection::TCP_Server)
     {
-        ui->Net_addrPortList->setColumnCount(6);
-        ui->Net_addrPortList->setHorizontalHeaderItem(3, new QTableWidgetItem(" "));
-        ui->Net_addrPortList->setHorizontalHeaderItem(4, new QTableWidgetItem(tr("Receive")));
-        ui->Net_addrPortList->setHorizontalHeaderItem(5, new QTableWidgetItem(tr("Send")));
+        ui->Net_addrPortList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        ui->Net_addrPortList->setColumnCount(8);
+        ui->Net_addrPortList->setHorizontalHeaderItem(6, new QTableWidgetItem(tr("Receive")));
+        ui->Net_addrPortList->setHorizontalHeaderItem(7, new QTableWidgetItem(tr("Send")));
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(false);
@@ -823,11 +1031,18 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->Net_tipLabel->hide();
         ui->targetListStack->setCurrentWidget(ui->NetListPage);
         ui->argsStack->setCurrentWidget(ui->NetArgsPage);
+
         updateNetInterfaceList();
+        qint16 TCPServerPort = 0;
+        settings->beginGroup(m_historyPrefix["TCPServer"]);
+        TCPServerPort = settings->value("LastPort", 0).toUInt();
+        settings->endGroup();
+        ui->Net_localPortEdit->setText(QString::number(TCPServerPort));
     }
     else if(newType == Connection::UDP)
     {
-        ui->Net_addrPortList->setColumnCount(3);
+        ui->Net_addrPortList->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
+        ui->Net_addrPortList->setColumnCount(6);
         ui->Net_addrPortList->setRowCount(0);
         ui->Net_localAddrBox->show();
         ui->Net_localAddrBox->setEditable(true); // support multicast address and broadcast address
@@ -841,6 +1056,11 @@ void DeviceTab::on_typeBox_currentIndexChanged(int index)
         ui->targetListStack->setCurrentWidget(ui->NetListPage);
         ui->argsStack->setCurrentWidget(ui->NetArgsPage);
         updateNetInterfaceList();
+        if(!m_UDPHistory.isEmpty())
+        {
+            loadNetPreference(m_UDPHistory.last(), newType);
+            showNetArgumentHistory(m_UDPHistory, newType);
+        }
     }
     emit connTypeChanged(newType);
     refreshTargetList();
@@ -905,7 +1125,7 @@ void DeviceTab::on_BTServer_adapterBox_activated(int index)
 
 void DeviceTab::Net_onRemoteChanged()
 {
-    if(m_connection->type() == Connection::UDP)
+    if(m_connection->type() == Connection::UDP && m_connection->isConnected())
     {
         bool convOk = false;
         quint16 port = ui->Net_remotePortEdit->text().toUInt(&convOk);
@@ -913,6 +1133,8 @@ void DeviceTab::Net_onRemoteChanged()
         if(convOk && addr.setAddress(ui->Net_remoteAddrEdit->text()))
         {
             m_connection->UDP_setRemote(ui->Net_remoteAddrEdit->text(), port);
+            // get raw user input
+            saveUDPPreference(m_connection->getNetworkArgument(false, false));
             emit argumentChanged();
         }
     }
@@ -1161,17 +1383,31 @@ void DeviceTab::on_BTServer_deviceList_cellChanged(int row, int column)
 void DeviceTab::on_Net_addrPortList_cellChanged(int row, int column)
 {
 
-    if(m_connection->type() != Connection::TCP_Server)
-        return;
-
-    // 4:Rx 5:Tx
-    QTableWidget* widget = ui->Net_addrPortList;
-    if(column != 4 && column != 5)
-        return;
-
-    QTcpSocket* socket = (QTcpSocket*)widget->item(row, 0)->data(Qt::UserRole).value<quintptr>();
-    m_connection->TCPServer_setClientMode(socket, widget->item(row, 4)->checkState() == Qt::Checked, widget->item(row, 5)->checkState() == Qt::Checked);
-
+    Connection::Type type = m_connection->type();
+    if(type == Connection::TCP_Server && (column == 6 || column == 7))
+    {
+        // set client Rx/Tx enabled
+        // 6:Rx 7:Tx
+        QTableWidget* widget = ui->Net_addrPortList;
+        QTcpSocket* socket = (QTcpSocket*)widget->item(row, 3)->data(Qt::UserRole).value<quintptr>();
+        m_connection->TCPServer_setClientMode(socket, widget->item(row, 6)->checkState() == Qt::Checked, widget->item(row, 7)->checkState() == Qt::Checked);
+    }
+    else if(type == Connection::TCP_Client && column == 0)
+    {
+        // update alias
+        // 0:alias
+        QString newAlias = ui->Net_addrPortList->item(row, 0)->text();
+        m_TCPClientHistory[m_TCPClientHistory.size() - 1 - row].alias = newAlias;
+        syncTCPClientPreference();
+    }
+    else if(type == Connection::UDP && column == 0)
+    {
+        // update alias
+        // 0:alias
+        QString newAlias = ui->Net_addrPortList->item(row, 0)->text();
+        m_UDPHistory[m_UDPHistory.size() - 1 - row].alias = newAlias;
+        syncUDPPreference();
+    }
 }
 
 void DeviceTab::on_BLEC_ServiceUUIDBox_currentTextChanged(const QString &arg1)

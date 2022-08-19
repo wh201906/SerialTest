@@ -64,7 +64,7 @@ void SettingsTab::on_Font_setButton_clicked()
 void SettingsTab::on_Conf_clearButton_clicked()
 {
     QMessageBox::StandardButton btn;
-    btn = QMessageBox::warning(this, tr("Warning"), tr("All configurations and history will lost!\nAnd this app will be closed!\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    btn = QMessageBox::warning(this, tr("Warning"), tr("All configurations and history will be deleted!\nAnd this app will be closed!\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if(btn == QMessageBox::No)
         return;
     m_settings->clear();
@@ -158,7 +158,7 @@ void SettingsTab::loadPreference()
 {
     m_settings->beginGroup("SerialTest");
 
-    ui->Conf_maxHistoryBox->setValue(m_settings->value("History_MaxCount", 1024).toInt());
+    ui->Conf_maxHistoryBox->setValue(m_settings->value("History_MaxCount", 200).toInt());
     int langId = ui->Lang_nameBox->findData(m_settings->value("Lang_Name", "(sys)").toString());
     ui->Lang_nameBox->setCurrentIndex((langId == -1) ? 0 : langId);
     ui->Lang_filePathEdit->setText(m_settings->value("Lang_Path", "").toString());
@@ -236,6 +236,10 @@ void SettingsTab::on_Conf_setMaxHistoryButton_clicked()
 
 void SettingsTab::on_Conf_clearHistoryButton_clicked()
 {
+    QMessageBox::StandardButton btn;
+    btn = QMessageBox::warning(this, tr("Warning"), tr("All history will be deleted!\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if(btn == QMessageBox::No)
+        return;
     for(auto name : DeviceTab::m_historyPrefix)
         m_settings->remove(name);
 }

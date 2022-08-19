@@ -31,9 +31,14 @@ public:
     void setConnection(Connection* conn);
 public slots:
     void refreshTargetList();
+    void saveTCPClientPreference(const Connection::NetworkArgument &arg);
+    void saveUDPPreference(const Connection::NetworkArgument &arg);
     void saveSPPreference(const Connection::SerialPortArgument& arg);
     void getAvailableTypes(bool useFirstValid = false);
     void onClientCountChanged();
+    void Net_onDeleteButtonClicked();
+    void syncUDPPreference();
+    void syncTCPClientPreference();
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 private:
@@ -41,6 +46,8 @@ private:
 
     MySettings* settings;
     Connection* m_connection = nullptr;
+
+    QIntValidator* m_netPortValidator;
 
     QBluetoothDeviceDiscoveryAgent *BTClient_discoveryAgent = nullptr;
     QHash<QString, int> m_shownBTDevices;
@@ -73,6 +80,8 @@ private:
     QBluetoothUuid String2UUID(const QString &string);
     QString UUID2String(const QBluetoothUuid &UUID);
     void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument());
+    void loadNetPreference(const Connection::NetworkArgument &arg, Connection::Type type);
+    void showNetArgumentHistory(const QList<Connection::NetworkArgument> &arg, Connection::Type type);
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();

@@ -41,7 +41,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-188</y>
+        <y>0</y>
         <width>506</width>
         <height>576</height>
        </rect>
@@ -63,18 +63,18 @@
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </spacer>
-            </item>
-            <item>
              <widget class="QPushButton" name="Conf_clearButton">
               <property name="text">
                <string>Clear</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -175,18 +175,18 @@ If no config file is detected, This app will create one in the current working d
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </spacer>
-            </item>
-            <item>
              <widget class="QPushButton" name="Lang_setButton">
               <property name="text">
                <string>Set</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>

@@ -64,11 +64,13 @@ public:
 
     struct NetworkArgument
     {
-        QHostAddress localAddress;
+        QHostAddress localAddress = QHostAddress::Null;
         // connectToHost() supports hostName and hostAddress, writeDatagram() only supports hostAddress
         // use QString to store all hostName/hostAddress
         QString remoteName;
-        quint16 remotePort, localPort;
+        quint16 remotePort = 37280, localPort = 0;
+        QString alias; // useless for connection
+        bool operator==(const NetworkArgument& other) const;
     };
 
     explicit Connection(QObject *parent = nullptr);
@@ -87,11 +89,12 @@ public:
     // connection
     SerialPortArgument getSerialPortArgument();
     BTArgument getBTArgument();
-    NetworkArgument getNetworkArgument();
+    NetworkArgument getNetworkArgument(bool fillLocalAddress = true, bool fillLocalPort = true);
     static QStringList arg2StringList(const SerialPortArgument& arg);
     static QStringList arg2StringList(const BTArgument& arg);
     static QStringList arg2StringList(const NetworkArgument& arg);
     static SerialPortArgument stringList2SPArg(const QStringList& list);
+    static NetworkArgument stringList2NetArg(const QStringList& list);
 
 
     // IO
@@ -203,7 +206,7 @@ signals:
     void readyRead();
     void connected();
     void disconnected();
-    void connectFailed();
+    void connectFailed(const QString& info);
     void errorOccurred();
     // the slot can accept newState only
     void stateChanged(State newState, State oldState);

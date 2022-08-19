@@ -27,9 +27,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     IOConnection->setType(Connection::SerialPort);
 
-    onTopBox = new QCheckBox(tr("On Top"));
-    connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
-
     dockAllWindows = new QAction(tr("Dock all windows"), this);
     connect(dockAllWindows, &QAction::triggered, [ = ]()
     {
@@ -177,7 +174,7 @@ void MainWindow::onStateButtonClicked()
     {
         if(!IOConnection->reopen())
         {
-            QMessageBox::warning(this, tr("Error"), tr("Plz connect to a port first."));
+            QMessageBox::warning(this, tr("Error"), tr("Please connect to something first."));
             return;
         }
     }
@@ -199,7 +196,17 @@ void MainWindow::initUI()
 
     QtAndroid::androidActivity().callMethod<void>("handleStartIntent");
 #else
+    onTopBox = new QCheckBox(tr("On Top"));
+    connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
+
+    settings->beginGroup("SerialTest");
+    bool checked = settings->value("OnTop", false).toBool();
+    settings->endGroup();
+    onTopBox->setChecked(checked);
+
     statusBar()->addPermanentWidget(onTopBox, 0);
+    QTimer::singleShot(0, this, &MainWindow::onTopBoxClicked); // run it after UI initialization
+
     dockInit();
 #endif
     stateButton->setMinimumHeight(1);
@@ -373,7 +380,8 @@ void MainWindow::onIODeviceConnected()
 {
     qDebug() << "IODevice Connected";
     updateUITimer->start();
-    if(IOConnection->type() == Connection::SerialPort)
+    Connection::Type type = IOConnection->type();
+    if(type == Connection::SerialPort)
     {
         if(serialPinout->getEnableState())
             IOConnection->setPolling(true);
@@ -381,6 +389,20 @@ void MainWindow::onIODeviceConnected()
         Connection::SerialPortArgument arg;
         arg = IOConnection->getSerialPortArgument();
         deviceTab->saveSPPreference(arg);
+    }
+    else if(type == Connection::TCP_Client)
+    {
+        Connection::NetworkArgument arg;
+        // get raw user input
+        arg = IOConnection->getNetworkArgument(false, false);
+        deviceTab->saveTCPClientPreference(arg);
+    }
+    else if(type == Connection::UDP)
+    {
+        Connection::NetworkArgument arg;
+        // get raw user input
+        arg = IOConnection->getNetworkArgument(false, false);
+        deviceTab->saveUDPPreference(arg);
     }
     updateStatusBar();
     dataTab->onConnEstablished();
@@ -394,16 +416,29 @@ void MainWindow::onIODeviceDisconnected()
     updateRxUI();
 }
 
-void MainWindow::onIODeviceConnectFailed()
+void MainWindow::onIODeviceConnectFailed(const QString& info)
 {
-    if(IOConnection->type() == Connection::SerialPort)
+    Connection::Type type = IOConnection->type();
+    QString msg;
+    if(type == Connection::SerialPort)
     {
-        QMessageBox::warning(this, tr("Error"), tr("Cannot open the serial port."));
+        msg = tr("Cannot open the serial port.");
     }
-    if(IOConnection->type() == Connection::BT_Client)
+    else if(type == Connection::BT_Client || type == Connection::BLE_Central || type == Connection::TCP_Client)
     {
-        QMessageBox::warning(this, tr("Error"), tr("Cannot establish the connection."));
+        msg = tr("Cannot establish the connection.");
     }
+    else if(type == Connection::BT_Server || type == Connection::TCP_Server)
+    {
+        msg = tr("Cannot start the server.");
+    }
+    else if(type == Connection::UDP)
+    {
+        msg = tr("Cannot bind to the specified address and port.");
+    }
+    if(!info.isEmpty())
+        msg += "\n" + info;
+    QMessageBox::warning(this, tr("Error"), msg);
 }
 
 // Rx/Tx Data
@@ -507,10 +542,16 @@ void MainWindow::dockInit()
     dockList[0]->raise();
 }
 
-void MainWindow::onTopBoxClicked(bool checked)
+void MainWindow::onTopBoxClicked()
 {
+    if(onTopBox == nullptr)
+        return;
+    bool checked = onTopBox->isChecked();
     setWindowFlag(Qt::WindowStaysOnTopHint, checked);
     show();
+    settings->beginGroup("SerialTest");
+    settings->setValue("OnTop", checked);
+    settings->endGroup();
 }
 
 void MainWindow::onDockTopLevelChanged(bool topLevel)
