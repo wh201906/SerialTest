@@ -380,7 +380,7 @@ void MainWindow::onIODeviceConnected()
 
         Connection::SerialPortArgument arg;
         arg = IOConnection->getSerialPortArgument();
-        deviceTab->saveDevicesPreference(arg.name);
+        deviceTab->saveSPPreference(arg);
     }
     updateStatusBar();
     dataTab->onConnEstablished();

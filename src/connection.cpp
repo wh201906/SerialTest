@@ -5,6 +5,7 @@
 Connection::Connection(QObject *parent)
     : QObject{parent}
 {
+    qRegisterMetaTypeStreamOperators<Connection::SerialPortArgument>("Connection::SerialPortArgument");
     // permanent
     m_pollTimer = new QTimer();
     m_serialPort = new QSerialPort();
@@ -1176,3 +1177,30 @@ const QMap<Connection::Type, QLatin1String> Connection::m_typeNameMap
     {Connection::TCP_Server, QLatin1String(QT_TR_NOOP("TCP Server"))},
     {Connection::UDP, QLatin1String(QT_TR_NOOP("UDP"))}
 };
+
+// Remember to include QDataStream in this file
+// Then you can use the operator<<() and operator>>() defined in it.
+// TODO:
+// serialize them to text for lower space
+QDataStream& operator<<(QDataStream& out, const Connection::SerialPortArgument& arg)
+{
+    out << arg.name
+        << arg.baudRate
+        << arg.dataBits
+        << arg.stopBits
+        << arg.parity
+        << arg.flowControl
+        << arg.id;
+    return out;
+}
+QDataStream& operator>>(QDataStream& in, Connection::SerialPortArgument& arg)
+{
+    in >> arg.name
+       >> arg.baudRate
+       >> arg.dataBits
+       >> arg.stopBits
+       >> arg.parity
+       >> arg.flowControl
+       >> arg.id;
+    return in;
+}

@@ -95,10 +95,11 @@ void SettingsTab::on_Conf_createInConfDirButton_clicked()
 
 void SettingsTab::createConfFile(const QString& path)
 {
-    QFile file(path);
+    QString absolutePath = QDir(path).absolutePath();
+    QFile file(absolutePath);
     if(file.exists())
     {
-        QMessageBox::information(this, tr("Create"), tr("The file already exists at") + "\n" + path);
+        QMessageBox::information(this, tr("Create"), tr("The file already exists at") + "\n" + absolutePath);
         return;
     }
     if(!file.open(QFile::WriteOnly))
@@ -108,11 +109,11 @@ void SettingsTab::createConfFile(const QString& path)
     }
     file.close();
 
-    QSettings newSettings(path, QSettings::IniFormat);
+    QSettings newSettings(absolutePath, QSettings::IniFormat);
     for(auto key : m_settings->allKeys())
         newSettings.setValue(key, m_settings->value(key));
     newSettings.sync();
-    QMessageBox::information(this, tr("Create"), tr("Created at") + "\n" + path);
+    QMessageBox::information(this, tr("Create"), tr("Created at") + "\n" + absolutePath);
 }
 
 void SettingsTab::on_DataFont_setButton_clicked()

@@ -41,6 +41,32 @@ DeviceTab::~DeviceTab()
 void DeviceTab::initSettings()
 {
     settings = MySettings::defaultSettings();
+
+    QStringList groups = settings->childGroups();
+    int size;
+    size = 0;
+    if(!groups.contains(m_historyPrefix["SP"]))
+        settings->beginWriteArray(m_historyPrefix["SP"], 0);
+    else
+        size = settings->beginReadArray(m_historyPrefix["SP"]);
+    for(int i = 0; i < size; i++)
+    {
+        settings->setArrayIndex(i);
+        Connection::SerialPortArgument arg = settings->value("Arg").value<Connection::SerialPortArgument>();
+        m_SPArgHistory.append(arg);
+        m_SPArgHistoryIndex[arg.id] = i;
+    }
+    settings->endArray();
+//    if(!groups.contains(m_historyPrefix["BLEC"]))
+//        settings->beginWriteArray(m_historyPrefix["BLEC"], 0);
+//    if(!groups.contains(m_historyPrefix["TCPClient"]))
+//        settings->beginWriteArray(m_historyPrefix["TCPClient"], 0);
+//    if(!groups.contains(m_historyPrefix["UDP"]))
+//        settings->beginWriteArray(m_historyPrefix["UDP"], 0);
+    if(m_SPArgHistory.isEmpty())
+        loadSPPreference();
+    else
+        loadSPPreference(m_SPArgHistory.last());
 }
 
 void DeviceTab::setConnection(Connection *conn)
@@ -159,41 +185,25 @@ void DeviceTab::initUI()
     ui->BLEC_UUIDList->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->Net_addrPortList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    ui->SP_flowControlBox->addItem(tr("NoFlowControl"));
-    ui->SP_flowControlBox->addItem(tr("HardwareControl"));
-    ui->SP_flowControlBox->addItem(tr("SoftwareControl"));
-    ui->SP_flowControlBox->setItemData(0, QSerialPort::NoFlowControl);
-    ui->SP_flowControlBox->setItemData(1, QSerialPort::HardwareControl);
-    ui->SP_flowControlBox->setItemData(2, QSerialPort::SoftwareControl);
-    ui->SP_flowControlBox->setCurrentIndex(0);
-    ui->SP_parityBox->addItem(tr("NoParity"));
-    ui->SP_parityBox->addItem(tr("EvenParity"));
-    ui->SP_parityBox->addItem(tr("OddParity"));
-    ui->SP_parityBox->addItem(tr("SpaceParity"));
-    ui->SP_parityBox->addItem(tr("MarkParity"));
-    ui->SP_parityBox->setItemData(0, QSerialPort::NoParity);
-    ui->SP_parityBox->setItemData(1, QSerialPort::EvenParity);
-    ui->SP_parityBox->setItemData(2, QSerialPort::OddParity);
-    ui->SP_parityBox->setItemData(3, QSerialPort::SpaceParity);
-    ui->SP_parityBox->setItemData(4, QSerialPort::MarkParity);
-    ui->SP_parityBox->setCurrentIndex(0);
-    ui->SP_stopBitsBox->addItem("1");
-    ui->SP_stopBitsBox->addItem("1.5");
-    ui->SP_stopBitsBox->addItem("2");
-    ui->SP_stopBitsBox->setItemData(0, QSerialPort::OneStop);
-    ui->SP_stopBitsBox->setItemData(1, QSerialPort::OneAndHalfStop);
-    ui->SP_stopBitsBox->setItemData(2, QSerialPort::TwoStop);
-    ui->SP_stopBitsBox->setCurrentIndex(0);
-    ui->SP_dataBitsBox->addItem("5");
-    ui->SP_dataBitsBox->addItem("6");
-    ui->SP_dataBitsBox->addItem("7");
-    ui->SP_dataBitsBox->addItem("8");
-    ui->SP_dataBitsBox->setItemData(0, QSerialPort::Data5);
-    ui->SP_dataBitsBox->setItemData(1, QSerialPort::Data6);
-    ui->SP_dataBitsBox->setItemData(2, QSerialPort::Data7);
-    ui->SP_dataBitsBox->setItemData(3, QSerialPort::Data8);
-    ui->SP_dataBitsBox->setCurrentIndex(3);
-    on_SP_advancedBox_clicked(false);
+    ui->SP_flowControlBox->addItem(tr("NoFlowControl"), QSerialPort::NoFlowControl);
+    ui->SP_flowControlBox->addItem(tr("HardwareControl"), QSerialPort::HardwareControl);
+    ui->SP_flowControlBox->addItem(tr("SoftwareControl"), QSerialPort::SoftwareControl);
+
+    ui->SP_parityBox->addItem(tr("NoParity"), QSerialPort::NoParity);
+    ui->SP_parityBox->addItem(tr("EvenParity"), QSerialPort::EvenParity);
+    ui->SP_parityBox->addItem(tr("OddParity"), QSerialPort::OddParity);
+    ui->SP_parityBox->addItem(tr("SpaceParity"), QSerialPort::SpaceParity);
+    ui->SP_parityBox->addItem(tr("MarkParity"), QSerialPort::MarkParity);
+
+    ui->SP_stopBitsBox->addItem("1", QSerialPort::OneStop);
+    ui->SP_stopBitsBox->addItem("1.5", QSerialPort::OneAndHalfStop);
+    ui->SP_stopBitsBox->addItem("2", QSerialPort::TwoStop);
+
+    ui->SP_dataBitsBox->addItem("5", QSerialPort::Data5);
+    ui->SP_dataBitsBox->addItem("6", QSerialPort::Data6);
+    ui->SP_dataBitsBox->addItem("7", QSerialPort::Data7);
+    ui->SP_dataBitsBox->addItem("8", QSerialPort::Data8);
+
 }
 
 void DeviceTab::getAvailableTypes(bool useFirstValid)
@@ -394,8 +404,11 @@ bool DeviceTab::eventFilter(QObject *watched, QEvent *event)
         qint32 baud = box->currentText().toInt();
         if(baud != 0 && baud != m_connection->SP_baudRate() && m_connection->type() == Connection::SerialPort && m_connection->isConnected())
         {
-            m_connection->SP_setBaudRate(baud);
-            emit argumentChanged();
+            if(m_connection->SP_setBaudRate(baud))
+            {
+                saveSPPreference(m_connection->getSerialPortArgument());
+                emit argumentChanged();
+            }
         }
     }
     else if(watched == ui->BLECentralListSplitter->handle(1))
@@ -422,18 +435,6 @@ bool DeviceTab::eventFilter(QObject *watched, QEvent *event)
     return false;
 }
 
-void DeviceTab::on_SP_advancedBox_clicked(bool checked)
-{
-    ui->SP_dataBitsLabel->setVisible(checked);
-    ui->SP_dataBitsBox->setVisible(checked);
-    ui->SP_stopBitsLabel->setVisible(checked);
-    ui->SP_stopBitsBox->setVisible(checked);
-    ui->SP_parityLabel->setVisible(checked);
-    ui->SP_parityBox->setVisible(checked);
-    ui->SP_flowControlLabel->setVisible(checked);
-    ui->SP_flowControlBox->setVisible(checked);
-}
-
 void DeviceTab::on_openButton_clicked()
 {
     Connection::Type currType = m_connection->type();
@@ -451,6 +452,11 @@ void DeviceTab::on_openButton_clicked()
         arg.stopBits = (QSerialPort::StopBits)ui->SP_stopBitsBox->currentData().toInt();
         arg.parity = (QSerialPort::Parity)ui->SP_parityBox->currentData().toInt();
         arg.flowControl = (QSerialPort::FlowControl)ui->SP_flowControlBox->currentData().toInt();
+        QSerialPortInfo info(arg.name);
+        if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
+            arg.id = QString::number(info.vendorIdentifier()) + "-" + QString::number(info.productIdentifier());
+        else
+            arg.id = arg.name;
         m_connection->setArgument(arg);
         m_connection->open();
     }
@@ -574,42 +580,30 @@ void DeviceTab::on_closeButton_clicked()
 
 void DeviceTab::onTargetListCellClicked(int row, int column)
 {
-    Q_UNUSED(column);
+    Q_UNUSED(column)
     if(m_connection == nullptr)
         return;
     Connection::Type currType = m_connection->type();
     if(currType == Connection::SerialPort)
     {
+        // for default config
         ui->SP_portNameBox->setCurrentIndex(row);
-
-        QStringList preferences = settings->childGroups();
-        QStringList::iterator it;
 
         // search preference by <vendorID>-<productID>
         QString id = ui->SP_portList->item(row, 6)->text();  // vendor id
         id += "-";
         id += ui->SP_portList->item(row, 7)->text(); // product id
-        for(it = preferences.begin(); it != preferences.end(); ++it)
-        {
-            if(*it == id)
-            {
-                loadDevicesPreference(id);
-                break;
-            }
-        }
-        if(it != preferences.end())
-            return;
-
         // search preference by DeviceName
-        id = ui->SP_portList->item(row, 0)->text();
-        for(it = preferences.begin(); it != preferences.end(); ++it)
-        {
-            if(*it == id)
-            {
-                loadDevicesPreference(id);
-                break;
-            }
-        }
+        QString portName = ui->SP_portList->item(row, 0)->text();
+
+        int historyIndex = -1;
+        if(m_SPArgHistoryIndex.contains(id))
+            historyIndex = m_SPArgHistoryIndex[id];
+        else if(m_SPArgHistoryIndex.contains(portName))
+            historyIndex = m_SPArgHistoryIndex[portName];
+
+        if(historyIndex != -1)
+            loadSPPreference(m_SPArgHistory[historyIndex]);
     }
     else if(currType == Connection::BT_Client)
     {
@@ -628,34 +622,57 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
 // platform specific
 // **********************************************************************************************************************************************
 
-void DeviceTab::saveDevicesPreference(const QString & deviceName)
+void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
 {
-    if(settings->group() != "")
-        return;
-    QSerialPortInfo info(deviceName);
-    QString id;
-    if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
-        id = QString::number(info.vendorIdentifier()) + "-" + QString::number(info.productIdentifier());
-    else
-        id = deviceName;
-    settings->beginGroup(id);
+    // remove existing one
+    if(m_SPArgHistoryIndex.contains(arg.id))
+    {
+        m_SPArgHistory.removeAt(m_SPArgHistoryIndex[arg.id]);
+        m_SPArgHistoryIndex.remove(arg.id);
+    }
+
+    // add one
+    m_SPArgHistory.append(arg);
+    m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.length() - 1;
+
+    // remove oldest to fit the size limit
+    if(m_SPArgHistory.length() > m_maxHistoryNum)
+    {
+        m_SPArgHistory.removeFirst();
+        // Just update the index rather than rebuild it
+        for(auto it = m_SPArgHistoryIndex.begin(); it != m_SPArgHistoryIndex.end();)
+        {
+            if(it.value() == 0)
+                it = m_SPArgHistoryIndex.erase(it);
+            else
+            {
+                it.value()--;
+                ++it;
+            }
+        }
+    }
+    settings->beginWriteArray(m_historyPrefix["SP"], m_SPArgHistory.length());
+    for(int i = 0; i < m_SPArgHistory.length(); i++)
+    {
+        settings->setArrayIndex(i);
+        settings->setValue("Arg", QVariant::fromValue<Connection::SerialPortArgument>(m_SPArgHistory[i]));
+    }
+    settings->endArray();
     settings->setValue("BaudRate", ui->SP_baudRateBox->currentText());
     settings->setValue("DataBitsID", ui->SP_dataBitsBox->currentIndex());
     settings->setValue("StopBitsID", ui->SP_stopBitsBox->currentIndex());
     settings->setValue("ParityID", ui->SP_parityBox->currentIndex());
     settings->setValue("FlowControlID", ui->SP_flowControlBox->currentIndex());
-    settings->endGroup();
 }
 
-void DeviceTab::loadDevicesPreference(const QString & id)
+void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg)
 {
-    settings->beginGroup(id);
-    ui->SP_baudRateBox->setEditText(settings->value("BaudRate").toString());
-    ui->SP_dataBitsBox->setCurrentIndex(settings->value("DataBitsID").toInt());
-    ui->SP_stopBitsBox->setCurrentIndex(settings->value("StopBitsID").toInt());
-    ui->SP_parityBox->setCurrentIndex(settings->value("ParityID").toInt());
-    ui->SP_flowControlBox->setCurrentIndex(settings->value("FlowControlID").toInt());
-    settings->endGroup();
+    ui->SP_portNameBox->setCurrentText(arg.name);
+    ui->SP_baudRateBox->setEditText(QString::number(arg.baudRate));
+    ui->SP_dataBitsBox->setCurrentIndex(ui->SP_dataBitsBox->findData(arg.dataBits));
+    ui->SP_stopBitsBox->setCurrentIndex(ui->SP_stopBitsBox->findData(arg.stopBits));
+    ui->SP_parityBox->setCurrentIndex(ui->SP_parityBox->findData(arg.parity));
+    ui->SP_flowControlBox->setCurrentIndex(ui->SP_flowControlBox->findData(arg.flowControl));
 }
 
 void DeviceTab::BTdiscoverFinished()
@@ -899,7 +916,10 @@ void DeviceTab::on_SP_baudRateBox_currentIndexChanged(int index)
     if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
         return;
     if(m_connection->SP_setBaudRate(ui->SP_baudRateBox->currentText().toInt()))
+    {
+        saveSPPreference(m_connection->getSerialPortArgument());
         emit argumentChanged();
+    }
 }
 
 
@@ -909,7 +929,10 @@ void DeviceTab::on_SP_dataBitsBox_currentIndexChanged(int index)
     if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
         return;
     if(m_connection->SP_setDataBits((QSerialPort::DataBits)ui->SP_dataBitsBox->currentData().toInt()))
+    {
+        saveSPPreference(m_connection->getSerialPortArgument());
         emit argumentChanged();
+    }
 }
 
 
@@ -919,7 +942,10 @@ void DeviceTab::on_SP_stopBitsBox_currentIndexChanged(int index)
     if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
         return;
     if(m_connection->SP_setStopBits((QSerialPort::StopBits)ui->SP_stopBitsBox->currentData().toInt()))
+    {
+        saveSPPreference(m_connection->getSerialPortArgument());
         emit argumentChanged();
+    }
 }
 
 
@@ -929,7 +955,10 @@ void DeviceTab::on_SP_parityBox_currentIndexChanged(int index)
     if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
         return;
     if(m_connection->SP_setParity((QSerialPort::Parity)ui->SP_parityBox->currentData().toInt()))
+    {
+        saveSPPreference(m_connection->getSerialPortArgument());
         emit argumentChanged();
+    }
 }
 
 
@@ -939,7 +968,10 @@ void DeviceTab::on_SP_flowControlBox_currentIndexChanged(int index)
     if(m_connection == nullptr || m_connection->type() != Connection::SerialPort || !m_connection->isConnected())
         return;
     if(m_connection->SP_setFlowControl((QSerialPort::FlowControl)ui->SP_flowControlBox->currentData().toInt()))
+    {
+        saveSPPreference(m_connection->getSerialPortArgument());
         emit argumentChanged();
+    }
 }
 
 

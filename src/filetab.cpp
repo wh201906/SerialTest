@@ -17,9 +17,9 @@ FileTab::FileTab(QWidget *parent) :
     ui->setupUi(this);
 
     m_checksumThread = new QThread(this);
-    m_checksumCalc = new AsyncCRC(this);
+    m_checksumCalc = new AsyncCRC();
     m_fileXceiverThread = new QThread(this);
-    m_fileXceiver = new FileXceiver(this);
+    m_fileXceiver = new FileXceiver();
     m_intValidator = new QIntValidator(this);
     m_intValidator->setBottom(0);
 
@@ -77,6 +77,7 @@ FileTab::~FileTab()
 {
     QMetaObject::invokeMethod(m_fileXceiver, "stop", Qt::QueuedConnection);
     delete ui;
+    delete m_checksumCalc;
     m_checksumThread->terminate();
     m_checksumThread->wait(1000);
     delete m_fileXceiver;

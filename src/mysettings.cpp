@@ -108,3 +108,31 @@ QStringList MySettings::allKeys() const
         return QStringList();
     return m_settings->allKeys();
 }
+
+int MySettings::beginReadArray(const QString &prefix)
+{
+    if(m_settings == nullptr)
+        return 0;
+    return m_settings->beginReadArray(prefix);
+}
+
+void MySettings::beginWriteArray(const QString &prefix, int size)
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->beginWriteArray(prefix, size);
+}
+
+void MySettings::endArray()
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->endArray();
+}
+
+void MySettings::setArrayIndex(int i)
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->setArrayIndex(i);
+}

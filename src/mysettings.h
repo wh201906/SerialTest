@@ -23,6 +23,10 @@ public:
     QString fileName() const;
     void sync();
     QStringList allKeys() const;
+    int beginReadArray(const QString &prefix);
+    void beginWriteArray(const QString &prefix, int size = -1);
+    void endArray();
+    void setArrayIndex(int i);
 private:
     MySettings() {}
     MySettings(const MySettings&) {}

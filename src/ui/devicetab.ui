@@ -568,7 +568,7 @@ margin-bottom:3em;
       <item>
        <widget class="AdaptiveStackedWidget" name="argsStack">
         <property name="currentIndex">
-         <number>3</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="SPArgsPage">
          <layout class="QGridLayout" name="gridLayout">
@@ -584,23 +584,24 @@ margin-bottom:3em;
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item row="5" column="1">
-           <widget class="QComboBox" name="SP_flowControlBox">
-            <property name="sizeAdjustPolicy">
-             <enum>QComboBox::AdjustToContents</enum>
+          <item row="1" column="0">
+           <widget class="QLabel" name="SP_baudRateLabel">
+            <property name="text">
+             <string>BaudRate:</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="SP_dataBitsBox">
-            <property name="editable">
-             <bool>false</bool>
+          <item row="5" column="0">
+           <widget class="QLabel" name="SP_flowControlLabel">
+            <property name="text">
+             <string>FlowControl:</string>
             </property>
-            <property name="currentIndex">
-             <number>-1</number>
-            </property>
-            <property name="sizeAdjustPolicy">
-             <enum>QComboBox::AdjustToContents</enum>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="SP_portNameLabel">
+            <property name="text">
+             <string>Port:</string>
             </property>
            </widget>
           </item>
@@ -611,17 +612,10 @@ margin-bottom:3em;
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="SP_stopBitsLabel">
+          <item row="2" column="0">
+           <widget class="QLabel" name="SP_dataBitsLabel">
             <property name="text">
-             <string>StopBits:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="SP_portNameLabel">
-            <property name="text">
-             <string>Port:</string>
+             <string>DataBits:</string>
             </property>
            </widget>
           </item>
@@ -718,17 +712,40 @@ margin-bottom:3em;
             </item>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="SP_dataBitsLabel">
-            <property name="text">
-             <string>DataBits:</string>
+          <item row="5" column="1">
+           <widget class="QComboBox" name="SP_flowControlBox">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="SP_flowControlLabel">
+          <item row="4" column="0">
+           <widget class="QLabel" name="SP_parityLabel">
             <property name="text">
-             <string>FlowControl:</string>
+             <string>Parity:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="SP_dataBitsBox">
+            <property name="editable">
+             <bool>false</bool>
+            </property>
+            <property name="currentIndex">
+             <number>-1</number>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="SP_stopBitsBox">
+            <property name="editable">
+             <bool>false</bool>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
             </property>
            </widget>
           </item>
@@ -739,13 +756,6 @@ margin-bottom:3em;
             </property>
             <property name="sizeAdjustPolicy">
              <enum>QComboBox::AdjustToContents</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="SP_baudRateLabel">
-            <property name="text">
-             <string>BaudRate:</string>
             </property>
            </widget>
           </item>
@@ -762,27 +772,10 @@ margin-bottom:3em;
             </property>
            </spacer>
           </item>
-          <item row="3" column="1">
-           <widget class="QComboBox" name="SP_stopBitsBox">
-            <property name="editable">
-             <bool>false</bool>
-            </property>
-            <property name="sizeAdjustPolicy">
-             <enum>QComboBox::AdjustToContents</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="SP_parityLabel">
+          <item row="3" column="0">
+           <widget class="QLabel" name="SP_stopBitsLabel">
             <property name="text">
-             <string>Parity:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QCheckBox" name="SP_advancedBox">
-            <property name="text">
-             <string>Advanced</string>
+             <string>StopBits:</string>
             </property>
            </widget>
           </item>
@@ -921,8 +914,8 @@ margin-bottom:3em;
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>159</width>
-               <height>351</height>
+               <width>267</width>
+               <height>334</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_15">

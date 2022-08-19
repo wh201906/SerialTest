@@ -12,6 +12,7 @@
 #include <QTcpSocket>
 #include <QTcpServer>
 #include <QUdpSocket>
+#include <QDataStream>
 
 class Connection : public QObject
 {
@@ -41,11 +42,12 @@ public:
     struct SerialPortArgument
     {
         QString name;
-        qint32 baudRate;
-        QSerialPort::DataBits dataBits;
-        QSerialPort::StopBits stopBits;
-        QSerialPort::Parity parity;
-        QSerialPort::FlowControl flowControl;
+        qint32 baudRate = 9600;
+        QSerialPort::DataBits dataBits = QSerialPort::Data8;
+        QSerialPort::StopBits stopBits = QSerialPort::OneStop;
+        QSerialPort::Parity parity = QSerialPort::NoParity;
+        QSerialPort::FlowControl flowControl = QSerialPort::NoFlowControl;
+        QString id; // <name> or <vendorID>-<productID>
     };
 
     struct BTArgument
@@ -225,5 +227,8 @@ private slots:
     void BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState);
 
 };
+
+Q_DECLARE_METATYPE(Connection::SerialPortArgument)
+
 
 #endif // CONNECTION_H

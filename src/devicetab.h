@@ -28,7 +28,7 @@ public:
     void setConnection(Connection* conn);
 public slots:
     void refreshTargetList();
-    void saveDevicesPreference(const QString &deviceName);
+    void saveSPPreference(const Connection::SerialPortArgument& arg);
     void getAvailableTypes(bool useFirstValid = false);
     void onClientCountChanged();
 protected:
@@ -47,8 +47,19 @@ private:
 
     const QString m_autoLocalAddress = tr("(Auto)");
     const QString m_anyLocalAddress = tr("(Any)");
-
-    void loadDevicesPreference(const QString &id);
+    const int m_maxHistoryNum = 1024;
+    const QMap<QString, QString> m_historyPrefix =
+    {
+        {QLatin1String("SP"), QLatin1String("SerialTest_History_SerialPort")},
+        {QLatin1String("BLEC"), QLatin1String("SerialTest_History_BLE_Central")},
+        {QLatin1String("TCPClient"), QLatin1String("SerialTest_History_TCP_Client")},
+        {QLatin1String("UDP"), QLatin1String("SerialTest_History_UDP")},
+    };
+    QList<Connection::SerialPortArgument> m_SPArgHistory;
+    QMap<QString, int> m_SPArgHistoryIndex;
+    QList<Connection::BTArgument> m_BLECArgHistory;
+    QMap<QString, int> m_BLECArgHistoryIndex;
+    QList<Connection::NetworkArgument> m_TCPClientHistory, m_UDPHistory;
 
     void initUI();
 #ifdef Q_OS_ANDROID
@@ -63,12 +74,12 @@ private:
     qsizetype updateNetInterfaceList();
     QBluetoothUuid String2UUID(const QString &string);
     QString UUID2String(const QBluetoothUuid &UUID);
+    void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument());
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();
     void clientCountChanged();
 private slots:
-    void on_SP_advancedBox_clicked(bool checked);
     void on_openButton_clicked();
     void on_closeButton_clicked();
     void onTargetListCellClicked(int row, int column);
