@@ -30,7 +30,7 @@ DeviceTab::DeviceTab(QWidget *parent) :
     ui->setupUi(this);
 
     m_netPortValidator = new QIntValidator(this);
-    m_netPortValidator->setBottom(0);
+    m_netPortValidator->setRange(0, 65535);
 
     connect(ui->SP_portList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);
     connect(ui->BTClient_deviceList, &QTableWidget::cellClicked, this, &DeviceTab::onTargetListCellClicked);

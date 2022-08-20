@@ -47,10 +47,14 @@ private slots:
 
     void on_Lang_setButton_clicked();
 
+    void on_Conf_importButton_clicked();
+
+    void on_Conf_exportButton_clicked();
+
 private:
     Ui::SettingsTab *ui;
     MySettings* m_settings;
-    void createConfFile(const QString &path);
+    void createConfFile(const QString &path, bool overwrite = false);
 signals:
     void opacityChanged(qreal value);
     void fontChanged(QFont font);

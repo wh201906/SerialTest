@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
+#include <QFileDialog>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #endif
@@ -99,11 +100,11 @@ void SettingsTab::on_Conf_createInConfDirButton_clicked()
     createConfFile(path.absoluteFilePath("preference.ini"));
 }
 
-void SettingsTab::createConfFile(const QString& path)
+void SettingsTab::createConfFile(const QString& path, bool overwrite)
 {
     QString absolutePath = QDir(path).absolutePath();
-    QFile file(absolutePath);
-    if(file.exists())
+    QFile file(path); // don't use absolutePath there(for Android)
+    if(file.exists() && !overwrite)
     {
         QMessageBox::information(this, tr("Create"), tr("The file already exists at") + "\n" + absolutePath);
         return;
@@ -113,12 +114,20 @@ void SettingsTab::createConfFile(const QString& path)
         QMessageBox::information(this, tr("Create"), tr("Cannot create file there."));
         return;
     }
-    file.close();
 
-    QSettings newSettings(absolutePath, QSettings::IniFormat);
-    for(auto key : m_settings->allKeys())
-        newSettings.setValue(key, m_settings->value(key));
-    newSettings.sync();
+    QFile config(m_settings->fileName());
+    if(!config.open(QFile::ReadOnly))
+    {
+        QMessageBox::information(this, tr("Read"), tr("Cannot read config."));
+        return;
+    }
+
+    while(!config.atEnd())
+        file.write(config.read(128 * 1024));
+
+    file.close();
+    config.close();
+
     QMessageBox::information(this, tr("Create"), tr("Created at") + "\n" + absolutePath);
 }
 
@@ -251,5 +260,41 @@ void SettingsTab::on_Lang_setButton_clicked()
     m_settings->setValue("Lang_Name", ui->Lang_nameBox->currentData().toString());
     m_settings->setValue("Lang_Path", ui->Lang_filePathEdit->text());
     m_settings->endGroup();
+}
+
+
+void SettingsTab::on_Conf_importButton_clicked()
+{
+    QMessageBox::StandardButton btn;
+    btn = QMessageBox::warning(this, tr("Warning"), tr("This app will be closed after import!\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if(btn == QMessageBox::No)
+        return;
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import config from file"), QString(), tr("Config files") + " (*.ini *.conf);;" + tr("All files") + " (*.*)");
+    if(fileName.isEmpty())
+        return;
+    QSettings newSettings(fileName, QSettings::IniFormat);
+    newSettings.setIniCodec("UTF-8");
+
+    if(!newSettings.childGroups().contains("SerialTest"))
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Unsupported file format."));
+        return;
+    }
+    m_settings->clear();
+    for(auto key : newSettings.allKeys())
+        m_settings->setValue(key, newSettings.value(key));
+    m_settings->sync();
+
+    QMessageBox::information(this, tr("Info"), tr("Imported."));
+    QApplication::closeAllWindows();
+}
+
+void SettingsTab::on_Conf_exportButton_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Export config to file"), QString(), tr("Config files") + " (*.ini *.conf);;" + tr("All files") + " (*.*)");
+    if(fileName.isEmpty())
+        return;
+    createConfFile(fileName, true);
 }
 
