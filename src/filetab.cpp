@@ -61,7 +61,6 @@ FileTab::FileTab(QWidget *parent) :
     ui->RawRx_autostopByteBox->setValidator(m_intValidator);
 
     on_tipsBackButton_clicked();
-    setAcceptDrops(true);
 
     connect(ui->protoBox, &QComboBox::currentTextChanged, this, &FileTab::onModeProtocolChanged);
     connect(ui->sendModeButton, &QRadioButton::toggled, this, &FileTab::onModeProtocolChanged); // just set one of them, the slot will be called when setChecked() is called

@@ -21,6 +21,7 @@ SettingsTab::SettingsTab(QWidget *parent) :
     ui->opacityWidget->hide();
     ui->Conf_createInCWDButton->hide();
     ui->Conf_createInConfDirButton->hide();
+    ui->Conf_tipsEdit->hide();
 #else
     ui->Android_fullScreenBox->hide();
     ui->Android_forceLandscapeBox->hide();

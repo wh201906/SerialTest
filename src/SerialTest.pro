@@ -3,6 +3,7 @@ android {
     QT += androidextras
 }
 
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -71,6 +72,8 @@ FORMS += \
 
 TRANSLATIONS += \
     i18n/SerialTest_zh_CN.ts
+
+RC_ICONS = icon/icon.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

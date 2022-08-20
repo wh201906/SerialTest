@@ -10,8 +10,8 @@
     <height>432</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form</string>
+  <property name="acceptDrops">
+   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="_2">
    <property name="spacing">
