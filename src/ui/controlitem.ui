@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1482</width>
+    <width>1549</width>
     <height>116</height>
    </rect>
   </property>
@@ -265,6 +265,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="unescapeBox"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="unescapeLabel">
+        <property name="text">
+         <string>Unescape</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="prefixBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -283,6 +293,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="prefixTypeBox">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>String</string>
@@ -331,6 +344,9 @@
       </item>
       <item>
        <widget class="QComboBox" name="suffixTypeBox">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
         <item>
          <property name="text">
           <string>String</string>

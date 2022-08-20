@@ -19,6 +19,15 @@ public:
     void endGroup();
     QString group() const;
     QStringList childGroups() const;
+    void clear();
+    QString fileName() const;
+    void sync();
+    QStringList allKeys() const;
+    int beginReadArray(const QString &prefix);
+    void beginWriteArray(const QString &prefix, int size = -1);
+    void endArray();
+    void setArrayIndex(int i);
+    void remove(const QString &key);
 private:
     MySettings() {}
     MySettings(const MySettings&) {}

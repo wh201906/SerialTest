@@ -26,21 +26,29 @@
    <item>
     <widget class="QSplitter" name="dataTabSplitter">
      <property name="styleSheet">
-      <string notr="true">QSplitter::handle {
-    background-color: #000000;
+      <string notr="true">QSplitter::handle {background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+  stop:0 rgba(255, 255, 255, 0), 
+  stop:0.25 rgba(255, 255, 255, 0), 
+  stop:0.26 dimgray, stop:0.35 dimgray,
+  stop:0.36 white, stop:0.45 white,
+  stop:0.46 rgba(255, 255, 255, 0),
+  stop:0.54 rgba(255, 255, 255, 0),
+  stop:0.55 white, stop:0.64 white,
+  stop:0.65 dimgray, stop:0.74 dimgray,
+  stop:0.75 rgba(255, 255, 255, 0), 
+  stop:1 rgba(255, 255, 255, 0));
+margin-left:3em;
+margin-right:3em;
 }</string>
      </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="handleWidth">
-      <number>2</number>
+      <number>10</number>
      </property>
      <widget class="QWidget" name="verticalLayoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="bottomMargin">
-        <number>3</number>
-       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
@@ -144,6 +152,9 @@
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOn</enum>
          </property>
+         <property name="undoRedoEnabled">
+          <bool>false</bool>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -153,9 +164,6 @@
      </widget>
      <widget class="QWidget" name="verticalLayoutWidget_2">
       <layout class="QVBoxLayout" name="verticalLayout_6">
-       <property name="topMargin">
-        <number>3</number>
-       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
@@ -190,6 +198,20 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="sendedEnableBox">
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Enable echo</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="sendedExportButton">
@@ -231,6 +253,9 @@
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOn</enum>
          </property>
+         <property name="undoRedoEnabled">
+          <bool>false</bool>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -244,6 +269,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLineEdit" name="sendEdit">
+       <property name="maxLength">
+        <number>2147483647</number>
+       </property>
        <property name="clearButtonEnabled">
         <bool>true</bool>
        </property>
@@ -286,6 +314,9 @@
         </property>
         <item>
          <widget class="QComboBox" name="data_suffixTypeBox">
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToContents</enum>
+          </property>
           <item>
            <property name="text">
             <string>String</string>
@@ -471,9 +502,17 @@
           <property name="editable">
            <bool>true</bool>
           </property>
+          <property name="sizeAdjustPolicy">
+           <enum>QComboBox::AdjustToContents</enum>
+          </property>
           <item>
            <property name="text">
             <string>UTF-8</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>GB2312</string>
            </property>
           </item>
           <item>
@@ -483,7 +522,42 @@
           </item>
           <item>
            <property name="text">
-            <string>BIG5</string>
+            <string>Big5</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>windows-1252</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-16LE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-16BE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-32LE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-32BE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Shift_JIS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>EUC-KR</string>
            </property>
           </item>
          </widget>
@@ -492,6 +566,16 @@
          <widget class="QPushButton" name="data_encodingSetButton">
           <property name="text">
            <string>Set</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="data_unescapeBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Unescape</string>
           </property>
          </widget>
         </item>

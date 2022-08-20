@@ -40,18 +40,28 @@ void PlotTab::initSettings()
 
 }
 
+void PlotTab::setReplotInterval(int msec)
+{
+    m_dataProcessTimer->setInterval(msec);
+}
+
 void PlotTab::initQCP()
 {
     // init
     plotBuf = new QString();
     plotTracer = new QCPItemTracer(ui->qcpWidget);
     plotText = new QCPItemText(ui->qcpWidget);
+    m_dataProcessTimer = new QTimer();
     plotDefaultTicker = ui->qcpWidget->xAxis->ticker();
     plotTime = QTime::currentTime();
     plotCounter = 0;
     plotXAxisWidth = ui->qcpWidget->xAxis->range().size();
     plotTimeTicker->setTimeFormat("%h:%m:%s.%z");
     plotTimeTicker->setTickCount(5);
+    connect(m_dataProcessTimer, &QTimer::timeout, this, &PlotTab::processData);
+    m_dataProcessTimer->setInterval(20);
+    m_dataProcessTimer->start();
+
 
     // appearance
     ui->qcpWidget->axisRect()->setupFullAxesBox(true);
@@ -143,7 +153,8 @@ void PlotTab::onQCPMouseRelease(QMouseEvent *event)
         return;
     ulong pressTimestamp = longPressCounter[item]; // default value is 0
     ulong releaseTimestamp = event->timestamp();
-    if(pressTimestamp != 0 && releaseTimestamp > pressTimestamp && releaseTimestamp - pressTimestamp > 1000)
+    // timeout=700 is used in QTapAndHoldGesture, so this threshold should be fine
+    if(pressTimestamp != 0 && releaseTimestamp > pressTimestamp && releaseTimestamp - pressTimestamp > 700)
     {
         qDebug() << "long pressed!";
         setGraphProperty(item);
@@ -484,16 +495,25 @@ void PlotTab::loadPreference()
         ui->qcpWidget->graph(i)->setName(nameList[i]);
 }
 
+bool PlotTab::enabled()
+{
+    return ui->plot_enaBox->isChecked();
+}
+
 void PlotTab::newData(const QByteArray& data)
+{
+    plotBuf->append(decoder->toUnicode(data));
+}
+
+void PlotTab::processData()
 {
     double currKey = 0;
     bool hasData = false;
     int i;
     QStringList dataList;
-    if(!ui->plot_enaBox->isChecked())
+    if(plotBuf->isEmpty())
         return;
 
-    plotBuf->append(decoder->toUnicode(data));
     while((i = plotBuf->indexOf(plotFrameSeparator)) != -1)
     {
         hasData = true;
@@ -523,12 +543,16 @@ void PlotTab::newData(const QByteArray& data)
             for(i = 0; i < ui->plot_dataNumBox->value() && i < dataList.length(); i++)
                 ui->qcpWidget->graph(i)->addData(currKey, toDouble(dataList[i]));
         }
+        QApplication::processEvents();
 
     }
     if(!hasData)
     {
         if(plotBuf->size() > 1024 * 1024 * 256) // 256MB threshold
+        {
+            qDebug() << "plotBuf full!";
             plotBuf->clear();
+        }
         return;
     }
     else if(ui->plot_latestBox->isChecked())

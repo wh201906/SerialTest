@@ -5,7 +5,13 @@
 #include <QScrollBar>
 #include <QTextDecoder>
 
+#ifdef Q_OS_ANDROID
+#include <QAndroidJniEnvironment>
+#include <QAndroidJniObject>
+#endif
+
 #include "mysettings.h"
+#include "connection.h"
 
 namespace Ui
 {
@@ -20,15 +26,19 @@ public:
     explicit DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent = nullptr);
     ~DataTab();
 
+    void appendSendedData(const QByteArray &data);
     void appendReceivedData(const QByteArray &data);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
-    void setIODevice(QIODevice* dev);
-    void setFlowCtrl(bool isRTSValid, bool rts, bool dtr);
+    void setConnection(Connection* conn);
+
     void setRepeat(bool state);
     bool getRxRealtimeState();
     void initSettings();
 
+public slots:
+    void onConnTypeChanged(Connection::Type type);
+    void onConnEstablished();
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void showEvent(QShowEvent *ev) override;
@@ -51,19 +61,23 @@ private slots:
     void onRxSliderValueChanged(int value);
     void onRxSliderMoved(int value);
     void on_receivedUpdateButton_clicked();
-#ifndef Q_OS_ANDROID
     void on_data_flowDTRBox_clicked(bool checked);
     void on_data_flowRTSBox_clicked(bool checked);
-#endif
+    void on_data_unescapeBox_stateChanged(int arg1);
+
+    void on_sendedEdit_selectionChanged();
+
+    void on_receivedEdit_selectionChanged();
+
+    void on_sendedEnableBox_stateChanged(int arg1);
 
 private:
     Ui::DataTab *ui;
 
     QIODevice* IODevice;
+    Connection* m_connection = nullptr;
     MySettings* settings;
     QTimer* repeatTimer;
-
-    int dataEncodingId = 0;
 
     QScrollBar* RxSlider;
     int currRxSliderPos = 0;
@@ -71,21 +85,30 @@ private:
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
+    bool unescapeSendedData = false;
 
     QTextCodec* dataCodec = nullptr; // for Tx and generating Rx decoder
     QTextDecoder* RxDecoder = nullptr; // for Rx UI, a multi-byte character might be split.
     char lastReceivedByte = '\0';
-    int hexCounter = 0;
+    int RxHexCounter = 0, TxHexCounter = 0;
     QByteArray* rawReceivedData = nullptr;
     QByteArray* rawSendedData = nullptr;
 
     void loadPreference();
+    void showUpTabHelper(int id);
+#ifdef Q_OS_ANDROID
+    static DataTab* m_currInstance;
+    static void onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text);
+#endif
 signals:
     void send(const QByteArray& data);
     void setDataCodec(QTextCodec* codec);
     void setPlotDecoder(QTextDecoder* decoder);
-    void setRxLabelText(const QString& text);
-    void setTxLabelText(const QString& text);
+    void updateRxTxLen(bool updateRx, bool updateTx);
+    void clearSendedData();
+    void clearReceivedData();
+    void setTxDataRecording(bool enabled);
+    void showUpTab(int id);
 };
 
 #endif // DATATAB_H

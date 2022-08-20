@@ -6,7 +6,10 @@ QSettings *MySettings::m_settings = nullptr;
 bool MySettings::init(QSettings::Format format, const QString &path)
 {
     if(format == QSettings::IniFormat)
+    {
         m_settings = new QSettings(path, format);
+        m_settings->setIniCodec("UTF-8");
+    }
     else
         m_settings = new QSettings("wh201906", "SerialTest");
     if(m_settings->status() != QSettings::NoError)
@@ -79,4 +82,67 @@ QStringList MySettings::childGroups() const
     if(m_settings == nullptr)
         return QStringList();
     return m_settings->childGroups();
+}
+
+void MySettings::clear()
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->clear();
+}
+
+QString MySettings::fileName() const
+{
+    if(m_settings == nullptr)
+        return QString();
+    return m_settings->fileName();
+}
+
+void MySettings::sync()
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->sync();
+}
+
+QStringList MySettings::allKeys() const
+{
+    if(m_settings == nullptr)
+        return QStringList();
+    return m_settings->allKeys();
+}
+
+int MySettings::beginReadArray(const QString &prefix)
+{
+    if(m_settings == nullptr)
+        return 0;
+    return m_settings->beginReadArray(prefix);
+}
+
+void MySettings::beginWriteArray(const QString &prefix, int size)
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->beginWriteArray(prefix, size);
+}
+
+void MySettings::endArray()
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->endArray();
+}
+
+void MySettings::setArrayIndex(int i)
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->setArrayIndex(i);
+}
+
+void MySettings::remove(const QString &key)
+{
+    if(m_settings == nullptr)
+        return;
+    m_settings->remove(key);
 }

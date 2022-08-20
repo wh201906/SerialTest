@@ -18,7 +18,19 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
     rawSendedData(TxBuf)
 {
     ui->setupUi(this);
+#ifdef Q_OS_ANDROID
+    m_currInstance = this;
 
+    // register native method
+    JNINativeMethod methods[] {{"shareText", "(Ljava/lang/String;)V", reinterpret_cast<void *>(onSharedTextReceived)}};
+    QAndroidJniEnvironment env;
+    jclass javaClass = env->FindClass("priv/wh201906/serialtest/MainActivity");
+    env->RegisterNatives(javaClass,
+                         methods,
+                         sizeof(methods) / sizeof(methods[0]));
+    env->DeleteLocalRef(javaClass);
+
+#endif
     repeatTimer = new QTimer();
     RxSlider = ui->receivedEdit->verticalScrollBar();
     ui->dataTabSplitter->handle(1)->installEventFilter(this); // the id of the 1st visible handle is 1 rather than 0
@@ -27,15 +39,16 @@ DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
     connect(repeatTimer, &QTimer::timeout, this, &DataTab::on_sendButton_clicked);
     connect(RxSlider, &QScrollBar::valueChanged, this, &DataTab::onRxSliderValueChanged);
     connect(RxSlider, &QScrollBar::sliderMoved, this, &DataTab::onRxSliderMoved);
-
-#ifdef Q_OS_ANDROID
-    ui->data_flowControlBox->setVisible(false);
-#endif
 }
 
 DataTab::~DataTab()
 {
     delete ui;
+}
+
+void DataTab::onConnTypeChanged(Connection::Type type)
+{
+    ui->data_flowControlBox->setVisible(type == Connection::SerialPort);
 }
 
 void DataTab::initSettings()
@@ -47,10 +60,13 @@ void DataTab::initSettings()
     connect(ui->receivedLatestBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->receivedRealtimeBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->sendedHexBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+    connect(ui->sendedEnableBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+    connect(ui->data_unescapeBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_suffixBox, &QGroupBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_suffixTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &DataTab::saveDataPreference);
     connect(ui->data_suffixEdit, &QLineEdit::editingFinished, this, &DataTab::saveDataPreference);
-    connect(ui->data_repeatCheckBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+    // this might be changed by the program, so use stateChanged() rather than clicked()
+    connect(ui->data_repeatCheckBox, &QCheckBox::stateChanged, this, &DataTab::saveDataPreference);
     connect(ui->repeatDelayEdit, &QLineEdit::editingFinished, this, &DataTab::saveDataPreference);
     connect(ui->data_flowDTRBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->data_flowRTSBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
@@ -106,11 +122,10 @@ void DataTab::on_data_encodingSetButton_clicked()
     newCodec = QTextCodec::codecForName(box->currentText().toLatin1());
     if(newCodec != nullptr)
     {
-        if(box->itemText(box->currentIndex()) == box->currentText()) // existing text
-            dataEncodingId = box->currentIndex();
         if(RxDecoder != nullptr)
             delete RxDecoder;
         dataCodec = newCodec;
+        box->setCurrentText(dataCodec->name());
         emit setDataCodec(dataCodec);
         RxDecoder = dataCodec->makeDecoder(); // clear state machine
         emit setPlotDecoder(dataCodec->makeDecoder());// clear state machine, standalone decoder for DataTab/PlotTab
@@ -121,7 +136,13 @@ void DataTab::on_data_encodingSetButton_clicked()
     else
     {
         QMessageBox::information(this, tr("Info"), ui->data_encodingNameBox->currentText() + " " + tr("is not a valid encoding."));
-        box->setCurrentIndex(dataEncodingId);
+        if(dataCodec != nullptr)
+            box->setCurrentText(dataCodec->name());
+        else
+        {
+            box->setCurrentText("UTF-8");
+            on_data_encodingSetButton_clicked();
+        }
     }
 }
 
@@ -134,6 +155,8 @@ void DataTab::saveDataPreference()
     settings->setValue("Recv_Latest", ui->receivedLatestBox->isChecked());
     settings->setValue("Recv_Realtime", ui->receivedRealtimeBox->isChecked());
     settings->setValue("Send_Hex", ui->sendedHexBox->isChecked());
+    settings->setValue("Send_Enabled", ui->sendedEnableBox->isChecked());
+    settings->setValue("Send_Unescape", ui->data_unescapeBox->isChecked());
     settings->setValue("Suffix_Enabled", ui->data_suffixBox->isChecked());
     settings->setValue("Suffix_Type", ui->data_suffixTypeBox->currentIndex());
     settings->setValue("Suffix_Context", ui->data_suffixEdit->text());
@@ -153,11 +176,14 @@ void DataTab::saveDataPreference()
 void DataTab::loadPreference()
 {
     // default preferences are defined there
+    // setChecked() will trigger on_xxx_stateChanged(), but on_xxx_clicked() will not be triggered
     settings->beginGroup("SerialTest_Data");
     ui->receivedHexBox->setChecked(settings->value("Recv_Hex", false).toBool());
     ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", false).toBool());
     ui->receivedRealtimeBox->setChecked(settings->value("Recv_Realtime", true).toBool());
     ui->sendedHexBox->setChecked(settings->value("Send_Hex", false).toBool());
+    ui->sendedEnableBox->setChecked(settings->value("Send_Enabled", true).toBool());
+    ui->data_unescapeBox->setChecked(settings->value("Send_Unescape", false).toBool());
     ui->data_suffixBox->setChecked(settings->value("Suffix_Enabled", false).toBool());
     ui->data_suffixTypeBox->setCurrentIndex(settings->value("Suffix_Type", 2).toInt());
     ui->data_suffixEdit->setText(settings->value("Suffix_Context", "").toString());
@@ -203,15 +229,13 @@ void DataTab::on_receivedHexBox_stateChanged(int arg1)
 void DataTab::on_receivedClearButton_clicked()
 {
     lastReceivedByte = '\0'; // anything but '\r'
-    rawReceivedData->clear();
-    emit setRxLabelText(tr("Rx") + ": 0");
+    emit clearReceivedData();
     syncReceivedEditWithData();
 }
 
 void DataTab::on_sendedClearButton_clicked()
 {
-    rawSendedData->clear();
-    emit setTxLabelText(tr("Tx") + ": 0");
+    emit clearSendedData();
     syncSendedEditWithData();
 }
 
@@ -219,7 +243,7 @@ void DataTab::on_sendEdit_textChanged(const QString &arg1)
 {
     Q_UNUSED(arg1);
     repeatTimer->stop();
-    ui->data_repeatBox->setChecked(false);
+    ui->data_repeatCheckBox->setChecked(false);
 }
 
 void DataTab::on_data_repeatCheckBox_stateChanged(int arg1)
@@ -235,12 +259,20 @@ void DataTab::on_data_repeatCheckBox_stateChanged(int arg1)
 
 void DataTab::on_receivedCopyButton_clicked()
 {
-    QApplication::clipboard()->setText(ui->receivedEdit->toPlainText());
+    QString selection = ui->receivedEdit->textCursor().selectedText();
+    if(selection.isEmpty())
+        QApplication::clipboard()->setText(ui->receivedEdit->toPlainText());
+    else
+        QApplication::clipboard()->setText(selection);
 }
 
 void DataTab::on_sendedCopyButton_clicked()
 {
-    QApplication::clipboard()->setText(ui->sendedEdit->toPlainText());
+    QString selection = ui->sendedEdit->textCursor().selectedText();
+    if(selection.isEmpty())
+        QApplication::clipboard()->setText(ui->sendedEdit->toPlainText());
+    else
+        QApplication::clipboard()->setText(selection);
 }
 
 void DataTab::on_receivedExportButton_clicked()
@@ -251,7 +283,7 @@ void DataTab::on_receivedExportButton_clicked()
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
-    selection = ui->receivedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
+    selection = ui->receivedEdit->textCursor().selectedText();
     if(selection.isEmpty())
     {
         flag &= file.open(QFile::WriteOnly);
@@ -260,7 +292,7 @@ void DataTab::on_receivedExportButton_clicked()
     else
     {
         flag &= file.open(QFile::WriteOnly | QFile::Text);
-        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+        flag &= file.write(dataCodec->fromUnicode(selection.replace(QChar(0x2029), '\n'))) != -1;
     }
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
@@ -274,7 +306,7 @@ void DataTab::on_sendedExportButton_clicked()
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
-    selection = ui->sendedEdit->textCursor().selectedText().replace(QChar(0x2029), '\n');
+    selection = ui->sendedEdit->textCursor().selectedText();
     if(selection.isEmpty())
     {
         flag &= file.open(QFile::WriteOnly);
@@ -283,7 +315,7 @@ void DataTab::on_sendedExportButton_clicked()
     else
     {
         flag &= file.open(QFile::WriteOnly | QFile::Text);
-        flag &= file.write(selection.replace(QChar(0x2029), '\n').toUtf8()) != -1;
+        flag &= file.write(dataCodec->fromUnicode(selection.replace(QChar(0x2029), '\n'))) != -1;
     }
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
@@ -300,11 +332,21 @@ void DataTab::on_sendButton_clicked()
     if(isSendedDataHex)
         data = QByteArray::fromHex(ui->sendEdit->text().toLatin1());
     else
-        data = dataCodec->fromUnicode(ui->sendEdit->text());
+    {
+        if(unescapeSendedData)
+            data = Util::unescape(ui->sendEdit->text(), dataCodec);
+        else
+            data = dataCodec->fromUnicode(ui->sendEdit->text());
+    }
     if(ui->data_suffixBox->isChecked())
     {
         if(ui->data_suffixTypeBox->currentIndex() == 0)
-            data += dataCodec->fromUnicode(ui->data_suffixEdit->text());
+        {
+            if(unescapeSendedData)
+                data += Util::unescape(ui->data_suffixEdit->text(), dataCodec);
+            else
+                data += dataCodec->fromUnicode(ui->data_suffixEdit->text());
+        }
         else if(ui->data_suffixTypeBox->currentIndex() == 1)
             data += QByteArray::fromHex(ui->data_suffixEdit->text().toLatin1());
         else if(ui->data_suffixTypeBox->currentIndex() == 2)
@@ -336,22 +378,25 @@ void DataTab::syncSendedEditWithData()
         ui->sendedEdit->setPlainText(dataCodec->toUnicode(*rawSendedData));
 }
 
-void DataTab::setIODevice(QIODevice *dev)
+void DataTab::setConnection(Connection* conn)
 {
-    IODevice = dev;
+    m_connection = conn;
 }
 
-void DataTab::setFlowCtrl(bool isRTSValid, bool rts, bool dtr)
+void DataTab::onConnEstablished()
 {
-    ui->data_flowRTSBox->setVisible(isRTSValid);
-    ui->data_flowRTSBox->setChecked(rts);
-    ui->data_flowDTRBox->setChecked(dtr);
+    if(m_connection->type() == Connection::SerialPort)
+    {
+        ui->data_flowRTSBox->setVisible(m_connection->getSerialPortArgument().flowControl != QSerialPort::HardwareControl);
+        ui->data_flowRTSBox->setChecked(m_connection->SP_isRequestToSend());
+        ui->data_flowDTRBox->setChecked(m_connection->SP_isDataTerminalReady());
+    }
 }
 
 void DataTab::setRepeat(bool state)
 {
     ui->data_repeatCheckBox->setChecked(state);
-    on_data_repeatCheckBox_stateChanged(state);
+    // stateChanged() will be emitted
 }
 
 bool DataTab::getRxRealtimeState()
@@ -359,10 +404,29 @@ bool DataTab::getRxRealtimeState()
     return ui->receivedRealtimeBox->isChecked();
 }
 
+
+void DataTab::appendSendedData(const QByteArray& data)
+{
+    ui->sendedEdit->moveCursor(QTextCursor::End);
+    if(isSendedDataHex)
+    {
+        ui->sendedEdit->insertPlainText(data.toHex(' ') + ' ');
+        TxHexCounter += data.length();
+        if(TxHexCounter > 5000)
+        {
+            ui->sendedEdit->insertPlainText("\n");
+            TxHexCounter = 0;
+        }
+    }
+    else
+    {
+        ui->sendedEdit->insertPlainText(dataCodec->toUnicode(data));
+    }
+}
+
 // TODO:
 // split sync process, add processEvents()
 // void MainWindow::syncEditWithData()
-
 void DataTab::appendReceivedData(const QByteArray& data)
 {
     int cursorPos;
@@ -386,13 +450,13 @@ void DataTab::appendReceivedData(const QByteArray& data)
     if(isReceivedDataHex)
     {
         ui->receivedEdit->insertPlainText(data.toHex(' ') + ' ');
-        hexCounter += data.length();
+        RxHexCounter += data.length();
         // QPlainTextEdit is not good at handling long line
         // Seperate for better realtime receiving response
-        if(hexCounter > 5000)
+        if(RxHexCounter > 5000)
         {
             ui->receivedEdit->insertPlainText("\n");
-            hexCounter = 0;
+            RxHexCounter = 0;
         }
     }
     else
@@ -410,19 +474,73 @@ void DataTab::appendReceivedData(const QByteArray& data)
     RxSlider->setSliderPosition(sliderPos);
 }
 
-#ifndef Q_OS_ANDROID
 void DataTab::on_data_flowDTRBox_clicked(bool checked)
 {
-    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
-    if(port != nullptr)
-        port->setDataTerminalReady(checked);
+    m_connection->SP_setDataTerminalReady(checked);
 }
 
 void DataTab::on_data_flowRTSBox_clicked(bool checked)
 {
-    QSerialPort* port = dynamic_cast<QSerialPort*>(IODevice);
-    if(port != nullptr && port->flowControl() != QSerialPort::HardwareControl)
-        port->setRequestToSend(checked);
+    m_connection->SP_setRequestToSend(checked);
 }
-#endif
 
+void DataTab::on_data_unescapeBox_stateChanged(int arg1)
+{
+    unescapeSendedData = (arg1 == Qt::Checked);
+}
+
+void DataTab::on_sendedEdit_selectionChanged()
+{
+    if(ui->sendedEdit->textCursor().hasSelection())
+    {
+        ui->sendedExportButton->setText(tr("Export Selected"));
+        ui->sendedCopyButton->setText(tr("Copy Selected"));
+    }
+    else
+    {
+        ui->sendedExportButton->setText(tr("Export"));
+        ui->sendedCopyButton->setText(tr("Copy All"));
+    }
+}
+
+
+void DataTab::on_receivedEdit_selectionChanged()
+{
+    if(ui->receivedEdit->textCursor().hasSelection())
+    {
+        ui->receivedExportButton->setText(tr("Export Selected"));
+        ui->receivedCopyButton->setText(tr("Copy Selected"));
+    }
+    else
+    {
+        ui->receivedExportButton->setText(tr("Export"));
+        ui->receivedCopyButton->setText(tr("Copy All"));
+    }
+}
+
+void DataTab::on_sendedEnableBox_stateChanged(int arg1)
+{
+    emit setTxDataRecording(arg1 == Qt::Checked);
+}
+
+void DataTab::showUpTabHelper(int id)
+{
+    emit showUpTab(id);
+}
+
+#ifdef Q_OS_ANDROID
+void DataTab::onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text)
+{
+    // append the received text to the end of the sendEdit
+    Q_UNUSED(thiz)
+    const char* str = env->GetStringUTFChars(text, nullptr);
+    //QTimer::singleShot(0, QApplication::instance(), )
+    QString ori = m_currInstance->ui->sendEdit->text();
+    m_currInstance->ui->sendEdit->setText(ori + QString(str));
+    env->ReleaseStringUTFChars(text, str);
+    m_currInstance->showUpTabHelper(1);
+}
+
+DataTab* DataTab::m_currInstance = nullptr;
+
+#endif

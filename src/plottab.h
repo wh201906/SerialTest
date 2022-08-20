@@ -21,6 +21,8 @@ public:
 
     void initQCP();
     void initSettings();
+    void setReplotInterval(int msec);
+    bool enabled();
 public slots:
     void newData(const QByteArray &data);
     void setDecoder(QTextDecoder* decoder);
@@ -52,6 +54,7 @@ private slots:
     void on_plot_XTypeBox_currentIndexChanged(int index);
     void savePlotPreference();
     void loadPreference();
+    void processData();
 private:
     Ui::PlotTab *ui;
 
@@ -74,6 +77,8 @@ private:
     QTextDecoder* decoder = nullptr;
     MySettings *settings;
     QRegularExpression* doubleRegex;
+
+    QTimer* m_dataProcessTimer;
 
     void updateTracer(double x);
     QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);

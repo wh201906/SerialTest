@@ -2,14 +2,14 @@
 #define DEVICETAB_H
 
 #include <QWidget>
-#ifdef Q_OS_ANDROID
+#include <QTreeWidget>
+#include <QBluetoothHostInfo>
 #include <QBluetoothDeviceDiscoveryAgent>
-#else
 #include <QSerialPortInfo>
 #include <QSerialPort>
-#endif
 
 #include "mysettings.h"
+#include "connection.h"
 
 namespace Ui
 {
@@ -21,59 +21,96 @@ class DeviceTab : public QWidget
     Q_OBJECT
 
 public:
+
+    static const QMap<QString, QString> m_historyPrefix;
+
     explicit DeviceTab(QWidget *parent = nullptr);
     ~DeviceTab();
 
     void initSettings();
+    void setConnection(Connection* conn);
 public slots:
-    void refreshDevicesInfo();
-#ifndef Q_OS_ANDROID
-    void saveDevicesPreference(const QString &deviceName);
-#endif
+    void refreshTargetList();
+    void saveTCPClientPreference(const Connection::NetworkArgument &arg);
+    void saveUDPPreference(const Connection::NetworkArgument &arg);
+    void saveSPPreference(const Connection::SerialPortArgument& arg);
+    void getAvailableTypes(bool useFirstValid = false);
+    void onClientCountChanged();
+    void Net_onDeleteButtonClicked();
+    void syncUDPPreference();
+    void syncTCPClientPreference();
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 private:
     Ui::DeviceTab *ui;
 
-    enum tableHeader
-    {
-        HDeviceName = 0,
-        HDescription,
-        HManufacturer,
-        HSerialNumber,
-        HIsNull,
-        HSystemLocation,
-        HVendorID,
-        HProductID,
-        HBaudRates
-    };
-
     MySettings* settings;
+    Connection* m_connection = nullptr;
 
-#ifdef Q_OS_ANDROID
-    QBluetoothDeviceDiscoveryAgent *BTdiscoveryAgent;
-#endif
+    QIntValidator* m_netPortValidator;
 
-#ifndef Q_OS_ANDROID
-    void loadDevicesPreference(const QString &id);
-#endif
+    QBluetoothDeviceDiscoveryAgent *BTClient_discoveryAgent = nullptr;
+    QHash<QString, int> m_shownBTDevices;
+
+    QLowEnergyController *m_BLEController = nullptr;
+    QHash<QBluetoothUuid, QTreeWidgetItem*> m_discoveredBLEServices;
+
+    const QString m_autoLocalAddress = tr("(Auto)");
+    const QString m_anyLocalAddress = tr("(Any)");
+
+    int m_maxHistoryNum;
+    // default value is defined in initSettings() and SettingsTab::loadPreference()
+    QList<Connection::SerialPortArgument> m_SPArgHistory;
+    QMap<QString, int> m_SPArgHistoryIndex;
+    QList<Connection::BTArgument> m_BLECArgHistory;
+    QMap<QString, int> m_BLECArgHistoryIndex;
+    QList<Connection::NetworkArgument> m_TCPClientHistory, m_UDPHistory;
 
     void initUI();
-signals:
-    void closeDevice();
 #ifdef Q_OS_ANDROID
-    void openDevice(const QString &name);
-#else
-    void openDevice(const QString &name, const qint32 baudRate, QSerialPort::DataBits dataBits, QSerialPort::StopBits stopBits, QSerialPort::Parity parity, QSerialPort::FlowControl flowControl);
+    void getBondedTarget(bool isBLE);
 #endif
+    void setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress = QBluetoothAddress());
+    void BLEC_addService(const QBluetoothUuid &serviceUUID, QTreeWidgetItem *parentItem = nullptr);
+    void BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeWidgetItem *parentItem);
+    void BLEC_addDescriptor(const QLowEnergyDescriptor &descriptor, QTreeWidgetItem *parentItem);
+    QString BLE_getCharacteristicPropertyString(const QLowEnergyCharacteristic &c);
+    qsizetype updateBTAdapterList();
+    qsizetype updateNetInterfaceList();
+    QBluetoothUuid String2UUID(const QString &string);
+    QString UUID2String(const QBluetoothUuid &UUID);
+    void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument());
+    void loadNetPreference(const Connection::NetworkArgument &arg, Connection::Type type);
+    void showNetArgumentHistory(const QList<Connection::NetworkArgument> &arg, Connection::Type type);
+signals:
+    void connTypeChanged(Connection::Type type);
+    void argumentChanged();
+    void clientCountChanged();
 private slots:
-    void on_advancedBox_clicked(bool checked);
     void on_openButton_clicked();
     void on_closeButton_clicked();
-    void on_deviceTable_cellClicked(int row, int column);
+    void onTargetListCellClicked(int row, int column);
 
-#ifdef Q_OS_ANDROID
     void BTdiscoverFinished();
     void BTdeviceDiscovered(const QBluetoothDeviceInfo &device);
-#endif
+    void on_typeBox_currentIndexChanged(int index);
+    void on_refreshButton_clicked();
+    void on_BTClient_adapterBox_activated(int index);
+    void on_BTServer_serviceNameEdit_editingFinished();
+    void on_BTServer_adapterBox_activated(int index);
+    void Net_onRemoteChanged();
+    void on_Net_localAddrBox_currentIndexChanged(int index);
+    void on_SP_baudRateBox_currentIndexChanged(int index);
+    void on_SP_dataBitsBox_currentIndexChanged(int index);
+    void on_SP_stopBitsBox_currentIndexChanged(int index);
+    void on_SP_parityBox_currentIndexChanged(int index);
+    void on_SP_flowControlBox_currentIndexChanged(int index);
+    void on_BLEC_connectButton_clicked();
+    void BLEC_onRootServiceDiscovered(const QBluetoothUuid &newService);
+    void BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState newState);
+    void on_BTServer_deviceList_cellChanged(int row, int column);
+    void on_Net_addrPortList_cellChanged(int row, int column);
+    void on_BLEC_ServiceUUIDBox_currentTextChanged(const QString &arg1);
 };
 
 #endif // DEVICETAB_H

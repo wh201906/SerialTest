@@ -9,15 +9,14 @@
 #include <QLabel>
 #include <QTimer>
 
-#ifdef Q_OS_ANDROID
-#include <QtAndroid>
+#include <QSerialPort>
+#include <QSerialPortInfo>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothUuid>
 #include <QBluetoothSocket>
-#else
-#include <QSerialPort>
-#include <QSerialPortInfo>
 #include <QDockWidget>
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
 #endif
 
 #include "mysettings.h"
@@ -25,7 +24,10 @@
 #include "ctrltab.h"
 #include "datatab.h"
 #include "devicetab.h"
+#include "filetab.h"
+#include "settingstab.h"
 #include "serialpinout.h"
+#include "connection.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -44,34 +46,35 @@ public:
 
 public slots:
     void sendData(const QByteArray &data);
-#ifdef Q_OS_ANDROID
-    void openDevice(const QString &name);
-#else
-    void openDevice(const QString &name, const qint32 baudRate, QSerialPort::DataBits dataBits, QSerialPort::StopBits stopBits, QSerialPort::Parity parity, QSerialPort::FlowControl flowControl);
-#endif
-    void closeDevice();
+    void updateStatusBar();
+    void updateWindowTitle(Connection::Type type);
+    void updateRxTxLen(bool updateRx = true, bool updateTx = true);
+    void clearSendedData();
+    void clearReceivedData();
+    void setTxDataRecording(bool enabled);
+    void showUpTab(int id);
+    void setFullScreen(bool isFullScreen);
+    void onOpacityChanged(qreal value);
+    void onDockTopLevelChanged(bool topLevel); // for opacity
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void keyReleaseEvent(QKeyEvent* e) override;
 private slots:
     void readData();
     void onStateButtonClicked();
     void updateRxUI();
 
-#ifdef Q_OS_ANDROID
-    void onBTConnectionChanged();
-#else
-    void onTopBoxClicked(bool checked);
-    void onSerialErrorOccurred(QSerialPort::SerialPortError error);
-    void updatePinout();
-    void onPinoutEnableStateChanged(bool state);
+#ifndef Q_OS_ANDROID
+    void onTopBoxClicked();
 #endif
 
     void onIODeviceConnected();
     void onIODeviceDisconnected();
+    void onIODeviceConnectFailed(const QString& info);
 private:
     Ui::MainWindow *ui;
     void initUI();
-    void stateUpdate();
 
     QMenu* contextMenu;
     QAction* dockAllWindows;
@@ -79,17 +82,20 @@ private:
     QAction* currVersion;
     QAction* checkUpdate;
 
-    bool IODeviceState;
-    QIODevice* IODevice;
+    Connection* IOConnection = nullptr;
 
-    QLabel* deviceLabel;
     QPushButton* stateButton;
     QLabel* TxLabel;
     QLabel* RxLabel;
+    QLabel* connArgsLabel;
+    SerialPinout* serialPinout;
 
-    QByteArray* rawReceivedData;
-    QByteArray* rawSendedData;
-    QByteArray* RxUIBuf;
+    bool m_TxDataRecording = true;
+    QByteArray rawReceivedData;
+    qsizetype m_RxCount = 0;
+    QByteArray rawSendedData;
+    qsizetype m_TxCount = 0;
+    QByteArray RxUIBuf;
 
     QTimer* updateUITimer;
 
@@ -98,39 +104,18 @@ private:
     CtrlTab* ctrlTab;
     DataTab* dataTab;
     DeviceTab* deviceTab;
-
-    enum tableHeader
-    {
-        HPortName = 0,
-        HDescription,
-        HManufacturer,
-        HSerialNumber,
-        HIsNull,
-        HSystemLocation,
-        HVendorID,
-        HProductID,
-        HBaudRates
-    };
-
-#ifdef Q_OS_ANDROID
-    QBluetoothSocket* BTSocket;
-    QString BTNewAddress;
-    QString BTLastAddress;
-#else
-    QSerialPort* serialPort;
-
+    FileTab* fileTab;
+    SettingsTab* settingsTab;
     QList<QDockWidget*> dockList;
-    QLabel* baudRateLabel;
-    QLabel* dataBitsLabel;
-    QLabel* stopBitsLabel;
-    QLabel* parityLabel;
-    SerialPinout* serialPinout;
+
+#ifndef Q_OS_ANDROID
     QCheckBox* onTopBox;
 
-    QTimer* updatePinoutTimer;
+#else
+    qint64 m_keyBackTick = 0;
+#endif
 
     void dockInit();
-#endif
     void initTabs();
 };
 #endif // MAINWINDOW_H
