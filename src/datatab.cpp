@@ -122,11 +122,10 @@ void DataTab::on_data_encodingSetButton_clicked()
     newCodec = QTextCodec::codecForName(box->currentText().toLatin1());
     if(newCodec != nullptr)
     {
-        if(box->itemText(box->currentIndex()) == box->currentText()) // existing text
-            dataEncodingId = box->currentIndex();
         if(RxDecoder != nullptr)
             delete RxDecoder;
         dataCodec = newCodec;
+        box->setCurrentText(dataCodec->name());
         emit setDataCodec(dataCodec);
         RxDecoder = dataCodec->makeDecoder(); // clear state machine
         emit setPlotDecoder(dataCodec->makeDecoder());// clear state machine, standalone decoder for DataTab/PlotTab
@@ -137,7 +136,13 @@ void DataTab::on_data_encodingSetButton_clicked()
     else
     {
         QMessageBox::information(this, tr("Info"), ui->data_encodingNameBox->currentText() + " " + tr("is not a valid encoding."));
-        box->setCurrentIndex(dataEncodingId);
+        if(dataCodec != nullptr)
+            box->setCurrentText(dataCodec->name());
+        else
+        {
+            box->setCurrentText("UTF-8");
+            on_data_encodingSetButton_clicked();
+        }
     }
 }
 

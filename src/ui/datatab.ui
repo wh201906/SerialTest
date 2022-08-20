@@ -512,12 +512,52 @@ margin-right:3em;
           </item>
           <item>
            <property name="text">
+            <string>GB2312</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>GB18030</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>BIG5</string>
+            <string>Big5</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>windows-1252</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-16LE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-16BE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-32LE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTF-32BE</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Shift_JIS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>EUC-KR</string>
            </property>
           </item>
          </widget>

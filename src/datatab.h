@@ -79,8 +79,6 @@ private:
     MySettings* settings;
     QTimer* repeatTimer;
 
-    int dataEncodingId = 0;
-
     QScrollBar* RxSlider;
     int currRxSliderPos = 0;
     int userRequiredRxSliderPos = 0;
