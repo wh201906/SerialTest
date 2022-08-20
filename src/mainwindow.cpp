@@ -24,18 +24,9 @@ MainWindow::MainWindow(QWidget *parent)
 #ifdef Q_OS_ANDROID
     setStyleSheet("QCheckBox{min-width:15px;min-height:15px;}QCheckBox::indicator{min-width:15px;min-height:15px;}");
 #else
-
     IOConnection->setType(Connection::SerialPort);
-
-    dockAllWindows = new QAction(tr("Dock all windows"), this);
-    connect(dockAllWindows, &QAction::triggered, [ = ]()
-    {
-        for(int i = 0; i < dockList.size(); i++)
-            dockList[i]->setFloating(false);
-    });
-    contextMenu->addAction(dockAllWindows);
-    contextMenu->addSeparator();
 #endif
+
     settings = MySettings::defaultSettings();
     stateButton = new QPushButton();
     TxLabel = new QLabel();
@@ -99,6 +90,16 @@ MainWindow::MainWindow(QWidget *parent)
     connect(stateButton, &QPushButton::clicked, this, &MainWindow::onStateButtonClicked);
 
     initUI();
+
+
+    dockAllWindows = new QAction(tr("Dock all windows"), this);
+    connect(dockAllWindows, &QAction::triggered, [ = ]()
+    {
+        for(int i = 0; i < dockList.size(); i++)
+            dockList[i]->setFloating(false);
+    });
+    contextMenu->addAction(dockAllWindows);
+    contextMenu->addSeparator();
 
     myInfo = new QAction("wh201906", this);
     currVersion = new QAction(tr("Ver: ") + QApplication::applicationVersion().section('.', 0, -2), this); // ignore the 4th version number
@@ -195,6 +196,12 @@ void MainWindow::initUI()
     setFixedSize(QApplication::primaryScreen()->availableGeometry().size());
 
     QtAndroid::androidActivity().callMethod<void>("handleStartIntent");
+
+    settings->beginGroup("SerialTest");
+    bool dockEnabled = settings->value("Android_Dock", false).toBool();
+    settings->endGroup();
+    if(dockEnabled)
+        dockInit();
 #else
     onTopBox = new QCheckBox(tr("On Top"));
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
@@ -209,6 +216,7 @@ void MainWindow::initUI()
 
     dockInit();
 #endif
+
     stateButton->setMinimumHeight(1);
     stateButton->setStyleSheet("*{text-align:left;}");
 
@@ -345,12 +353,13 @@ void MainWindow::setTxDataRecording(bool enabled)
 
 void MainWindow::showUpTab(int id)
 {
-#ifdef Q_OS_ANDROID
-    ui->funcTab->setCurrentIndex(id);
-#else
-    dockList[id]->setVisible(true);
-    dockList[id]->raise();
-#endif
+    if(ui->funcTab->isVisible())
+        ui->funcTab->setCurrentIndex(id);
+    else
+    {
+        dockList[id]->setVisible(true);
+        dockList[id]->raise();
+    }
 }
 
 void MainWindow::setFullScreen(bool isFullScreen)
@@ -499,21 +508,12 @@ void MainWindow::updateRxUI()
 void MainWindow::onOpacityChanged(qreal value)
 {
     setWindowOpacity(value);
-#ifndef Q_OS_ANDROID
     for(auto dock : qAsConst(dockList))
     {
         if(dock->isFloating())
             dock->setWindowOpacity(value);
     }
-#endif
 }
-
-// platform specific
-// **********************************************************************************************************************************************
-
-#ifdef Q_OS_ANDROID
-
-#else
 
 void MainWindow::dockInit()
 {
@@ -542,6 +542,18 @@ void MainWindow::dockInit()
     dockList[0]->raise();
 }
 
+
+void MainWindow::onDockTopLevelChanged(bool topLevel)
+{
+    if(topLevel) // some widget is floating now
+        onOpacityChanged(windowOpacity());
+}
+
+// platform specific
+// **********************************************************************************************************************************************
+
+#ifndef Q_OS_ANDROID
+
 void MainWindow::onTopBoxClicked()
 {
     if(onTopBox == nullptr)
@@ -552,12 +564,6 @@ void MainWindow::onTopBoxClicked()
     settings->beginGroup("SerialTest");
     settings->setValue("OnTop", checked);
     settings->endGroup();
-}
-
-void MainWindow::onDockTopLevelChanged(bool topLevel)
-{
-    if(topLevel) // some widget is floating now
-        onOpacityChanged(windowOpacity());
 }
 
 #endif

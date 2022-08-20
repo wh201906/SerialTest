@@ -41,9 +41,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-188</y>
         <width>506</width>
-        <height>576</height>
+        <height>602</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -87,6 +87,12 @@
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
               </property>
              </spacer>
             </item>
@@ -166,6 +172,12 @@ If no config file is detected, This app will create one in the current working d
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
              </spacer>
             </item>
            </layout>
@@ -200,6 +212,12 @@ If no config file is detected, This app will create one in the current working d
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
              </spacer>
             </item>
            </layout>
@@ -231,6 +249,13 @@ If no config file is detected, This app will create one in the current working d
            <widget class="QCheckBox" name="Android_forceLandscapeBox">
             <property name="text">
              <string>Force landscape mode</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="Android_dockBox">
+            <property name="text">
+             <string>Use Dock * (Experimental)</string>
             </property>
            </widget>
           </item>

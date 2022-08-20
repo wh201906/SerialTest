@@ -14,10 +14,9 @@
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothUuid>
 #include <QBluetoothSocket>
+#include <QDockWidget>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
-#else
-#include <QDockWidget>
 #endif
 
 #include "mysettings.h"
@@ -56,9 +55,8 @@ public slots:
     void showUpTab(int id);
     void setFullScreen(bool isFullScreen);
     void onOpacityChanged(qreal value);
-#ifndef Q_OS_ANDROID
-    void onDockTopLevelChanged(bool topLevel);
-#endif
+    void onDockTopLevelChanged(bool topLevel); // for opacity
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void keyReleaseEvent(QKeyEvent* e) override;
@@ -108,15 +106,16 @@ private:
     DeviceTab* deviceTab;
     FileTab* fileTab;
     SettingsTab* settingsTab;
+    QList<QDockWidget*> dockList;
 
 #ifndef Q_OS_ANDROID
-    QList<QDockWidget*> dockList;
     QCheckBox* onTopBox;
 
-    void dockInit();
 #else
     qint64 m_keyBackTick = 0;
 #endif
+
+    void dockInit();
     void initTabs();
 };
 #endif // MAINWINDOW_H

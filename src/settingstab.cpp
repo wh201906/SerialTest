@@ -24,6 +24,7 @@ SettingsTab::SettingsTab(QWidget *parent) :
 #else
     ui->Android_fullScreenBox->hide();
     ui->Android_forceLandscapeBox->hide();
+    ui->Android_dockBox->hide();
     connect(ui->Opacity_slider, &QSlider::valueChanged, ui->Opacity_Box, &QSpinBox::setValue);
 #endif
 
@@ -81,6 +82,7 @@ void SettingsTab::initSettings()
     connect(ui->Lang_setButton, &QPushButton::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_fullScreenBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_forceLandscapeBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
+    connect(ui->Android_dockBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Opacity_Box, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
     connect(ui->Font_setButton, &QPushButton::clicked, this, &SettingsTab::savePreference);
     connect(ui->DataFont_setButton, &QPushButton::clicked, this, &SettingsTab::savePreference);
@@ -157,6 +159,7 @@ void SettingsTab::savePreference()
 #ifdef Q_OS_ANDROID
     m_settings->setValue("Android_FullScreen", ui->Android_fullScreenBox->isChecked());
     m_settings->setValue("Android_ForceLandscape", ui->Android_forceLandscapeBox->isChecked());
+    m_settings->setValue("Android_Dock", ui->Android_dockBox->isChecked());
 #else
     m_settings->setValue("Opacity", ui->Opacity_Box->value());
 #endif
@@ -173,6 +176,7 @@ void SettingsTab::loadPreference()
     ui->Lang_filePathEdit->setText(m_settings->value("Lang_Path", "").toString());
     ui->Android_fullScreenBox->setChecked(m_settings->value("Android_FullScreen", false).toBool());
     ui->Android_forceLandscapeBox->setChecked(m_settings->value("Android_ForceLandscape", true).toBool());
+    ui->Android_dockBox->setChecked(m_settings->value("Android_Dock", false).toBool());
     ui->Opacity_Box->setValue(m_settings->value("Opacity", 100).toInt());
 
     // QApplication::font() might return wrong result
@@ -203,6 +207,7 @@ void SettingsTab::loadPreference()
 #ifdef Q_OS_ANDROID
     on_Android_fullScreenBox_clicked();
     on_Android_forceLandscapeBox_clicked();
+    // Android_dockBox only affect the config file
 #else
     on_Opacity_Box_valueChanged(ui->Opacity_Box->value());
 #endif
