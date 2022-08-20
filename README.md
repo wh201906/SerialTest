@@ -50,7 +50,7 @@ You can download pre-built binaries in [release](https://github.com/wh201906/Ser
 ### 1. Install depencencies
 ```
 sudo apt-get update
-sudo apt-get install qt5-default libqt5serialport5 libqt5serialport5-dev 
+sudo apt-get install qt5-default libqt5serialport5 libqt5serialport5-dev qtconnectivity5-dev 
 ```
 ### 2. Get the source code
 ```

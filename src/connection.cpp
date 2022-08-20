@@ -272,7 +272,13 @@ void Connection::open()
             m_BLERxTxMode = BLE_2S2C;
         else
             m_BLERxTxMode = m_currBTArgument.RxCharacteristicUUID == m_currBTArgument.TxCharacteristicUUID ? BLE_1S1C : BLE_1S2C;
+        if(m_BLEController != nullptr)
+            m_BLEController->deleteLater();
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+        m_BLEController = new QLowEnergyController(m_currBTArgument.deviceAddress, m_currBTArgument.localAdapterAddress);
+#else
         m_BLEController = QLowEnergyController::createCentral(m_currBTArgument.deviceAddress, m_currBTArgument.localAdapterAddress);
+#endif
         connect(m_BLEController, &QLowEnergyController::connected, m_BLEController, &QLowEnergyController::discoverServices);
         connect(m_BLEController, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), this, &Connection::onErrorOccurred);
         connect(m_BLEController, &QLowEnergyController::serviceDiscovered, this, &Connection::BLEC_onServiceDiscovered);
@@ -459,7 +465,11 @@ void Connection::updateSignalSlot()
     else if(m_type == TCP_Client)
     {
         m_lastReadyReadConn = connect(m_TCPSocket, &QIODevice::readyRead, this, &Connection::onReadyRead);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+        m_lastOnErrorConn = connect(m_TCPSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &Connection::onErrorOccurred);
+#else
         m_lastOnErrorConn = connect(m_TCPSocket, &QAbstractSocket::errorOccurred, this, &Connection::onErrorOccurred);
+#endif
         m_lastOnConnectedConn = connect(m_TCPSocket, &QAbstractSocket::connected, this, &Connection::onConnected);
         m_lastOnDisconnectedConn = connect(m_TCPSocket, &QAbstractSocket::disconnected, this, &Connection::onDisconnected);
     }
@@ -472,7 +482,11 @@ void Connection::updateSignalSlot()
     else if(m_type == UDP)
     {
         m_lastReadyReadConn = connect(m_UDPSocket, &QIODevice::readyRead, this, &Connection::onReadyRead);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+        m_lastOnErrorConn = connect(m_UDPSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &Connection::onErrorOccurred);
+#else
         m_lastOnErrorConn = connect(m_UDPSocket, &QAbstractSocket::errorOccurred, this, &Connection::onErrorOccurred);
+#endif
         m_lastOnConnectedConn = connect(m_UDPSocket, &QAbstractSocket::connected, this, &Connection::onConnected);
         m_lastOnDisconnectedConn = connect(m_UDPSocket, &QAbstractSocket::disconnected, this, &Connection::onDisconnected);
     }
@@ -849,7 +863,11 @@ void Connection::Server_onClientConnected()
         changeState(Connected);
         connect(socket, &QTcpSocket::readyRead, this, &Connection::onReadyRead);
         connect(socket, &QTcpSocket::disconnected, this, &Connection::Server_onClientDisconnected);
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+        connect(socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &Connection::onErrorOccurred);
+#else
         connect(socket, &QAbstractSocket::errorOccurred, this, &Connection::onErrorOccurred);
+#endif
         m_TCPConnectedClients.append(socket);
         m_TCPTxClients.append(socket);
         emit TCP_clientConnected();

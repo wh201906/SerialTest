@@ -1230,7 +1230,11 @@ void DeviceTab::on_BLEC_connectButton_clicked()
         ui->BLEC_UUIDList->clear();
         ui->BLEC_connectButton->setText(tr("Disconnect"));
         ui->BLEC_currAddrLabel->setText(ui->BLEC_currAddrBox->currentText());
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+        m_BLEController = new QLowEnergyController(QBluetoothAddress(ui->BLEC_currAddrBox->currentText()), QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString()));
+#else
         m_BLEController = QLowEnergyController::createCentral(QBluetoothAddress(ui->BLEC_currAddrBox->currentText()), QBluetoothAddress(ui->BLEC_adapterBox->currentData().toString()));
+#endif
         connect(m_BLEController, &QLowEnergyController::connected, m_BLEController, &QLowEnergyController::discoverServices);
         connect(m_BLEController, QOverload<QLowEnergyController::Error>::of(&QLowEnergyController::error), [ = ](QLowEnergyController::Error newError)
         {
