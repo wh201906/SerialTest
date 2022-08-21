@@ -913,7 +913,7 @@ margin-bottom:3em;
            <number>0</number>
           </property>
           <item>
-           <widget class="QScrollArea" name="scrollArea">
+           <widget class="QScrollArea" name="BLEC_argsScrollArea">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -1073,7 +1073,7 @@ margin-bottom:3em;
            <number>0</number>
           </property>
           <item>
-           <widget class="QScrollArea" name="scrollArea_2">
+           <widget class="QScrollArea" name="Net_argsScrollArea">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>

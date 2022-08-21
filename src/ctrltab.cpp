@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QScroller>
 
 CtrlTab::CtrlTab(QWidget *parent) :
     QWidget(parent),
@@ -29,6 +30,7 @@ CtrlTab::CtrlTab(QWidget *parent) :
     commentRegExp->optimize();
 
     ui->ctrl_dataEdit->hide();
+    QScroller::grabGesture(ui->ctrl_itemArea);
 }
 
 CtrlTab::~CtrlTab()
