@@ -170,7 +170,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 
 ## Previews
 ![port](doc/previews/port.png)  
-![port_android](doc/previews/port_android.jpg)  
+![connect_android](doc/previews/connect_android.jpg)  
 ![data](doc/previews/data.png)  
 ![plot](doc/previews/plot.png)  
 ![ctrl](doc/previews/ctrl.png)  
