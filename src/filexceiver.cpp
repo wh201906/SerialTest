@@ -6,7 +6,7 @@
 FileXceiver::FileXceiver(QObject *parent)
     : QObject{parent}
 {
-    qRegisterMetaType<qsizetype>();
+    qRegisterMetaType<qsizetype>("qsizetype"); // qsizetype is an alias, so the typeName is compulsory
     qRegisterMetaType<FileXceiver::Protocol>();
     qRegisterMetaType<FileXceiver::ThrottleArgument>();
     m_file.setParent(this); // for moveToThread()
@@ -89,19 +89,19 @@ void FileXceiver::newData(const QByteArray &data)
     if(m_protocol == RawProtocol)
     {
         qsizetype num;
-        qsizetype limit = -1;
+        qsizetype limit = -1, currNum = -1;
         if(m_expectedNum != -1)
         {
             limit = m_expectedNum - m_handledNum;
-            limit = limit < data.size() ? limit : data.size();
-            num = m_file.write(data.constData(), limit);
+            currNum = limit < data.size() ? limit : data.size();
+            num = m_file.write(data.constData(), currNum);
         }
         else
             num = m_file.write(data);
         m_file.flush();
         m_handledNum += num;
         emit dataReceived(num);
-        if(m_expectedNum != -1 && limit != data.size())
+        if(m_expectedNum != -1 && currNum == limit)
             emit finished();
     }
 }

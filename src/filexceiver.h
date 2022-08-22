@@ -66,6 +66,7 @@ signals:
 };
 
 Q_DECLARE_METATYPE(qsizetype)
+Q_DECLARE_METATYPE(FileXceiver::Protocol)
 Q_DECLARE_METATYPE(FileXceiver::ThrottleArgument)
 
 #endif // FILEXCEIVER_H
