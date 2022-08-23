@@ -219,21 +219,12 @@ make -j4 && make clean
 
 ### 5. Packing instructions
 
-#### `pack/usr` instructions for the use of packaged files
+#### `pack/aur` instructions for the use of packaged files
 
 ```bash
-usr
-├── bin                                                 # serialtest installation path, such as：`/bin/serialtest`
-└── share
-   ├── applications
-   │  └── io.github.wh201906.serialtest.desktop         # serialtest install desktop startup files
-   ├── licenses
-   │  └── serialtest
-   │     └── LICENSE                                    # serialtest install open source protocol files
-   ├── metainfo
-   │  └── io.github.wh201906.serialtest.metainfo.xml    # serialtest install Desktop description File
-   └── pixmaps
-      └── serialtest.png                                # serialtest install desktop icon files
+aur
+├── io.github.wh201906.serialtest.desktop         # serialtest install desktop startup files, eg: /usr/share/applications/io.github.wh201906.serialtest.desktop
+└── io.github.wh201906.serialtest.metainfo.xml    # serialtest install Desktop description File, eg: /usr/share/metainfo/io.github.wh201906.serialtest.metainfo.xml
 
 ```
 
