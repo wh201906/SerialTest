@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+Name=SerialTest
+Comment=SerialTest
+Categories=Development;Electronics;
+
+Icon=serialtest
+Exec=serialtest
+Terminal=false

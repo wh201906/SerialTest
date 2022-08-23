@@ -217,5 +217,16 @@ make -j4 && make clean
 ./SerialTest 
 ```
 
+## 通过 Linux 软件仓库安装
+
+### Arch Linux
+```bash
+# 安装发行版
+yay -S serialtest
+
+# 安装开发版
+yay -S serialtest-git
+```
+
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)

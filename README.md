@@ -217,5 +217,16 @@ make -j4 && make clean
 ./SerialTest 
 ```
 
+## Install from the Linux software repository
+
+### Arch Linux
+```bash
+# Install the release
+yay -S serialtest
+
+# Install the development version
+yay -S serialtest-git
+```
+
 ## Change Log
 [Change Log](CHANGELOG.md)

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.wh201906.serialtest</id>
+
+  <name>SerialTest</name>
+  <summary>SerialTest</summary>
+
+  <metadata_license>MIT</metadata_license>
+  <project_license>LGPL-3.0-only</project_license>
+
+  <description>
+    <p>
+      A cross-platform serial port test tool.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.github.wh201906.serialtest.desktop</launchable>
+</component>
