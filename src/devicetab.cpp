@@ -8,6 +8,7 @@
 #include <QBluetoothLocalDevice>
 #include <QNetworkInterface>
 #include <QTreeWidgetItem>
+#include <QScroller>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
@@ -276,6 +277,14 @@ void DeviceTab::initUI()
     ui->Net_localPortEdit->setValidator(m_netPortValidator);
     ui->Net_remotePortEdit->setValidator(m_netPortValidator);
 
+    QScroller::grabGesture(ui->BLEC_argsScrollArea);
+    QScroller::grabGesture(ui->Net_argsScrollArea);
+    QScroller::grabGesture(ui->SP_portList);
+    QScroller::grabGesture(ui->BTServer_deviceList);
+    QScroller::grabGesture(ui->BTClient_deviceList);
+    QScroller::grabGesture(ui->BLEC_deviceList);
+    QScroller::grabGesture(ui->BLEC_UUIDList);
+    QScroller::grabGesture(ui->Net_addrPortList);
 }
 
 void DeviceTab::getAvailableTypes(bool useFirstValid)

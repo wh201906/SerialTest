@@ -6,6 +6,7 @@
 #include <QTranslator>
 #include <QFileInfo>
 #include <QStandardPaths>
+#include <QCommandLineParser>
 
 int main(int argc, char *argv[])
 {
@@ -29,20 +30,38 @@ int main(int argc, char *argv[])
     // on Android, use default.
     MySettings::init(QSettings::NativeFormat);
 #else
+
+    // translator is not loaded there.
+    QCommandLineParser parser;
+    parser.addHelpOption();
+    parser.addOption({"config-path",
+                      "Use specified file as config file",
+                      "file path"});
+    parser.process(a);
+
     // on PC, store preferences in files for portable use
-    // Firstly, find it in current working directory
-    QString configPath = "preference.ini";
-    if(!QFileInfo::exists(configPath))
+    if(parser.isSet("config-path"))
     {
-        // Then, find it in AppConfigLocation
-        configPath = QStandardPaths::locate(QStandardPaths::AppConfigLocation, "preference.ini");
-        if(configPath.isEmpty())
-        {
-            // If no config file is found, create one in current working directory
-            configPath = "preference.ini";
-        }
+        qDebug() << "Config file path:" << parser.value("config-path");
+        MySettings::init(QSettings::IniFormat, parser.value("config-path"));
     }
-    MySettings::init(QSettings::IniFormat, configPath);
+    else
+    {
+        // Firstly, find it in current working directory
+        QString configPath = "preference.ini";
+        if(!QFileInfo::exists(configPath))
+        {
+            // Then, find it in AppConfigLocation
+            configPath = QStandardPaths::locate(QStandardPaths::AppConfigLocation, "preference.ini");
+            if(configPath.isEmpty() || !QFileInfo::exists(configPath))
+            {
+                // If no config file is found, create one in current working directory
+                configPath = "preference.ini";
+            }
+        }
+        MySettings::init(QSettings::IniFormat, configPath);
+    }
+
 #endif
 
     // set language by config file

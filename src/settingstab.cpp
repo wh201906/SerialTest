@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QFileDialog>
+#include <QScroller>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #endif
@@ -33,6 +34,7 @@ SettingsTab::SettingsTab(QWidget *parent) :
     ui->Lang_nameBox->addItem(tr("Simplified Chinese"), "zh_CN");
     ui->Lang_nameBox->addItem(tr("English"), "en");
     ui->Lang_nameBox->addItem(tr("(External File)"), "(ext)");
+    QScroller::grabGesture(ui->scrollArea);
 }
 
 SettingsTab::~SettingsTab()

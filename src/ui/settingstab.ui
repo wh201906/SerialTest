@@ -38,7 +38,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-238</y>
+        <y>0</y>
         <width>506</width>
         <height>626</height>
        </rect>
@@ -125,7 +125,8 @@
              <bool>true</bool>
             </property>
             <property name="plainText">
-             <string>This app will use the config file in the working directory first.
+             <string>You can specify the config file path by passing &quot;--config-path &lt;path&gt;&quot; option when opening it.
+If the config file path is not set, this app will use the config file in the working directory first.
 If the file is not in the working directory, the app will will find it in the configuration directory.
 If no config file is detected, This app will create one in the current working directory.</string>
             </property>

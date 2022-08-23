@@ -282,7 +282,13 @@ void FileTab::onDataTransmitted(qsizetype num)
 void FileTab::onDataReceived(qsizetype num)
 {
     m_handledSize += num;
-    ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_handledSize) + " Bytes");
+    if(currentProtocol() == FileXceiver::RawProtocol && ui->RawRx_autostopByteButton->isChecked())
+    {
+        ui->progressBar->setValue((double)m_handledSize / m_fileSize * 100.0);
+        ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_handledSize) + "/" + QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
+    }
+    else
+        ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_handledSize) + " Bytes");
 }
 
 bool FileTab::receiving()
@@ -309,7 +315,7 @@ void FileTab::onStartResultArrived(bool result)
     m_working = result;
     if(result)
     {
-        if(ui->receiveModeButton->isChecked() && currentProtocol() == FileXceiver::RawProtocol)
+        if(ui->receiveModeButton->isChecked() && currentProtocol() == FileXceiver::RawProtocol && ui->RawRx_autostopNoneButton->isChecked())
             ui->progressBar->setMaximum(0);
         setParameterWidgetEnabled(false);
         ui->startStopButton->setText(tr("Stop"));
@@ -333,13 +339,26 @@ void FileTab::stop()
 
 void FileTab::updateFileSize()
 {
-    if(ui->receiveModeButton->isChecked() && currentProtocol() == FileXceiver::RawProtocol)
-        ui->sizeLabel->setText("");
+    m_fileSize = -1;
+    if(ui->receiveModeButton->isChecked())
+    {
+        if(currentProtocol() == FileXceiver::RawProtocol)
+        {
+            if(ui->RawRx_autostopByteButton->isChecked())
+                m_fileSize = ui->RawRx_autostopByteBox->currentText().toLongLong();
+            else
+                m_fileSize = -1;
+        }
+    }
     else
     {
         m_fileSize = QFileInfo(ui->filePathEdit->text()).size();
-        ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
     }
+
+    if(m_fileSize == -1)
+        ui->sizeLabel->setText("");
+    else
+        ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_handledSize) + "/" + QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
 }
 
 void FileTab::setParameterWidgetEnabled(bool state)
