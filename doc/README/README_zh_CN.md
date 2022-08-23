@@ -217,20 +217,9 @@ make -j4 && make clean
 ./SerialTest 
 ```
 
-### 5. 打包说明
+## 通过 Linux 软件仓库安装
 
-#### `pack/aur` 打包文件使用说明
-
-```bash
-aur
-├── io.github.wh201906.serialtest.desktop         # serialtest 安装桌面启动文件, 例如: /usr/share/applications/io.github.wh201906.serialtest.desktop
-└── io.github.wh201906.serialtest.metainfo.xml    # serialtest 安装桌面描述文件, 例如: /usr/share/metainfo/io.github.wh201906.serialtest.metainfo.xml
-
-```
-
-### 6. 通过 Linux 软件仓库安装
-
-#### Arch Linux
+### Arch Linux
 ```bash
 # 安装发行版
 yay -S serialtest

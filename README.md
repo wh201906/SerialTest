@@ -217,20 +217,9 @@ make -j4 && make clean
 ./SerialTest 
 ```
 
-### 5. Packing instructions
+## Install from the Linux software repository
 
-#### `pack/aur` instructions for the use of packaged files
-
-```bash
-aur
-├── io.github.wh201906.serialtest.desktop         # serialtest install desktop startup files, eg: /usr/share/applications/io.github.wh201906.serialtest.desktop
-└── io.github.wh201906.serialtest.metainfo.xml    # serialtest install Desktop description File, eg: /usr/share/metainfo/io.github.wh201906.serialtest.metainfo.xml
-
-```
-
-### 6. Installed through the Linux software repository
-
-#### Arch Linux
+### Arch Linux
 ```bash
 # Install the release
 yay -S serialtest
