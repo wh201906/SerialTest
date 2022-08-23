@@ -217,5 +217,36 @@ make -j4 && make clean
 ./SerialTest 
 ```
 
+### 5. Packing instructions
+
+#### `pack/usr` instructions for the use of packaged files
+
+```bash
+usr
+├── bin                                                 # serialtest installation path, such as：`/bin/serialtest`
+└── share
+   ├── applications
+   │  └── io.github.wh201906.serialtest.desktop         # serialtest install desktop startup files
+   ├── licenses
+   │  └── serialtest
+   │     └── LICENSE                                    # serialtest install open source protocol files
+   ├── metainfo
+   │  └── io.github.wh201906.serialtest.metainfo.xml    # serialtest install Desktop description File
+   └── pixmaps
+      └── serialtest.png                                # serialtest install desktop icon files
+
+```
+
+### 6. Installed through the Linux software repository
+
+#### Arch Linux
+```bash
+# Install the release
+yay -S serialtest
+
+# Install the development version
+yay -S serialtest-git
+```
+
 ## Change Log
 [Change Log](CHANGELOG.md)

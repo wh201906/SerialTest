@@ -217,5 +217,36 @@ make -j4 && make clean
 ./SerialTest 
 ```
 
+### 5. 打包说明
+
+#### `pack/usr` 打包文件使用说明
+
+```bash
+usr
+├── bin                                                 # serialtest 安装路径,如：`/bin/serialtest`
+└── share
+   ├── applications
+   │  └── io.github.wh201906.serialtest.desktop         # serialtest 安装桌面启动文件
+   ├── licenses
+   │  └── serialtest
+   │     └── LICENSE                                    # serialtest 安装开源协议文件
+   ├── metainfo
+   │  └── io.github.wh201906.serialtest.metainfo.xml    # serialtest 安装桌面描述文件
+   └── pixmaps
+      └── serialtest.png                                # serialtest 安装桌面图标文件
+
+```
+
+### 6. 通过 Linux 软件仓库安装
+
+#### Arch Linux
+```bash
+# 安装发行版
+yay -S serialtest
+
+# 安装开发版
+yay -S serialtest-git
+```
+
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)
