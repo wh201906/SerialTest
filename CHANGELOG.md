@@ -2,6 +2,11 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
+## V0.2.1
++ Add command line option to set config file path  
++ Fix some bugs in file transceiver  
++ Add touch screen gesture support for some scrollable widgets  
+
 ## V0.2
 + Supports TCP client/server, UDP, Bluetooth SPP client/server and Bluetooth BLE
 + All servers support 1:N connections. Sent to/Receive from/Disconnect any client as you want
