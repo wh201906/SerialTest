@@ -1,6 +1,6 @@
 # SerialTest
 ![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=%E4%B8%8B%E8%BD%BD%E9%87%8F)  
-可在Windows/Linux/Android上运行，功能丰富的多功能调试工具。  
+可在Windows/Linux/Android上运行，功能丰富的调试工具。  
 支持数据收发/实时绘图/快捷方式/文件收发功能。  
 支持串口/蓝牙SPP客户端/蓝牙SPP服务器/蓝牙BLE客户端/TCP客户端/TCP服务器/UDP调试。  
 
@@ -24,7 +24,7 @@
 + 可以控制DTR, RTS信号，显示CTS, DSR, DCD, RI(RNG)信号
 + 保存上一次连接的参数
 + 按照端口名或设备ID保存连接时参数，快速重设连接参数
-+ (Android端暂不支持串口)
++ (Android端暂不支持串口，可参考[该解决方案](https://github.com/wh201906/SerialTest/discussions/11))
 
 </details>
 
