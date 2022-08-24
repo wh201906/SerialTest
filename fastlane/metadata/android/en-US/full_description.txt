@@ -1,0 +1,3 @@
+A versatile test tool running on Windows/Linux/Android.
+Works as data transceiver/realtime plotter/shortcut/file transceiver.
+Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP client/server, UDP.

@@ -1,0 +1,1 @@
+Data transceiver/realtime plotter/shortcut/file transceiver over serial port/Bluetooth/network on Win/Linux/Android
