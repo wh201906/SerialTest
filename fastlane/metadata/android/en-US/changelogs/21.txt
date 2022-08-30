@@ -1,0 +1,4 @@
+V0.2.1  
++ Add command line option to set config file path  
++ Fix some bugs in file transceiver  
++ Add touch screen gesture support for some scrollable widgets  

@@ -1,0 +1,5 @@
+可在Windows/Linux/Android上运行，功能丰富的调试工具。  
+支持数据收发/实时绘图/快捷方式/文件收发功能。  
+支持串口/蓝牙SPP客户端/蓝牙SPP服务器/蓝牙BLE客户端/TCP客户端/TCP服务器/UDP调试。  
+(Android端暂不支持串口，可参考该解决方案:https://github.com/wh201906/SerialTest/discussions/11)  
+(电脑端可在https://github.com/wh201906/SerialTest中下载)  
