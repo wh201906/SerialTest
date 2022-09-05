@@ -189,7 +189,9 @@ You can write programs on MCU according to the demos in the [demo/](https://gith
 [Demo README](demo/README.md)  
 
 ## Binaries for Windows and Android
-You can download pre-built binaries in [release](https://github.com/wh201906/SerialTest/releases) page.  
+You can download pre-built binaries in [release](https://github.com/wh201906/SerialTest/releases/latest) page.  
+
+The Android app is available on [F-Droid](https://f-droid.org/packages/priv.wh201906.serialtest/) as well.
 
 ## Build on Linux
 ### 1. Install depencencies
