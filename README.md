@@ -6,6 +6,10 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 
 [中文介绍](doc/README/README_zh_CN.md)  
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/priv.wh201906.serialtest/)  
+
 ## Features
 <details>
 <summary>Cross-platform</summary>

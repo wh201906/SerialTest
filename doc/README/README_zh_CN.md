@@ -6,6 +6,10 @@
 
 [English](../../README.md)  
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-zh-cn.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/zh_Hans/packages/priv.wh201906.serialtest/)  
+
 ## 特点
 
 <details>
