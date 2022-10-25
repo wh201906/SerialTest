@@ -51,6 +51,8 @@ private slots:
 
     void on_Conf_exportButton_clicked();
 
+    void on_Theme_setButton_clicked();
+
 private:
     Ui::SettingsTab *ui;
     MySettings* m_settings;

@@ -211,6 +211,7 @@ void FileTab::onSharedFileReceived(JNIEnv *env, jobject thiz, jstring text)
 
     m_currInstance->ui->receiveModeButton->setChecked(false);
     m_currInstance->ui->sendModeButton->setChecked(true);
+    m_currInstance->onModeProtocolChanged();
     m_currInstance->showUpTabHelper(4);
 }
 

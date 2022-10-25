@@ -8,6 +8,7 @@ class MyCustomPlot : public QCustomPlot
     Q_OBJECT
 public:
     explicit MyCustomPlot(QWidget *parent = nullptr);
+    void setDarkStyle();
 protected:
     bool event(QEvent *event) override;
     bool eventFilter(QObject *watched, QEvent *event) override;

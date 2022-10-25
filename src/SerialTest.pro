@@ -102,7 +102,9 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 RESOURCES += \
-    i18n/language.qrc
+    i18n/language.qrc \
+    qdarkstyle/dark/darkstyle.qrc \
+    qdarkstyle/light/lightstyle.qrc
 
 exists(qcustomplot.cpp) {
     # For platforms which don't have qcp library, like Android.

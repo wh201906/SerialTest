@@ -1,0 +1,1 @@
+From commit 6ff5fdf of [QDarkStyleSheet](https://github.com/ColinDuquesnoy/QDarkStyleSheet)

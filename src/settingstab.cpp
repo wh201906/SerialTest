@@ -34,6 +34,10 @@ SettingsTab::SettingsTab(QWidget *parent) :
     ui->Lang_nameBox->addItem(tr("Simplified Chinese"), "zh_CN");
     ui->Lang_nameBox->addItem(tr("English"), "en");
     ui->Lang_nameBox->addItem(tr("(External File)"), "(ext)");
+
+    ui->Theme_nameBox->addItem(tr("(None)"), "(none)");
+    ui->Theme_nameBox->addItem(tr("Dark"), "qdss_dark");
+    ui->Theme_nameBox->addItem(tr("Light"), "qdss_light");
     QScroller::grabGesture(ui->scrollArea);
 }
 
@@ -82,13 +86,11 @@ void SettingsTab::initSettings()
     m_settings = MySettings::defaultSettings();
     loadPreference();
 
-    connect(ui->Lang_setButton, &QPushButton::clicked, this, &SettingsTab::savePreference);
+    // xxx_setButton will handle the preference itself.
     connect(ui->Android_fullScreenBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_forceLandscapeBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_dockBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Opacity_Box, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
-    connect(ui->Font_setButton, &QPushButton::clicked, this, &SettingsTab::savePreference);
-    connect(ui->DataFont_setButton, &QPushButton::clicked, this, &SettingsTab::savePreference);
 }
 
 
@@ -181,6 +183,8 @@ void SettingsTab::loadPreference()
     ui->Android_forceLandscapeBox->setChecked(m_settings->value("Android_ForceLandscape", true).toBool());
     ui->Android_dockBox->setChecked(m_settings->value("Android_Dock", false).toBool());
     ui->Opacity_Box->setValue(m_settings->value("Opacity", 100).toInt());
+    int themeId = ui->Theme_nameBox->findData(m_settings->value("Theme_Name", "(none)").toString());
+    ui->Theme_nameBox->setCurrentIndex((themeId == -1) ? 0 : themeId);
 
     // QApplication::font() might return wrong result
     // If fonts are not specified in config file, don't touch them.
@@ -304,5 +308,13 @@ void SettingsTab::on_Conf_exportButton_clicked()
     if(fileName.isEmpty())
         return;
     createConfFile(fileName, true);
+}
+
+
+void SettingsTab::on_Theme_setButton_clicked()
+{
+    m_settings->beginGroup("SerialTest");
+    m_settings->setValue("Theme_Name", ui->Theme_nameBox->currentData().toString());
+    m_settings->endGroup();
 }
 

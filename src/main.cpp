@@ -64,19 +64,18 @@ int main(int argc, char *argv[])
 
 #endif
 
+    MySettings* m_settings = MySettings::defaultSettings();
     // set language by config file
     QTranslator translator;
-    MySettings* m_settings = MySettings::defaultSettings();
     m_settings->beginGroup("SerialTest");
     QString language = m_settings->value("Lang_Name").toString();
     QString languageFile = m_settings->value("Lang_Path").toString();
     m_settings->endGroup();
-    m_settings = nullptr;
 
     bool languageSet = false;
     if(language == "(sys)")
         languageSet = false;
-    if(language == "zh_CN")
+    else if(language == "zh_CN")
         languageSet = translator.load(":/i18n/SerialTest_zh_CN.qm");
     else if(language == "en")
         languageSet = true;
@@ -92,6 +91,38 @@ int main(int argc, char *argv[])
     }
     if(languageSet)
         a.installTranslator(&translator);
+
+    // set theme by config file
+    m_settings->beginGroup("SerialTest");
+    QString theme = m_settings->value("Theme_Name").toString();
+    m_settings->endGroup();
+
+    QFile* themeFile = new QFile();
+    QTextStream* themeStream = new QTextStream();
+    QString qssString = a.styleSheet(); // default behavior
+    if(theme == "(none)")
+        ;
+    else if(theme == "qdss_dark")
+    {
+        themeFile->setFileName(":/qdarkstyle/dark/darkstyle.qss");
+        themeFile->open(QFile::ReadOnly | QFile::Text);
+        themeStream->setDevice(themeFile);
+        qssString = themeStream->readAll();
+    }
+    else if(theme == "qdss_light")
+    {
+        themeFile->setFileName(":/qdarkstyle/light/lightstyle.qss");
+        themeFile->open(QFile::ReadOnly | QFile::Text);
+        themeStream->setDevice(themeFile);
+        qssString = themeStream->readAll();
+    }
+    a.setStyleSheet(qssString);
+    delete themeFile;
+    delete themeStream;
+    themeFile = nullptr;
+    themeStream = nullptr;
+
+    m_settings = nullptr;
 
     MainWindow w;
     w.show();
