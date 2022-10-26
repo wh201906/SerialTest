@@ -55,7 +55,7 @@ bool MyCustomPlot::handlePinchGesture(QPinchGesture* pinchGesture)
         // disable the drag interaction
         // The drag interaction will affect the scaleRange() there.
         // The mouseMoveEvent() of QCPAxisRect will test the iRangeDrag flag.
-        // The mouseMoveEvent() of QCPAxisRect will not test the iRangeDrag flag, so I need some extra code in MyCustomPlot::eventFilter()
+        // The mouseMoveEvent() of QCPAxis will not test the iRangeDrag flag, so I need some extra code in MyCustomPlot::eventFilter()
         m_iRangeDragEnabled = interactions().testFlag(QCP::iRangeDrag);
         setInteraction(QCP::iRangeDrag, false);
 
@@ -75,15 +75,22 @@ bool MyCustomPlot::handlePinchGesture(QPinchGesture* pinchGesture)
             else if(rect)
             {
                 qDebug() << "on rect";
+                QPointF pinchDirection = pinchGesture->centerPoint() - pinchGesture->hotSpot();
+                qreal pinchTan = (pinchDirection.x() == 0) ? 572958 : qAbs(pinchDirection.y() / pinchDirection.x());
+                Qt::Orientations pinchOrientations;
+                if(pinchTan < 2.74) // ~70 degree
+                    pinchOrientations |= Qt::Horizontal;
+                if(pinchTan > 0.364) // ~20 degree
+                    pinchOrientations |= Qt::Vertical;
                 Qt::Orientations rangeZoom = rect->rangeZoom();
-                if(rangeZoom.testFlag(Qt::Horizontal))
+                if(rangeZoom.testFlag(Qt::Horizontal) && pinchOrientations.testFlag(Qt::Horizontal))
                 {
                     foreach(QCPAxis* it, rect->rangeZoomAxes(Qt::Horizontal))
                     {
                         m_axisScaleCenterList.insert(it, it->pixelToCoord(pinchCenter.x()));
                     }
                 }
-                if(rangeZoom.testFlag(Qt::Vertical))
+                if(rangeZoom.testFlag(Qt::Vertical) && pinchOrientations.testFlag(Qt::Vertical))
                 {
                     foreach(QCPAxis* it, rect->rangeZoomAxes(Qt::Vertical))
                     {
