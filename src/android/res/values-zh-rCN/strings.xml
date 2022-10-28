@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="intentFilter_send_text">用SerialTest发送文本</string>
-    <string name="intentFilter_send_file">用SerialTest发送文件</string>
+    <string name="intentFilter_send">用SerialTest发送</string>
 </resources>

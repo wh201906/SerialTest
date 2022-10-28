@@ -15,18 +15,15 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <intent-filter android:label="@string/intentFilter_send_text">
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/*"/>
-            </intent-filter>
-            <intent-filter android:label="@string/intentFilter_send_file">
+
+            <intent-filter android:label="@string/intentFilter_send">
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="application/*"/>
                 <data android:mimeType="image/*"/>
                 <data android:mimeType="audio/*"/>
                 <data android:mimeType="video/*"/>
+                <data android:mimeType="text/*"/>
             </intent-filter>
             <!-- Application arguments -->
             <!-- meta-data android:name="android.app.arguments" android:value="arg1 arg2 arg3"/ -->

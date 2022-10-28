@@ -195,12 +195,11 @@ void FileTab::showUpTabHelper(int id)
 #ifdef Q_OS_ANDROID
 void FileTab::onSharedFileReceived(JNIEnv *env, jobject thiz, jstring text)
 {
-    // This function is useless now.
     // The QtNative.getUriWithValidPermission() will only check the persisted permissions in Qt 5.15.2.
     // But when an app shared a file by Intent, the permissions are usually transient.
     // This bug is fixed in the commit ec497d5e6587ac247a326fb9a0a11c37bb197786 of qtbase,
-    // which might be released in Qt 5.15.6.
-    // So I'm waiting for the opensource release of Qt 5.15.6.
+    // which is released in Qt 5.15.7.
+    // To make this work, you need to build it with Qt 5.15.7 or higher version
 
     // set the file path
     Q_UNUSED(thiz)
