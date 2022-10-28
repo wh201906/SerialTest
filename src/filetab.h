@@ -79,7 +79,6 @@ private:
     void showUpTabHelper(int id);
     void onFilePathSet(const QString &path);
     void updateFileSize();
-    QString getValidFilename(const QList<QUrl> urlList);
     void setParameterWidgetEnabled(bool state);
 
 #ifdef Q_OS_ANDROID

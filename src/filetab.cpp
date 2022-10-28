@@ -1,4 +1,5 @@
 #include "filetab.h"
+#include "util.h"
 #include "ui_filetab.h"
 
 #include <QFileDialog>
@@ -164,25 +165,16 @@ void FileTab::onChecksumError(AsyncCRC::CRCFileError error)
         ui->checksumLabel->setText(tr("Failed to read file."));
 }
 
-QString FileTab::getValidFilename(const QList<QUrl> urlList)
-{
-    for(auto url : urlList)
-    {
-        if(url.isLocalFile() && QFileInfo(url.toLocalFile()).isFile())
-            return url.toLocalFile();
-    }
-    return QString();
-}
-
 void FileTab::dragEnterEvent(QDragEnterEvent *event)
 {
-    if(!getValidFilename(event->mimeData()->urls()).isEmpty())
+    QList<QUrl> urlList = event->mimeData()->urls();
+    if(urlList.size() == 1 && !Util::getValidLocalFilename(urlList).isEmpty())
         event->acceptProposedAction();
 }
 
 void FileTab::dropEvent(QDropEvent *event)
 {
-    QString filename = getValidFilename(event->mimeData()->urls());
+    QString filename = Util::getValidLocalFilename(event->mimeData()->urls());
     if(!filename.isEmpty())
         onFilePathSet(filename);
 }

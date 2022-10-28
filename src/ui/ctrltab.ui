@@ -1,12 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>CtrlTab</class>
  <widget class="QWidget" name="CtrlTab">
-  <attribute name="title">
-   <string>Control</string>
-  </attribute>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>674</width>
+    <height>608</height>
+   </rect>
+  </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -90,8 +96,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1128</width>
-        <height>312</height>
+        <width>637</width>
+        <height>358</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -114,6 +120,6 @@
    </item>
   </layout>
  </widget>
- <pixmapfunction/>
+ <resources/>
  <connections/>
 </ui>

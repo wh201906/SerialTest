@@ -14,6 +14,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QScroller>
+#include <QMimeData>
 
 CtrlTab::CtrlTab(QWidget *parent) :
     QWidget(parent),
@@ -102,20 +103,7 @@ void CtrlTab::on_ctrl_importButton_clicked()
     }
     else
     {
-        QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-        QString dataStr = ui->ctrl_dataEdit->toPlainText().replace(*commentRegExp, "");
-        QJsonArray dataArray = QJsonDocument::fromJson(dataStr.toUtf8()).array();
-        for(auto it = dataArray.begin(); it != dataArray.end(); ++it)
-        {
-            ControlItem* c = new ControlItem();
-            connect(c, &ControlItem::send, this, &CtrlTab::send);
-            connect(c, &ControlItem::destroyed, this, &CtrlTab::onCtrlItemDestroyed);
-            connect(this, &CtrlTab::newDataCodec, c, &ControlItem::setDataCodec);
-            c->setDataCodec(dataCodec);
-            p->insertWidget(ctrlItemCount++, c);
-            if(!c->load(it->toObject()))
-                c->deleteLater();
-        }
+        loadCtrlPanel(ui->ctrl_dataEdit->toPlainText());
         ui->ctrl_dataEdit->clear();
         ui->ctrl_itemArea->setVisible(true);
         ui->ctrl_dataEdit->setVisible(false);
@@ -130,14 +118,21 @@ void CtrlTab::on_ctrl_importButton_clicked()
 #else
     bool flag = true;
     QString fileName;
-    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
-    fileName = QFileDialog::getOpenFileName(this, tr("Import Control Panel"));
+    fileName = QFileDialog::getOpenFileName(this, tr("Import Control Panel"), QString(), tr("Config files") + " (*.json);;" + tr("All files") + " (*.*)");
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
     flag &= file.open(QFile::ReadOnly | QFile::Text);
-    QString dataStr = QString::fromUtf8(file.readAll());
+    loadCtrlPanel(QString::fromUtf8(file.readAll()));
     file.close();
+    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
+#endif
+}
+
+void CtrlTab::loadCtrlPanel(const QString& data)
+{
+    QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
+    QString dataStr = data;
     dataStr.replace(*commentRegExp, "");
     QJsonArray dataArray = QJsonDocument::fromJson(dataStr.toUtf8()).array();
     for(auto it = dataArray.begin(); it != dataArray.end(); ++it)
@@ -151,10 +146,7 @@ void CtrlTab::on_ctrl_importButton_clicked()
         if(!c->load(it->toObject()))
             c->deleteLater();
     }
-    QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
-#endif
 }
-
 
 void CtrlTab::on_ctrl_exportButton_clicked()
 {
@@ -210,7 +202,7 @@ void CtrlTab::on_ctrl_exportButton_clicked()
     bool flag = true;
     const QList<ControlItem*> list = ui->ctrl_itemContents->findChildren<ControlItem*>(QString(), Qt::FindDirectChildrenOnly);
     QString fileName;
-    fileName = QFileDialog::getSaveFileName(this, tr("Export Control Panel"), "ctrl_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".json");
+    fileName = QFileDialog::getSaveFileName(this, tr("Export Control Panel"), "ctrl_" + QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".json", tr("Config files") + " (*.json);;" + tr("All files") + " (*.*)");
     if(fileName.isEmpty())
         return;
     QFile file(fileName);
@@ -224,4 +216,25 @@ void CtrlTab::on_ctrl_exportButton_clicked()
     file.close();
     QMessageBox::information(this, tr("Info"), flag ? tr("Successed!") : tr("Failed!"));
 #endif
+}
+
+void CtrlTab::dragEnterEvent(QDragEnterEvent *event)
+{
+    QList<QUrl> urlList = event->mimeData()->urls();
+    if(urlList.size() == 1 && !Util::getValidLocalFilename(urlList).isEmpty())
+        event->acceptProposedAction();
+}
+
+void CtrlTab::dropEvent(QDropEvent *event)
+{
+    QString filename = Util::getValidLocalFilename(event->mimeData()->urls());
+    if(!filename.isEmpty())
+    {
+        if(filename.isEmpty())
+            return;
+        QFile file(filename);
+        file.open(QFile::ReadOnly | QFile::Text);
+        loadCtrlPanel(QString::fromUtf8(file.readAll()));
+        file.close();
+    }
 }

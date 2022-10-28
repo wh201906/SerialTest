@@ -14,6 +14,7 @@ public:
 #ifdef Q_OS_ANDROID
     static void showToast(const QString &message, bool isLong = false);
 #endif
+    static QString getValidLocalFilename(const QList<QUrl>& urlList);
 private:
     static const char unescapeTable[];
     static int unescapeHelper(QStringRef text, int &result, int baseBits);

@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QPlainTextEdit>
 #include <QLineEdit>
+#include <QFileInfo>
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
 #include <QAndroidJniEnvironment>
@@ -152,6 +153,16 @@ void Util::showToast(const QString& message, bool isLong)
     });
 }
 #endif
+
+QString Util::getValidLocalFilename(const QList<QUrl>& urlList)
+{
+    for(auto url : urlList)
+    {
+        if(url.isLocalFile() && QFileInfo(url.toLocalFile()).isFile())
+            return url.toLocalFile();
+    }
+    return QString();
+}
 
 // use TapAndHold gesture to show the context menu
 // call widget->grabGesture(Qt::TapAndHoldGesture) then use the event filter

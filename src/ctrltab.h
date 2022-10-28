@@ -20,6 +20,9 @@ public:
 
 public slots:
     void setDataCodec(QTextCodec *codec);
+protected:
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 private slots:
     void onCtrlItemDestroyed();
     void on_ctrl_clearButton_clicked();
@@ -32,6 +35,7 @@ private:
     int ctrlItemCount = 0;
     QTextCodec* dataCodec = nullptr;
     QRegularExpression* commentRegExp = nullptr;
+    void loadCtrlPanel(const QString& data);
 signals:
     void send(const QByteArray& data);
     void newDataCodec(QTextCodec *codec);
