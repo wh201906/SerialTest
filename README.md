@@ -1,5 +1,6 @@
 # SerialTest
-![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total)  
+[![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=GitHub%20release%20downloads)](https://github.com/wh201906/SerialTest/releases)  
+[![downloads](https://img.shields.io/sourceforge/dt/serialtest.svg?label=SourceForge%20downloads)](https://sourceforge.net/projects/serialtest/)  
 A versatile test tool running on Windows/Linux/Android.  
 Works as data transceiver/realtime plotter/shortcut/file transceiver.  
 Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP client/server, UDP.  
@@ -146,6 +147,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 + Check connection parameters and disconnect/reconnect on status bar
 + Customize font
 + Select language
++ Change theme(dark theme)
 
 </details>
 
@@ -168,7 +170,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 + Small screen support: Show sended/received data only
 + Small screen support: Full screen mode
 + Drag/Scale gesture support on Plotter
-+ Share a piece of text to SerialTest then send it
++ Share text/file to SerialTest then send it
 
 </details>
 
@@ -193,9 +195,15 @@ You can write programs on MCU according to the demos in the [demo/](https://gith
 [Demo README](demo/README.md)  
 
 ## Binaries for Windows and Android
-You can download pre-built binaries in [release](https://github.com/wh201906/SerialTest/releases/latest) page.  
+You can download pre-built binaries and Android APK in [release](https://github.com/wh201906/SerialTest/releases) page.  
 
-The Android app is available on [F-Droid](https://f-droid.org/packages/priv.wh201906.serialtest/) as well.
+You can also download them in SourceForge  
+[![Download SerialTest](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/serialtest/files/latest/download)  
+
+The Android app is available on [F-Droid](https://f-droid.org/packages/priv.wh201906.serialtest/) as well.  
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/priv.wh201906.serialtest/)  
 
 ## Build on Linux
 ### 1. Install depencencies

@@ -205,108 +205,119 @@
 <context>
     <name>CtrlTab</name>
     <message>
-        <location filename="../ui/ctrltab.ui" line="8"/>
         <source>Control</source>
-        <translation>控制</translation>
+        <translation type="vanished">控制</translation>
     </message>
     <message>
-        <location filename="../ui/ctrltab.ui" line="16"/>
+        <location filename="../ui/ctrltab.ui" line="22"/>
         <source>Add Command</source>
         <translation>添加命令</translation>
     </message>
     <message>
-        <location filename="../ui/ctrltab.ui" line="23"/>
+        <location filename="../ui/ctrltab.ui" line="29"/>
         <source>Add Slider</source>
         <translation>添加滑块</translation>
     </message>
     <message>
-        <location filename="../ui/ctrltab.ui" line="30"/>
+        <location filename="../ui/ctrltab.ui" line="36"/>
         <source>Add CheckBox</source>
         <translation>添加开关</translation>
     </message>
     <message>
-        <location filename="../ui/ctrltab.ui" line="37"/>
+        <location filename="../ui/ctrltab.ui" line="43"/>
         <source>Add Spinbox</source>
         <translation>添加数值框</translation>
     </message>
     <message>
-        <location filename="../ui/ctrltab.ui" line="57"/>
+        <location filename="../ui/ctrltab.ui" line="63"/>
         <source>Clear</source>
         <translation>清空</translation>
     </message>
     <message>
-        <location filename="../ui/ctrltab.ui" line="64"/>
-        <location filename="../ctrltab.cpp" line="86"/>
-        <location filename="../ctrltab.cpp" line="122"/>
+        <location filename="../ui/ctrltab.ui" line="70"/>
+        <location filename="../ctrltab.cpp" line="87"/>
+        <location filename="../ctrltab.cpp" line="110"/>
         <source>Import</source>
         <translation>导入</translation>
     </message>
     <message>
-        <location filename="../ui/ctrltab.ui" line="71"/>
-        <location filename="../ctrltab.cpp" line="162"/>
-        <location filename="../ctrltab.cpp" line="196"/>
+        <location filename="../ui/ctrltab.ui" line="77"/>
+        <location filename="../ctrltab.cpp" line="154"/>
+        <location filename="../ctrltab.cpp" line="188"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="89"/>
+        <location filename="../ctrltab.cpp" line="90"/>
         <source>Paste the exported data in the box.</source>
         <translation>将导出的数据粘贴到此框中。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="93"/>
-        <location filename="../ctrltab.cpp" line="182"/>
+        <location filename="../ctrltab.cpp" line="94"/>
+        <location filename="../ctrltab.cpp" line="174"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="134"/>
+        <location filename="../ctrltab.cpp" line="121"/>
         <source>Import Control Panel</source>
         <translation>导入控制面板</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="154"/>
-        <location filename="../ctrltab.cpp" line="166"/>
-        <location filename="../ctrltab.cpp" line="207"/>
-        <location filename="../ctrltab.cpp" line="225"/>
+        <location filename="../ctrltab.cpp" line="121"/>
+        <location filename="../ctrltab.cpp" line="205"/>
+        <source>Config files</source>
+        <translation>配置文件</translation>
+    </message>
+    <message>
+        <location filename="../ctrltab.cpp" line="121"/>
+        <location filename="../ctrltab.cpp" line="205"/>
+        <source>All files</source>
+        <translation>所有文件</translation>
+    </message>
+    <message>
+        <location filename="../ctrltab.cpp" line="128"/>
+        <location filename="../ctrltab.cpp" line="158"/>
+        <location filename="../ctrltab.cpp" line="199"/>
+        <location filename="../ctrltab.cpp" line="217"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="154"/>
-        <location filename="../ctrltab.cpp" line="225"/>
+        <location filename="../ctrltab.cpp" line="128"/>
+        <location filename="../ctrltab.cpp" line="217"/>
         <source>Successed!</source>
         <translation>成功！</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="154"/>
-        <location filename="../ctrltab.cpp" line="225"/>
+        <location filename="../ctrltab.cpp" line="128"/>
+        <location filename="../ctrltab.cpp" line="217"/>
         <source>Failed!</source>
         <translation>失败！</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="166"/>
-        <location filename="../ctrltab.cpp" line="207"/>
+        <location filename="../ctrltab.cpp" line="158"/>
+        <location filename="../ctrltab.cpp" line="199"/>
         <source>Please add item first</source>
         <translation>请先添加控制项</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="170"/>
+        <location filename="../ctrltab.cpp" line="162"/>
         <source>Copy all text in this box and save it to somewhere.</source>
         <translation>将此文本框中的内容复制并保存。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="171"/>
+        <location filename="../ctrltab.cpp" line="163"/>
         <source>To import, click the Import button, then paste the text back.</source>
         <translation>需要导入时，单击“导入”按钮，将复制的内容粘贴回来即可。</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="183"/>
+        <location filename="../ctrltab.cpp" line="175"/>
         <source>Copied to clipboard</source>
         <translation>已复制到剪贴板</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="213"/>
+        <location filename="../ctrltab.cpp" line="205"/>
         <source>Export Control Panel</source>
         <translation>导出控制面板</translation>
     </message>
@@ -1137,13 +1148,13 @@ you can change the remote address and port on the fly.</source>
     </message>
     <message>
         <location filename="../ui/filetab.ui" line="69"/>
-        <location filename="../filetab.cpp" line="234"/>
+        <location filename="../filetab.cpp" line="226"/>
         <source>Receive</source>
         <translation>接收</translation>
     </message>
     <message>
         <location filename="../ui/filetab.ui" line="92"/>
-        <location filename="../filetab.cpp" line="335"/>
+        <location filename="../filetab.cpp" line="327"/>
         <source>Start</source>
         <translation>启动</translation>
     </message>
@@ -1339,54 +1350,54 @@ In Receive mode, turn off &quot;Realtime&quot; in DataTab, and disable Plot.</so
 在接收模式下，请关闭“数据”面板中的“实时刷新”功能，并关闭绘图功能。</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="57"/>
+        <location filename="../filetab.cpp" line="58"/>
         <source>Raw</source>
         <translation>原始数据</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="149"/>
+        <location filename="../filetab.cpp" line="150"/>
         <source>Calculating...</source>
         <translation>计算中...</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="162"/>
+        <location filename="../filetab.cpp" line="163"/>
         <source>Failed to open file.</source>
         <translation>无法打开文件。</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="164"/>
+        <location filename="../filetab.cpp" line="165"/>
         <source>Failed to read file.</source>
         <translation>无法读取文件。</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="234"/>
+        <location filename="../filetab.cpp" line="226"/>
         <source>File already exists
 Continue?</source>
         <translation>文件已存在
 继续吗？</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="271"/>
+        <location filename="../filetab.cpp" line="263"/>
         <source>Stopped</source>
         <translation>已停止</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="309"/>
+        <location filename="../filetab.cpp" line="301"/>
         <source>Finished</source>
         <translation>已完成</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="321"/>
+        <location filename="../filetab.cpp" line="313"/>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="322"/>
+        <location filename="../filetab.cpp" line="314"/>
         <source>Started</source>
         <translation>已启动</translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="326"/>
+        <location filename="../filetab.cpp" line="318"/>
         <source>Failed to start.</source>
         <translation>启动失败。</translation>
     </message>
@@ -1868,8 +1879,9 @@ If no config file is detected, This app will create one in the current working d
     <message>
         <location filename="../ui/settingstab.ui" line="157"/>
         <location filename="../ui/settingstab.ui" line="204"/>
-        <location filename="../ui/settingstab.ui" line="345"/>
-        <location filename="../ui/settingstab.ui" line="379"/>
+        <location filename="../ui/settingstab.ui" line="339"/>
+        <location filename="../ui/settingstab.ui" line="373"/>
+        <location filename="../ui/settingstab.ui" line="407"/>
         <source>Set</source>
         <translation>设置</translation>
     </message>
@@ -1915,21 +1927,26 @@ If no config file is detected, This app will create one in the current working d
     </message>
     <message>
         <location filename="../ui/settingstab.ui" line="322"/>
+        <source>Theme *:</source>
+        <translation>主题 *：</translation>
+    </message>
+    <message>
+        <location filename="../ui/settingstab.ui" line="350"/>
         <source>Global Font:</source>
         <translation>全局字体：</translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="356"/>
+        <location filename="../ui/settingstab.ui" line="384"/>
         <source>Data Font:</source>
         <translation>数据字体：</translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="391"/>
+        <location filename="../ui/settingstab.ui" line="419"/>
         <source>Restart the app to make settings with &quot;*&quot; take effect.</source>
         <translation>带*的设置项将在程序重启后生效。</translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="400"/>
+        <location filename="../ui/settingstab.ui" line="428"/>
         <source>Latest Release:</source>
         <translation>检查更新：</translation>
     </message>
@@ -1954,14 +1971,29 @@ If no config file is detected, This app will create one in the current working d
         <translation>(外部文件)</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="72"/>
-        <location filename="../settingstab.cpp" line="257"/>
-        <location filename="../settingstab.cpp" line="277"/>
+        <location filename="../settingstab.cpp" line="38"/>
+        <source>(None)</source>
+        <translation>(无)</translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="39"/>
+        <source>Dark</source>
+        <translation>暗黑</translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="40"/>
+        <source>Light</source>
+        <translation>明亮</translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="76"/>
+        <location filename="../settingstab.cpp" line="261"/>
+        <location filename="../settingstab.cpp" line="281"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="72"/>
+        <location filename="../settingstab.cpp" line="76"/>
         <source>All configurations and history will be deleted!
 And this app will be closed!
 Continue?</source>
@@ -1970,90 +2002,90 @@ Continue?</source>
 继续吗？</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="114"/>
-        <location filename="../settingstab.cpp" line="119"/>
-        <location filename="../settingstab.cpp" line="136"/>
+        <location filename="../settingstab.cpp" line="116"/>
+        <location filename="../settingstab.cpp" line="121"/>
+        <location filename="../settingstab.cpp" line="138"/>
         <source>Create</source>
         <translation>创建</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="114"/>
+        <location filename="../settingstab.cpp" line="116"/>
         <source>The file already exists at</source>
         <translation>文件已存在，位于</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="119"/>
+        <location filename="../settingstab.cpp" line="121"/>
         <source>Cannot create file there.</source>
         <translation>无法在此处创建文件。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="126"/>
+        <location filename="../settingstab.cpp" line="128"/>
         <source>Read</source>
         <translation>读取</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="126"/>
+        <location filename="../settingstab.cpp" line="128"/>
         <source>Cannot read config.</source>
         <translation>无法读取配置。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="136"/>
+        <location filename="../settingstab.cpp" line="138"/>
         <source>Created at</source>
         <translation>已创建于</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="257"/>
+        <location filename="../settingstab.cpp" line="261"/>
         <source>All history will be deleted!
 Continue?</source>
         <translation>所有的历史记录都会被删除！
 继续吗？</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="277"/>
+        <location filename="../settingstab.cpp" line="281"/>
         <source>This app will be closed after import!
 Continue?</source>
         <translation>导入成功后程序会自动关闭！
 继续吗？</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="281"/>
+        <location filename="../settingstab.cpp" line="285"/>
         <source>Import config from file</source>
         <translation>从文件导入配置</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="281"/>
-        <location filename="../settingstab.cpp" line="303"/>
+        <location filename="../settingstab.cpp" line="285"/>
+        <location filename="../settingstab.cpp" line="307"/>
         <source>Config files</source>
         <translation>配置文件</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="281"/>
-        <location filename="../settingstab.cpp" line="303"/>
+        <location filename="../settingstab.cpp" line="285"/>
+        <location filename="../settingstab.cpp" line="307"/>
         <source>All files</source>
         <translation>所有文件</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="289"/>
+        <location filename="../settingstab.cpp" line="293"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="289"/>
+        <location filename="../settingstab.cpp" line="293"/>
         <source>Unsupported file format.</source>
         <translation>文件格式不支持。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="297"/>
+        <location filename="../settingstab.cpp" line="301"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="297"/>
+        <location filename="../settingstab.cpp" line="301"/>
         <source>Imported.</source>
         <translation>已导入。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="303"/>
+        <location filename="../settingstab.cpp" line="307"/>
         <source>Export config to file</source>
         <translation>导出配置到文件</translation>
     </message>
