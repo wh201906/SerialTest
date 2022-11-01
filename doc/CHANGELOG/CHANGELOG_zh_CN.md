@@ -3,7 +3,6 @@
 [English](../../CHANGELOG.md)  
 
 ## V0.2.2
-+ Android: 支持分享文件到SerialTest并发送(需使用Qt 5.15.7或更高版本编译)  
 + 添加暗黑主题(源于https://github.com/ColinDuquesnoy/QDarkStyleSheet)  
 + 绘图面板支持单向缩放  
 + 添加常用控制命令(位于demo/Control/文件夹下)  

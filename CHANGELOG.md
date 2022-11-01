@@ -3,7 +3,6 @@
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
 ## V0.2.2
-+ Android: Supports share a file to SerialTest then send it(built with Qt 5.15.7 or higher version)  
 + Add dark theme(from https://github.com/ColinDuquesnoy/QDarkStyleSheet)  
 + Add single orientation pinch gesture on plotter  
 + Add some useful snippets for control panel(in `demo/Control/`)  

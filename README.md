@@ -170,7 +170,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 + Small screen support: Show sended/received data only
 + Small screen support: Full screen mode
 + Drag/Scale gesture support on Plotter
-+ Share text/file to SerialTest then send it
++ Share text to SerialTest then send it
 
 </details>
 
