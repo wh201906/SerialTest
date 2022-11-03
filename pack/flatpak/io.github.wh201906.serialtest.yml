@@ -1,0 +1,42 @@
+app-id: io.github.wh201906.serialtest
+runtime: org.kde.Platform
+runtime-version: '5.15-22.08'
+sdk: org.kde.Sdk
+command: SerialTest
+finish-args:
+  - --allow=bluetooth
+  - --system-talk-name=org.bluez
+  - --share=network
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+modules:
+  - name: qcustomplot
+    buildsystem: qmake
+    cleanup:
+      - /include
+    config-opts:
+      - LIBDIR=/app/lib
+    sources:
+      - type: archive
+        url: 'https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz'
+        sha256: 357b78be0f52b2d01c17ec3e2e1271255761810af7e8a9476cef51fccf1a0f44
+      - type: file
+        path: patches/qcustomplot.pro
+  - name: serialtest
+    buildsystem: qmake
+    subdir: src
+    sources:
+      - type: archive
+        url: https://github.com/wh201906/SerialTest/archive/refs/tags/V0.2.2.tar.gz
+        sha256: 555e3c805b895888bf40e2bf2e8644ac3eeca5d0896001d43035b639fb34d464
+        tag: V0.2.2
+        x-checker-data:
+          type: html
+          url: https://github.com/wh201906/SerialTest/releases/latest
+          version-pattern: href="/wh201906/SerialTest/archive/refs/tags/V([\d.]+).tar.gz"
+          url-template: https://github.com/wh201906/SerialTest/archive/refs/tags/V$version.tar.gz
+
+      - type: patch
+        path: patches/serialtest.pro.patch

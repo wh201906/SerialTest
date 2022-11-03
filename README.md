@@ -7,9 +7,20 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 
 [中文介绍](doc/README/README_zh_CN.md)  
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
-     alt="Get it on F-Droid"
-     height="80">](https://f-droid.org/packages/priv.wh201906.serialtest/)  
+<p float="left">
+  <a href="https://f-droid.org/packages/priv.wh201906.serialtest/">
+    <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+         alt="Get it on F-Droid"
+         width="180"
+    >
+  </a>
+<a href="#Build-and-install-a-Flatpak-package-from-sources">
+  <img src="https://flathub.org/assets/badges/flathub-badge-en.png"
+        alt="Download on Flathub"
+        width="180"
+  >
+</a>
+</p>
 
 ## Features
 <details>
@@ -206,12 +217,27 @@ The Android app is available on [F-Droid](https://f-droid.org/packages/priv.wh20
      height="80">](https://f-droid.org/packages/priv.wh201906.serialtest/)  
 
 ## Build on Linux
-### 1. Install depencencies
+
+### Build and install a Flatpak package from sources
+
+To build and install the last release, run the following in the source tree root:
+````bash
+    flatpak-builder --install --user build-dir pack/flatpak/io.github.wh201906.serialtest.yml
+````
+
+To start the application run:
+````bash
+    flatpak run io.github.wh201906.serialtest
+````
+
+
+### Without packaging
+#### 1. Install depencencies
 ```
 sudo apt-get update
 sudo apt-get install qt5-default libqt5serialport5 libqt5serialport5-dev qtconnectivity5-dev 
 ```
-### 2. Get the source code
+#### 2. Get the source code
 ```
 cd ~
 git clone https://github.com/wh201906/SerialTest.git --depth=1
@@ -219,12 +245,12 @@ cd SerialTest
 mkdir build && cd build
 ```
 
-### 3. Choose how to import QCustomplot 
-#### Use QCustomPlot source file（recommended）  
+#### 3. Choose how to import QCustomplot 
+##### Use QCustomPlot source file（recommended）  
 You need to [download](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz) QCustomPlot archive, extract the qcustomplot.cpp and qcustomplot.h in the /src folder(replace the existing qcustomplot.h), then build.  
-#### Use QCustomPlot library  
+##### Use QCustomPlot library  
 If the qcustomplot.cpp doesn't exist in the src/ folder, the qmake will try to find the library file(xxx.so/xxx.dll) in the building directory(where you call the qmake command) and the default library directory.  
-### 4. Build and run
+#### 4. Build and run
 ```
 qmake ../src
 make -j4 && make clean
