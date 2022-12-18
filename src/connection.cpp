@@ -1323,3 +1323,50 @@ bool Connection::NetworkArgument::operator==(const NetworkArgument &other) const
            && remoteName == other.remoteName
            && remotePort == other.remotePort;
 }
+
+QDebug operator<<(QDebug dbg, const Connection::SerialPortArgument& arg)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace() << "("
+                  << arg.name << ","
+                  << arg.baudRate << ",";
+    if(arg.dataBits > 0 && arg.parity == QSerialPort::NoParity && arg.stopBits == QSerialPort::OneStop)
+        dbg.nospace() << (int)arg.dataBits << "N1,";
+    else
+    {
+        dbg.nospace()
+                << arg.dataBits << ","
+                << arg.stopBits << ","
+                << arg.parity << ",";
+    }
+    dbg.nospace()
+            << arg.flowControl << ","
+            << arg.id << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const Connection::BTArgument& arg)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace() << "("
+                  << arg.deviceAddress << ","
+                  << arg.serverServiceName << ","
+                  << arg.localAdapterAddress << ","
+                  << arg.RxServiceUUID << ","
+                  << arg.RxCharacteristicUUID << ","
+                  << arg.TxServiceUUID << ","
+                  << arg.TxCharacteristicUUID << ")";
+    return dbg;
+}
+
+QDebug operator<<(QDebug dbg, const Connection::NetworkArgument& arg)
+{
+    QDebugStateSaver saver(dbg);
+    dbg.nospace() << "("
+                  << arg.localAddress  << ","
+                  << arg.remoteName << ","
+                  << arg.remotePort  << ","
+                  << arg.localPort  << ","
+                  << arg.alias << ")";
+    return dbg;
+}

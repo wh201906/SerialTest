@@ -13,6 +13,7 @@
 #include <QTcpServer>
 #include <QUdpSocket>
 #include <QDataStream>
+#include <QDebug>
 
 class Connection : public QObject
 {
@@ -236,6 +237,8 @@ private slots:
 };
 
 Q_DECLARE_METATYPE(Connection::SerialPortArgument)
-
+QDebug operator<<(QDebug dbg, const Connection::SerialPortArgument& arg);
+QDebug operator<<(QDebug dbg, const Connection::BTArgument& arg);
+QDebug operator<<(QDebug dbg, const Connection::NetworkArgument& arg);
 
 #endif // CONNECTION_H
