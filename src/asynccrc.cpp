@@ -34,7 +34,7 @@ AsyncCRC &AsyncCRC::operator=(const AsyncCRC &obj)
 void AsyncCRC::loadFile(const QString &path)
 {
     // call reset() outside for new file
-    bool notifyState = m_notify;
+    bool notifyState = m_notify; // stash m_notify
     m_notify = false;
     qint64 threshold = 1024 * 1024 * 128;
 
@@ -42,6 +42,7 @@ void AsyncCRC::loadFile(const QString &path)
     if(!file.open(QFile::ReadOnly))
     {
         emit fileError(OpenFileError);
+        m_notify = notifyState; // restore m_nofify
         return;
     }
     threshold = file.size() < threshold ? file.size() : threshold;
@@ -55,9 +56,9 @@ void AsyncCRC::loadFile(const QString &path)
         else
             addData(dataBuf, size);
     }
+    m_notify = notifyState; // restore m_nofify
     if(size == 0)
     {
-        m_notify = notifyState;
         if(m_notify)
             emit result(m_crc);
     }
