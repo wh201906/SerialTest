@@ -79,7 +79,7 @@ private:
     qsizetype updateNetInterfaceList();
     QBluetoothUuid String2UUID(const QString &string);
     QString UUID2String(const QBluetoothUuid &UUID);
-    void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument());
+    void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument(), bool loadPortName = true);
     void loadNetPreference(const Connection::NetworkArgument &arg, Connection::Type type);
     void showNetArgumentHistory(const QList<Connection::NetworkArgument> &arg, Connection::Type type);
 signals:

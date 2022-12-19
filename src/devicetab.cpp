@@ -716,8 +716,9 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
         else if(m_SPArgHistoryIndex.contains(portName))
             historyIndex = m_SPArgHistoryIndex[portName];
 
+        // don't override portName
         if(historyIndex != -1)
-            loadSPPreference(m_SPArgHistory[historyIndex]);
+            loadSPPreference(m_SPArgHistory[historyIndex], false);
     }
     else if(currType == Connection::BT_Client)
     {
@@ -856,9 +857,10 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
     settings->endArray();
 }
 
-void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg)
+void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg, bool loadPortName)
 {
-    ui->SP_portNameBox->setCurrentText(arg.name);
+    if(loadPortName)
+        ui->SP_portNameBox->setCurrentText(arg.name);
     ui->SP_baudRateBox->setEditText(QString::number(arg.baudRate));
     ui->SP_dataBitsBox->setCurrentIndex(ui->SP_dataBitsBox->findData(arg.dataBits));
     ui->SP_stopBitsBox->setCurrentIndex(ui->SP_stopBitsBox->findData(arg.stopBits));
