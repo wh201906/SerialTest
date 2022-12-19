@@ -808,17 +808,24 @@ void DeviceTab::syncUDPPreference()
 void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
 {
     int removeNum = 0;
+
     // remove existing one
     if(m_SPArgHistoryIndex.contains(arg.id))
     {
+        int removedId;
         m_SPArgHistory.removeAt(m_SPArgHistoryIndex[arg.id]);
-        m_SPArgHistoryIndex.remove(arg.id);
-        removeNum = +1;
+        removedId = m_SPArgHistoryIndex.take(arg.id);
+        // update index
+        for(auto it = m_SPArgHistoryIndex.begin(); it != m_SPArgHistoryIndex.end(); ++it)
+        {
+            if(it.value() > removedId)
+                it.value()--;
+        }
     }
 
-    // add one
+    // add arg as latest
     m_SPArgHistory.append(arg);
-    m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.length() - 1 + removeNum;
+    m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.length() - 1;
 
     // remove oldest to fit the size limit
     removeNum = (m_SPArgHistory.length() > m_maxHistoryNum) ? (m_SPArgHistory.length() - m_maxHistoryNum) : 0;
@@ -838,6 +845,8 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
             }
         }
     }
+
+    // save
     settings->beginWriteArray(m_historyPrefix["SP"], m_SPArgHistory.length());
     for(int i = 0; i < m_SPArgHistory.length(); i++)
     {
