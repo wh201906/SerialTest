@@ -164,9 +164,14 @@ void DeviceTab::refreshTargetList()
             ui->SP_portList->setItem(i, 3, new QTableWidgetItem(ports[i].serialNumber()));
             ui->SP_portList->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
             ui->SP_portList->setItem(i, 5, new QTableWidgetItem(ports[i].systemLocation()));
-            ui->SP_portList->setItem(i, 6, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
-            ui->SP_portList->setItem(i, 7, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
-
+            quint16 id = ports[i].vendorIdentifier();
+            QTableWidgetItem* idItem = new QTableWidgetItem(QString("%1(%2)").arg(id).arg(id, 4, 16, QLatin1Char('0')));
+            idItem->setData(Qt::UserRole, id);
+            ui->SP_portList->setItem(i, 6, idItem);
+            id = ports[i].productIdentifier();
+            idItem = new QTableWidgetItem(QString("%1(%2)").arg(id).arg(id, 4, 16, QLatin1Char('0')));
+            idItem->setData(Qt::UserRole, id);
+            ui->SP_portList->setItem(i, 7, idItem);
             QList<qint32> baudRateList = ports[i].standardBaudRates();
             QString baudRates = "";
             for(int j = 0; j < baudRates.size(); j++)
@@ -704,9 +709,9 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
         ui->SP_portNameBox->setCurrentIndex(row);
 
         // search preference by <vendorID>-<productID>
-        QString id = ui->SP_portList->item(row, 6)->text();  // vendor id
+        QString id = QString::number(ui->SP_portList->item(row, 6)->data(Qt::UserRole).toUInt());  // vendor id
         id += "-";
-        id += ui->SP_portList->item(row, 7)->text(); // product id
+        id += QString::number(ui->SP_portList->item(row, 7)->data(Qt::UserRole).toUInt()); // product id
         // search preference by DeviceName
         QString portName = ui->SP_portList->item(row, 0)->text();
 
