@@ -340,21 +340,24 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
 
     ui->typeBox->blockSignals(true);
     ui->typeBox->clear();
-    for(auto it : Connection::getTypeNameMap().keys())
+    for(auto it = Connection::getTypeNameMap().cbegin(); it != Connection::getTypeNameMap().cend(); ++it)
     {
-        if(invalid.contains(it))
+        const auto& type = it.key();
+        // Connection::getTypeName() will return the translated QString
+
+        if(invalid.contains(type))
         {
-            ui->typeBox->addItem("!" + Connection::getTypeName(it), it);
-            Util::disableItem(model, it);
+            ui->typeBox->addItem("!" + Connection::getTypeName(type), type);
+            Util::disableItem(model, type);
         }
         else
         {
-            ui->typeBox->addItem(Connection::getTypeName(it), it);
+            ui->typeBox->addItem(Connection::getTypeName(type), type);
             if(firstValid < 0 && useFirstValid)
             {
-                ui->typeBox->setCurrentIndex(it);
-                on_typeBox_currentIndexChanged(it); // this signal is blocked now
-                firstValid = it;
+                ui->typeBox->setCurrentIndex(type);
+                on_typeBox_currentIndexChanged(type); // this signal is blocked now
+                firstValid = type;
             }
         }
     }

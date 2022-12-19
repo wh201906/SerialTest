@@ -85,7 +85,7 @@ public:
     void setPollingInterval(int msec);
     int pollingInterval();
     static QString getTypeName(Type type);
-    static QMap<Connection::Type, QLatin1String> getTypeNameMap();
+    static const QMap<Connection::Type, QLatin1String>& getTypeNameMap();
 
     // connection
     SerialPortArgument getSerialPortArgument();
@@ -133,9 +133,9 @@ public slots:
     void setPolling(bool enabled);
 
     // connection
-    void setArgument(SerialPortArgument arg);
-    void setArgument(BTArgument arg);
-    void setArgument(NetworkArgument arg);
+    void setArgument(Connection::SerialPortArgument arg);
+    void setArgument(Connection::BTArgument arg);
+    void setArgument(Connection::NetworkArgument arg);
     void open(); // async
     bool reopen(); // async, return false if no argument is stored in the previous connection
     void close(bool forced = false); // async
@@ -210,7 +210,7 @@ signals:
     void connectFailed(const QString& info);
     void errorOccurred();
     // the slot can accept newState only
-    void stateChanged(State newState, State oldState);
+    void stateChanged(Connection::State newState, Connection::State oldState);
     void SP_signalsChanged(QSerialPort::PinoutSignals signal);
     // for BT_Server
     void BT_clientConnected();

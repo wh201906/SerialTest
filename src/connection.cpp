@@ -77,7 +77,7 @@ QString Connection::getTypeName(Type type)
     return tr(m_typeNameMap[type].data());
 }
 
-QMap<Connection::Type, QLatin1String> Connection::getTypeNameMap()
+const QMap<Connection::Type, QLatin1String>& Connection::getTypeNameMap()
 {
     return m_typeNameMap;
 }

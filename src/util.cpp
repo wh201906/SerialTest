@@ -156,7 +156,7 @@ void Util::showToast(const QString& message, bool isLong)
 
 QString Util::getValidLocalFilename(const QList<QUrl>& urlList)
 {
-    for(auto url : urlList)
+    for(const auto& url : urlList)
     {
         if(url.isLocalFile() && QFileInfo(url.toLocalFile()).isFile())
             return url.toLocalFile();
