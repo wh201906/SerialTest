@@ -101,7 +101,8 @@ bool DataTab::eventFilter(QObject *watched, QEvent *event)
 void DataTab::showEvent(QShowEvent *ev)
 {
     Q_UNUSED(ev)
-    // ui->dataTabSplitter->sizes() will return 0 if the widgets are invisible
+    // ui->dataTabSplitter->sizes() will return all 0 if the widgets are invisible
+    // the widgets are visible after this event happens
     settings->beginGroup("SerialTest_Data");
     QList<int> newSizes = ui->dataTabSplitter->sizes();
     double ratio = settings->value("SplitRatio", 0.5).toDouble();

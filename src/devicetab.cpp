@@ -162,7 +162,7 @@ void DeviceTab::refreshTargetList()
             ui->SP_portList->setItem(i, 1, new QTableWidgetItem(ports[i].description()));
             ui->SP_portList->setItem(i, 2, new QTableWidgetItem(ports[i].manufacturer()));
             ui->SP_portList->setItem(i, 3, new QTableWidgetItem(ports[i].serialNumber()));
-            ui->SP_portList->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
+            ui->SP_portList->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? tr("Yes") : tr("No")));
             ui->SP_portList->setItem(i, 5, new QTableWidgetItem(ports[i].systemLocation()));
             quint16 id = ports[i].vendorIdentifier();
             QTableWidgetItem* idItem = new QTableWidgetItem(QString("%1(%2)").arg(id).arg(id, 4, 16, QLatin1Char('0')));
@@ -544,6 +544,22 @@ bool DeviceTab::eventFilter(QObject *watched, QEvent *event)
             settings->beginGroup("SerialTest_Connect");
             settings->setValue("BLEC_SplitRatio", ratio);
             settings->endGroup();
+        }
+        else if(event->type() == QEvent::Show && !m_isBLECLoaded)
+        {
+            // ui->BLECentralListSplitter->sizes() will return all 0 if the widgets are invisible
+            // the widgets are visible after this event happens
+            settings->beginGroup("SerialTest_Connect");
+            QList<int> newSizes = ui->BLECentralListSplitter->sizes();
+            double ratio = settings->value("BLEC_SplitRatio", 0.5).toDouble();
+            settings->endGroup();
+
+            newSizes[1] += newSizes[0];
+            newSizes[0] = newSizes[1] * ratio;
+            newSizes[1] -= newSizes[0];
+
+            ui->BLECentralListSplitter->setSizes(newSizes);
+            m_isBLECLoaded = true;
         }
     }
     return false;

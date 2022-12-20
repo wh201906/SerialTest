@@ -80,6 +80,8 @@ private:
     QMap<QString, int> m_BLECArgHistoryIndex;
     QList<Connection::NetworkArgument> m_TCPClientHistory, m_UDPHistory;
 
+    bool m_isBLECLoaded = false;
+
     void initUI();
 #ifdef Q_OS_ANDROID
     void getBondedTarget(bool isBLE);
