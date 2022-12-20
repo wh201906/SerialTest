@@ -1014,6 +1014,8 @@ bool Connection::SP_setBaudRate(qint32 baudRate)
     if(!m_serialPort->setBaudRate(baudRate))
         return false;
     m_currSPArgument.baudRate = baudRate;
+    if(isConnected() && m_lastSPArgumentValid)
+        m_lastSPArgument.baudRate = baudRate;
     return true;
 }
 
@@ -1029,6 +1031,8 @@ bool Connection::SP_setDataBits(QSerialPort::DataBits dataBits)
     if(!m_serialPort->setDataBits(dataBits))
         return false;
     m_currSPArgument.dataBits = dataBits;
+    if(isConnected() && m_lastSPArgumentValid)
+        m_lastSPArgument.dataBits = dataBits;
     return true;
 }
 
@@ -1039,6 +1043,8 @@ bool Connection::SP_setStopBits(QSerialPort::StopBits stopBits)
     if(!m_serialPort->setStopBits(stopBits))
         return false;
     m_currSPArgument.stopBits = stopBits;
+    if(isConnected() && m_lastSPArgumentValid)
+        m_lastSPArgument.stopBits = stopBits;
     return true;
 }
 
@@ -1049,6 +1055,8 @@ bool Connection::SP_setParity(QSerialPort::Parity parity)
     if(!m_serialPort->setParity(parity))
         return false;
     m_currSPArgument.parity = parity;
+    if(isConnected() && m_lastSPArgumentValid)
+        m_lastSPArgument.parity = parity;
     return true;
 }
 
@@ -1059,6 +1067,8 @@ bool Connection::SP_setFlowControl(QSerialPort::FlowControl flowControl)
     if(!m_serialPort->setFlowControl(flowControl))
         return false;
     m_currSPArgument.flowControl = flowControl;
+    if(isConnected() && m_lastSPArgumentValid)
+        m_lastSPArgument.flowControl = flowControl;
     return true;
 }
 
