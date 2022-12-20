@@ -14,7 +14,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
          width="180"
     >
   </a>
-<a href="#Build-and-install-a-Flatpak-package-from-sources">
+<a href="https://flathub.org/apps/details/io.github.wh201906.serialtest">
   <img src="https://flathub.org/assets/badges/flathub-badge-en.png"
         alt="Download on Flathub"
         width="180"
