@@ -8,11 +8,51 @@
   <metadata_license>MIT</metadata_license>
   <project_license>LGPL-3.0-only</project_license>
 
+  <content_rating type="oars-1.1" />
+
   <description>
     <p>
       A cross-platform serial port test tool.
     </p>
   </description>
 
+  <url type="homepage">https://github.com/wh201906/SerialTest</url>
+  <url type="bugtracker">https://github.com/wh201906/SerialTest/issues</url>
+
   <launchable type="desktop-id">io.github.wh201906.serialtest.desktop</launchable>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/port.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/data.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/plot.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/ctrl.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/tcp_client.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/tcp_server.png</image>
+    </screenshot>
+  </screenshots>
+
+  <releases>
+   <release version="0.2.2" date="2022-10-28">
+     <description>
+       <p>Highlights:</p>
+         <ul>
+           <li>Add dark theme</li>
+           <li>Add single orientation pinch gesture on plotter</li>
+           <li>Add some useful snippets for control panel</li>
+           <li>Support dragging config file to control panel</li>
+         </ul>
+     </description>
+   </release>
+  </releases>
 </component>
