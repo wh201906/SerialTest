@@ -931,6 +931,14 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
 
 void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg, bool loadPortName)
 {
+    // on_SP_XXBox_currentIndexChanged() is used to update serial port argument on the fly
+    // prevent triggering them when setting arguments programmatically
+    ui->SP_baudRateBox->blockSignals(true);
+    ui->SP_dataBitsBox->blockSignals(true);
+    ui->SP_stopBitsBox->blockSignals(true);
+    ui->SP_parityBox->blockSignals(true);
+    ui->SP_flowControlBox->blockSignals(true);
+
     if(loadPortName)
         ui->SP_portNameBox->setCurrentText(arg.name);
     ui->SP_baudRateBox->setEditText(QString::number(arg.baudRate));
@@ -938,6 +946,12 @@ void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg, bool
     ui->SP_stopBitsBox->setCurrentIndex(ui->SP_stopBitsBox->findData(arg.stopBits));
     ui->SP_parityBox->setCurrentIndex(ui->SP_parityBox->findData(arg.parity));
     ui->SP_flowControlBox->setCurrentIndex(ui->SP_flowControlBox->findData(arg.flowControl));
+
+    ui->SP_baudRateBox->blockSignals(false);
+    ui->SP_dataBitsBox->blockSignals(false);
+    ui->SP_stopBitsBox->blockSignals(false);
+    ui->SP_parityBox->blockSignals(false);
+    ui->SP_flowControlBox->blockSignals(false);
 }
 
 void DeviceTab::loadNetPreference(const Connection::NetworkArgument& arg, Connection::Type type)
