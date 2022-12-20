@@ -48,7 +48,7 @@ public:
         QSerialPort::StopBits stopBits = QSerialPort::OneStop;
         QSerialPort::Parity parity = QSerialPort::NoParity;
         QSerialPort::FlowControl flowControl = QSerialPort::NoFlowControl;
-        QString id; // <name> or <vendorID>-<productID>
+        QString id; // <name> or <VID>-<PID>[-<serialNumber>]
     };
 
     struct BTArgument

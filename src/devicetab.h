@@ -22,6 +22,20 @@ class DeviceTab : public QWidget
 
 public:
 
+    struct SP_ID
+    {
+        // identify a serial port device
+        quint16 m_vid = 0, m_pid = 0;
+        QString m_serialNumber;
+
+        SP_ID(quint16 vid, quint16 pid, const QString& serialNumber) :
+            m_vid(vid), m_pid(pid), m_serialNumber(serialNumber) {}
+        SP_ID(const QSerialPortInfo &info) :
+            SP_ID(info.vendorIdentifier(), info.productIdentifier(), info.serialNumber()) {}
+        SP_ID(const QString& str);
+        QString toString();
+        quint8 matches(const SP_ID& id);
+    };
     static const QMap<QString, QString> m_historyPrefix;
 
     explicit DeviceTab(QWidget *parent = nullptr);
@@ -82,6 +96,9 @@ private:
     void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument(), bool loadPortName = true);
     void loadNetPreference(const Connection::NetworkArgument &arg, Connection::Type type);
     void showNetArgumentHistory(const QList<Connection::NetworkArgument> &arg, Connection::Type type);
+    QString SP_getPortID(int rowInList);
+    bool SP_hasDuplicateID(const QString &id);
+    int SP_getMatchedHistoryIndex(const QString &portName, const QString &uid);
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();

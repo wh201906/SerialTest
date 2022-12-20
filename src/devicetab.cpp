@@ -566,10 +566,8 @@ void DeviceTab::on_openButton_clicked()
         arg.stopBits = (QSerialPort::StopBits)ui->SP_stopBitsBox->currentData().toInt();
         arg.parity = (QSerialPort::Parity)ui->SP_parityBox->currentData().toInt();
         arg.flowControl = (QSerialPort::FlowControl)ui->SP_flowControlBox->currentData().toInt();
-        QSerialPortInfo info(arg.name);
-        if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
-            arg.id = QString::number(info.vendorIdentifier()) + "-" + QString::number(info.productIdentifier());
-        else
+        arg.id = SP_ID(QSerialPortInfo(arg.name)).toString();
+        if(arg.id.isEmpty())
             arg.id = arg.name;
         m_connection->setArgument(arg);
         m_connection->open();
@@ -700,6 +698,62 @@ void DeviceTab::on_closeButton_clicked()
     m_connection->close();
 }
 
+QString DeviceTab::SP_getPortID(int rowInList)
+{
+    quint16 vid = ui->SP_portList->item(rowInList, 6)->data(Qt::UserRole).toUInt();
+    quint16 pid = ui->SP_portList->item(rowInList, 7)->data(Qt::UserRole).toUInt();
+    //  ui->SP_portList->item(rowInList, 3) holds the serialNumber
+    return SP_ID(vid, pid, ui->SP_portList->item(rowInList, 3)->text()).toString();
+}
+
+bool DeviceTab::SP_hasDuplicateID(const QString& id)
+{
+    for(int i = 0; i < ui->SP_portList->rowCount(); i++)
+    {
+        if(id == SP_getPortID(i))
+            return true;
+    }
+    return false;
+}
+
+int DeviceTab::SP_getMatchedHistoryIndex(const QString& portName, const QString& uid)
+{
+//    if(!SP_hasDuplicateID(uid)) // the original logic
+//        if(m_SPArgHistoryIndex.contains(uid))
+//            m_SPArgHistoryIndex[uid];
+//        else if(m_SPArgHistoryIndex.contains(portName))
+//            m_SPArgHistoryIndex[portName];
+//        else if(x in m_SPArgHistoryIndex and uid matches x)
+//            m_SPArgHistoryIndex[uid];
+//    else
+//    # in this case, more than one item in SP_portList has the same uid
+//    # which means uid is not a unique identifier anymore.
+//        if(m_SPArgHistoryIndex.contains(portName))
+//            m_SPArgHistoryIndex[portName];
+//        else if(x in m_SPArgHistoryIndex and uid matches x)
+//            m_SPArgHistoryIndex[uid];
+//
+//
+    int index = -1;
+    if(m_SPArgHistoryIndex.contains(uid) && !SP_hasDuplicateID(uid))
+        index = m_SPArgHistoryIndex[uid];
+    else if(m_SPArgHistoryIndex.contains(portName))
+        index = m_SPArgHistoryIndex[portName];
+    else
+    {
+        SP_ID currUid(uid);
+        for(auto it = m_SPArgHistoryIndex.cbegin(); it != m_SPArgHistoryIndex.cend(); ++it)
+        {
+            if(currUid.matches(it.key()))
+            {
+                index = it.value();
+                break;
+            }
+        }
+    }
+    return index;
+}
+
 void DeviceTab::onTargetListCellClicked(int row, int column)
 {
     Q_UNUSED(column)
@@ -711,18 +765,7 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
         // for default config
         ui->SP_portNameBox->setCurrentIndex(row);
 
-        // search preference by <vendorID>-<productID>
-        QString id = QString::number(ui->SP_portList->item(row, 6)->data(Qt::UserRole).toUInt());  // vendor id
-        id += "-";
-        id += QString::number(ui->SP_portList->item(row, 7)->data(Qt::UserRole).toUInt()); // product id
-        // search preference by DeviceName
-        QString portName = ui->SP_portList->item(row, 0)->text();
-
-        int historyIndex = -1;
-        if(m_SPArgHistoryIndex.contains(id))
-            historyIndex = m_SPArgHistoryIndex[id];
-        else if(m_SPArgHistoryIndex.contains(portName))
-            historyIndex = m_SPArgHistoryIndex[portName];
+        int historyIndex = SP_getMatchedHistoryIndex(ui->SP_portList->item(row, 0)->text(), SP_getPortID(row));
 
         // don't override portName
         if(historyIndex != -1)
@@ -819,6 +862,11 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
     int removeNum = 0;
 
     // remove existing one
+    // arg.id can be portName or <VID>-<PID>[-<serialNumber>]
+    //
+    // TODO:
+    // restore the mapping from arg.id to arg
+    // (the mapping is changed in onTargetListCellClicked())
     if(m_SPArgHistoryIndex.contains(arg.id))
     {
         int removedId;
@@ -1495,4 +1543,41 @@ QString DeviceTab::UUID2String(const QBluetoothUuid& UUID)
         return result;
     else
         return UUID.toString();
+}
+
+DeviceTab::SP_ID::SP_ID(const QString &str)
+{
+    bool isOk = false;
+    m_vid = str.section('-', 0, 0).toUInt(&isOk);
+    if(!isOk)
+        return;
+    m_pid = str.section('-', 1, 1).toUInt(&isOk);
+    if(!isOk)
+    {
+        m_vid = 0; // invalid
+        return;
+    }
+    m_serialNumber = str.section('-', 2);
+}
+
+QString DeviceTab::SP_ID::toString()
+{
+    // if hasXXIdentifier==false, xxID==0
+    // even if hasVendorIdentifier==true && VID==0, the VID is invalid in real world
+    if(m_vid == 0 && m_pid == 0 && m_serialNumber.isEmpty())
+        return QString();
+    QString id = QString::number(m_vid) + "-" + QString::number(m_pid);
+    if(!m_serialNumber.isEmpty())
+        id += "-" + m_serialNumber;
+    return id;
+}
+
+quint8 DeviceTab::SP_ID::matches(const SP_ID &id)
+{
+    // (bool)(a.matches(b)) means a can use b's arguments
+    // 0: unmatch 1: match 2: the same
+    if(this->m_vid == id.m_vid && this->m_pid == id.m_pid)
+        return (this->m_serialNumber == id.m_serialNumber) ? 2 : 1;
+    else
+        return 0;
 }
