@@ -20,8 +20,13 @@ modules:
       - LIBDIR=/app/lib
     sources:
       - type: archive
-        url: 'https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz'
-        sha256: 357b78be0f52b2d01c17ec3e2e1271255761810af7e8a9476cef51fccf1a0f44
+        url: 'https://www.qcustomplot.com/release/2.1.1/QCustomPlot.tar.gz'
+        sha256: 9afc16e70e8bd8c8d5b13020387716f5e063e115b6599f0421a3846dc6ec312a
+        x-checker-data:
+          type: html
+          url: https://www.qcustomplot.com/index.php/download
+          version-pattern: '<p>Version: <strong>([\d.]+)</strong>'
+          url-template: https://www.qcustomplot.com/release/$version/QCustomPlot.tar.gz
       - type: file
         path: patches/qcustomplot.pro
   - name: serialtest
@@ -31,7 +36,6 @@ modules:
       - type: archive
         url: https://github.com/wh201906/SerialTest/archive/refs/tags/V0.2.2.tar.gz
         sha256: 555e3c805b895888bf40e2bf2e8644ac3eeca5d0896001d43035b639fb34d464
-        tag: V0.2.2
         x-checker-data:
           type: html
           url: https://github.com/wh201906/SerialTest/releases/latest
