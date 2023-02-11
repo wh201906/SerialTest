@@ -34,8 +34,8 @@ public:
 public slots:
     void onChecksumUpdated(quint64 checksum);
     void onChecksumError(AsyncCRC::CRCFileError error);
-    void onDataTransmitted(qsizetype num);
-    void onDataReceived(qsizetype num);
+    void onDataTransmitted(qint64 num);
+    void onDataReceived(qint64 num);
     void onFinished();
     void onStartResultArrived(bool result);
     void stop();
@@ -65,8 +65,8 @@ private slots:
 private:
     Ui::FileTab *ui;
 
-    qsizetype m_fileSize = -1;
-    qsizetype m_handledSize = -1;
+    qint64 m_fileSize = -1;
+    qint64 m_handledSize = -1;
     QThread* m_checksumThread = nullptr;
     AsyncCRC* m_checksumCalc = nullptr;
     QThread* m_fileXceiverThread = nullptr;

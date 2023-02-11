@@ -358,9 +358,9 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     ui->typeBox->blockSignals(false);
 }
 
-qsizetype DeviceTab::updateBTAdapterList()
+qint64 DeviceTab::updateBTAdapterList()
 {
-    qsizetype id = 0;
+    qint64 id = 0;
 
     ui->BTClient_adapterBox->clear();
     ui->BTServer_adapterBox->clear();
@@ -387,7 +387,7 @@ qsizetype DeviceTab::updateBTAdapterList()
     return id;
 }
 
-qsizetype DeviceTab::updateNetInterfaceList()
+qint64 DeviceTab::updateNetInterfaceList()
 {
     Connection::Type currType = ui->typeBox->currentData().value<Connection::Type>();
     QHostAddress currNetLocalAddr;

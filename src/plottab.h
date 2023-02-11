@@ -60,7 +60,7 @@ private:
     Ui::PlotTab *ui;
 
     QString* plotBuf;
-    quint64 plotCounter;
+    qint64 plotCounter;
     QCPItemTracer* plotTracer;
     QCPItemText* plotText;
     int plotSelectedId = 0;

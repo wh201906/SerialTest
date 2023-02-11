@@ -742,7 +742,7 @@ qint64 Connection::write(const char *data, qint64 len)
     }
     else if(m_type == BT_Server)
     {
-        quint64 maxLen = 0, currLen;
+        qint64 maxLen = 0, currLen;
         // write to all connected clients
         for(auto it = m_BTTxClients.cbegin(); it != m_BTTxClients.cend(); ++it)
         {
@@ -766,7 +766,7 @@ qint64 Connection::write(const char *data, qint64 len)
     }
     else if(m_type == TCP_Server)
     {
-        quint64 maxLen = 0, currLen;
+        qint64 maxLen = 0, currLen;
         // write to all connected clients
         for(auto it = m_TCPTxClients.cbegin(); it != m_TCPTxClients.cend(); ++it)
         {

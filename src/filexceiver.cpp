@@ -6,7 +6,6 @@
 FileXceiver::FileXceiver(QObject *parent)
     : QObject{parent}
 {
-    qRegisterMetaType<qsizetype>("qsizetype"); // qsizetype is an alias, so the typeName is compulsory
     qRegisterMetaType<FileXceiver::Protocol>();
     qRegisterMetaType<FileXceiver::ThrottleArgument>();
     m_file.setParent(this); // for moveToThread()
@@ -74,7 +73,7 @@ void FileXceiver::setThrottleArgument(ThrottleArgument arg)
     m_throttleArgument = arg;
 }
 
-void FileXceiver::setAutostop(qsizetype num)
+void FileXceiver::setAutostop(qint64 num)
 {
     m_expectedNum = num;
 }
@@ -88,8 +87,8 @@ void FileXceiver::newData(const QByteArray &data)
     }
     if(m_protocol == RawProtocol)
     {
-        qsizetype num;
-        qsizetype limit = -1, currNum = -1;
+        qint64 num;
+        qint64 limit = -1, currNum = -1;
         if(m_expectedNum != -1)
         {
             limit = m_expectedNum - m_handledNum;
@@ -119,7 +118,7 @@ void FileXceiver::RawTransmitProgress()
     emit dataTransmitted(buf.length());
     if(m_throttleArgument.waitTime == -1)
     {
-        qsizetype tick = m_speedAdjustTimer.restart();
+        qint64 tick = m_speedAdjustTimer.restart();
         // expected responce time is 200ms
         // low threshold = expected / 2
         // high threshold = expected * 2

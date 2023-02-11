@@ -67,7 +67,7 @@ void AsyncCRC::loadFile(const QString &path)
     delete []dataBuf;
 }
 
-void AsyncCRC::addData(const char *data, qsizetype length)
+void AsyncCRC::addData(const char *data, qint64 length)
 {
     quint64* slice;
     if(!m_isInitVal)

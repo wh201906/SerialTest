@@ -20,7 +20,7 @@ public:
     Q_ENUM(CRCFileError);
 
     Q_INVOKABLE void loadFile(const QString& path);
-    Q_INVOKABLE void addData(const char* data, qsizetype length);
+    Q_INVOKABLE void addData(const char* data, qint64 length);
     Q_INVOKABLE void addData(const QByteArray& data);
     Q_INVOKABLE quint64 getResult();
     Q_INVOKABLE void setNotify(bool state);

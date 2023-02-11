@@ -92,9 +92,9 @@ private:
 
     bool m_TxDataRecording = true;
     QByteArray rawReceivedData;
-    qsizetype m_RxCount = 0;
+    qint64 m_RxCount = 0;
     QByteArray rawSendedData;
-    qsizetype m_TxCount = 0;
+    qint64 m_TxCount = 0;
     QByteArray RxUIBuf;
 
     QTimer* updateUITimer;

@@ -237,8 +237,8 @@ void FileTab::on_startStopButton_clicked()
         {
             if(currentProtocol() == FileXceiver::RawProtocol)
             {
-                qsizetype waitTime = (ui->RawTx_throttleNoneButton->isChecked() ? -1 : ui->RawTx_throttleWaitMsBox->currentText().toLongLong());
-                qsizetype batchByteNum = ui->RawTx_throttleByteBox->currentText().toLongLong();
+                qint64 waitTime = (ui->RawTx_throttleNoneButton->isChecked() ? -1 : ui->RawTx_throttleWaitMsBox->currentText().toLongLong());
+                qint64 batchByteNum = ui->RawTx_throttleByteBox->currentText().toLongLong();
                 FileXceiver::ThrottleArgument arg;
                 arg.waitTime = waitTime;
                 arg.batchByteNum = batchByteNum;
@@ -250,8 +250,8 @@ void FileTab::on_startStopButton_clicked()
         {
             if(currentProtocol() == FileXceiver::RawProtocol)
             {
-                qsizetype num = ui->RawRx_autostopNoneButton->isChecked() ? -1 : ui->RawRx_autostopByteBox->currentText().toLongLong();
-                QMetaObject::invokeMethod(m_fileXceiver, "setAutostop", Qt::QueuedConnection, Q_ARG(qsizetype, num));
+                qint64 num = ui->RawRx_autostopNoneButton->isChecked() ? -1 : ui->RawRx_autostopByteBox->currentText().toLongLong();
+                QMetaObject::invokeMethod(m_fileXceiver, "setAutostop", Qt::QueuedConnection, Q_ARG(qint64, num));
                 QMetaObject::invokeMethod(m_fileXceiver, "startReceive", Qt::QueuedConnection, Q_ARG(QString, ui->filePathEdit->text()));
             }
         }
@@ -264,14 +264,14 @@ void FileTab::on_startStopButton_clicked()
     }
 }
 
-void FileTab::onDataTransmitted(qsizetype num)
+void FileTab::onDataTransmitted(qint64 num)
 {
     m_handledSize += num;
     ui->progressBar->setValue((double)m_handledSize / m_fileSize * 100.0);
     ui->sizeLabel->setText(QLocale(QLocale::English).toString(m_handledSize) + "/" + QLocale(QLocale::English).toString(m_fileSize) + " Bytes");
 }
 
-void FileTab::onDataReceived(qsizetype num)
+void FileTab::onDataReceived(qint64 num)
 {
     m_handledSize += num;
     if(currentProtocol() == FileXceiver::RawProtocol && ui->RawRx_autostopByteButton->isChecked())

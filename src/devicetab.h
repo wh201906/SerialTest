@@ -75,8 +75,8 @@ private:
     void BLEC_addCharacteristic(const QLowEnergyCharacteristic& c, QTreeWidgetItem *parentItem);
     void BLEC_addDescriptor(const QLowEnergyDescriptor &descriptor, QTreeWidgetItem *parentItem);
     QString BLE_getCharacteristicPropertyString(const QLowEnergyCharacteristic &c);
-    qsizetype updateBTAdapterList();
-    qsizetype updateNetInterfaceList();
+    qint64 updateBTAdapterList();
+    qint64 updateNetInterfaceList();
     QBluetoothUuid String2UUID(const QString &string);
     QString UUID2String(const QBluetoothUuid &UUID);
     void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument());
