@@ -2,6 +2,7 @@
 #define PLOTTAB_H
 
 #include <QWidget>
+#include <random>
 
 #include "mysettings.h"
 #include "mycustomplot.h"
@@ -79,6 +80,7 @@ private:
     QRegularExpression* doubleRegex;
 
     QTimer* m_dataProcessTimer;
+    std::default_random_engine* m_randEngine;
 
     void updateTracer(double x);
     QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);

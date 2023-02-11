@@ -9,6 +9,7 @@ PlotTab::PlotTab(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m_randEngine = new std::default_random_engine;
     doubleRegex = new QRegularExpression("-?\\d*\\.?\\d+"); // for +xxxxx and xxxxx. , just get xxxxx
     doubleRegex->optimize();
     on_plot_advancedBox_stateChanged(Qt::Unchecked); // hide
@@ -186,11 +187,12 @@ void PlotTab::changeGraphNum(int newNum)
     QCPGraph* currGraph;
     if(delta > 0)
     {
+        std::uniform_int_distribution<int> dist(10, 235);
+        auto rng = std::bind(dist, std::ref(*m_randEngine));
         for(int i = 0; i < delta; i++)
         {
-            QRandomGenerator* randGen = QRandomGenerator::global();
             currGraph = ui->qcpWidget->addGraph();
-            currGraph->setPen(QColor(randGen->bounded(10, 235), randGen->bounded(10, 235), randGen->bounded(10, 235)));
+            currGraph->setPen(QColor(rng(), rng(), rng()));
             currGraph->setSelectable(QCP::stWhole);
         }
     }
