@@ -948,8 +948,12 @@ void DeviceTab::BTdeviceDiscovered(const QBluetoothDeviceInfo& device)
              << device.rssi()
              << device.majorDeviceClass()
              << device.minorDeviceClass()
+#if QT_VERSION < QT_VERSION_CHECK(5, 12, 0)
+             << device.serviceClasses();
+#else
              << device.serviceClasses()
              << device.manufacturerData();
+#endif
 }
 
 
