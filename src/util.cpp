@@ -61,7 +61,7 @@ QByteArray Util::unescape(const QString &text, QTextCodec* codec)
             int end = i;
             while(end < text.size() && text[end] != '\\')
                 end++;
-            result += codec->fromUnicode(QStringRef(&text, i, end - i));
+            result += codec->fromUnicode(text.constData() + i, end - i);
             i = end - 1;
             continue;
         }
@@ -110,14 +110,14 @@ QByteArray Util::unescape(const QString &text, QTextCodec* codec)
             if(isOk)
             {
                 QChar qch(ch); // treat it like QString with length=1
-                result += codec->fromUnicode(QStringView(&qch, 1));
+                result += codec->fromUnicode(&qch, 1);
                 i += 5;
             }
         }
         // 5. invalid \, keep it unchanged
         else
         {
-            result += codec->fromUnicode(QStringRef(&text, i, 1));
+            result += codec->fromUnicode(text.constData() + i, 1);
         }
     }
 //    qDebug() << result.toHex(' ');
