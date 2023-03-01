@@ -98,7 +98,10 @@
           <item>
            <widget class="QLabel" name="Conf_currPathLabel">
             <property name="text">
-             <string>Path</string>
+             <string notr="true">Path</string>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
             </property>
            </widget>
           </item>

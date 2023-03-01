@@ -133,7 +133,7 @@ void CtrlTab::loadCtrlPanel(const QString& data)
 {
     QBoxLayout* p = static_cast<QBoxLayout*>(ui->ctrl_itemContents->layout());
     QString dataStr = data;
-    dataStr.replace(*commentRegExp, "");
+    dataStr.remove(*commentRegExp);
     QJsonArray dataArray = QJsonDocument::fromJson(dataStr.toUtf8()).array();
     for(auto it = dataArray.begin(); it != dataArray.end(); ++it)
     {

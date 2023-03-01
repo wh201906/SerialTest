@@ -42,7 +42,7 @@
    <item>
     <widget class="QLabel" name="CTSLabel">
      <property name="text">
-      <string>CTS</string>
+      <string notr="true">CTS</string>
      </property>
     </widget>
    </item>
@@ -59,7 +59,7 @@
    <item>
     <widget class="QLabel" name="DSRLabel">
      <property name="text">
-      <string>DSR</string>
+      <string notr="true">DSR</string>
      </property>
     </widget>
    </item>
@@ -76,7 +76,7 @@
    <item>
     <widget class="QLabel" name="DCDLabel">
      <property name="text">
-      <string>DCD</string>
+      <string notr="true">DCD</string>
      </property>
     </widget>
    </item>
@@ -93,7 +93,7 @@
    <item>
     <widget class="QLabel" name="RILabel">
      <property name="text">
-      <string>RI</string>
+      <string notr="true">RI</string>
      </property>
     </widget>
    </item>
