@@ -531,6 +531,7 @@ void MainWindow::dockInit()
         widget = ui->funcTab->widget(0);
         dock->setWidget(widget);
         connect(dock, &QDockWidget::topLevelChanged, this, &MainWindow::onDockTopLevelChanged);
+        dock->installEventFilter(this);
         addDockWidget(Qt::BottomDockWidgetArea, dock);
         if(!dockList.isEmpty())
             tabifyDockWidget(dockList[0], dock);
@@ -547,6 +548,22 @@ void MainWindow::onDockTopLevelChanged(bool topLevel)
 {
     if(topLevel) // some widget is floating now
         onOpacityChanged(windowOpacity());
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if(dockList.contains((QDockWidget*)watched))
+    {
+        QDockWidget* dock = qobject_cast<QDockWidget*>(watched);
+        if(event->type() == QEvent::Close && dock->isFloating())
+        {
+            // ignore Alt+F4, just dock it.
+            dock->setFloating(false);
+            event->ignore(); // calling ignore() is necessary for QCloseEvent
+            return true;
+        }
+    }
+    return false;
 }
 
 // platform specific

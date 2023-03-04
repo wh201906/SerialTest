@@ -58,6 +58,7 @@ public slots:
     void onDockTopLevelChanged(bool topLevel); // for opacity
 
 protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void keyReleaseEvent(QKeyEvent* e) override;
 private slots:
