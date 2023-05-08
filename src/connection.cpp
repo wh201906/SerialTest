@@ -82,6 +82,11 @@ const QMap<Connection::Type, QLatin1String>& Connection::getTypeNameMap()
     return m_typeNameMap;
 }
 
+QStringList Connection::getErrorStringList() const
+{
+    return m_errorStringList;
+}
+
 void Connection::setArgument(SerialPortArgument arg)
 {
     m_currSPArgument = arg;
@@ -226,6 +231,7 @@ Connection::NetworkArgument Connection::stringList2NetArg(const QStringList &lis
 
 void Connection::open()
 {
+    setCollectingErrorStringList(true);
     if(m_type == SerialPort)
     {
         m_serialPort->setPortName(m_currSPArgument.name);
@@ -239,7 +245,7 @@ void Connection::open()
         if(m_serialPort->open(QIODevice::ReadWrite))
             onConnected();
         else
-            emit connectFailed(m_serialPort->errorString());
+            emit connectFailed(getErrorStringList());
     }
     else if(m_type == BT_Client)
     {
@@ -596,6 +602,8 @@ void Connection::onErrorOccurred()
         // connectFailed() is emitted in open()
         QSerialPort::SerialPortError error;
         error = m_serialPort->error();
+        if(m_isCollectingErrorString && error != QSerialPort::NoError)
+            m_errorStringList += m_serialPort->errorString();
         qDebug() << "SerialPort Error:" << error << m_serialPort->errorString();
 
         // no error
@@ -617,6 +625,8 @@ void Connection::onErrorOccurred()
     {
         QBluetoothSocket::SocketError error;
         error = m_BTSocket->error();
+        if(m_isCollectingErrorString && error != QBluetoothSocket::NoSocketError)
+            m_errorStringList += m_BTSocket->errorString();
         qDebug() << "BT Socket Error:" << error << m_BTSocket->errorString();
         qDebug() << "State:" << m_BTSocket->state();
 
@@ -629,7 +639,7 @@ void Connection::onErrorOccurred()
         else
         {
             if(m_state == Connecting)
-                emit connectFailed(m_BTSocket->errorString());
+                emit connectFailed(getErrorStringList());
             close(true);
         }
     }
@@ -639,6 +649,8 @@ void Connection::onErrorOccurred()
         {
             QLowEnergyController::Error error;
             error = m_BLEController->error();
+            if(m_isCollectingErrorString && error != QLowEnergyController::NoError)
+                m_errorStringList += m_BLEController->errorString();
             qDebug() << "BLE Central Controller Error:" << error << m_BLEController->errorString();
             qDebug() << "State:" << m_BLEController->state();
 
@@ -647,7 +659,11 @@ void Connection::onErrorOccurred()
             else
             {
                 if(m_state == Connecting)
-                    emit connectFailed(tr("Controller Error: ") + m_BLEController->errorString());
+                {
+                    QStringList infoList = getErrorStringList();
+                    infoList.prepend(tr("Controller Error: "));
+                    emit connectFailed(infoList);
+                }
                 close(true);
             }
         }
@@ -656,6 +672,7 @@ void Connection::onErrorOccurred()
             QLowEnergyService* service = qobject_cast<QLowEnergyService*>(sender());
             QLowEnergyService::ServiceError error;
             error = service->error();
+            // service->errorString() doesn't exist
             qDebug() << "BLE Central Service Error:" << error;
             qDebug() << "State:" << service->state();
 
@@ -676,6 +693,8 @@ void Connection::onErrorOccurred()
     {
         QAbstractSocket::SocketError error;
         error = m_TCPSocket->error();
+        if(m_isCollectingErrorString)
+            m_errorStringList += m_TCPSocket->errorString();
         qDebug() << "TCP Socket Error:" << error << m_TCPSocket->errorString();
         qDebug() << "State:" << m_TCPSocket->state();
 
@@ -686,7 +705,7 @@ void Connection::onErrorOccurred()
         else
         {
             if(m_state == Connecting)
-                emit connectFailed(m_TCPSocket->errorString());
+                emit connectFailed(getErrorStringList());
             close(true); // this will emit disconnected()
         }
     }
@@ -696,6 +715,7 @@ void Connection::onErrorOccurred()
     {
         QBluetoothServer::Error error;
         error = m_BTServer->error();
+        // m_BTServer->errorString() doesn't exist
         qDebug() << "BT Server Error:" << error;
 
         if(!m_BTServer->isListening())
@@ -704,21 +724,26 @@ void Connection::onErrorOccurred()
             onDisconnected();
         }
     }
-    else if(m_type == TCP_Server || m_type == UDP)
+    else if(m_type == TCP_Server)
     {
         QAbstractSocket::SocketError error;
-        if(m_type == TCP_Server)
+        error = m_TCPServer->serverError();
+        if(m_isCollectingErrorString)
+            m_errorStringList += m_TCPServer->errorString();
+        qDebug() << "TCP Server Error:" << error <<  m_TCPServer->errorString();
+        if(!m_TCPServer->isListening())
         {
-            error = m_TCPServer->serverError();
-            if(!m_TCPServer->isListening())
-            {
-                // the server is always listening when the server is running, according to my implementation
-                onDisconnected();
-            }
+            // the server is always listening when the server is running, according to my implementation
+            onDisconnected();
         }
-        else // UDP
-            error = m_UDPSocket->error();
-        qDebug() << "Net Error:" << error << m_UDPSocket->errorString() << m_TCPServer->errorString();
+    }
+    else if(m_type == UDP)
+    {
+        QAbstractSocket::SocketError error;
+        error = m_UDPSocket->error();
+        if(m_isCollectingErrorString)
+            m_errorStringList += m_UDPSocket->errorString();
+        qDebug() << "UDP Error:" << error << m_UDPSocket->errorString();
         qDebug() << "UDP State:" << m_UDPSocket->state();
 
     }
@@ -826,6 +851,7 @@ void Connection::afterConnected()
     }
     if(m_pollTimerEnabled)
         m_pollTimer->start();
+    setCollectingErrorStringList(false);
     emit connected();
 }
 
@@ -835,6 +861,7 @@ void Connection::onDisconnected()
     qDebug() << "Connection::onDisconnected()";
     m_pollTimer->stop();
     changeState(Unconnected);
+    setCollectingErrorStringList(false);
     if(oldState != Unconnected)
         emit disconnected();
 }
@@ -935,6 +962,8 @@ void Connection::Server_onClientErrorOccurred()
         QBluetoothSocket *socket = qobject_cast<QBluetoothSocket *>(sender());
         QBluetoothSocket::SocketError socketError;
         socketError = socket->error();
+        if(m_isCollectingErrorString && socketError != QBluetoothSocket::NoSocketError)
+            m_errorStringList += socket->errorString();
         qDebug() << "BT Socket Error:" << socketError << socket->errorString();
         qDebug() << "State:" << socket->state();
 
@@ -955,6 +984,8 @@ void Connection::Server_onClientErrorOccurred()
         QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
         QTcpSocket::SocketError socketError;
         socketError = socket->error();
+        if(m_isCollectingErrorString)
+            m_errorStringList += socket->errorString();
         qDebug() << "TCP Socket Error:" << socketError << socket->errorString();
         qDebug() << "State:" << socket->state();
 
@@ -1313,6 +1344,13 @@ void Connection::BLEC_onDataArrived(const QLowEnergyCharacteristic & characteris
     Q_UNUSED(characteristic)
     m_buf += newValue;
     emit readyRead();
+}
+
+void Connection::setCollectingErrorStringList(bool state)
+{
+    m_isCollectingErrorString = state;
+    if(state)
+        m_errorStringList.clear();
 }
 
 const QMap<Connection::Type, QLatin1String> Connection::m_typeNameMap

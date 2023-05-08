@@ -86,6 +86,7 @@ public:
     int pollingInterval();
     static QString getTypeName(Type type);
     static const QMap<Connection::Type, QLatin1String>& getTypeNameMap();
+    QStringList getErrorStringList() const;
 
     // connection
     SerialPortArgument getSerialPortArgument();
@@ -195,6 +196,10 @@ private:
 
     QByteArray m_buf;
 
+    bool m_isCollectingErrorString = false;
+    QStringList m_errorStringList;
+    void setCollectingErrorStringList(bool state);
+
     static const QMap<Connection::Type, QLatin1String> m_typeNameMap;
 
     void updateSignalSlot();
@@ -208,6 +213,7 @@ signals:
     void connected();
     void disconnected();
     void connectFailed(const QString& info);
+    void connectFailed(const QStringList& infoList);
     void errorOccurred();
     // the slot can accept newState only
     void stateChanged(Connection::State newState, Connection::State oldState);

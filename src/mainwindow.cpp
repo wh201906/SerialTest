@@ -18,7 +18,8 @@ MainWindow::MainWindow(QWidget *parent)
     IOConnection = new Connection();
     connect(IOConnection, &Connection::connected, this, &MainWindow::onIODeviceConnected);
     connect(IOConnection, &Connection::disconnected, this, &MainWindow::onIODeviceDisconnected);
-    connect(IOConnection, &Connection::connectFailed, this, &MainWindow::onIODeviceConnectFailed);
+    connect(IOConnection, QOverload<const QString&>::of(&Connection::connectFailed), this, QOverload<const QString&>::of(&MainWindow::onIODeviceConnectFailed));
+    connect(IOConnection, QOverload<const QStringList&>::of(&Connection::connectFailed), this, QOverload<const QStringList&>::of(&MainWindow::onIODeviceConnectFailed));
     connect(IOConnection, &Connection::stateChanged, this, &MainWindow::updateStatusBar);
 
 #ifdef Q_OS_ANDROID
@@ -448,6 +449,14 @@ void MainWindow::onIODeviceConnectFailed(const QString& info)
     if(!info.isEmpty())
         msg += "\n" + info;
     QMessageBox::warning(this, tr("Error"), msg);
+}
+
+void MainWindow::onIODeviceConnectFailed(const QStringList& infoList)
+{
+    QString info;
+    for(const QString& str : infoList)
+        info += str + "\n";
+    onIODeviceConnectFailed(info.trimmed());
 }
 
 // Rx/Tx Data

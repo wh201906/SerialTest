@@ -73,6 +73,7 @@ private slots:
     void onIODeviceConnected();
     void onIODeviceDisconnected();
     void onIODeviceConnectFailed(const QString& info);
+    void onIODeviceConnectFailed(const QStringList& infoList);
 private:
     Ui::MainWindow *ui;
     void initUI();
