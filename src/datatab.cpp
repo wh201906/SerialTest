@@ -389,8 +389,15 @@ void DataTab::onConnEstablished()
     if(m_connection->type() == Connection::SerialPort)
     {
         ui->data_flowRTSBox->setVisible(m_connection->getSerialPortArgument().flowControl != QSerialPort::HardwareControl);
-        ui->data_flowRTSBox->setChecked(m_connection->SP_isRequestToSend());
-        ui->data_flowDTRBox->setChecked(m_connection->SP_isDataTerminalReady());
+        // sync states from serial to UI
+        // ui->data_flowRTSBox->setChecked(m_connection->SP_isRequestToSend());
+        // ui->data_flowDTRBox->setChecked(m_connection->SP_isDataTerminalReady());
+
+        // sync states from UI to serial
+        if(ui->data_flowDTRBox->isChecked() != m_connection->SP_isDataTerminalReady())
+            on_data_flowDTRBox_clicked(ui->data_flowDTRBox->isChecked());
+        if(ui->data_flowRTSBox->isChecked() != m_connection->SP_isRequestToSend())
+            on_data_flowRTSBox_clicked(ui->data_flowRTSBox->isChecked());
     }
 }
 
@@ -478,11 +485,15 @@ void DataTab::appendReceivedData(const QByteArray& data)
 void DataTab::on_data_flowDTRBox_clicked(bool checked)
 {
     m_connection->SP_setDataTerminalReady(checked);
+    // sync state
+    ui->data_flowDTRBox->setCheckState(m_connection->SP_isDataTerminalReady() ? Qt::Checked : Qt::Unchecked);
 }
 
 void DataTab::on_data_flowRTSBox_clicked(bool checked)
 {
     m_connection->SP_setRequestToSend(checked);
+    // sync state
+    ui->data_flowRTSBox->setCheckState(m_connection->SP_isRequestToSend() ? Qt::Checked : Qt::Unchecked);
 }
 
 void DataTab::on_data_unescapeBox_stateChanged(int arg1)
