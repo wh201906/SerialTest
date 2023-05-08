@@ -351,14 +351,14 @@ void MainWindow::setTxDataRecording(bool enabled)
     m_TxDataRecording = enabled;
 }
 
-void MainWindow::showUpTab(int id)
+void MainWindow::showUpTab(int tabID)
 {
     if(ui->funcTab->isVisible())
-        ui->funcTab->setCurrentIndex(id);
+        ui->funcTab->setCurrentIndex(tabID);
     else
     {
-        dockList[id]->setVisible(true);
-        dockList[id]->raise();
+        dockList[tabID]->setVisible(true);
+        dockList[tabID]->raise();
     }
 }
 

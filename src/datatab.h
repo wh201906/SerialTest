@@ -95,7 +95,7 @@ private:
     QByteArray* rawSendedData = nullptr;
 
     void loadPreference();
-    void showUpTabHelper(int id);
+    void showUpTabHelper(int tabID);
 #ifdef Q_OS_ANDROID
     static DataTab* m_currInstance;
     static void onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text);
@@ -108,7 +108,7 @@ signals:
     void clearSendedData();
     void clearReceivedData();
     void setTxDataRecording(bool enabled);
-    void showUpTab(int id);
+    void showUpTab(int tabID);
 };
 
 #endif // DATATAB_H

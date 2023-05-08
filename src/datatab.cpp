@@ -524,9 +524,9 @@ void DataTab::on_sendedEnableBox_stateChanged(int arg1)
     emit setTxDataRecording(arg1 == Qt::Checked);
 }
 
-void DataTab::showUpTabHelper(int id)
+void DataTab::showUpTabHelper(int tabID)
 {
-    emit showUpTab(id);
+    emit showUpTab(tabID);
 }
 
 #ifdef Q_OS_ANDROID

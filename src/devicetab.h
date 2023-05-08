@@ -33,8 +33,11 @@ public:
         SP_ID(const QSerialPortInfo &info) :
             SP_ID(info.vendorIdentifier(), info.productIdentifier(), info.serialNumber()) {}
         SP_ID(const QString& str);
-        QString toString();
-        quint8 matches(const SP_ID& id);
+        QString toString() const;
+        // (bool)(a.matches(b)) means a can use b's arguments
+        // 0: unmatch 1: match 2: the same
+        quint8 matches(const SP_ID& id) const;
+        explicit operator bool() const; // SP_ID is invalid or not
     };
     static const QMap<QString, QString> m_historyPrefix;
 
@@ -98,9 +101,10 @@ private:
     void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument(), bool loadPortName = true);
     void loadNetPreference(const Connection::NetworkArgument &arg, Connection::Type type);
     void showNetArgumentHistory(const QList<Connection::NetworkArgument> &arg, Connection::Type type);
-    QString SP_getPortID(int rowInList);
-    bool SP_hasDuplicateID(const QString &id);
-    int SP_getMatchedHistoryIndex(const QString &portName, const QString &uid);
+    SP_ID SP_getPortID(int rowInList);
+    bool SP_hasDuplicateID(int rowInList);
+    bool SP_hasDuplicateID(const SP_ID& spid);
+    int SP_getMatchedHistoryIndex(int rowInList);
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();

@@ -138,6 +138,7 @@ Connection::NetworkArgument Connection::getNetworkArgument(bool fillLocalAddress
     return arg;
 }
 
+// Connection::SerialPortArgument Connection::stringList2SPArg(const QStringList& list)
 QStringList Connection::arg2StringList(const SerialPortArgument& arg)
 {
     QStringList argList
@@ -168,6 +169,7 @@ QStringList Connection::arg2StringList(const NetworkArgument &arg)
     return argList;
 }
 
+// QStringList Connection::arg2StringList(const SerialPortArgument& arg)
 Connection::SerialPortArgument Connection::stringList2SPArg(const QStringList& list)
 {
     Connection::SerialPortArgument arg;

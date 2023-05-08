@@ -76,7 +76,7 @@ private:
     MySettings *m_settings;
     QIntValidator *m_intValidator;
 
-    void showUpTabHelper(int id);
+    void showUpTabHelper(int tabID);
     void onFilePathSet(const QString &path);
     void updateFileSize();
     void setParameterWidgetEnabled(bool state);
@@ -87,7 +87,7 @@ private:
 
     FileXceiver::Protocol currentProtocol();
 signals:
-    void showUpTab(int id);
+    void showUpTab(int tabID);
 };
 
 #endif // FILETAB_H

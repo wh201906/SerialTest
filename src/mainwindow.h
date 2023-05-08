@@ -52,7 +52,7 @@ public slots:
     void clearSendedData();
     void clearReceivedData();
     void setTxDataRecording(bool enabled);
-    void showUpTab(int id);
+    void showUpTab(int tabID);
     void setFullScreen(bool isFullScreen);
     void onOpacityChanged(qreal value);
     void onDockTopLevelChanged(bool topLevel); // for opacity
