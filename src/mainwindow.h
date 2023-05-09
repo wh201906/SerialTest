@@ -52,12 +52,13 @@ public slots:
     void clearSendedData();
     void clearReceivedData();
     void setTxDataRecording(bool enabled);
-    void showUpTab(int id);
+    void showUpTab(int tabID);
     void setFullScreen(bool isFullScreen);
     void onOpacityChanged(qreal value);
     void onDockTopLevelChanged(bool topLevel); // for opacity
 
 protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void keyReleaseEvent(QKeyEvent* e) override;
 private slots:
@@ -72,6 +73,7 @@ private slots:
     void onIODeviceConnected();
     void onIODeviceDisconnected();
     void onIODeviceConnectFailed(const QString& info);
+    void onIODeviceConnectFailed(const QStringList& infoList);
 private:
     Ui::MainWindow *ui;
     void initUI();

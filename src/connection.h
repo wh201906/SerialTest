@@ -13,6 +13,7 @@
 #include <QTcpServer>
 #include <QUdpSocket>
 #include <QDataStream>
+#include <QDebug>
 
 class Connection : public QObject
 {
@@ -47,7 +48,7 @@ public:
         QSerialPort::StopBits stopBits = QSerialPort::OneStop;
         QSerialPort::Parity parity = QSerialPort::NoParity;
         QSerialPort::FlowControl flowControl = QSerialPort::NoFlowControl;
-        QString id; // <name> or <vendorID>-<productID>
+        QString id; // <name> or <VID>-<PID>[-<serialNumber>]
     };
 
     struct BTArgument
@@ -84,7 +85,8 @@ public:
     void setPollingInterval(int msec);
     int pollingInterval();
     static QString getTypeName(Type type);
-    static QMap<Connection::Type, QLatin1String> getTypeNameMap();
+    static const QMap<Connection::Type, QLatin1String>& getTypeNameMap();
+    QStringList getErrorStringList() const;
 
     // connection
     SerialPortArgument getSerialPortArgument();
@@ -132,9 +134,9 @@ public slots:
     void setPolling(bool enabled);
 
     // connection
-    void setArgument(SerialPortArgument arg);
-    void setArgument(BTArgument arg);
-    void setArgument(NetworkArgument arg);
+    void setArgument(Connection::SerialPortArgument arg);
+    void setArgument(Connection::BTArgument arg);
+    void setArgument(Connection::NetworkArgument arg);
     void open(); // async
     bool reopen(); // async, return false if no argument is stored in the previous connection
     void close(bool forced = false); // async
@@ -194,6 +196,10 @@ private:
 
     QByteArray m_buf;
 
+    bool m_isCollectingErrorString = false;
+    QStringList m_errorStringList;
+    void setCollectingErrorStringList(bool state);
+
     static const QMap<Connection::Type, QLatin1String> m_typeNameMap;
 
     void updateSignalSlot();
@@ -207,9 +213,10 @@ signals:
     void connected();
     void disconnected();
     void connectFailed(const QString& info);
+    void connectFailed(const QStringList& infoList);
     void errorOccurred();
     // the slot can accept newState only
-    void stateChanged(State newState, State oldState);
+    void stateChanged(Connection::State newState, Connection::State oldState);
     void SP_signalsChanged(QSerialPort::PinoutSignals signal);
     // for BT_Server
     void BT_clientConnected();
@@ -236,6 +243,8 @@ private slots:
 };
 
 Q_DECLARE_METATYPE(Connection::SerialPortArgument)
-
+QDebug operator<<(QDebug dbg, const Connection::SerialPortArgument& arg);
+QDebug operator<<(QDebug dbg, const Connection::BTArgument& arg);
+QDebug operator<<(QDebug dbg, const Connection::NetworkArgument& arg);
 
 #endif // CONNECTION_H

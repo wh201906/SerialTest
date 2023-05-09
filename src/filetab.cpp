@@ -179,9 +179,9 @@ void FileTab::dropEvent(QDropEvent *event)
         onFilePathSet(filename);
 }
 
-void FileTab::showUpTabHelper(int id)
+void FileTab::showUpTabHelper(int tabID)
 {
-    emit showUpTab(id);
+    emit showUpTab(tabID);
 }
 
 #ifdef Q_OS_ANDROID

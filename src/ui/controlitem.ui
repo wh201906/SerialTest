@@ -151,14 +151,14 @@
          <item>
           <widget class="QPushButton" name="spinBoxUpButton">
            <property name="text">
-            <string>+</string>
+            <string notr="true">+</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="spinBoxDownButton">
            <property name="text">
-            <string>-</string>
+            <string notr="true">-</string>
            </property>
           </widget>
          </item>
@@ -414,7 +414,7 @@
       </size>
      </property>
      <property name="text">
-      <string>&gt;</string>
+      <string notr="true">&gt;</string>
      </property>
     </widget>
    </item>

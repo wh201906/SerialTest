@@ -22,6 +22,23 @@ class DeviceTab : public QWidget
 
 public:
 
+    struct SP_ID
+    {
+        // identify a serial port device
+        quint16 m_vid = 0, m_pid = 0;
+        QString m_serialNumber;
+
+        SP_ID(quint16 vid, quint16 pid, const QString& serialNumber) :
+            m_vid(vid), m_pid(pid), m_serialNumber(serialNumber) {}
+        SP_ID(const QSerialPortInfo &info) :
+            SP_ID(info.vendorIdentifier(), info.productIdentifier(), info.serialNumber()) {}
+        SP_ID(const QString& str);
+        QString toString() const;
+        // (bool)(a.matches(b)) means a can use b's arguments
+        // 0: unmatch 1: match 2: the same
+        quint8 matches(const SP_ID& id) const;
+        explicit operator bool() const; // SP_ID is invalid or not
+    };
     static const QMap<QString, QString> m_historyPrefix;
 
     explicit DeviceTab(QWidget *parent = nullptr);
@@ -66,6 +83,8 @@ private:
     QMap<QString, int> m_BLECArgHistoryIndex;
     QList<Connection::NetworkArgument> m_TCPClientHistory, m_UDPHistory;
 
+    bool m_isBLECLoaded = false;
+
     void initUI();
 #ifdef Q_OS_ANDROID
     void getBondedTarget(bool isBLE);
@@ -79,9 +98,13 @@ private:
     qint64 updateNetInterfaceList();
     QBluetoothUuid String2UUID(const QString &string);
     QString UUID2String(const QBluetoothUuid &UUID);
-    void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument());
+    void loadSPPreference(const Connection::SerialPortArgument &arg = Connection::SerialPortArgument(), bool loadPortName = true);
     void loadNetPreference(const Connection::NetworkArgument &arg, Connection::Type type);
     void showNetArgumentHistory(const QList<Connection::NetworkArgument> &arg, Connection::Type type);
+    SP_ID SP_getPortID(int rowInList);
+    bool SP_hasDuplicateID(int rowInList);
+    bool SP_hasDuplicateID(const SP_ID& spid);
+    int SP_getMatchedHistoryIndex(int rowInList);
 signals:
     void connTypeChanged(Connection::Type type);
     void argumentChanged();

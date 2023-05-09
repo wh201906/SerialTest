@@ -18,7 +18,8 @@ MainWindow::MainWindow(QWidget *parent)
     IOConnection = new Connection();
     connect(IOConnection, &Connection::connected, this, &MainWindow::onIODeviceConnected);
     connect(IOConnection, &Connection::disconnected, this, &MainWindow::onIODeviceDisconnected);
-    connect(IOConnection, &Connection::connectFailed, this, &MainWindow::onIODeviceConnectFailed);
+    connect(IOConnection, QOverload<const QString&>::of(&Connection::connectFailed), this, QOverload<const QString&>::of(&MainWindow::onIODeviceConnectFailed));
+    connect(IOConnection, QOverload<const QStringList&>::of(&Connection::connectFailed), this, QOverload<const QStringList&>::of(&MainWindow::onIODeviceConnectFailed));
     connect(IOConnection, &Connection::stateChanged, this, &MainWindow::updateStatusBar);
 
 #ifdef Q_OS_ANDROID
@@ -351,14 +352,14 @@ void MainWindow::setTxDataRecording(bool enabled)
     m_TxDataRecording = enabled;
 }
 
-void MainWindow::showUpTab(int id)
+void MainWindow::showUpTab(int tabID)
 {
     if(ui->funcTab->isVisible())
-        ui->funcTab->setCurrentIndex(id);
+        ui->funcTab->setCurrentIndex(tabID);
     else
     {
-        dockList[id]->setVisible(true);
-        dockList[id]->raise();
+        dockList[tabID]->setVisible(true);
+        dockList[tabID]->raise();
     }
 }
 
@@ -450,6 +451,14 @@ void MainWindow::onIODeviceConnectFailed(const QString& info)
     QMessageBox::warning(this, tr("Error"), msg);
 }
 
+void MainWindow::onIODeviceConnectFailed(const QStringList& infoList)
+{
+    QString info;
+    for(const QString& str : infoList)
+        info += str + "\n";
+    onIODeviceConnectFailed(info.trimmed());
+}
+
 // Rx/Tx Data
 // **********************************************************************************************************************************************
 
@@ -531,6 +540,7 @@ void MainWindow::dockInit()
         widget = ui->funcTab->widget(0);
         dock->setWidget(widget);
         connect(dock, &QDockWidget::topLevelChanged, this, &MainWindow::onDockTopLevelChanged);
+        dock->installEventFilter(this);
         addDockWidget(Qt::BottomDockWidgetArea, dock);
         if(!dockList.isEmpty())
             tabifyDockWidget(dockList[0], dock);
@@ -547,6 +557,22 @@ void MainWindow::onDockTopLevelChanged(bool topLevel)
 {
     if(topLevel) // some widget is floating now
         onOpacityChanged(windowOpacity());
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if(dockList.contains((QDockWidget*)watched))
+    {
+        QDockWidget* dock = qobject_cast<QDockWidget*>(watched);
+        if(event->type() == QEvent::Close && dock->isFloating())
+        {
+            // ignore Alt+F4, just dock it.
+            dock->setFloating(false);
+            event->ignore(); // calling ignore() is necessary for QCloseEvent
+            return true;
+        }
+    }
+    return false;
 }
 
 // platform specific

@@ -162,11 +162,17 @@ void DeviceTab::refreshTargetList()
             ui->SP_portList->setItem(i, 1, new QTableWidgetItem(ports[i].description()));
             ui->SP_portList->setItem(i, 2, new QTableWidgetItem(ports[i].manufacturer()));
             ui->SP_portList->setItem(i, 3, new QTableWidgetItem(ports[i].serialNumber()));
-            ui->SP_portList->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? "Yes" : "No"));
+            ui->SP_portList->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? tr("Yes") : tr("No")));
             ui->SP_portList->setItem(i, 5, new QTableWidgetItem(ports[i].systemLocation()));
-            ui->SP_portList->setItem(i, 6, new QTableWidgetItem(QString::number(ports[i].vendorIdentifier())));
-            ui->SP_portList->setItem(i, 7, new QTableWidgetItem(QString::number(ports[i].productIdentifier())));
-
+            quint16 xid;
+            xid = ports[i].vendorIdentifier();
+            QTableWidgetItem* idItem = new QTableWidgetItem(QString("%1(%2)").arg(xid).arg(xid, 4, 16, QLatin1Char('0')));
+            idItem->setData(Qt::UserRole, xid);
+            ui->SP_portList->setItem(i, 6, idItem);
+            xid = ports[i].productIdentifier();
+            idItem = new QTableWidgetItem(QString("%1(%2)").arg(xid).arg(xid, 4, 16, QLatin1Char('0')));
+            idItem->setData(Qt::UserRole, xid);
+            ui->SP_portList->setItem(i, 7, idItem);
             QList<qint32> baudRateList = ports[i].standardBaudRates();
             QString baudRates = "";
             for(int j = 0; j < baudRates.size(); j++)
@@ -335,21 +341,24 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
 
     ui->typeBox->blockSignals(true);
     ui->typeBox->clear();
-    for(auto it : Connection::getTypeNameMap().keys())
+    for(auto it = Connection::getTypeNameMap().cbegin(); it != Connection::getTypeNameMap().cend(); ++it)
     {
-        if(invalid.contains(it))
+        const auto& type = it.key();
+        // Connection::getTypeName() will return the translated QString
+
+        if(invalid.contains(type))
         {
-            ui->typeBox->addItem("!" + Connection::getTypeName(it), it);
-            Util::disableItem(model, it);
+            ui->typeBox->addItem("!" + Connection::getTypeName(type), type);
+            Util::disableItem(model, type);
         }
         else
         {
-            ui->typeBox->addItem(Connection::getTypeName(it), it);
+            ui->typeBox->addItem(Connection::getTypeName(type), type);
             if(firstValid < 0 && useFirstValid)
             {
-                ui->typeBox->setCurrentIndex(it);
-                on_typeBox_currentIndexChanged(it); // this signal is blocked now
-                firstValid = it;
+                ui->typeBox->setCurrentIndex(type);
+                on_typeBox_currentIndexChanged(type); // this signal is blocked now
+                firstValid = type;
             }
         }
     }
@@ -360,7 +369,7 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
 
 qint64 DeviceTab::updateBTAdapterList()
 {
-    qint64 id = 0;
+    qint64 adapterID = 0;
 
     ui->BTClient_adapterBox->clear();
     ui->BTServer_adapterBox->clear();
@@ -377,14 +386,14 @@ qint64 DeviceTab::updateBTAdapterList()
         QBluetoothLocalDevice dev(it->address());
         if(dev.isValid() && dev.hostMode() != QBluetoothLocalDevice::HostPoweredOff)
         {
-            QString name = QString("%1:%2").arg(id + 1).arg(it->name());
+            QString name = QString("%1:%2").arg(adapterID + 1).arg(it->name());
             ui->BTClient_adapterBox->addItem(name, it->address().toString());
             ui->BTServer_adapterBox->addItem(name, it->address().toString());
             ui->BLEC_adapterBox->addItem(name, it->address().toString());
-            id++;
+            adapterID++;
         }
     }
-    return id;
+    return adapterID;
 }
 
 qint64 DeviceTab::updateNetInterfaceList()
@@ -485,16 +494,16 @@ void DeviceTab::Net_onDeleteButtonClicked()
     QVariant var = btn->property("ItemId");
     if(!var.isValid())
         return;
-    int id = var.toInt();
+    int itemID = var.toInt();
     if(currType == Connection::TCP_Client)
     {
-        m_TCPClientHistory.removeAt(id);
+        m_TCPClientHistory.removeAt(itemID);
         syncTCPClientPreference();
         showNetArgumentHistory(m_TCPClientHistory, currType);
     }
     else if(currType == Connection::UDP)
     {
-        m_UDPHistory.removeAt(id);
+        m_UDPHistory.removeAt(itemID);
         syncUDPPreference();
         showNetArgumentHistory(m_UDPHistory, currType);
     }
@@ -537,6 +546,22 @@ bool DeviceTab::eventFilter(QObject *watched, QEvent *event)
             settings->setValue("BLEC_SplitRatio", ratio);
             settings->endGroup();
         }
+        else if(event->type() == QEvent::Show && !m_isBLECLoaded)
+        {
+            // ui->BLECentralListSplitter->sizes() will return all 0 if the widgets are invisible
+            // the widgets are visible after this event happens
+            settings->beginGroup("SerialTest_Connect");
+            QList<int> newSizes = ui->BLECentralListSplitter->sizes();
+            double ratio = settings->value("BLEC_SplitRatio", 0.5).toDouble();
+            settings->endGroup();
+
+            newSizes[1] += newSizes[0];
+            newSizes[0] = newSizes[1] * ratio;
+            newSizes[1] -= newSizes[0];
+
+            ui->BLECentralListSplitter->setSizes(newSizes);
+            m_isBLECLoaded = true;
+        }
     }
     return false;
 }
@@ -558,9 +583,9 @@ void DeviceTab::on_openButton_clicked()
         arg.stopBits = (QSerialPort::StopBits)ui->SP_stopBitsBox->currentData().toInt();
         arg.parity = (QSerialPort::Parity)ui->SP_parityBox->currentData().toInt();
         arg.flowControl = (QSerialPort::FlowControl)ui->SP_flowControlBox->currentData().toInt();
-        QSerialPortInfo info(arg.name);
-        if(info.vendorIdentifier() != 0 && info.productIdentifier() != 0)
-            arg.id = QString::number(info.vendorIdentifier()) + "-" + QString::number(info.productIdentifier());
+        const SP_ID spid = SP_ID(QSerialPortInfo(arg.name));
+        if(spid && !SP_hasDuplicateID(spid))
+            arg.id = spid.toString();
         else
             arg.id = arg.name;
         m_connection->setArgument(arg);
@@ -692,6 +717,67 @@ void DeviceTab::on_closeButton_clicked()
     m_connection->close();
 }
 
+DeviceTab::SP_ID DeviceTab::SP_getPortID(int rowInList)
+{
+    quint16 vid = ui->SP_portList->item(rowInList, 6)->data(Qt::UserRole).toUInt();
+    quint16 pid = ui->SP_portList->item(rowInList, 7)->data(Qt::UserRole).toUInt();
+    return SP_ID(vid, pid, ui->SP_portList->item(rowInList, 3)->text());
+}
+
+bool DeviceTab::SP_hasDuplicateID(int rowInList)
+{
+    return SP_hasDuplicateID(SP_getPortID(rowInList));
+}
+
+bool DeviceTab::SP_hasDuplicateID(const SP_ID& spid)
+{
+    int counter = 0;
+    if(!spid) // don't handle invalid SP_ID
+        return false;
+    for(int i = 0; i < ui->SP_portList->rowCount(); i++)
+    {
+        if(spid.matches(SP_getPortID(i)) == 2) // exactly the same one
+        {
+            counter++;
+            if(counter >= 2)
+                return true;
+        }
+    }
+    return false;
+}
+
+int DeviceTab::SP_getMatchedHistoryIndex(int rowInList)
+{
+    int matchedIndex = -1;
+    const QString targetPortName = ui->SP_portList->item(rowInList, 0)->text();
+    const SP_ID targetSPID = SP_getPortID(rowInList);
+    const QString targetSPIDString = targetSPID.toString();
+
+    if(m_SPArgHistoryIndex.contains(targetSPIDString) && !SP_hasDuplicateID(rowInList))
+        matchedIndex = m_SPArgHistoryIndex[targetSPIDString];
+    else if(m_SPArgHistoryIndex.contains(targetPortName))
+        matchedIndex = m_SPArgHistoryIndex[targetPortName];
+    else
+    {
+        // reversed order, because the last one in the list is also the latest one.
+        // for every history item, if its id partially matches the targetSPID, or its name equals to targetPortName, then it is used.
+        for(int i = m_SPArgHistory.size() - 1; i >= 0; i--)
+        {
+            if(targetSPID && targetSPID.matches(m_SPArgHistory[i].id)) // don't handle invalid SP_ID
+            {
+                matchedIndex = i;
+                break;
+            }
+            if(targetPortName == m_SPArgHistory[i].name)
+            {
+                matchedIndex = i;
+                break;
+            }
+        }
+    }
+    return matchedIndex;
+}
+
 void DeviceTab::onTargetListCellClicked(int row, int column)
 {
     Q_UNUSED(column)
@@ -703,21 +789,11 @@ void DeviceTab::onTargetListCellClicked(int row, int column)
         // for default config
         ui->SP_portNameBox->setCurrentIndex(row);
 
-        // search preference by <vendorID>-<productID>
-        QString id = ui->SP_portList->item(row, 6)->text();  // vendor id
-        id += "-";
-        id += ui->SP_portList->item(row, 7)->text(); // product id
-        // search preference by DeviceName
-        QString portName = ui->SP_portList->item(row, 0)->text();
+        int historyIndex = SP_getMatchedHistoryIndex(row);
 
-        int historyIndex = -1;
-        if(m_SPArgHistoryIndex.contains(id))
-            historyIndex = m_SPArgHistoryIndex[id];
-        else if(m_SPArgHistoryIndex.contains(portName))
-            historyIndex = m_SPArgHistoryIndex[portName];
-
+        // don't override portName
         if(historyIndex != -1)
-            loadSPPreference(m_SPArgHistory[historyIndex]);
+            loadSPPreference(m_SPArgHistory[historyIndex], false);
     }
     else if(currType == Connection::BT_Client)
     {
@@ -808,17 +884,30 @@ void DeviceTab::syncUDPPreference()
 void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
 {
     int removeNum = 0;
+
     // remove existing one
+    // arg.id can be portName or <VID>-<PID>[-<serialNumber>]
+    //
+    // TODO:
+    // restore the mapping from arg.id to arg
+    // (the mapping is changed in onTargetListCellClicked())
+    // (IDK if this TODO is still necessary)
     if(m_SPArgHistoryIndex.contains(arg.id))
     {
+        int removedId;
         m_SPArgHistory.removeAt(m_SPArgHistoryIndex[arg.id]);
-        m_SPArgHistoryIndex.remove(arg.id);
-        removeNum = +1;
+        removedId = m_SPArgHistoryIndex.take(arg.id);
+        // update index
+        for(auto it = m_SPArgHistoryIndex.begin(); it != m_SPArgHistoryIndex.end(); ++it)
+        {
+            if(it.value() > removedId)
+                it.value()--;
+        }
     }
 
-    // add one
+    // add arg as latest
     m_SPArgHistory.append(arg);
-    m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.length() - 1 + removeNum;
+    m_SPArgHistoryIndex[arg.id] = m_SPArgHistory.length() - 1;
 
     // remove oldest to fit the size limit
     removeNum = (m_SPArgHistory.length() > m_maxHistoryNum) ? (m_SPArgHistory.length() - m_maxHistoryNum) : 0;
@@ -838,6 +927,8 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
             }
         }
     }
+
+    // save
     settings->beginWriteArray(m_historyPrefix["SP"], m_SPArgHistory.length());
     for(int i = 0; i < m_SPArgHistory.length(); i++)
     {
@@ -847,14 +938,29 @@ void DeviceTab::saveSPPreference(const Connection::SerialPortArgument& arg)
     settings->endArray();
 }
 
-void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg)
+void DeviceTab::loadSPPreference(const Connection::SerialPortArgument& arg, bool loadPortName)
 {
-    ui->SP_portNameBox->setCurrentText(arg.name);
+    // on_SP_XXBox_currentIndexChanged() is used to update serial port argument on the fly
+    // prevent triggering them when setting arguments programmatically
+    ui->SP_baudRateBox->blockSignals(true);
+    ui->SP_dataBitsBox->blockSignals(true);
+    ui->SP_stopBitsBox->blockSignals(true);
+    ui->SP_parityBox->blockSignals(true);
+    ui->SP_flowControlBox->blockSignals(true);
+
+    if(loadPortName)
+        ui->SP_portNameBox->setCurrentText(arg.name);
     ui->SP_baudRateBox->setEditText(QString::number(arg.baudRate));
     ui->SP_dataBitsBox->setCurrentIndex(ui->SP_dataBitsBox->findData(arg.dataBits));
     ui->SP_stopBitsBox->setCurrentIndex(ui->SP_stopBitsBox->findData(arg.stopBits));
     ui->SP_parityBox->setCurrentIndex(ui->SP_parityBox->findData(arg.parity));
     ui->SP_flowControlBox->setCurrentIndex(ui->SP_flowControlBox->findData(arg.flowControl));
+
+    ui->SP_baudRateBox->blockSignals(false);
+    ui->SP_dataBitsBox->blockSignals(false);
+    ui->SP_stopBitsBox->blockSignals(false);
+    ui->SP_parityBox->blockSignals(false);
+    ui->SP_flowControlBox->blockSignals(false);
 }
 
 void DeviceTab::loadNetPreference(const Connection::NetworkArgument& arg, Connection::Type type)
@@ -1480,4 +1586,46 @@ QString DeviceTab::UUID2String(const QBluetoothUuid& UUID)
         return result;
     else
         return UUID.toString();
+}
+
+DeviceTab::SP_ID::SP_ID(const QString &str)
+{
+    bool isOk = false;
+    m_vid = str.section('-', 0, 0).toUInt(&isOk);
+    if(!isOk)
+        return;
+    m_pid = str.section('-', 1, 1).toUInt(&isOk);
+    if(!isOk)
+    {
+        m_vid = 0; // invalid
+        return;
+    }
+    m_serialNumber = str.section('-', 2);
+}
+
+QString DeviceTab::SP_ID::toString() const
+{
+    // if hasXXIdentifier==false, xxID==0
+    // even if hasVendorIdentifier==true && VID==0, the VID is invalid in real world
+    if(!*this)
+        return QString();
+    QString id = QString::number(m_vid) + "-" + QString::number(m_pid);
+    if(!m_serialNumber.isEmpty())
+        id += "-" + m_serialNumber;
+    return id;
+}
+
+quint8 DeviceTab::SP_ID::matches(const SP_ID &id) const
+{
+    // (bool)(a.matches(b)) means a can use b's arguments
+    // 0: unmatch 1: match 2: the same
+    if(this->m_vid == id.m_vid && this->m_pid == id.m_pid)
+        return (this->m_serialNumber == id.m_serialNumber) ? 2 : 1;
+    else
+        return 0;
+}
+
+DeviceTab::SP_ID::operator bool() const
+{
+    return (m_vid != 0 || m_pid != 0 || !m_serialNumber.isEmpty());
 }

@@ -261,7 +261,7 @@ void SettingsTab::on_Conf_clearHistoryButton_clicked()
     btn = QMessageBox::warning(this, tr("Warning"), tr("All history will be deleted!\nContinue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if(btn == QMessageBox::No)
         return;
-    for(auto name : DeviceTab::m_historyPrefix)
+    for(const auto& name : DeviceTab::m_historyPrefix)
         m_settings->remove(name);
 }
 
@@ -294,7 +294,7 @@ void SettingsTab::on_Conf_importButton_clicked()
         return;
     }
     m_settings->clear();
-    for(auto key : newSettings.allKeys())
+    for(const auto& key : newSettings.allKeys())
         m_settings->setValue(key, newSettings.value(key));
     m_settings->sync();
 

@@ -101,7 +101,8 @@ bool DataTab::eventFilter(QObject *watched, QEvent *event)
 void DataTab::showEvent(QShowEvent *ev)
 {
     Q_UNUSED(ev)
-    // ui->dataTabSplitter->sizes() will return 0 if the widgets are invisible
+    // ui->dataTabSplitter->sizes() will return all 0 if the widgets are invisible
+    // the widgets are visible after this event happens
     settings->beginGroup("SerialTest_Data");
     QList<int> newSizes = ui->dataTabSplitter->sizes();
     double ratio = settings->value("SplitRatio", 0.5).toDouble();
@@ -388,8 +389,15 @@ void DataTab::onConnEstablished()
     if(m_connection->type() == Connection::SerialPort)
     {
         ui->data_flowRTSBox->setVisible(m_connection->getSerialPortArgument().flowControl != QSerialPort::HardwareControl);
-        ui->data_flowRTSBox->setChecked(m_connection->SP_isRequestToSend());
-        ui->data_flowDTRBox->setChecked(m_connection->SP_isDataTerminalReady());
+        // sync states from serial to UI
+        // ui->data_flowRTSBox->setChecked(m_connection->SP_isRequestToSend());
+        // ui->data_flowDTRBox->setChecked(m_connection->SP_isDataTerminalReady());
+
+        // sync states from UI to serial
+        if(ui->data_flowDTRBox->isChecked() != m_connection->SP_isDataTerminalReady())
+            on_data_flowDTRBox_clicked(ui->data_flowDTRBox->isChecked());
+        if(ui->data_flowRTSBox->isChecked() != m_connection->SP_isRequestToSend())
+            on_data_flowRTSBox_clicked(ui->data_flowRTSBox->isChecked());
     }
 }
 
@@ -477,11 +485,15 @@ void DataTab::appendReceivedData(const QByteArray& data)
 void DataTab::on_data_flowDTRBox_clicked(bool checked)
 {
     m_connection->SP_setDataTerminalReady(checked);
+    // sync state
+    ui->data_flowDTRBox->setCheckState(m_connection->SP_isDataTerminalReady() ? Qt::Checked : Qt::Unchecked);
 }
 
 void DataTab::on_data_flowRTSBox_clicked(bool checked)
 {
     m_connection->SP_setRequestToSend(checked);
+    // sync state
+    ui->data_flowRTSBox->setCheckState(m_connection->SP_isRequestToSend() ? Qt::Checked : Qt::Unchecked);
 }
 
 void DataTab::on_data_unescapeBox_stateChanged(int arg1)
@@ -523,9 +535,9 @@ void DataTab::on_sendedEnableBox_stateChanged(int arg1)
     emit setTxDataRecording(arg1 == Qt::Checked);
 }
 
-void DataTab::showUpTabHelper(int id)
+void DataTab::showUpTabHelper(int tabID)
 {
-    emit showUpTab(id);
+    emit showUpTab(tabID);
 }
 
 #ifdef Q_OS_ANDROID
