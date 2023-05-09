@@ -10,6 +10,9 @@
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-zh-cn.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/zh_Hans/packages/priv.wh201906.serialtest/)  
+[<img src="https://flathub.org/assets/badges/flathub-badge-en.png"
+     alt="Download on Flathub"
+     height="60">](https://flathub.org/apps/io.github.wh201906.serialtest)  
 
 ## 特点
 
@@ -111,7 +114,7 @@
 + 带图例，可改变曲线的名字和颜色
 + 可显示/隐藏曲线
 + 可以在收到指定数据后清空绘图区，也可手动清空
-+ [提供STM32/Arduino/STM8例程以及数据转文本函数](../../demo/README.md)
++ [提供STM32/Arduino/STC8例程以及数据转文本函数](../../demo/README.md)
 
 </details>
 
@@ -207,12 +210,13 @@ Android版本还可以在[F-Droid](https://f-droid.org/packages/priv.wh201906.se
 
 ## 在Linux系统下编译
 ### 1. 安装依赖
-```
+```bash
 sudo apt-get update
-sudo apt-get install qt5-default libqt5serialport5 libqt5serialport5-dev qtconnectivity5-dev  
+# sudo apt-get install git build-essential
+sudo apt-get install qt5-default libqt5serialport5-dev qtconnectivity5-dev  
 ```
 ### 2. 获取项目源码
-```
+```bash
 cd ~
 git clone https://github.com/wh201906/SerialTest.git --depth=1
 cd SerialTest
@@ -221,17 +225,30 @@ mkdir build && cd build
 
 ### 3. 选择如何使用QCustomPlot
 #### 使用QCustomPlot源代码（推荐）  
-你需要[下载](https://www.qcustomplot.com/release/2.1.0fixed/QCustomPlot-source.tar.gz)QCustomPlot的压缩包，将当中的qcustomplot.cpp和qcustomplot.h解压到src/目录下，然后继续编译。
+你需要[下载](https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz)QCustomPlot的压缩包，将当中的qcustomplot.cpp和qcustomplot.h解压到src/目录下，然后继续编译。
+```bash
+wget https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz
+tar -xzf QCustomPlot-source.tar.gz
+cp qcustomplot-source/qcustomplot.* ../src
+```
+
 #### 使用QCustomPlot库  
 如果src/目录中没有qcustomplot.cpp，项目在编译时会尝试在生成文件夹和库文件的默认文件夹当中寻找QCustomPlot的库文件(xxx.so/xxx.dll)。
 ### 4. 编译并运行
-```
+```bash
 qmake ../src
 make -j4 && make clean
 ./SerialTest 
 ```
 
 ## 通过 Linux 软件仓库安装
+
+### Flathub
+```bash
+flatpak install flathub io.github.wh201906.serialtest
+# 运行此应用
+flatpak run io.github.wh201906.serialtest
+```
 
 ### Arch Linux
 ```bash
