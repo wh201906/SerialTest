@@ -1,4 +1,4 @@
-QT       += core gui serialport bluetooth network printsupport
+QT += core gui serialport bluetooth network printsupport
 android {
     QT += androidextras
 }
@@ -75,10 +75,18 @@ TRANSLATIONS += \
 
 RC_ICONS = icon/icon.ico
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+# Rules for deployment.
+qnx {
+    target.path = /tmp/$${TARGET}/bin
+} else: unix:!android {
+    # if PREFIX is specified, use PREFIX
+    isEmpty(PREFIX): target.path = /opt/$${TARGET}/bin
+    else: target.path = $${PREFIX}/bin
+}
+!isEmpty(target.path) {
+    INSTALLS += target
+    message(Install path: $${target.path})
+}
 
 # Remember to change version in AndroidManifest.xml
 VERSION = 0.2.2
@@ -137,5 +145,7 @@ exists(qcustomplot.cpp) {
         else: QCPLIB = qcustomplot
     }
 
-    LIBS += -L./ -l$$QCPLIB
+    # /app/lib/ is for Flatpak
+    # no need to worry if /app/lib/ exists or not
+    LIBS += -L/app/lib/ -L./ -l$$QCPLIB
 }
