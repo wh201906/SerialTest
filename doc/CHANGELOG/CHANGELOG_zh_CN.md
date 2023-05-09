@@ -2,6 +2,17 @@
 
 [English](../../CHANGELOG.md)  
 
+## V0.2.3
++ 修复一处崩溃 (commit 40b6394681)
++ 修复AsyncCRC中的一处BUG (commit de1933f5ee)
++ 同时以十六进制，十进制显示串口VID，PID (commit b00aebd7bd)
++ 向下兼容至Qt 5.9
++ 重构串口历史记录逻辑
++ 无法连接串口时显示更多错误提示 (commit b6dbd88b54)
++ 升级QCustomPlot至2.1.1
++ 修复 #22: 忽略浮动串口的关闭事件 (commit c723e319fe)
++ 总是将UI上的DTR和RTS状态同步至串口 (commit ce576e45ed)
+
 ## V0.2.2
 + 添加暗黑主题(源于https://github.com/ColinDuquesnoy/QDarkStyleSheet)  
 + 绘图面板支持单向缩放  

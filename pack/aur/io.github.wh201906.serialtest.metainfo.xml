@@ -43,6 +43,21 @@
   </screenshots>
 
   <releases>
+   <release version="0.2.3" date="2023-05-09">
+     <description>
+         <ul>
+           <li>Fix a crash (commit 40b6394681)</li>
+           <li>Fix notify state in AsyncCRC (commit de1933f5ee)</li>
+           <li>Show serial port VID and PID in Hex and Dec (commit b00aebd7bd)</li>
+           <li>Backward compatible to Qt 5.9</li>
+           <li>Refactor serial port history logic</li>
+           <li>More details when failed to open a serial port (commit b6dbd88b54)</li>
+           <li>Update QCustomPlot version to 2.1.1</li>
+           <li>Fix #22: Ignore close event of floating windows (commit c723e319fe)</li>
+           <li>Sync DTR and RTS from UI to serial port (commit ce576e45ed)</li>
+         </ul>
+     </description>
+   </release>
    <release version="0.2.2" date="2022-10-28">
      <description>
        <p>Highlights:</p>

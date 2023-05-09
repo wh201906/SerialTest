@@ -2,6 +2,17 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
+## V0.2.3
++ Fix a crash (commit 40b6394681)
++ Fix a bug in AsyncCRC (commit de1933f5ee)
++ Show serial port VID and PID in Hex and Dec (commit b00aebd7bd)
++ Backward compatible to Qt 5.9
++ Refactor serial port history logic
++ More details when failed to open a serial port (commit b6dbd88b54)
++ Update QCustomPlot version to 2.1.1
++ Fix #22: Ignore close event of floating windows (commit c723e319fe)
++ Sync DTR and RTS from UI to serial port (commit ce576e45ed)
+
 ## V0.2.2
 + Add dark theme(from https://github.com/ColinDuquesnoy/QDarkStyleSheet)  
 + Add single orientation pinch gesture on plotter  
