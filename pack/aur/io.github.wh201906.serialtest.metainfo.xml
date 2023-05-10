@@ -43,6 +43,13 @@
   </screenshots>
 
   <releases>
+   <release version="0.2.4" date="2023-05-10">
+     <description>
+         <ul>
+           <li>Show the version number properly (commit 7b235fe40e)</li>
+         </ul>
+     </description>
+   </release>
    <release version="0.2.3" date="2023-05-09">
      <description>
          <ul>

@@ -2,6 +2,9 @@
 
 [English](../../CHANGELOG.md)  
 
+## V0.2.4
++ 修复版本号显示问题 (commit 7b235fe40e)
+
 ## V0.2.3
 + 修复一处崩溃 (commit 40b6394681)
 + 修复AsyncCRC中的一处BUG (commit de1933f5ee)

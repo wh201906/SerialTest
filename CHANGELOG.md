@@ -2,6 +2,9 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
+## V0.2.4
++ Show the version number properly (commit 7b235fe40e)
+
 ## V0.2.3
 + Fix a crash (commit 40b6394681)
 + Fix a bug in AsyncCRC (commit de1933f5ee)

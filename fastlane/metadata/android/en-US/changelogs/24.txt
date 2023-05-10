@@ -1,0 +1,2 @@
+V0.2.4
++ Show the version number properly (commit 7b235fe40e)

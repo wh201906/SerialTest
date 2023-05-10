@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0"?>
-<manifest package="priv.wh201906.serialtest" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="V0.2.3" android:versionCode="23" android:installLocation="auto">
+<manifest package="priv.wh201906.serialtest" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="V0.2.4" android:versionCode="24" android:installLocation="auto">
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
          Remove the comment if you do not require these default permissions. -->
     <!-- %%INSERT_PERMISSIONS -->
@@ -15,7 +15,6 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
             <intent-filter android:label="@string/intentFilter_send">
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
