@@ -38,6 +38,10 @@ SettingsTab::SettingsTab(QWidget *parent) :
     ui->Theme_nameBox->addItem(tr("(None)"), "(none)");
     ui->Theme_nameBox->addItem(tr("Dark"), "qdss_dark");
     ui->Theme_nameBox->addItem(tr("Light"), "qdss_light");
+
+    // APP_VERSION is defined in the .pro file
+    ui->versionLabel->setText(APP_VERSION);
+
     QScroller::grabGesture(ui->scrollArea);
 }
 

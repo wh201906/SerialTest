@@ -93,6 +93,8 @@ VERSION = 0.2.3
 QMAKE_TARGET_PRODUCT = "SerialTest"
 QMAKE_TARGET_DESCRIPTION = "SerialTest"
 QMAKE_TARGET_COMPANY = "wh201906"
+# Expose VERSION to the source files.
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
 DISTFILES += \
     android/AndroidManifest.xml \

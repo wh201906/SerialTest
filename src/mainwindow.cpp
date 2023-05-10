@@ -103,7 +103,8 @@ MainWindow::MainWindow(QWidget *parent)
     contextMenu->addSeparator();
 
     myInfo = new QAction("wh201906", this);
-    currVersion = new QAction(tr("Ver: ") + QApplication::applicationVersion().section('.', 0, -2), this); // ignore the 4th version number
+    // APP_VERSION is defined in the .pro file
+    currVersion = new QAction(tr("Ver: ") + APP_VERSION, this);
     checkUpdate = new QAction(tr("Check Update"), this);
     connect(myInfo, &QAction::triggered, [ = ]()
     {
