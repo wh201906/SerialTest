@@ -165,12 +165,16 @@ void DeviceTab::refreshTargetList()
             ui->SP_portList->setItem(i, 4, new QTableWidgetItem(ports[i].isNull() ? tr("Yes") : tr("No")));
             ui->SP_portList->setItem(i, 5, new QTableWidgetItem(ports[i].systemLocation()));
             quint16 xid;
+            QString xidString;
+            QTableWidgetItem* idItem;
             xid = ports[i].vendorIdentifier();
-            QTableWidgetItem* idItem = new QTableWidgetItem(QString("%1(%2)").arg(xid).arg(xid, 4, 16, QLatin1Char('0')));
+            xidString = (xid == 0) ? "0" : QString("%1(%2)").arg(xid).arg(xid, 4, 16, QLatin1Char('0'));
+            idItem = new QTableWidgetItem(xidString);
             idItem->setData(Qt::UserRole, xid);
             ui->SP_portList->setItem(i, 6, idItem);
             xid = ports[i].productIdentifier();
-            idItem = new QTableWidgetItem(QString("%1(%2)").arg(xid).arg(xid, 4, 16, QLatin1Char('0')));
+            xidString = (xid == 0) ? "0" : QString("%1(%2)").arg(xid).arg(xid, 4, 16, QLatin1Char('0'));
+            idItem = new QTableWidgetItem(xidString);
             idItem->setData(Qt::UserRole, xid);
             ui->SP_portList->setItem(i, 7, idItem);
             QList<qint32> baudRateList = ports[i].standardBaudRates();
