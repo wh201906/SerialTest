@@ -424,9 +424,9 @@ If no config file is detected, This app will create one in the current working d
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_31">
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
-          <widget class="QLabel" name="label_70">
+          <widget class="QLabel" name="label_10">
            <property name="text">
             <string>Version:</string>
            </property>
@@ -475,16 +475,16 @@ If no config file is detected, This app will create one in the current working d
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_30">
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
          <item>
-          <widget class="QLabel" name="label_68">
+          <widget class="QLabel" name="label_11">
            <property name="text">
             <string>Report Bugs:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_69">
+          <widget class="QLabel" name="label_12">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
