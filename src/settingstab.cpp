@@ -27,6 +27,8 @@ SettingsTab::SettingsTab(QWidget *parent) :
     ui->Android_fullScreenBox->hide();
     ui->Android_forceLandscapeBox->hide();
     ui->Android_dockBox->hide();
+    ui->Android_HWSerialBox->hide();
+    ui->generalGrpBox->hide(); // if the generalGrpBox has more than one items, delete this line.
     connect(ui->Opacity_slider, &QSlider::valueChanged, ui->Opacity_Box, &QSpinBox::setValue);
 #endif
 
@@ -94,6 +96,7 @@ void SettingsTab::initSettings()
     connect(ui->Android_fullScreenBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_forceLandscapeBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_dockBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
+    // Android_HWSerialBox will handle the preference itself.
     connect(ui->Opacity_Box, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
 }
 
@@ -173,6 +176,7 @@ void SettingsTab::savePreference()
     m_settings->setValue("Opacity", ui->Opacity_Box->value());
 #endif
     m_settings->endGroup();
+    // Android_HWSerialBox will handle the preference itself.
 }
 
 void SettingsTab::loadPreference()
@@ -213,6 +217,13 @@ void SettingsTab::loadPreference()
     }
 
     m_settings->endGroup();
+
+    m_settings->beginGroup("SerialTest_Connect");
+#ifdef Q_OS_ANDROID
+    ui->Android_HWSerialBox->setChecked(m_settings->value("Android_HWSerial", false).toBool());
+#endif
+    m_settings->endGroup();
+
     // Language is applied in main.cpp, not there.
     on_Lang_nameBox_currentIndexChanged(ui->Lang_nameBox->currentIndex());
 #ifdef Q_OS_ANDROID
@@ -240,6 +251,16 @@ void SettingsTab::on_Android_forceLandscapeBox_clicked()
     else
         mode = QAndroidJniObject::getStaticField<jint>("android/content/pm/ActivityInfo", "SCREEN_ORIENTATION_UNSPECIFIED");
     QtAndroid::androidActivity().callMethod<void>("setRequestedOrientation", "(I)V", mode);
+}
+
+void SettingsTab::on_Android_HWSerialBox_clicked()
+{
+    // the receiver of updateAvailableDeviceTypes() will read the settings
+    // emit the signal after the setting is stored
+    m_settings->beginGroup("SerialTest_Connect");
+    m_settings->setValue("Android_HWSerial", ui->Android_HWSerialBox->isChecked());
+    m_settings->endGroup();
+    emit updateAvailableDeviceTypes();
 }
 
 #endif

@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent)
     settingsTab = new SettingsTab();
     connect(settingsTab, &SettingsTab::opacityChanged, this, &MainWindow::onOpacityChanged); // not a slot function, but works fine.
     connect(settingsTab, &SettingsTab::fullScreenStateChanged, this, &MainWindow::setFullScreen);
+    connect(settingsTab, &SettingsTab::updateAvailableDeviceTypes, deviceTab, &DeviceTab::getAvailableTypes);
     ui->funcTab->insertTab(5, settingsTab, tr("Settings"));
 
     deviceTab->getAvailableTypes(true);

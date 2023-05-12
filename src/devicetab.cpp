@@ -307,9 +307,16 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
     QVector<Connection::Type> invalid =
     {Connection::BLE_Peripheral};
 #ifdef Q_OS_ANDROID
-    invalid += Connection::SerialPort;
+    settings->beginGroup("SerialTest_Connect");
+    bool AndroidHWSerialEnabled = settings->value("Android_HWSerial", false).toBool();
+    settings->endGroup();
+    if(!AndroidHWSerialEnabled)
+        invalid += Connection::SerialPort;
 #endif
 #ifdef Q_OS_WINDOWS
+    // Qt5 and Qt6 doesn't support BLE Peripheral on Windows
+    // https://doc.qt.io/qt-5/qtbluetooth-index.html
+    // https://doc.qt.io/qt-6/qtbluetooth-index.html
     invalid += Connection::BLE_Peripheral;
 #endif
     // check Bluetooth adapters, add adapter info into adapterBox

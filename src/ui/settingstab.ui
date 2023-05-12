@@ -249,7 +249,7 @@ If no config file is detected, This app will create one in the current working d
           <item>
            <widget class="QCheckBox" name="Android_forceLandscapeBox">
             <property name="text">
-             <string>Force landscape mode</string>
+             <string>Force Landscape Mode</string>
             </property>
            </widget>
           </item>
@@ -412,6 +412,22 @@ If no config file is detected, This app will create one in the current working d
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="generalGrpBox">
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QCheckBox" name="Android_HWSerialBox">
+            <property name="text">
+             <string>Enable Hardware Serial Port</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

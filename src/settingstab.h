@@ -37,6 +37,7 @@ private slots:
     void loadPreference();
 #ifdef Q_OS_ANDROID
     void on_Android_forceLandscapeBox_clicked();
+    void on_Android_HWSerialBox_clicked();
 #endif
 
     void on_Lang_nameBox_currentIndexChanged(int index);
@@ -61,6 +62,8 @@ signals:
     void opacityChanged(qreal value);
     void fontChanged(QFont font);
     void fullScreenStateChanged(bool isFullScreen);
+    // keep the default parameter the same as DeviceTab::getAvailableTypes()
+    void updateAvailableDeviceTypes(bool useFirstValid = false);
 };
 
 #endif // SETTINGSTAB_H
