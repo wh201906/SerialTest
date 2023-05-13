@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(IOConnection, &Connection::TCP_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
     ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
 
-    dataTab = new DataTab(&rawReceivedData, &RxMetadata, &rawSendedData, &TxMetadata);
+    dataTab = new DataTab(&rawReceivedData, &RxMetadata, &rawSendedData);
     dataTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, dataTab, &DataTab::onConnTypeChanged);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
@@ -339,7 +339,6 @@ void MainWindow::updateWindowTitle(Connection::Type type)
 void MainWindow::clearSendedData()
 {
     rawSendedData.clear();
-    TxMetadata.clear();
     m_TxCount = 0;
     updateRxTxLen(false, true);
 }

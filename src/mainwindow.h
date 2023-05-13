@@ -98,7 +98,6 @@ private:
     QVector<Metadata> RxMetadata;
     qint64 m_RxCount = 0;
     QByteArray rawSendedData;
-    QVector<Metadata> TxMetadata;
     qint64 m_TxCount = 0;
     QByteArray RxUIBuf;
     QVector<Metadata> RxUIMetadataBuf;

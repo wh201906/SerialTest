@@ -11,13 +11,12 @@
 #include <QDateTime>
 #include <QDebug>
 
-DataTab::DataTab(QByteArray* RxBuf, QVector<Metadata>* RxMetadataBuf, QByteArray* TxBuf, QVector<Metadata>* TxMetadataBuf, QWidget *parent) :
+DataTab::DataTab(QByteArray* RxBuf, QVector<Metadata>* RxMetadataBuf, QByteArray* TxBuf, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DataTab),
     rawReceivedData(RxBuf),
     RxMetadata(RxMetadataBuf),
-    rawSendedData(TxBuf),
-    TxMetadata(TxMetadataBuf)
+    rawSendedData(TxBuf)
 {
     ui->setupUi(this);
 #ifdef Q_OS_ANDROID

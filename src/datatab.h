@@ -24,7 +24,7 @@ class DataTab : public QWidget
     Q_OBJECT
 
 public:
-    explicit DataTab(QByteArray* RxBuf, QVector<Metadata>* RxMetadataBuf, QByteArray* TxBuf, QVector<Metadata>* TxMetadataBuf, QWidget *parent = nullptr);
+    explicit DataTab(QByteArray* RxBuf, QVector<Metadata>* RxMetadataBuf, QByteArray* TxBuf, QWidget *parent = nullptr);
     ~DataTab();
 
     void appendSendedData(const QByteArray &data);
@@ -99,7 +99,6 @@ private:
     QByteArray* rawReceivedData = nullptr;
     QVector<Metadata>* RxMetadata;
     QByteArray* rawSendedData = nullptr;
-    QVector<Metadata>* TxMetadata;
 
     void loadPreference();
     void showUpTabHelper(int tabID);
