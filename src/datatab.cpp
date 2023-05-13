@@ -60,6 +60,7 @@ void DataTab::initSettings()
 
     connect(ui->receivedHexBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->receivedLatestBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
+    connect(ui->receivedTimestampBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->receivedRealtimeBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->sendedHexBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
     connect(ui->sendedEnableBox, &QCheckBox::clicked, this, &DataTab::saveDataPreference);
@@ -156,6 +157,7 @@ void DataTab::saveDataPreference()
     settings->beginGroup("SerialTest_Data");
     settings->setValue("Recv_Hex", ui->receivedHexBox->isChecked());
     settings->setValue("Recv_Latest", ui->receivedLatestBox->isChecked());
+    settings->setValue("Recv_Timestamp", ui->receivedTimestampBox->isChecked());
     settings->setValue("Recv_Realtime", ui->receivedRealtimeBox->isChecked());
     settings->setValue("Send_Hex", ui->sendedHexBox->isChecked());
     settings->setValue("Send_Enabled", ui->sendedEnableBox->isChecked());
@@ -183,6 +185,7 @@ void DataTab::loadPreference()
     settings->beginGroup("SerialTest_Data");
     ui->receivedHexBox->setChecked(settings->value("Recv_Hex", false).toBool());
     ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", false).toBool());
+    ui->receivedTimestampBox->setChecked(settings->value("Recv_Timestamp", false).toBool());
     ui->receivedRealtimeBox->setChecked(settings->value("Recv_Realtime", true).toBool());
     ui->sendedHexBox->setChecked(settings->value("Send_Hex", false).toBool());
     ui->sendedEnableBox->setChecked(settings->value("Send_Enabled", true).toBool());
@@ -226,6 +229,13 @@ void DataTab::on_sendedHexBox_stateChanged(int arg1)
 void DataTab::on_receivedHexBox_stateChanged(int arg1)
 {
     isReceivedDataHex = (arg1 == Qt::Checked);
+    syncReceivedEditWithData();
+}
+
+
+void DataTab::on_receivedTimestampBox_stateChanged(int arg1)
+{
+    RxTimestampEnabled = (arg1 == Qt::Checked);
     syncReceivedEditWithData();
 }
 
@@ -366,16 +376,37 @@ void DataTab::syncReceivedEditWithData()
     RxSlider->blockSignals(true);
     if(isReceivedDataHex)
     {
-        ui->receivedEdit->clear();
-        for(const Metadata& item : qAsConst(*RxMetadata))
+        if(RxTimestampEnabled)
         {
-            QByteArray dataItem = rawReceivedData->mid(item.pos, item.len);
-            ui->receivedEdit->appendPlainText(QDateTime::fromMSecsSinceEpoch(item.timestamp).toString(Qt::ISODateWithMs) + ' ' + dataItem.toHex(' '));
+            ui->receivedEdit->clear();
+            for(const Metadata& item : qAsConst(*RxMetadata))
+            {
+                QByteArray dataItem = rawReceivedData->mid(item.pos, item.len);
+                ui->receivedEdit->appendPlainText(stringWithTimestamp(dataItem.toHex(' '), item.timestamp));
+            }
+        }
+        else
+        {
+            ui->receivedEdit->setPlainText(rawReceivedData->toHex(' ') + ' ');
         }
     }
     else
-        // sync, use QTextCodec
-        ui->receivedEdit->setPlainText(dataCodec->toUnicode(*rawReceivedData));
+    {
+        if(RxTimestampEnabled)
+        {
+            ui->receivedEdit->clear();
+            for(const Metadata& item : qAsConst(*RxMetadata))
+            {
+                QByteArray dataItem = rawReceivedData->mid(item.pos, item.len);
+                ui->receivedEdit->appendPlainText(stringWithTimestamp(dataCodec->toUnicode(dataItem), item.timestamp));
+            }
+        }
+        else
+        {
+            // sync, use QTextCodec
+            ui->receivedEdit->setPlainText(dataCodec->toUnicode(*rawReceivedData));
+        }
+    }
     RxSlider->blockSignals(false);
 //    qDebug() << toHEX(*rawReceivedData);
 }
@@ -466,31 +497,56 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
     ui->receivedEdit->moveCursor(QTextCursor::End);
     if(isReceivedDataHex)
     {
-        qint64 offset = metadata[0].pos;
-        for(const Metadata& item : metadata)
+        if(RxTimestampEnabled)
         {
-            QByteArray dataItem = data.mid(item.pos - offset, item.len);
-            offset += item.len;
-            ui->receivedEdit->appendPlainText(QDateTime::fromMSecsSinceEpoch(item.timestamp).toString(Qt::ISODateWithMs) + ' ' + dataItem.toHex(' '));
+            qint64 offset = metadata[0].pos;
+            for(const Metadata& item : metadata)
+            {
+                QByteArray dataItem = data.mid(item.pos - offset, item.len);
+                offset += item.len;
+                ui->receivedEdit->appendPlainText(stringWithTimestamp(dataItem.toHex(' '), item.timestamp));
+            }
         }
-        // QPlainTextEdit is not good at handling long line
-        // Seperate for better realtime receiving response
-        if(RxHexCounter > 5000)
+        else
         {
-            ui->receivedEdit->insertPlainText("\n");
-            RxHexCounter = 0;
+            ui->receivedEdit->insertPlainText(data.toHex(' ') + ' ');
+            RxHexCounter += data.length();
+            // QPlainTextEdit is not good at handling long line
+            // Seperate for better realtime receiving response
+            if(RxHexCounter > 5000)
+            {
+                ui->receivedEdit->insertPlainText("\n");
+                RxHexCounter = 0;
+            }
         }
     }
     else
     {
-        // append, use QTextDecoder
-        // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have one more empty line
-        // just ignore one of them
-        if(lastReceivedByte == '\r' && !data.isEmpty() && *data.cbegin() == '\n')
-            ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data.right(data.size() - 1)));
+        if(RxTimestampEnabled)
+        {
+            qint64 offset = metadata[0].pos;
+            for(const Metadata& item : metadata)
+            {
+                QByteArray dataItem = data.mid(item.pos - offset, item.len);
+                offset += item.len;
+                if(lastReceivedByte == '\r' && !dataItem.isEmpty() && *dataItem.cbegin() == '\n')
+                    ui->receivedEdit->appendPlainText(stringWithTimestamp(RxDecoder->toUnicode(dataItem.right(dataItem.size() - 1)), item.timestamp));
+                else
+                    ui->receivedEdit->appendPlainText(stringWithTimestamp(RxDecoder->toUnicode(dataItem), item.timestamp));
+                lastReceivedByte = *dataItem.crbegin();
+            }
+        }
         else
-            ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data));
-        lastReceivedByte = *data.crbegin();
+        {
+            // append, use QTextDecoder
+            // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have one more empty line
+            // just ignore one of them
+            if(lastReceivedByte == '\r' && !data.isEmpty() && *data.cbegin() == '\n')
+                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data.right(data.size() - 1)));
+            else
+                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data));
+            lastReceivedByte = *data.crbegin();
+        }
     }
     ui->receivedEdit->textCursor().setPosition(cursorPos);
     RxSlider->setSliderPosition(sliderPos);
@@ -554,6 +610,11 @@ void DataTab::showUpTabHelper(int tabID)
     emit showUpTab(tabID);
 }
 
+inline QString DataTab::stringWithTimestamp(const QString& str, qint64 timestamp)
+{
+    return ('[' + QDateTime::fromMSecsSinceEpoch(timestamp).toString(Qt::ISODateWithMs) + "] " + str);
+}
+
 #ifdef Q_OS_ANDROID
 void DataTab::onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text)
 {
@@ -570,3 +631,5 @@ void DataTab::onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text)
 DataTab* DataTab::m_currInstance = nullptr;
 
 #endif
+
+

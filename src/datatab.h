@@ -72,6 +72,8 @@ private slots:
 
     void on_sendedEnableBox_stateChanged(int arg1);
 
+    void on_receivedTimestampBox_stateChanged(int arg1);
+
 private:
     Ui::DataTab *ui;
 
@@ -86,6 +88,8 @@ private:
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
+    bool RxTimestampEnabled = false;
+    bool TxTimestampEnabled = false;
     bool unescapeSendedData = false;
 
     QTextCodec* dataCodec = nullptr; // for Tx and generating Rx decoder
@@ -99,6 +103,8 @@ private:
 
     void loadPreference();
     void showUpTabHelper(int tabID);
+    inline QString stringWithTimestamp(const QString& str, qint64 timestamp);
+
 #ifdef Q_OS_ANDROID
     static DataTab* m_currInstance;
     static void onSharedTextReceived(JNIEnv *env, jobject thiz, jstring text);
