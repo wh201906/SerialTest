@@ -32,6 +32,7 @@ SOURCES += \
     legenditemdialog.cpp \
     main.cpp \
     mainwindow.cpp \
+    metadata.cpp \
     mycustomplot.cpp \
     mysettings.cpp \
     plottab.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
     util.cpp
 
 HEADERS += \
+    metadata.h \
     adaptivestackedwidget.h \
     asynccrc.h \
     connection.h \

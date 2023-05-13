@@ -28,6 +28,7 @@
 #include "settingstab.h"
 #include "serialpinout.h"
 #include "connection.h"
+#include "metadata.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -94,10 +95,13 @@ private:
 
     bool m_TxDataRecording = true;
     QByteArray rawReceivedData;
+    QVector<Metadata> RxMetadata;
     qint64 m_RxCount = 0;
     QByteArray rawSendedData;
+    QVector<Metadata> TxMetadata;
     qint64 m_TxCount = 0;
     QByteArray RxUIBuf;
+    QVector<Metadata> RxUIMetadataBuf;
 
     QTimer* updateUITimer;
 

@@ -3,6 +3,7 @@
 #include "util.h"
 #include "filexceiver.h"
 
+#include <QDateTime>
 #include <QBluetoothLocalDevice>
 #ifdef Q_OS_ANDROID
 #include <QAndroidJniEnvironment>
@@ -50,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(IOConnection, &Connection::TCP_clientDisconnected, deviceTab, &DeviceTab::onClientCountChanged);
     ui->funcTab->insertTab(0, deviceTab, tr("Connect"));
 
-    dataTab = new DataTab(&rawReceivedData, &rawSendedData);
+    dataTab = new DataTab(&rawReceivedData, &RxMetadata, &rawSendedData, &TxMetadata);
     dataTab->setConnection(IOConnection);
     connect(deviceTab, &DeviceTab::connTypeChanged, dataTab, &DataTab::onConnTypeChanged);
     connect(dataTab, &DataTab::send, this, &MainWindow::sendData);
@@ -338,6 +339,7 @@ void MainWindow::updateWindowTitle(Connection::Type type)
 void MainWindow::clearSendedData()
 {
     rawSendedData.clear();
+    TxMetadata.clear();
     m_TxCount = 0;
     updateRxTxLen(false, true);
 }
@@ -345,6 +347,7 @@ void MainWindow::clearSendedData()
 void MainWindow::clearReceivedData()
 {
     rawReceivedData.clear();
+    RxMetadata.clear();
     m_RxCount = 0;
     updateRxTxLen(true, false);
 }
@@ -469,10 +472,13 @@ void MainWindow::readData()
     QByteArray newData = IOConnection->readAll();
     if(newData.isEmpty())
         return;
+    Metadata metadata(rawReceivedData.length(), newData.length(), QDateTime::currentMSecsSinceEpoch());
+    RxMetadata.append(metadata);
     rawReceivedData += newData;
     m_RxCount += newData.length();
     updateRxTxLen(true, false);
     RxUIBuf += newData;
+    RxUIMetadataBuf += metadata;
     QApplication::processEvents();
 }
 
@@ -507,12 +513,13 @@ void MainWindow::updateRxUI()
     if(RxUIBuf.isEmpty())
         return;
     if(dataTab->getRxRealtimeState())
-        dataTab->appendReceivedData(RxUIBuf);
+        dataTab->appendReceivedData(RxUIBuf, RxUIMetadataBuf);
     if(plotTab->enabled())
         plotTab->newData(RxUIBuf);
     if(fileTab->receiving())
         fileTab->fileXceiver()->newData(RxUIBuf);
     RxUIBuf.clear();
+    RxUIMetadataBuf.clear();
 }
 
 

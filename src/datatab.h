@@ -12,6 +12,7 @@
 
 #include "mysettings.h"
 #include "connection.h"
+#include "metadata.h"
 
 namespace Ui
 {
@@ -23,11 +24,11 @@ class DataTab : public QWidget
     Q_OBJECT
 
 public:
-    explicit DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent = nullptr);
+    explicit DataTab(QByteArray* RxBuf, QVector<Metadata>* RxMetadataBuf, QByteArray* TxBuf, QVector<Metadata>* TxMetadataBuf, QWidget *parent = nullptr);
     ~DataTab();
 
     void appendSendedData(const QByteArray &data);
-    void appendReceivedData(const QByteArray &data);
+    void appendReceivedData(const QByteArray &data, const QVector<Metadata>& metadata);
     void syncReceivedEditWithData();
     void syncSendedEditWithData();
     void setConnection(Connection* conn);
@@ -92,7 +93,9 @@ private:
     char lastReceivedByte = '\0';
     int RxHexCounter = 0, TxHexCounter = 0;
     QByteArray* rawReceivedData = nullptr;
+    QVector<Metadata>* RxMetadata;
     QByteArray* rawSendedData = nullptr;
+    QVector<Metadata>* TxMetadata;
 
     void loadPreference();
     void showUpTabHelper(int tabID);

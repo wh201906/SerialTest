@@ -11,11 +11,13 @@
 #include <QDateTime>
 #include <QDebug>
 
-DataTab::DataTab(QByteArray* RxBuf, QByteArray* TxBuf, QWidget *parent) :
+DataTab::DataTab(QByteArray* RxBuf, QVector<Metadata>* RxMetadataBuf, QByteArray* TxBuf, QVector<Metadata>* TxMetadataBuf, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DataTab),
     rawReceivedData(RxBuf),
-    rawSendedData(TxBuf)
+    RxMetadata(RxMetadataBuf),
+    rawSendedData(TxBuf),
+    TxMetadata(TxMetadataBuf)
 {
     ui->setupUi(this);
 #ifdef Q_OS_ANDROID
@@ -363,7 +365,14 @@ void DataTab::syncReceivedEditWithData()
 {
     RxSlider->blockSignals(true);
     if(isReceivedDataHex)
-        ui->receivedEdit->setPlainText(rawReceivedData->toHex(' ') + ' ');
+    {
+        ui->receivedEdit->clear();
+        for(const Metadata& item : qAsConst(*RxMetadata))
+        {
+            QByteArray dataItem = rawReceivedData->mid(item.pos, item.len);
+            ui->receivedEdit->appendPlainText(QDateTime::fromMSecsSinceEpoch(item.timestamp).toString(Qt::ISODateWithMs) + ' ' + dataItem.toHex(' '));
+        }
+    }
     else
         // sync, use QTextCodec
         ui->receivedEdit->setPlainText(dataCodec->toUnicode(*rawReceivedData));
@@ -435,7 +444,7 @@ void DataTab::appendSendedData(const QByteArray& data)
 // TODO:
 // split sync process, add processEvents()
 // void MainWindow::syncEditWithData()
-void DataTab::appendReceivedData(const QByteArray& data)
+void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>& metadata)
 {
     int cursorPos;
     int sliderPos;
@@ -457,8 +466,13 @@ void DataTab::appendReceivedData(const QByteArray& data)
     ui->receivedEdit->moveCursor(QTextCursor::End);
     if(isReceivedDataHex)
     {
-        ui->receivedEdit->insertPlainText(data.toHex(' ') + ' ');
-        RxHexCounter += data.length();
+        qint64 offset = metadata[0].pos;
+        for(const Metadata& item : metadata)
+        {
+            QByteArray dataItem = data.mid(item.pos - offset, item.len);
+            offset += item.len;
+            ui->receivedEdit->appendPlainText(QDateTime::fromMSecsSinceEpoch(item.timestamp).toString(Qt::ISODateWithMs) + ' ' + dataItem.toHex(' '));
+        }
         // QPlainTextEdit is not good at handling long line
         // Seperate for better realtime receiving response
         if(RxHexCounter > 5000)
