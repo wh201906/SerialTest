@@ -266,12 +266,12 @@
         </item>
         <item>
          <property name="text">
-          <string>\r\n</string>
+          <string notr="true">\r\n</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>\n</string>
+          <string notr="true">\n</string>
          </property>
         </item>
        </widget>
@@ -303,12 +303,12 @@
         </item>
         <item>
          <property name="text">
-          <string>\r\n</string>
+          <string notr="true">\r\n</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>\n</string>
+          <string notr="true">\n</string>
          </property>
         </item>
        </widget>

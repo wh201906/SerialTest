@@ -195,52 +195,52 @@
                  </property>
                  <item>
                   <property name="text">
-                   <string>1048576</string>
+                   <string notr="true">1048576</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>65536</string>
+                   <string notr="true">65536</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>8940</string>
+                   <string notr="true">8940</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>1440</string>
+                   <string notr="true">1440</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>1220</string>
+                   <string notr="true">1220</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>1024</string>
+                   <string notr="true">1024</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>536</string>
+                   <string notr="true">536</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>512</string>
+                   <string notr="true">512</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>256</string>
+                   <string notr="true">256</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>16</string>
+                   <string notr="true">16</string>
                   </property>
                  </item>
                 </widget>
@@ -306,47 +306,47 @@
                  </property>
                  <item>
                   <property name="text">
-                   <string>20</string>
+                   <string notr="true">20</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>50</string>
+                   <string notr="true">50</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>100</string>
+                   <string notr="true">100</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>200</string>
+                   <string notr="true">200</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>500</string>
+                   <string notr="true">500</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>1000</string>
+                   <string notr="true">1000</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>2000</string>
+                   <string notr="true">2000</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>5000</string>
+                   <string notr="true">5000</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>10000</string>
+                   <string notr="true">10000</string>
                   </property>
                  </item>
                 </widget>
@@ -433,52 +433,52 @@
                </property>
                <item>
                 <property name="text">
-                 <string>1048576</string>
+                 <string notr="true">1048576</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>65536</string>
+                 <string notr="true">65536</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>8940</string>
+                 <string notr="true">8940</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>1440</string>
+                 <string notr="true">1440</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>1220</string>
+                 <string notr="true">1220</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>1024</string>
+                 <string notr="true">1024</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>536</string>
+                 <string notr="true">536</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>512</string>
+                 <string notr="true">512</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>256</string>
+                 <string notr="true">256</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>16</string>
+                 <string notr="true">16</string>
                 </property>
                </item>
               </widget>

@@ -339,12 +339,12 @@ margin-right:3em;
           </item>
           <item>
            <property name="text">
-            <string>\r\n</string>
+            <string notr="true">\r\n</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>\n</string>
+            <string notr="true">\n</string>
            </property>
           </item>
          </widget>
@@ -517,62 +517,62 @@ margin-right:3em;
           </property>
           <item>
            <property name="text">
-            <string>UTF-8</string>
+            <string notr="true">UTF-8</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>ISO-8859-1</string>
+            <string notr="true">ISO-8859-1</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>GB2312</string>
+            <string notr="true">GB2312</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>GB18030</string>
+            <string notr="true">GB18030</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Big5</string>
+            <string notr="true">Big5</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>windows-1252</string>
+            <string notr="true">windows-1252</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>UTF-16LE</string>
+            <string notr="true">UTF-16LE</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>UTF-16BE</string>
+            <string notr="true">UTF-16BE</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>UTF-32LE</string>
+            <string notr="true">UTF-32LE</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>UTF-32BE</string>
+            <string notr="true">UTF-32BE</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Shift_JIS</string>
+            <string notr="true">Shift_JIS</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>EUC-KR</string>
+            <string notr="true">EUC-KR</string>
            </property>
           </item>
          </widget>
