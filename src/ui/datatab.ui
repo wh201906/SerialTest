@@ -512,6 +512,11 @@ margin-right:3em;
           </item>
           <item>
            <property name="text">
+            <string>ISO-8859-1</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>GB2312</string>
            </property>
           </item>
