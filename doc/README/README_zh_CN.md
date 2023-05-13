@@ -32,7 +32,8 @@
 + 可以控制DTR, RTS信号，显示CTS, DSR, DCD, RI(RNG)信号
 + 保存上一次连接的参数
 + 按照端口名或设备ID保存连接时参数，快速重设连接参数
-+ (Android端暂不支持串口，可参考[该解决方案](https://github.com/wh201906/SerialTest/discussions/11))
++ (Android端只支持形如`/dev/ttyXXX`的硬件串口)
++ (若需在Android端使用USB串口设备，可参考[该解决方案](https://github.com/wh201906/SerialTest/discussions/11#discussioncomment-5892063))
 
 </details>
 
@@ -90,6 +91,7 @@
 <summary>数据收发面板</summary>
 
 + 支持16进制显示, 切换过程中不改变原始数据(如\0)
++ 支持显示接收数据时间戳
 + 支持导出已选中文本/原始数据
 + 每次发送后可添加任意后缀(\n, \r\n, 文本，Hex数据)
 + 重复发送

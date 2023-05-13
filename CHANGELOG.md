@@ -2,6 +2,10 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
+## V0.3
++ Support Rx timestamp
++ Support hardware serial port on Android (commit 47de23b11a)
+
 ## V0.2.4
 + Show the version number properly (commit 7b235fe40e)
 

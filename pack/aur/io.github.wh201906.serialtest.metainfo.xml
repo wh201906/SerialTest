@@ -43,6 +43,14 @@
   </screenshots>
 
   <releases>
+   <release version="0.3" date="2023-05-13">
+     <description>
+         <ul>
+           <li>Support Rx timestamp</li>
+           <li>Support hardware serial port on Android (commit 47de23b11a)</li>
+         </ul>
+     </description>
+   </release>
    <release version="0.2.4" date="2023-05-10">
      <description>
          <ul>

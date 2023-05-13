@@ -31,7 +31,8 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 + Modify DTR/RTS signals, Show CTS, DSR, DCD, RI(RNG)signals  
 + Save the parameters of the last connection
 + Save connection parameters by port name or device ID then reuse them quickly
-+ (Serial port is not supported on Android now)
++ (Android: support hardware serial port only, like `/dev/ttyXXX`)
++ (Android: [Workaround](https://github.com/wh201906/SerialTest/discussions/11#discussioncomment-5892063) for USB serial devices)
 
 </details>
 
@@ -89,6 +90,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 <summary>Data panel</summary>
 
 + Show data in hexadecimal
++ Show timestamp of received data
 + Export raw data or selected text
 + Add suffix behind each sending(\r, \r\n, string, hex data)
 + Repeat

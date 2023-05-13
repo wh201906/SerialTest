@@ -2,6 +2,10 @@
 
 [English](../../CHANGELOG.md)  
 
+## V0.3
++ 支持显示接收数据时间戳
++ 支持Android硬件串口 (commit 47de23b11a)
+
 ## V0.2.4
 + 修复版本号显示问题 (commit 7b235fe40e)
 
