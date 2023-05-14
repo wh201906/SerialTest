@@ -43,9 +43,17 @@
   </screenshots>
 
   <releases>
+   <release version="0.3.1" date="2023-05-14">
+     <description>
+         <ul>
+           <li>Fix a build error (commit 9e9cdc1837)</li>
+         </ul>
+     </description>
+   </release>
    <release version="0.3" date="2023-05-13">
      <description>
          <ul>
+           <li>(Deprecated, please use V0.3.1 or higher)</li>
            <li>Support Rx timestamp</li>
            <li>Support hardware serial port on Android (commit 47de23b11a)</li>
          </ul>

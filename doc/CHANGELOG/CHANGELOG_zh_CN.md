@@ -2,7 +2,11 @@
 
 [English](../../CHANGELOG.md)  
 
+## V0.3.1
++ 修复一个编译错误 (commit 9e9cdc1837)
+
 ## V0.3
+(已弃用，请使用V0.3.1或更高版本)
 + 支持显示接收数据时间戳
 + 支持Android硬件串口 (commit 47de23b11a)
 

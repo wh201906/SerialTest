@@ -2,7 +2,11 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
+## V0.3.1
++ Fix a build error (commit 9e9cdc1837)
+
 ## V0.3
+(Deprecated, please use V0.3.1 or higher)
 + Support Rx timestamp
 + Support hardware serial port on Android (commit 47de23b11a)
 
