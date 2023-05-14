@@ -6,6 +6,7 @@
 class Metadata
 {
 public:
+    Metadata();
     Metadata(qint64 pos, qint64 len, qint64 timestamp);
     qint64 pos = 0;
     qint64 len = 0;
