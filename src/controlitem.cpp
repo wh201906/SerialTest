@@ -284,6 +284,13 @@ bool ControlItem::load(const QJsonObject& dict)
     ui->slider->blockSignals(true);
     ui->checkBox->blockSignals(true);
     ui->spinBox->blockSignals(true);
+
+    // the value of slider/spinbox in the config might exceed the default range(0~100)
+    // apply the new range first, then set the value
+    // otherwise, the value might be limit to 0~100
+    on_minEdit_editingFinished();
+    on_maxEdit_editingFinished();
+
     if(type == Command)
     {
         ui->CMDEdit->setText(dict["content"].toString());
