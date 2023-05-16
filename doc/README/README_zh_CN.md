@@ -180,13 +180,13 @@
 </details>
 
 ## 预览
-![port](../previews/port_zh_CN.png)  
-![connect_android](../previews/connect_android_zh_CN.jpg)  
-![data](../previews/data_zh_CN.png)  
-![plot](../previews/plot_zh_CN.png)  
-![ctrl](../previews/ctrl_zh_CN.png)  
-![tcp_client](../previews/tcp_client_zh_CN.png)  
-![tcp_server](../previews/tcp_server_zh_CN.png)  
+| 数据面板 | 绘图+数据(动图) | 控制面板(动图) | 串口，暗色主题 |  
+| --- | --- | --- | --- |  
+| ![win_data](../previews/win_data_zh_CN.png) | ![mixed_plotter](../previews/mixed_plotter_zh_CN.gif) | ![ctrl](../previews/ctrl_zh_CN.gif) | ![dark_serial](../previews/dark_serial_zh_CN.png) |  
+
+| 蓝牙，Windows | 串口，Android | TCP客户端，Linux | TCP服务器 |  
+| --- | --- | --- | --- |  
+| ![win_bluetooth](../previews/win_bluetooth_zh_CN.png) | ![android_serial](../previews/android_serial_zh_CN.png) | ![linux_tcp_client](../previews/linux_tcp_client_zh_CN.png) | ![tcp_server](../previews/tcp_server_zh_CN.png) |  
 
 [更多预览](../previews/previews_zh_CN.md)  
 

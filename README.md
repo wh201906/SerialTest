@@ -180,13 +180,13 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 </details>
 
 ## Previews
-![port](doc/previews/port.png)  
-![connect_android](doc/previews/connect_android.jpg)  
-![data](doc/previews/data.png)  
-![plot](doc/previews/plot.png)  
-![ctrl](doc/previews/ctrl.png)  
-![tcp_client](doc/previews/tcp_client.png)  
-![tcp_server](doc/previews/tcp_server.png)  
+| Data Panel | Plotter&Data(GIF) | Control Panel(GIF) | Serial Port, Dark Theme |  
+| --- | --- | --- | --- |  
+| ![win_data](doc/previews/win_data.png) | ![mixed_plotter](doc/previews/mixed_plotter.gif) | ![ctrl](doc/previews/ctrl.gif) | ![dark_serial](doc/previews/dark_serial.png) |  
+
+| Bluetooth, Windows | Serial Port, Android | TCP Client, Linux | TCP Server |  
+| --- | --- | --- | --- |  
+| ![win_bluetooth](doc/previews/win_bluetooth.png) | ![android_serial](doc/previews/android_serial.png) | ![linux_tcp_client](doc/previews/linux_tcp_client.png) | ![tcp_server](doc/previews/tcp_server.png) |  
 
 [more previews](doc/previews/previews.md)  
 
