@@ -64,6 +64,7 @@ private slots:
 
     void on_slider_actionTriggered(int action);
 
+    void onSliderReleased();
 private:
     Ui::ControlItem *ui;
     Type type;
@@ -71,6 +72,7 @@ private:
     void initUI();
     QTextCodec* dataCodec;
     bool m_sliderPageChanged = false;
+    qint64 m_lastSliderReleasedTimestamp = 0;
 signals:
     void send(const QByteArray& data);
 

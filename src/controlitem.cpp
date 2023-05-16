@@ -4,6 +4,7 @@
 
 #include <QTextCodec>
 #include <QTimer>
+#include <QDateTime>
 
 ControlItem::ControlItem(Type type, QWidget *parent) :
     QWidget(parent),
@@ -162,13 +163,13 @@ void ControlItem::on_autoBox_stateChanged(int arg1)
     ui->sendButton->setVisible(arg1 != Qt::Checked);
     if(arg1 == Qt::Checked)
     {
-        connect(ui->slider, &QSlider::sliderReleased, this, &ControlItem::on_sendButton_clicked);
+        connect(ui->slider, &QSlider::sliderReleased, this, &ControlItem::onSliderReleased);
         connect(ui->checkBox, &QCheckBox::stateChanged, this, &ControlItem::on_sendButton_clicked);
         connect(ui->spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ControlItem::on_sendButton_clicked);
     }
     else
     {
-        disconnect(ui->slider, &QSlider::sliderReleased, this, &ControlItem::on_sendButton_clicked);
+        disconnect(ui->slider, &QSlider::sliderReleased, this, &ControlItem::onSliderReleased);
         disconnect(ui->checkBox, &QCheckBox::stateChanged, this, &ControlItem::on_sendButton_clicked);
         disconnect(ui->spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ControlItem::on_sendButton_clicked);
     }
@@ -349,5 +350,16 @@ void ControlItem::on_slider_actionTriggered(int action)
     {
         m_sliderPageChanged = true;
     }
+}
+
+void ControlItem::onSliderReleased()
+{
+    // The sliderReleased() signal might be emitted twice.
+    // If the interval of two signals is too short, treat them as duplicated ones
+    // and ignore one of them.
+    qint64 currTimestamp = QDateTime::currentMSecsSinceEpoch();
+    if(currTimestamp - m_lastSliderReleasedTimestamp > 5)
+        on_sendButton_clicked();
+    m_lastSliderReleasedTimestamp = currTimestamp;
 }
 
