@@ -502,7 +502,6 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
             for(const Metadata& item : metadata)
             {
                 QByteArray dataItem = data.mid(item.pos - offset, item.len);
-                offset += item.len;
                 ui->receivedEdit->appendPlainText(stringWithTimestamp(dataItem.toHex(' '), item.timestamp));
             }
         }
@@ -527,7 +526,6 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
             for(const Metadata& item : metadata)
             {
                 QByteArray dataItem = data.mid(item.pos - offset, item.len);
-                offset += item.len;
                 if(lastReceivedByte == '\r' && !dataItem.isEmpty() && *dataItem.cbegin() == '\n')
                     ui->receivedEdit->appendPlainText(stringWithTimestamp(RxDecoder->toUnicode(dataItem.right(dataItem.size() - 1)), item.timestamp));
                 else
