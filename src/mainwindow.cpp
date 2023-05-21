@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    // might not be empty(specified by -stylesheet option)
+    m_appDefaultQss = qApp->styleSheet();
     contextMenu = new QMenu();
 
     IOConnection = new Connection();
@@ -77,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->funcTab->insertTab(4, fileTab, tr("File"));
 
     settingsTab = new SettingsTab();
+    connect(settingsTab, &SettingsTab::themeChanged, this, &MainWindow::onThemeChanged);
     connect(settingsTab, &SettingsTab::opacityChanged, this, &MainWindow::onOpacityChanged); // not a slot function, but works fine.
     connect(settingsTab, &SettingsTab::fullScreenStateChanged, this, &MainWindow::setFullScreen);
     connect(settingsTab, &SettingsTab::updateAvailableDeviceTypes, deviceTab, &DeviceTab::getAvailableTypes);
@@ -530,6 +533,30 @@ void MainWindow::onOpacityChanged(qreal value)
         if(dock->isFloating())
             dock->setWindowOpacity(value);
     }
+}
+
+void MainWindow::onThemeChanged(const QString& themeName)
+{
+    QFile themeFile;
+    QTextStream themeStream;
+    QString qssString = qApp->styleSheet(); // default behavior
+    if(themeName == "(none)")
+        qssString = m_appDefaultQss;
+    else if(themeName == "qdss_dark")
+    {
+        themeFile.setFileName(":/qdarkstyle/dark/darkstyle.qss");
+        themeFile.open(QFile::ReadOnly | QFile::Text);
+        themeStream.setDevice(&themeFile);
+        qssString = themeStream.readAll();
+    }
+    else if(themeName == "qdss_light")
+    {
+        themeFile.setFileName(":/qdarkstyle/light/lightstyle.qss");
+        themeFile.open(QFile::ReadOnly | QFile::Text);
+        themeStream.setDevice(&themeFile);
+        qssString = themeStream.readAll();
+    }
+    qApp->setStyleSheet(qssString);
 }
 
 void MainWindow::dockInit()

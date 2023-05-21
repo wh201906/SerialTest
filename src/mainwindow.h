@@ -56,6 +56,7 @@ public slots:
     void showUpTab(int tabID);
     void setFullScreen(bool isFullScreen);
     void onOpacityChanged(qreal value);
+    void onThemeChanged(const QString& themeName);
     void onDockTopLevelChanged(bool topLevel); // for opacity
 
 protected:
@@ -112,6 +113,8 @@ private:
     FileTab* fileTab;
     SettingsTab* settingsTab;
     QList<QDockWidget*> dockList;
+
+    QString m_appDefaultQss;
 
 #ifndef Q_OS_ANDROID
     QCheckBox* onTopBox;

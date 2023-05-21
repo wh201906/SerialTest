@@ -59,6 +59,7 @@ private:
     MySettings* m_settings;
     void createConfFile(const QString &path, bool overwrite = false);
 signals:
+    void themeChanged(const QString& themeName);
     void opacityChanged(qreal value);
     void fontChanged(QFont font);
     void fullScreenStateChanged(bool isFullScreen);

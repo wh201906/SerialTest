@@ -231,6 +231,7 @@ void SettingsTab::loadPreference()
     on_Android_forceLandscapeBox_clicked();
     // Android_dockBox only affect the config file
 #else
+    on_Theme_setButton_clicked();
     on_Opacity_Box_valueChanged(ui->Opacity_Box->value());
 #endif
     if(fontValid)
@@ -338,8 +339,10 @@ void SettingsTab::on_Conf_exportButton_clicked()
 
 void SettingsTab::on_Theme_setButton_clicked()
 {
+    QString themeName = ui->Theme_nameBox->currentData().toString();
     m_settings->beginGroup("SerialTest");
-    m_settings->setValue("Theme_Name", ui->Theme_nameBox->currentData().toString());
+    m_settings->setValue("Theme_Name", themeName);
     m_settings->endGroup();
+    emit themeChanged(themeName);
 }
 

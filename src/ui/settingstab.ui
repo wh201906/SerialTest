@@ -322,7 +322,7 @@ If no config file is detected, This app will create one in the current working d
             <item>
              <widget class="QLabel" name="label_9">
               <property name="text">
-               <string>Theme *:</string>
+               <string>Theme:</string>
               </property>
              </widget>
             </item>

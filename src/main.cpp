@@ -97,31 +97,6 @@ int main(int argc, char *argv[])
     QString theme = m_settings->value("Theme_Name").toString();
     m_settings->endGroup();
 
-    QFile* themeFile = new QFile();
-    QTextStream* themeStream = new QTextStream();
-    QString qssString = a.styleSheet(); // default behavior
-    if(theme == "(none)")
-        ;
-    else if(theme == "qdss_dark")
-    {
-        themeFile->setFileName(":/qdarkstyle/dark/darkstyle.qss");
-        themeFile->open(QFile::ReadOnly | QFile::Text);
-        themeStream->setDevice(themeFile);
-        qssString = themeStream->readAll();
-    }
-    else if(theme == "qdss_light")
-    {
-        themeFile->setFileName(":/qdarkstyle/light/lightstyle.qss");
-        themeFile->open(QFile::ReadOnly | QFile::Text);
-        themeStream->setDevice(themeFile);
-        qssString = themeStream->readAll();
-    }
-    a.setStyleSheet(qssString);
-    delete themeFile;
-    delete themeStream;
-    themeFile = nullptr;
-    themeStream = nullptr;
-
     m_settings = nullptr;
 
     MainWindow w;
