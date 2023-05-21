@@ -92,11 +92,6 @@ int main(int argc, char *argv[])
     if(languageSet)
         a.installTranslator(&translator);
 
-    // set theme by config file
-    m_settings->beginGroup("SerialTest");
-    QString theme = m_settings->value("Theme_Name").toString();
-    m_settings->endGroup();
-
     m_settings = nullptr;
 
     MainWindow w;

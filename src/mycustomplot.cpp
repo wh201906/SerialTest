@@ -119,37 +119,62 @@ bool MyCustomPlot::handlePinchGesture(QPinchGesture* pinchGesture)
     return true;
 }
 
-void MyCustomPlot::setDarkStyle()
+void MyCustomPlot::setDarkStyle(bool enabled)
 {
-    // from https://www.qcustomplot.com/index.php/demos/styleddemo
-    xAxis->setBasePen(QPen(Qt::white, 1));
-    yAxis->setBasePen(QPen(Qt::white, 1));
-    xAxis->setTickPen(QPen(Qt::white, 1));
-    yAxis->setTickPen(QPen(Qt::white, 1));
-    xAxis->setSubTickPen(QPen(Qt::white, 1));
-    yAxis->setSubTickPen(QPen(Qt::white, 1));
-    xAxis->setTickLabelColor(Qt::white);
-    yAxis->setTickLabelColor(Qt::white);
-    xAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
-    yAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
+    QPen tmpPen[3];
+    QColor tmpColor;
+    QBrush tmpBrush[2];
+
+    QLinearGradient plotGradient;
+    QLinearGradient axisRectGradient;
+    if(enabled)
+    {
+        // from https://www.qcustomplot.com/index.php/demos/styleddemo
+        plotGradient.setStart(0, 0);
+        plotGradient.setFinalStop(0, 350);
+        plotGradient.setColorAt(0, QColor(80, 80, 80));
+        plotGradient.setColorAt(1, QColor(50, 50, 50));
+        axisRectGradient.setStart(0, 0);
+        axisRectGradient.setFinalStop(0, 350);
+        axisRectGradient.setColorAt(0, QColor(80, 80, 80));
+        axisRectGradient.setColorAt(1, QColor(30, 30, 30));
+
+        tmpPen[0] = QPen(Qt::white, 1);
+        tmpPen[1] = QPen(QColor(140, 140, 140), 1, Qt::DotLine);
+        tmpPen[2] = Qt::NoPen;
+        tmpColor = Qt::white;
+        tmpBrush[0] = plotGradient;
+        tmpBrush[1] = axisRectGradient;
+    }
+    else
+    {
+        // from qcustomplot.cpp(2.1.1)
+        tmpPen[0] = QPen(Qt::black, 0, Qt::SolidLine, Qt::SquareCap);
+        tmpPen[1] = QPen(QColor(200, 200, 200), 0, Qt::DotLine);
+        tmpPen[2] = QPen(QColor(200, 200, 200), 0, Qt::SolidLine);
+        tmpColor = Qt::black;
+        tmpBrush[0] = QBrush(Qt::white, Qt::SolidPattern);
+        tmpBrush[1] = Qt::NoBrush;
+    }
+    xAxis->setBasePen(tmpPen[0]);
+    yAxis->setBasePen(tmpPen[0]);
+    xAxis->setTickPen(tmpPen[0]);
+    yAxis->setTickPen(tmpPen[0]);
+    xAxis->setSubTickPen(tmpPen[0]);
+    yAxis->setSubTickPen(tmpPen[0]);
+    xAxis->setTickLabelColor(tmpColor);
+    yAxis->setTickLabelColor(tmpColor);
+    xAxis->grid()->setPen(tmpPen[1]);
+    yAxis->grid()->setPen(tmpPen[1]);
 //    xAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
 //    yAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
 //    xAxis->grid()->setSubGridVisible(true);
 //    yAxis->grid()->setSubGridVisible(true);
-    xAxis->grid()->setZeroLinePen(Qt::NoPen);
-    yAxis->grid()->setZeroLinePen(Qt::NoPen);
+    xAxis->grid()->setZeroLinePen(tmpPen[2]);
+    yAxis->grid()->setZeroLinePen(tmpPen[2]);
+    setBackground(tmpBrush[0]);
+    axisRect()->setBackground(tmpBrush[1]);
+
     xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
     yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
-    QLinearGradient plotGradient;
-    plotGradient.setStart(0, 0);
-    plotGradient.setFinalStop(0, 350);
-    plotGradient.setColorAt(0, QColor(80, 80, 80));
-    plotGradient.setColorAt(1, QColor(50, 50, 50));
-    setBackground(plotGradient);
-    QLinearGradient axisRectGradient;
-    axisRectGradient.setStart(0, 0);
-    axisRectGradient.setFinalStop(0, 350);
-    axisRectGradient.setColorAt(0, QColor(80, 80, 80));
-    axisRectGradient.setColorAt(1, QColor(30, 30, 30));
-    axisRect()->setBackground(axisRectGradient);
 }

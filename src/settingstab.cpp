@@ -231,9 +231,9 @@ void SettingsTab::loadPreference()
     on_Android_forceLandscapeBox_clicked();
     // Android_dockBox only affect the config file
 #else
-    on_Theme_setButton_clicked();
     on_Opacity_Box_valueChanged(ui->Opacity_Box->value());
 #endif
+    on_Theme_setButton_clicked();
     if(fontValid)
         on_Font_setButton_clicked();
     if(dataFontValid)

@@ -27,6 +27,7 @@ public:
 public slots:
     void newData(const QByteArray &data);
     void setDecoder(QTextDecoder* decoder);
+    void onThemeChanged(const QString& themeName);
 signals:
 
 private slots:

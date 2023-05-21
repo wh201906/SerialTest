@@ -456,8 +456,7 @@ void PlotTab::loadPreference()
     // default preferences are defined in this function
     const QString defaultFrameSp = "|";
     const QString defaultDataSp = ",";
-    const QStringList darkThemeList = {"qdss_dark"};
-    bool isDarkTheme = false;
+
     QStringList nameList, colorList;
     int nameNum, colorNum;
 
@@ -486,7 +485,6 @@ void PlotTab::loadPreference()
     nameList = settings->value("GraphName", QStringList()).toStringList();
     settings->endGroup();
     settings->beginGroup("SerialTest");
-    isDarkTheme = darkThemeList.contains(settings->value("Theme_Name").toString());
     settings->endGroup();
     changeGraphNum(ui->plot_dataNumBox->value());
     on_plot_frameSpTypeBox_currentIndexChanged(ui->plot_frameSpTypeBox->currentIndex());
@@ -500,8 +498,7 @@ void PlotTab::loadPreference()
         ui->qcpWidget->graph(i)->setPen(QColor(colorList[i]));
     for(int i = 0; i < nameNum; i++)
         ui->qcpWidget->graph(i)->setName(nameList[i]);
-    if(isDarkTheme)
-        ui->qcpWidget->setDarkStyle();
+
 }
 
 bool PlotTab::enabled()
@@ -580,6 +577,13 @@ void PlotTab::setDecoder(QTextDecoder *decoder)
     if(this->decoder != nullptr)
         delete this->decoder;
     this->decoder = decoder;
+}
+
+void PlotTab::onThemeChanged(const QString &themeName)
+{
+    const QStringList darkThemeList = {"qdss_dark"};
+    bool isDarkTheme = darkThemeList.contains(themeName);
+    ui->qcpWidget->setDarkStyle(isDarkTheme);
 }
 
 QCPAbstractLegendItem* PlotTab::getLegendItemByPos(const QPointF &pos)
