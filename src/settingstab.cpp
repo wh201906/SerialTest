@@ -28,7 +28,6 @@ SettingsTab::SettingsTab(QWidget *parent) :
     ui->Android_forceLandscapeBox->hide();
     ui->Android_dockBox->hide();
     ui->Android_HWSerialBox->hide();
-    ui->generalGrpBox->hide(); // if the generalGrpBox has more than one items, delete this line.
     connect(ui->Opacity_slider, &QSlider::valueChanged, ui->Opacity_Box, &QSpinBox::setValue);
 #endif
 
@@ -98,6 +97,8 @@ void SettingsTab::initSettings()
     connect(ui->Android_dockBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     // Android_HWSerialBox will handle the preference itself.
     connect(ui->Opacity_Box, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
+    connect(ui->Data_mergeTimestampBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
+    connect(ui->Data_mergeTimestampIntervalBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
 }
 
 
@@ -177,6 +178,10 @@ void SettingsTab::savePreference()
 #endif
     m_settings->endGroup();
     // Android_HWSerialBox will handle the preference itself.
+    m_settings->beginGroup("SerialTest_Data");
+    m_settings->setValue("MergeTimestamp", ui->Data_mergeTimestampBox->isChecked());
+    m_settings->setValue("TimestampInterval", ui->Data_mergeTimestampIntervalBox->value());
+    m_settings->endGroup();
 }
 
 void SettingsTab::loadPreference()
@@ -223,6 +228,10 @@ void SettingsTab::loadPreference()
     ui->Android_HWSerialBox->setChecked(m_settings->value("Android_HWSerial", false).toBool());
 #endif
     m_settings->endGroup();
+    m_settings->beginGroup("SerialTest_Data");
+    ui->Data_mergeTimestampBox->setChecked(m_settings->value("MergeTimestamp", true).toBool());
+    ui->Data_mergeTimestampIntervalBox->setValue(m_settings->value("TimestampInterval", 10).toInt());
+    m_settings->endGroup();
 
     // Language is applied in main.cpp, not there.
     on_Lang_nameBox_currentIndexChanged(ui->Lang_nameBox->currentIndex());
@@ -234,6 +243,9 @@ void SettingsTab::loadPreference()
     on_Opacity_Box_valueChanged(ui->Opacity_Box->value());
 #endif
     on_Theme_setButton_clicked();
+    on_Data_mergeTimestampBox_clicked();
+    on_Data_mergeTimestampIntervalBox_valueChanged(ui->Data_mergeTimestampIntervalBox->value());
+
     if(fontValid)
         on_Font_setButton_clicked();
     if(dataFontValid)
@@ -344,5 +356,17 @@ void SettingsTab::on_Theme_setButton_clicked()
     m_settings->setValue("Theme_Name", themeName);
     m_settings->endGroup();
     emit themeChanged(themeName);
+}
+
+
+void SettingsTab::on_Data_mergeTimestampBox_clicked()
+{
+    emit mergeTimestampChanged(ui->Data_mergeTimestampBox->isChecked());
+}
+
+
+void SettingsTab::on_Data_mergeTimestampIntervalBox_valueChanged(int arg1)
+{
+    emit timestampIntervalChanged(arg1);
 }
 

@@ -58,6 +58,8 @@ public slots:
     void onOpacityChanged(qreal value);
     void onThemeChanged(const QString& themeName);
     void onDockTopLevelChanged(bool topLevel); // for opacity
+    void onMergeTimestampChanged(bool enabled);
+    void onTimestampIntervalChanged(int interval);
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -102,6 +104,9 @@ private:
     qint64 m_TxCount = 0;
     QByteArray RxUIBuf;
     QVector<Metadata> RxUIMetadataBuf;
+
+    bool m_mergeTimestamp = true;
+    int m_timestampInterval = 10;
 
     QTimer* updateUITimer;
 

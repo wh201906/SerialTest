@@ -496,13 +496,26 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
     ui->receivedEdit->moveCursor(QTextCursor::End);
     if(isReceivedDataHex)
     {
-        if(RxTimestampEnabled)
+        if(RxTimestampEnabled && !metadata.isEmpty())
         {
-            qint64 offset = metadata[0].pos;
+            qint64 offset = 0;
             for(const Metadata& item : metadata)
             {
-                QByteArray dataItem = data.mid(item.pos - offset, item.len);
+                QByteArray dataItem = data.mid(offset, item.len);
+                offset += item.len;
                 ui->receivedEdit->appendPlainText(stringWithTimestamp(dataItem.toHex(' '), item.timestamp));
+            }
+
+            // when merged mode is enabled, the metadata.last().pos+len is not the end.
+            QByteArray dataItem = data.mid(offset);
+            ui->receivedEdit->insertPlainText(dataItem.toHex(' ') + ' ');
+            RxHexCounter += dataItem.length();
+            // QPlainTextEdit is not good at handling long line
+            // Seperate for better realtime receiving response
+            if(RxHexCounter > 5000)
+            {
+                ui->receivedEdit->insertPlainText("\n");
+                RxHexCounter = 0;
             }
         }
         else
@@ -520,18 +533,27 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
     }
     else
     {
-        if(RxTimestampEnabled)
+        if(RxTimestampEnabled && !metadata.isEmpty())
         {
-            qint64 offset = metadata[0].pos;
+            qint64 offset = 0;
             for(const Metadata& item : metadata)
             {
-                QByteArray dataItem = data.mid(item.pos - offset, item.len);
+                QByteArray dataItem = data.mid(offset, item.len);
+                offset += item.len;
                 if(lastReceivedByte == '\r' && !dataItem.isEmpty() && *dataItem.cbegin() == '\n')
                     ui->receivedEdit->appendPlainText(stringWithTimestamp(RxDecoder->toUnicode(dataItem.right(dataItem.size() - 1)), item.timestamp));
                 else
                     ui->receivedEdit->appendPlainText(stringWithTimestamp(RxDecoder->toUnicode(dataItem), item.timestamp));
                 lastReceivedByte = *dataItem.crbegin();
             }
+
+            // when merged mode is enabled, the metadata.last().pos+len is not the end.
+            QByteArray dataItem = data.mid(offset);
+            if(lastReceivedByte == '\r' && !dataItem.isEmpty() && *dataItem.cbegin() == '\n')
+                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(dataItem.right(dataItem.size() - 1)));
+            else
+                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(dataItem));
+            lastReceivedByte = *dataItem.crbegin();
         }
         else
         {

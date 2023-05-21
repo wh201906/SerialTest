@@ -84,6 +84,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(settingsTab, &SettingsTab::fullScreenStateChanged, this, &MainWindow::setFullScreen);
     connect(settingsTab, &SettingsTab::updateAvailableDeviceTypes, deviceTab, &DeviceTab::getAvailableTypes);
     connect(settingsTab, &SettingsTab::themeChanged, plotTab, &PlotTab::onThemeChanged);
+    connect(settingsTab, &SettingsTab::mergeTimestampChanged, this, &MainWindow::onMergeTimestampChanged);
+    connect(settingsTab, &SettingsTab::timestampIntervalChanged, this, &MainWindow::onTimestampIntervalChanged);
     ui->funcTab->insertTab(5, settingsTab, tr("Settings"));
 
     deviceTab->getAvailableTypes(true);
@@ -475,13 +477,20 @@ void MainWindow::readData()
     QByteArray newData = IOConnection->readAll();
     if(newData.isEmpty())
         return;
+
     Metadata metadata(rawReceivedData.length(), newData.length(), QDateTime::currentMSecsSinceEpoch());
-    RxMetadata.append(metadata);
+    if(m_mergeTimestamp && !RxMetadata.isEmpty() && metadata.timestamp - RxMetadata.last().timestamp < m_timestampInterval)
+        RxMetadata.last().len += metadata.len;
+    else
+    {
+        RxMetadata.append(metadata);
+        RxUIMetadataBuf += metadata;
+    }
+
     rawReceivedData += newData;
     m_RxCount += newData.length();
     updateRxTxLen(true, false);
     RxUIBuf += newData;
-    RxUIMetadataBuf += metadata;
     QApplication::processEvents();
 }
 
@@ -593,6 +602,16 @@ void MainWindow::onDockTopLevelChanged(bool topLevel)
 {
     if(topLevel) // some widget is floating now
         onOpacityChanged(windowOpacity());
+}
+
+void MainWindow::onMergeTimestampChanged(bool enabled)
+{
+    m_mergeTimestamp = enabled;
+}
+
+void MainWindow::onTimestampIntervalChanged(int interval)
+{
+    m_timestampInterval = interval;
 }
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)

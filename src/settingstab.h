@@ -54,6 +54,10 @@ private slots:
 
     void on_Theme_setButton_clicked();
 
+    void on_Data_mergeTimestampBox_clicked();
+
+    void on_Data_mergeTimestampIntervalBox_valueChanged(int arg1);
+
 private:
     Ui::SettingsTab *ui;
     MySettings* m_settings;
@@ -65,6 +69,8 @@ signals:
     void fullScreenStateChanged(bool isFullScreen);
     // keep the default parameter the same as DeviceTab::getAvailableTypes()
     void updateAvailableDeviceTypes(bool useFirstValid = false);
+    void mergeTimestampChanged(bool enabled);
+    void timestampIntervalChanged(int interval);
 };
 
 #endif // SETTINGSTAB_H
