@@ -496,49 +496,38 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
     ui->receivedEdit->moveCursor(QTextCursor::End);
     if(isReceivedDataHex)
     {
-        if(RxTimestampEnabled && !metadata.isEmpty())
+        qint64 offset = 0;
+        QByteArray dataItem;
+        if(RxTimestampEnabled)
         {
-            qint64 offset = 0;
             for(const Metadata& item : metadata)
             {
-                QByteArray dataItem = data.mid(offset, item.len);
+                dataItem = data.mid(offset, item.len);
                 offset += item.len;
                 ui->receivedEdit->appendPlainText(stringWithTimestamp(dataItem.toHex(' '), item.timestamp));
             }
-
-            // when merged mode is enabled, the metadata.last().pos+len is not the end.
-            QByteArray dataItem = data.mid(offset);
-            ui->receivedEdit->insertPlainText(dataItem.toHex(' ') + ' ');
-            RxHexCounter += dataItem.length();
-            // QPlainTextEdit is not good at handling long line
-            // Seperate for better realtime receiving response
-            if(RxHexCounter > 5000)
-            {
-                ui->receivedEdit->insertPlainText("\n");
-                RxHexCounter = 0;
-            }
         }
-        else
+
+        dataItem = data.mid(offset);
+        ui->receivedEdit->insertPlainText(dataItem.toHex(' ') + ' ');
+        RxHexCounter += dataItem.length();
+        // QPlainTextEdit is not good at handling long line
+        // Seperate for better realtime receiving response
+        if(RxHexCounter > 5000)
         {
-            ui->receivedEdit->insertPlainText(data.toHex(' ') + ' ');
-            RxHexCounter += data.length();
-            // QPlainTextEdit is not good at handling long line
-            // Seperate for better realtime receiving response
-            if(RxHexCounter > 5000)
-            {
-                ui->receivedEdit->insertPlainText("\n");
-                RxHexCounter = 0;
-            }
+            ui->receivedEdit->insertPlainText("\n");
+            RxHexCounter = 0;
         }
     }
     else
     {
-        if(RxTimestampEnabled && !metadata.isEmpty())
+        qint64 offset = 0;
+        QByteArray dataItem;
+        if(RxTimestampEnabled)
         {
-            qint64 offset = 0;
             for(const Metadata& item : metadata)
             {
-                QByteArray dataItem = data.mid(offset, item.len);
+                dataItem = data.mid(offset, item.len);
                 offset += item.len;
                 if(lastReceivedByte == '\r' && !dataItem.isEmpty() && *dataItem.cbegin() == '\n')
                     ui->receivedEdit->appendPlainText(stringWithTimestamp(RxDecoder->toUnicode(dataItem.right(dataItem.size() - 1)), item.timestamp));
@@ -546,26 +535,17 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
                     ui->receivedEdit->appendPlainText(stringWithTimestamp(RxDecoder->toUnicode(dataItem), item.timestamp));
                 lastReceivedByte = *dataItem.crbegin();
             }
+        }
 
-            // when merged mode is enabled, the metadata.last().pos+len is not the end.
-            QByteArray dataItem = data.mid(offset);
-            if(lastReceivedByte == '\r' && !dataItem.isEmpty() && *dataItem.cbegin() == '\n')
-                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(dataItem.right(dataItem.size() - 1)));
-            else
-                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(dataItem));
-            lastReceivedByte = *dataItem.crbegin();
-        }
+        dataItem = data.mid(offset);
+        // append, use QTextDecoder
+        // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have one more empty line
+        // just ignore one of them
+        if(lastReceivedByte == '\r' && !dataItem.isEmpty() && *dataItem.cbegin() == '\n')
+            ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(dataItem.right(dataItem.size() - 1)));
         else
-        {
-            // append, use QTextDecoder
-            // if \r and \n are received seperatedly, the rawReceivedData will be fine, but the receivedEdit will have one more empty line
-            // just ignore one of them
-            if(lastReceivedByte == '\r' && !data.isEmpty() && *data.cbegin() == '\n')
-                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data.right(data.size() - 1)));
-            else
-                ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(data));
-            lastReceivedByte = *data.crbegin();
-        }
+            ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(dataItem));
+        lastReceivedByte = *dataItem.crbegin();
     }
     ui->receivedEdit->textCursor().setPosition(cursorPos);
     RxSlider->setSliderPosition(sliderPos);
