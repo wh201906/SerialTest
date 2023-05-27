@@ -263,3 +263,8 @@ yay -S serialtest-git
 
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)
+
+## 许可证
+`src/qcustomplot.h` 和位于 `src/qdarkstyle/` 下的文件使用各自对应项目的许可证。  
+位于 `src/` 下的源代码使用[GPL 3.0](../../LICENSE.GPL)许可证。  
+位于 `demo/` 下的源代码（不包含依赖库），本项目的所有翻译，文档，以及该项目的其它部分均使用[MIT](../../LICENSE.MIT)许可证。

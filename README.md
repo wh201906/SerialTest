@@ -263,3 +263,8 @@ yay -S serialtest-git
 
 ## Change Log
 [Change Log](CHANGELOG.md)
+
+## License
+The `src/qcustomplot.h` and the files in `src/qdarkstyle/` are licensed under the same licenses as their respective projects.  
+The source code in `src/` is licensed under [GPL 3.0](LICENSE.GPL).  
+The source code in `demo/`(excluding dependencies), translations, documents and other parts of this project are licensed under [MIT](LICENSE.MIT).  
