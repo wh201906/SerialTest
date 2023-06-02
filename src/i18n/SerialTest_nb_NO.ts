@@ -6,12 +6,12 @@
     <message>
         <location filename="../connection.cpp" line="260"/>
         <source>Failed to listen on adapter</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke lytte på adapteren</translation>
     </message>
     <message>
         <location filename="../connection.cpp" line="268"/>
         <source>Failed to register service on adapter</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunne ikke registrere tjenesten på adapteren</translation>
     </message>
     <message>
         <location filename="../connection.cpp" line="308"/>
@@ -21,17 +21,17 @@
     <message>
         <location filename="../connection.cpp" line="326"/>
         <source>(Multicast)Failed to listen to port </source>
-        <translation type="unfinished"></translation>
+        <translation>(Multicast)Kunne ikke lytte til port </translation>
     </message>
     <message>
         <location filename="../connection.cpp" line="332"/>
         <source>(Multicast)Failed to join </source>
-        <translation type="unfinished"></translation>
+        <translation>(Multicast)Kunne ikke bli med </translation>
     </message>
     <message>
         <location filename="../connection.cpp" line="522"/>
         <source>Bluetooth SPP Service</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth SPP-tjeneste</translation>
     </message>
     <message>
         <location filename="../connection.cpp" line="664"/>
@@ -51,7 +51,7 @@
     <message>
         <location filename="../connection.cpp" line="1359"/>
         <source>Bluetooth Client</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth-klient</translation>
     </message>
     <message>
         <location filename="../connection.cpp" line="1360"/>
@@ -89,13 +89,13 @@
     <message>
         <location filename="../ui/controlitem.ui" line="56"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Navn</translation>
     </message>
     <message>
         <location filename="../ui/controlitem.ui" line="63"/>
         <location filename="../controlitem.cpp" line="263"/>
         <source>Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando</translation>
     </message>
     <message>
         <location filename="../ui/controlitem.ui" line="181"/>
@@ -125,7 +125,7 @@
     <message>
         <location filename="../ui/controlitem.ui" line="236"/>
         <source>max</source>
-        <translation type="unfinished"></translation>
+        <translation>maks</translation>
     </message>
     <message>
         <location filename="../ui/controlitem.ui" line="243"/>
@@ -154,7 +154,7 @@
         <location filename="../ui/controlitem.ui" line="324"/>
         <location filename="../controlitem.cpp" line="148"/>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefiks</translation>
     </message>
     <message>
         <location filename="../ui/controlitem.ui" line="301"/>
@@ -167,12 +167,12 @@
         <location filename="../ui/controlitem.ui" line="375"/>
         <location filename="../controlitem.cpp" line="156"/>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translation>Suffiks</translation>
     </message>
     <message>
         <location filename="../ui/controlitem.ui" line="395"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Slett</translation>
     </message>
 </context>
 <context>
@@ -184,17 +184,17 @@
     <message>
         <location filename="../ui/ctrltab.ui" line="22"/>
         <source>Add Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til kommando</translation>
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="29"/>
         <source>Add Slider</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til glidebryter</translation>
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="36"/>
         <source>Add CheckBox</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til avmerkingsboks</translation>
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="43"/>
@@ -204,7 +204,7 @@
     <message>
         <location filename="../ui/ctrltab.ui" line="63"/>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Klar</translation>
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="70"/>
@@ -218,35 +218,35 @@
         <location filename="../ctrltab.cpp" line="154"/>
         <location filename="../ctrltab.cpp" line="188"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksport</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="90"/>
         <source>Paste the exported data in the box.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lim inn de eksporterte dataene i boksen.</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="94"/>
         <location filename="../ctrltab.cpp" line="174"/>
         <source>Done</source>
-        <translation type="unfinished"></translation>
+        <translation>Ferdig</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="121"/>
         <source>Import Control Panel</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer kontrollpanel</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="121"/>
         <location filename="../ctrltab.cpp" line="205"/>
         <source>Config files</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurasjonsfiler</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="121"/>
         <location filename="../ctrltab.cpp" line="205"/>
         <source>All files</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle filer</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="128"/>
@@ -260,7 +260,7 @@
         <location filename="../ctrltab.cpp" line="128"/>
         <location filename="../ctrltab.cpp" line="217"/>
         <source>Successed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Vellykket!</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="128"/>
@@ -277,7 +277,7 @@
     <message>
         <location filename="../ctrltab.cpp" line="162"/>
         <source>Copy all text in this box and save it to somewhere.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopier all tekst i denne boksen og lagre den et sted.</translation>
     </message>
     <message>
         <location filename="../ctrltab.cpp" line="163"/>
