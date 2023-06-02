@@ -16,7 +16,7 @@
     <message>
         <location filename="../connection.cpp" line="308"/>
         <source>Failed to listen to </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Klarte ikke å lytte til </translation>
     </message>
     <message>
         <location filename="../connection.cpp" line="326"/>
