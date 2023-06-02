@@ -1,6 +1,5 @@
 # SerialTest
-[![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=GitHub%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://github.com/wh201906/SerialTest/releases)  
-[![downloads](https://img.shields.io/sourceforge/dt/serialtest.svg?label=SourceForge%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://sourceforge.net/projects/serialtest/)  
+[![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=GitHub%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://github.com/wh201906/SerialTest/releases)  [![downloads](https://img.shields.io/sourceforge/dt/serialtest.svg?label=SourceForge%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://sourceforge.net/projects/serialtest/)  [![translation](https://hosted.weblate.org/widgets/serialtest/-/svg-badge.svg)](https://hosted.weblate.org/engage/serialtest/)  
 可在Windows/Linux/Android上运行，功能丰富的调试工具。  
 支持数据收发/实时绘图/快捷方式/文件收发功能。  
 支持串口/蓝牙SPP客户端/蓝牙SPP服务器/蓝牙BLE客户端/TCP客户端/TCP服务器/UDP调试。  
@@ -260,6 +259,10 @@ yay -S serialtest
 # 安装开发版
 yay -S serialtest-git
 ```
+
+## 翻译
+此项目使用Weblate来管理翻译。  
+如果你想提交翻译，请访问此项目的[Weblate页面](https://hosted.weblate.org/engage/serialtest/)，或者向`weblate`分支提交PR。  
 
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)

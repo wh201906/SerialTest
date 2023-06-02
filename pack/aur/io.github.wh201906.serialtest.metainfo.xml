@@ -18,6 +18,8 @@
 
   <url type="homepage">https://github.com/wh201906/SerialTest</url>
   <url type="bugtracker">https://github.com/wh201906/SerialTest/issues</url>
+  <url type="translate">https://hosted.weblate.org/projects/serialtest</url>
+  <url type="vcs-browser">https://github.com/wh201906/SerialTest</url>
 
   <launchable type="desktop-id">io.github.wh201906.serialtest.desktop</launchable>
 

@@ -1,6 +1,5 @@
 # SerialTest
-[![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=GitHub%20release%20downloads)](https://github.com/wh201906/SerialTest/releases)  
-[![downloads](https://img.shields.io/sourceforge/dt/serialtest.svg?label=SourceForge%20downloads)](https://sourceforge.net/projects/serialtest/)  
+[![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=GitHub%20release%20downloads)](https://github.com/wh201906/SerialTest/releases)  [![downloads](https://img.shields.io/sourceforge/dt/serialtest.svg?label=SourceForge%20downloads)](https://sourceforge.net/projects/serialtest/)  [![translation](https://hosted.weblate.org/widgets/serialtest/-/svg-badge.svg)](https://hosted.weblate.org/engage/serialtest/)  
 A versatile test tool running on Windows/Linux/Android.  
 Works as data transceiver/realtime plotter/shortcut/file transceiver.  
 Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP client/server, UDP.  
@@ -260,6 +259,10 @@ yay -S serialtest
 # Install the development version
 yay -S serialtest-git
 ```
+
+## Translation
+The project uses Weblate to manage translation.  
+If you'd like to help with the translation, please visit the [Weblate translation page](https://hosted.weblate.org/engage/serialtest/) or create a PR to the `weblate` branch.  
 
 ## Change Log
 [Change Log](CHANGELOG.md)
