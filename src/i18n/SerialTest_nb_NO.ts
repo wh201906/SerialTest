@@ -1801,7 +1801,7 @@ Continue?</source>
     <message>
         <location filename="../settingstab.cpp" line="332"/>
         <source>Export config to file</source>
-        <translation type="unfinished"></translation>
+        <translation>Eksporter konfigurasjon til fil</translation>
     </message>
 </context>
 <context>
