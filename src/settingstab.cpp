@@ -34,7 +34,9 @@ SettingsTab::SettingsTab(QWidget *parent) :
 
     ui->Lang_nameBox->addItem(tr("(System)"), "(sys)");
     ui->Lang_nameBox->addItem(tr("Simplified Chinese"), "zh_CN");
+    ui->Lang_nameBox->addItem(tr("Traditional Chinese"), "zh_TW");
     ui->Lang_nameBox->addItem(tr("English"), "en");
+    ui->Lang_nameBox->addItem(tr("Norwegian"), "nb_NO");
     ui->Lang_nameBox->addItem(tr("(External File)"), "(ext)");
 
     ui->Theme_nameBox->addItem(tr("(None)"), "(none)");

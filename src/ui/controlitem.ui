@@ -220,7 +220,7 @@
       <item>
        <widget class="QLineEdit" name="minEdit">
         <property name="text">
-         <string>0</string>
+         <string notr="true">0</string>
         </property>
         <property name="placeholderText">
          <string>min</string>
@@ -230,7 +230,7 @@
       <item>
        <widget class="QLineEdit" name="maxEdit">
         <property name="text">
-         <string>100</string>
+         <string notr="true">100</string>
         </property>
         <property name="placeholderText">
          <string>max</string>
@@ -240,7 +240,7 @@
       <item>
        <widget class="QLineEdit" name="stepEdit">
         <property name="text">
-         <string>1</string>
+         <string notr="true">1</string>
         </property>
         <property name="placeholderText">
          <string>step</string>

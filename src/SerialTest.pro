@@ -73,7 +73,9 @@ FORMS += \
     ui/plottab.ui
 
 TRANSLATIONS += \
-    i18n/SerialTest_zh_CN.ts
+    i18n/SerialTest_zh_CN.ts \
+    i18n/SerialTest_zh_TW.ts \
+    i18n/SerialTest_nb_NO.ts
 
 RC_ICONS = icon/icon.ico
 

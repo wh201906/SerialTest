@@ -77,6 +77,10 @@ int main(int argc, char *argv[])
         languageSet = false;
     else if(language == "zh_CN")
         languageSet = translator.load(":/i18n/SerialTest_zh_CN.qm");
+    else if(language == "zh_TW")
+        languageSet = translator.load(":/i18n/SerialTest_zh_TW.qm");
+    else if(language == "nb_NO")
+        languageSet = translator.load(":/i18n/SerialTest_nb_NO.qm");
     else if(language == "en")
         languageSet = true;
     else if(language == "(ext)")
@@ -86,8 +90,13 @@ int main(int argc, char *argv[])
     {
         // set language by system locale
         QLocale locale = QLocale::system();
-        if(locale.language() == QLocale::Chinese || locale.country() == QLocale::China)
+        QLocale::Country countryOrRegion = locale.country();
+        if(locale.language() == QLocale::Chinese || countryOrRegion == QLocale::China)
             languageSet = translator.load(":/i18n/SerialTest_zh_CN.qm");
+        else if(locale.language() == QLocale::Chinese || countryOrRegion == QLocale::Taiwan)
+            languageSet = translator.load(":/i18n/SerialTest_zh_TW.qm");
+        else if(countryOrRegion == QLocale::Norway)
+            languageSet = translator.load(":/i18n/SerialTest_nb_NO.qm");
     }
     if(languageSet)
         a.installTranslator(&translator);
