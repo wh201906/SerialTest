@@ -108,28 +108,13 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controlitem.ui" line="223"/>
-        <source>0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../ui/controlitem.ui" line="226"/>
         <source>min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/controlitem.ui" line="233"/>
-        <source>100</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../ui/controlitem.ui" line="236"/>
         <source>max</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/controlitem.ui" line="243"/>
-        <source>1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -177,10 +162,6 @@
 </context>
 <context>
     <name>CtrlTab</name>
-    <message>
-        <source>Control</source>
-        <translation type="vanished">控制</translation>
-    </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="22"/>
         <source>Add Command</source>
@@ -476,10 +457,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>PortName</source>
-        <translation type="vanished">端口名</translation>
-    </message>
-    <message>
         <location filename="../ui/devicetab.ui" line="105"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
@@ -490,17 +467,9 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SerialNumber</source>
-        <translation type="vanished">序列号</translation>
-    </message>
-    <message>
         <location filename="../ui/devicetab.ui" line="120"/>
         <source>IsNull</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SystemLocation</source>
-        <translation type="vanished">系统路径</translation>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="130"/>
@@ -603,10 +572,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>IP/Hostname</source>
-        <translation type="vanished">IP/主机名</translation>
-    </message>
-    <message>
         <location filename="../ui/devicetab.ui" line="532"/>
         <source>Alias</source>
         <translation type="unfinished"></translation>
@@ -637,10 +602,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Port</source>
-        <translation type="vanished">端口</translation>
-    </message>
-    <message>
         <location filename="../ui/devicetab.ui" line="740"/>
         <source>Parity:</source>
         <translation type="unfinished"></translation>
@@ -649,10 +610,6 @@
         <location filename="../ui/devicetab.ui" line="605"/>
         <source>BaudRate:</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation type="vanished">高级</translation>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="816"/>
@@ -688,11 +645,6 @@
     <message>
         <location filename="../ui/devicetab.ui" line="1122"/>
         <source>Local Port:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/devicetab.ui" line="1129"/>
-        <source>0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -749,10 +701,6 @@ you can change the remote address and port on the fly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>DeviceName</source>
-        <translation type="vanished">设备名</translation>
-    </message>
-    <message>
         <location filename="../ui/devicetab.ui" line="243"/>
         <location filename="../ui/devicetab.ui" line="431"/>
         <location filename="../ui/devicetab.ui" line="484"/>
@@ -765,10 +713,6 @@ you can change the remote address and port on the fly.</source>
         <location filename="../ui/devicetab.ui" line="426"/>
         <source>MAC Address</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Device</source>
-        <translation type="vanished">设备</translation>
     </message>
     <message>
         <location filename="../devicetab.cpp" line="268"/>
@@ -811,26 +755,6 @@ you can change the remote address and port on the fly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SerialPort</source>
-        <translation type="vanished">串口</translation>
-    </message>
-    <message>
-        <source>Bluetooth Client</source>
-        <translation type="vanished">蓝牙客户端</translation>
-    </message>
-    <message>
-        <source>Bluetooth Server</source>
-        <translation type="vanished">蓝牙服务器</translation>
-    </message>
-    <message>
-        <source>TCP Client</source>
-        <translation type="vanished">TCP客户端</translation>
-    </message>
-    <message>
-        <source>TCP Server</source>
-        <translation type="vanished">TCP服务器</translation>
-    </message>
-    <message>
         <location filename="../devicetab.cpp" line="452"/>
         <location filename="../devicetab.cpp" line="484"/>
         <location filename="../devicetab.cpp" line="1361"/>
@@ -854,10 +778,6 @@ you can change the remote address and port on the fly.</source>
         <location filename="../devicetab.cpp" line="587"/>
         <source>The port has been opened.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The device is already connected.</source>
-        <translation type="vanished">设备已连接。</translation>
     </message>
     <message>
         <location filename="../devicetab.cpp" line="627"/>
@@ -1193,10 +1113,6 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Plz connect to a port first.</source>
-        <translation type="vanished">请先打开串口。</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="285"/>
         <location filename="../mainwindow.cpp" line="310"/>
         <source>Connected Clients</source>
@@ -1206,10 +1122,6 @@ Continue?</source>
         <location filename="../mainwindow.cpp" line="439"/>
         <source>Cannot open the serial port.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The port has been opened.</source>
-        <translation type="vanished">串口已打开。</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="241"/>
@@ -1309,14 +1221,6 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation type="vanished">地址</translation>
-    </message>
-    <message>
-        <source>Device Name</source>
-        <translation type="vanished">设备名</translation>
-    </message>
-    <message>
         <location filename="../mainwindow.cpp" line="267"/>
         <location filename="../mainwindow.cpp" line="282"/>
         <location filename="../mainwindow.cpp" line="297"/>
@@ -1336,14 +1240,6 @@ Continue?</source>
         <location filename="../mainwindow.cpp" line="244"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bluetooth is invalid!</source>
-        <translation type="vanished">蓝牙无法使用！</translation>
-    </message>
-    <message>
-        <source>Please enable Bluetooth!</source>
-        <translation type="vanished">请先打开蓝牙！</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="388"/>
@@ -1500,10 +1396,6 @@ Continue?</source>
         <source>Scatter</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>New graph name</source>
-        <translation type="vanished">绘图名称</translation>
-    </message>
 </context>
 <context>
     <name>SerialPinout</name>
@@ -1541,10 +1433,6 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Path</source>
-        <translation type="vanished">路径</translation>
-    </message>
-    <message>
         <location filename="../ui/settingstab.ui" line="111"/>
         <source>Create one in working directory</source>
         <translation type="unfinished"></translation>
@@ -1553,14 +1441,6 @@ Continue?</source>
         <location filename="../ui/settingstab.ui" line="118"/>
         <source>Create one in config directory</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This app will use the config file in the working directory first.
-If the file is not in the working directory, the app will will find it in the configuration directory.
-If no config file is detected, This app will create one in the current working directory.</source>
-        <translation type="vanished">程序会首先尝试读取当前文件夹下的配置文件。
-如果当前文件夹下找不到，则会在系统默认配置文件夹中寻找。
-如果还是找不到配置文件，则会在当前文件夹下新建一个。</translation>
     </message>
     <message>
         <location filename="../ui/settingstab.ui" line="131"/>
@@ -1608,10 +1488,6 @@ If no config file is detected, This app will create one in the current working d
         <location filename="../ui/settingstab.ui" line="245"/>
         <source>Full Screen</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force landscape mode</source>
-        <translation type="vanished">强制横屏</translation>
     </message>
     <message>
         <location filename="../ui/settingstab.ui" line="252"/>
@@ -1680,139 +1556,138 @@ If no config file is detected, This app will create one in the current working d
     </message>
     <message>
         <location filename="../settingstab.cpp" line="37"/>
-        <source>English</source>
+        <source>Traditional Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingstab.cpp" line="38"/>
-        <source>(External File)</source>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="39"/>
+        <source>Norwegian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingstab.cpp" line="40"/>
-        <source>(None)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../settingstab.cpp" line="41"/>
-        <source>Dark</source>
+        <source>(External File)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../settingstab.cpp" line="42"/>
+        <source>(None)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="43"/>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="44"/>
         <source>Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="82"/>
-        <location filename="../settingstab.cpp" line="286"/>
-        <location filename="../settingstab.cpp" line="306"/>
+        <location filename="../settingstab.cpp" line="84"/>
+        <location filename="../settingstab.cpp" line="288"/>
+        <location filename="../settingstab.cpp" line="308"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="82"/>
+        <location filename="../settingstab.cpp" line="84"/>
         <source>All configurations and history will be deleted!
 And this app will be closed!
 Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="123"/>
-        <location filename="../settingstab.cpp" line="128"/>
-        <location filename="../settingstab.cpp" line="145"/>
+        <location filename="../settingstab.cpp" line="125"/>
+        <location filename="../settingstab.cpp" line="130"/>
+        <location filename="../settingstab.cpp" line="147"/>
         <source>Create</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="123"/>
+        <location filename="../settingstab.cpp" line="125"/>
         <source>The file already exists at</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="128"/>
+        <location filename="../settingstab.cpp" line="130"/>
         <source>Cannot create file there.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="135"/>
+        <location filename="../settingstab.cpp" line="137"/>
         <source>Read</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="135"/>
+        <location filename="../settingstab.cpp" line="137"/>
         <source>Cannot read config.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="145"/>
+        <location filename="../settingstab.cpp" line="147"/>
         <source>Created at</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="286"/>
+        <location filename="../settingstab.cpp" line="288"/>
         <source>All history will be deleted!
 Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="306"/>
+        <location filename="../settingstab.cpp" line="308"/>
         <source>This app will be closed after import!
 Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="310"/>
+        <location filename="../settingstab.cpp" line="312"/>
         <source>Import config from file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="310"/>
-        <location filename="../settingstab.cpp" line="332"/>
+        <location filename="../settingstab.cpp" line="312"/>
+        <location filename="../settingstab.cpp" line="334"/>
         <source>Config files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="310"/>
-        <location filename="../settingstab.cpp" line="332"/>
+        <location filename="../settingstab.cpp" line="312"/>
+        <location filename="../settingstab.cpp" line="334"/>
         <source>All files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="318"/>
+        <location filename="../settingstab.cpp" line="320"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="318"/>
+        <location filename="../settingstab.cpp" line="320"/>
         <source>Unsupported file format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="326"/>
+        <location filename="../settingstab.cpp" line="328"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="326"/>
+        <location filename="../settingstab.cpp" line="328"/>
         <source>Imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="332"/>
+        <location filename="../settingstab.cpp" line="334"/>
         <source>Export config to file</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>main</name>
-    <message>
-        <source>Use specified file as config file</source>
-        <translation type="vanished">使用指定的配置文件</translation>
-    </message>
-    <message>
-        <source>file path</source>
-        <translation type="vanished">文件路径</translation>
     </message>
 </context>
 </TS>

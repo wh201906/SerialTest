@@ -108,29 +108,14 @@
         <translation>自动发送</translation>
     </message>
     <message>
-        <location filename="../ui/controlitem.ui" line="223"/>
-        <source>0</source>
-        <translation></translation>
-    </message>
-    <message>
         <location filename="../ui/controlitem.ui" line="226"/>
         <source>min</source>
         <translation>最小值</translation>
     </message>
     <message>
-        <location filename="../ui/controlitem.ui" line="233"/>
-        <source>100</source>
-        <translation></translation>
-    </message>
-    <message>
         <location filename="../ui/controlitem.ui" line="236"/>
         <source>max</source>
         <translation>最大值</translation>
-    </message>
-    <message>
-        <location filename="../ui/controlitem.ui" line="243"/>
-        <source>1</source>
-        <translation></translation>
     </message>
     <message>
         <location filename="../ui/controlitem.ui" line="246"/>
@@ -689,11 +674,6 @@
         <location filename="../ui/devicetab.ui" line="1122"/>
         <source>Local Port:</source>
         <translation>本机端口号：</translation>
-    </message>
-    <message>
-        <location filename="../ui/devicetab.ui" line="1129"/>
-        <source>0</source>
-        <translation></translation>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="1136"/>
@@ -1686,38 +1666,48 @@ If no config file is detected, This app will create one in the current working d
     </message>
     <message>
         <location filename="../settingstab.cpp" line="37"/>
+        <source>Traditional Chinese</source>
+        <translation>繁体中文</translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="38"/>
         <source>English</source>
         <translation>英语</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="38"/>
+        <location filename="../settingstab.cpp" line="39"/>
+        <source>Norwegian</source>
+        <translation>挪威语</translation>
+    </message>
+    <message>
+        <location filename="../settingstab.cpp" line="40"/>
         <source>(External File)</source>
         <translation>(外部文件)</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="40"/>
+        <location filename="../settingstab.cpp" line="42"/>
         <source>(None)</source>
         <translation>(无)</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="41"/>
+        <location filename="../settingstab.cpp" line="43"/>
         <source>Dark</source>
         <translation>暗黑</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="42"/>
+        <location filename="../settingstab.cpp" line="44"/>
         <source>Light</source>
         <translation>明亮</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="82"/>
-        <location filename="../settingstab.cpp" line="286"/>
-        <location filename="../settingstab.cpp" line="306"/>
+        <location filename="../settingstab.cpp" line="84"/>
+        <location filename="../settingstab.cpp" line="288"/>
+        <location filename="../settingstab.cpp" line="308"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="82"/>
+        <location filename="../settingstab.cpp" line="84"/>
         <source>All configurations and history will be deleted!
 And this app will be closed!
 Continue?</source>
@@ -1726,90 +1716,90 @@ Continue?</source>
 继续吗？</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="123"/>
-        <location filename="../settingstab.cpp" line="128"/>
-        <location filename="../settingstab.cpp" line="145"/>
+        <location filename="../settingstab.cpp" line="125"/>
+        <location filename="../settingstab.cpp" line="130"/>
+        <location filename="../settingstab.cpp" line="147"/>
         <source>Create</source>
         <translation>创建</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="123"/>
+        <location filename="../settingstab.cpp" line="125"/>
         <source>The file already exists at</source>
         <translation>文件已存在，位于</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="128"/>
+        <location filename="../settingstab.cpp" line="130"/>
         <source>Cannot create file there.</source>
         <translation>无法在此处创建文件。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="135"/>
+        <location filename="../settingstab.cpp" line="137"/>
         <source>Read</source>
         <translation>读取</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="135"/>
+        <location filename="../settingstab.cpp" line="137"/>
         <source>Cannot read config.</source>
         <translation>无法读取配置。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="145"/>
+        <location filename="../settingstab.cpp" line="147"/>
         <source>Created at</source>
         <translation>已创建于</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="286"/>
+        <location filename="../settingstab.cpp" line="288"/>
         <source>All history will be deleted!
 Continue?</source>
         <translation>所有的历史记录都会被删除！
 继续吗？</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="306"/>
+        <location filename="../settingstab.cpp" line="308"/>
         <source>This app will be closed after import!
 Continue?</source>
         <translation>导入成功后程序会自动关闭！
 继续吗？</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="310"/>
+        <location filename="../settingstab.cpp" line="312"/>
         <source>Import config from file</source>
         <translation>从文件导入配置</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="310"/>
-        <location filename="../settingstab.cpp" line="332"/>
+        <location filename="../settingstab.cpp" line="312"/>
+        <location filename="../settingstab.cpp" line="334"/>
         <source>Config files</source>
         <translation>配置文件</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="310"/>
-        <location filename="../settingstab.cpp" line="332"/>
+        <location filename="../settingstab.cpp" line="312"/>
+        <location filename="../settingstab.cpp" line="334"/>
         <source>All files</source>
         <translation>所有文件</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="318"/>
+        <location filename="../settingstab.cpp" line="320"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="318"/>
+        <location filename="../settingstab.cpp" line="320"/>
         <source>Unsupported file format.</source>
         <translation>文件格式不支持。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="326"/>
+        <location filename="../settingstab.cpp" line="328"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="326"/>
+        <location filename="../settingstab.cpp" line="328"/>
         <source>Imported.</source>
         <translation>已导入。</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="332"/>
+        <location filename="../settingstab.cpp" line="334"/>
         <source>Export config to file</source>
         <translation>导出配置到文件</translation>
     </message>

@@ -263,6 +263,7 @@ yay -S serialtest-git
 ## Translation
 The project uses Weblate to manage translation.  
 If you'd like to help with the translation, please visit the [Weblate translation page](https://hosted.weblate.org/engage/serialtest/) or create a PR to the `weblate` branch.  
+[![Translation status](https://hosted.weblate.org/widgets/serialtest/-/multi-auto.svg)](https://hosted.weblate.org/engage/serialtest/)  
 
 ## Change Log
 [Change Log](CHANGELOG.md)

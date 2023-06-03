@@ -263,6 +263,7 @@ yay -S serialtest-git
 ## 翻译
 此项目使用Weblate来管理翻译。  
 如果你想提交翻译，请访问此项目的[Weblate页面](https://hosted.weblate.org/engage/serialtest/)，或者向`weblate`分支提交PR。  
+[![翻译状态](https://hosted.weblate.org/widgets/serialtest/-/multi-auto.svg)](https://hosted.weblate.org/engage/serialtest/)  
 
 ## 更新日志
 [更新日志](../CHANGELOG/CHANGELOG_zh_CN.md)

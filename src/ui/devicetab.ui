@@ -1126,7 +1126,7 @@ margin-bottom:3em;
               <item>
                <widget class="QLineEdit" name="Net_localPortEdit">
                 <property name="text">
-                 <string>0</string>
+                 <string notr="true">0</string>
                 </property>
                </widget>
               </item>
