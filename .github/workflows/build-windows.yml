@@ -1,0 +1,65 @@
+name: Windows CI(MinGW-w64)
+
+on: [ workflow_dispatch, push ]
+
+defaults:
+  run:
+    shell: msys2 {0}
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        sys: [ MINGW64, MINGW32 ]
+    runs-on:  windows-latest
+
+    steps:
+      - name: Install packages
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.sys }}
+          update: true
+          install: >-
+            git
+            wget
+            tar
+            make
+          pacboy: >-
+            gcc:p
+            qt5-base:p
+            qt5-serialport:p
+            qt5-connectivity:p
+            qt5-tools:p
+      
+      # https://github.com/msys2/setup-msys2/tree/ee7b70729a6248e4dee7e3b299eae8965eab9980#actionscheckout-and-line-endings
+      - name: Configure line ending
+        run: git config --global core.autocrlf input
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Download QCustomPlot
+        run: |
+          wget "https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz"
+          tar -xvzf QCustomPlot-source.tar.gz
+          cp qcustomplot-source/qcustomplot.* ./src
+
+      - name: Build
+        run:  |
+          qmake -r ./src/SerialTest.pro
+          make -j $(nproc)
+          make clean
+
+      - name: Copy DLLs
+        run: |
+          cd ./release
+          windeployqt ./SerialTest.exe
+          python ../pack/find_dlls.py ./SerialTest.exe
+          ls -l
+
+      - name: Save artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: SerialTest-${{ matrix.sys }}
+          path: ./release/*

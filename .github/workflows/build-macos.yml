@@ -2,7 +2,7 @@ name: macOS CI
 
 # Based on the workflow file of QGroundControl repo
 
-on: [workflow_dispatch, push]
+on: [ workflow_dispatch, push ]
 
 defaults:
   run:
