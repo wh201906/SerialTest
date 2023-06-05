@@ -1,6 +1,7 @@
 # SerialTest
 [![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=GitHub%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://github.com/wh201906/SerialTest/releases)  [![downloads](https://img.shields.io/sourceforge/dt/serialtest.svg?label=SourceForge%E4%B8%8B%E8%BD%BD%E9%87%8F)](https://sourceforge.net/projects/serialtest/)  [![translation](https://hosted.weblate.org/widgets/serialtest/-/svg-badge.svg)](https://hosted.weblate.org/engage/serialtest/)  
-可在Windows/Linux/Android上运行，功能丰富的调试工具。  
+[![Windows CI(MinGW-w64)](https://github.com/wh201906/SerialTest/actions/workflows/build-windows.yml/badge.svg)](https://github.com/wh201906/SerialTest/actions/workflows/build-windows.yml)  [![macOS CI](https://github.com/wh201906/SerialTest/actions/workflows/build-macos.yml/badge.svg)](https://github.com/wh201906/SerialTest/actions/workflows/build-macos.yml)  
+可在Windows/Linux/macOS/Android上运行，功能丰富的调试工具。  
 支持数据收发/实时绘图/快捷方式/文件收发功能。  
 支持串口/蓝牙SPP客户端/蓝牙SPP服务器/蓝牙BLE客户端/TCP客户端/TCP服务器/UDP调试。  
 
@@ -18,8 +19,7 @@
 <details>
 <summary>跨平台</summary>
 
-+ 支持Windows/Linux/Android
-+ 理论上可支持MacOS
++ 支持Windows/Linux/macOS/Android
 
 </details>
 
@@ -198,8 +198,8 @@
 [demo/](https://github.com/wh201906/SerialTest/tree/master/demo)文件夹下提供了多种MCU的例程，可根据这些例程编写MCU上的程序与SerialTest交互  
 [Demo文档](../../demo/README.md)  
 
-## 在Windows和Android平台下直接使用
-[release](https://github.com/wh201906/SerialTest/releases) 页面当中包含了编译好的Windows程序和Android安装包，可直接下载。Windows平台下的程序免安装，解压后即可使用。  
+## 在Windows，Android和macOS平台下直接使用
+[release](https://github.com/wh201906/SerialTest/releases) 页面当中包含了编译好的Windows, macOS程序和Android安装包，可直接下载。Windows平台下的程序免安装，解压后即可使用。  
 
 SourceForge平台上也可下载  
 [![Download SerialTest](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/serialtest/files/latest/download)  
@@ -210,6 +210,10 @@ Android版本还可以在[F-Droid](https://f-droid.org/packages/priv.wh201906.se
      height="80">](https://f-droid.org/zh_Hans/packages/priv.wh201906.serialtest/)  
 
 ## 在Linux系统下编译
+
+<details>
+<summary>步骤</summary>
+
 ### 1. 安装依赖
 ```bash
 sudo apt-get update
@@ -241,6 +245,8 @@ qmake ../src
 make -j4 && make clean
 ./SerialTest 
 ```
+
+</details>
 
 ## 通过 Linux 软件仓库安装
 

@@ -40,15 +40,13 @@ jobs:
     #       target:       desktop
     #       dir:          ${{ runner.temp }}
     #       setup-python: false
-
-      - name: Build Qt
+      - name: Prepare Qt source
         run: |
           wget -cq https://download.qt.io/official_releases/qt/5.15/${{ env.QT_VERSION }}/single/qt-everywhere-opensource-src-${{ env.QT_VERSION }}.tar.xz
           tar -xkf qt-everywhere-opensource-src-${{ env.QT_VERSION }}.tar.xz
           mkdir qt5
           mkdir build-qt5
           cd build-qt5
-          export JOBS=$((`sysctl -n hw.ncpu`+1))
           ../qt-everywhere-src-${{ env.QT_VERSION }}/configure --disable-rpath \
             -no-warnings-are-errors -prefix $(pwd)/../qt5 -opensource -confirm-license \
             -release -nomake examples -nomake tests -no-compile-examples -no-feature-testlib \
@@ -60,6 +58,11 @@ jobs:
             -skip qtwinextras -skip qtx11extras -skip qtwebengine -skip qtlocation -skip \
             qtlottie -skip qtquick3d -skip qtquicktimeline -skip qtscript -skip qtsensors \
             -skip qtxmlpatterns -skip qtwebglplugin -skip qtwebchannel -skip qtvirtualkeyboard
+
+      - name: Build Qt
+        run: |
+          cd build-qt5
+          export JOBS=$((`sysctl -n hw.ncpu`+1))
           make -j$JOBS
           sudo make -j1 install
 

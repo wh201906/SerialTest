@@ -3,7 +3,8 @@
   <id>io.github.wh201906.serialtest</id>
 
   <name>SerialTest</name>
-  <summary>SerialTest</summary>
+  <summary>A cross-platform test tool for serial port, Bluetooth, TCP and UDP</summary>
+  <summary xml:lang="zh">跨平台串口，蓝牙，网络调试助手</summary>
 
   <metadata_license>MIT</metadata_license>
   <project_license>GPL-3.0-only</project_license>
@@ -11,9 +12,12 @@
   <content_rating type="oars-1.1" />
 
   <description>
-    <p>
-      A cross-platform serial port test tool.
-    </p>
+    <p>A versatile test tool running on Windows/Linux/macOS/Android.</p>
+    <p xml:lang="zh">可在Windows/Linux/macOS/Android上运行，功能丰富的调试工具。</p>
+    <p>Works as data transceiver/realtime plotter/shortcut/file transceiver.</p>
+    <p xml:lang="zh">支持数据收发/实时绘图/快捷方式/文件收发功能。</p>
+    <p>Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP client/server, UDP.</p>
+    <p xml:lang="zh">支持串口/蓝牙SPP客户端/蓝牙SPP服务器/蓝牙BLE客户端/TCP客户端/TCP服务器/UDP调试。</p>
   </description>
 
   <url type="homepage">https://github.com/wh201906/SerialTest</url>
@@ -25,22 +29,28 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/port.png</image>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/win_data.png</image>
     </screenshot>
     <screenshot>
-      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/data.png</image>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/plot.png</image>
     </screenshot>
     <screenshot>
-      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/plot.png</image>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/ctrl.png</image>
     </screenshot>
     <screenshot>
-      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/ctrl.png</image>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/dark_serial.png</image>
     </screenshot>
     <screenshot>
-      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/tcp_client.png</image>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/linux_tcp_client.png</image>
     </screenshot>
     <screenshot>
-      <image>https://github.com/wh201906/SerialTest/raw/master/doc/previews/tcp_server.png</image>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/tcp_server.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/win_bluetooth.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/wh201906/SerialTest/raw/HEAD/doc/previews/android_serial.png</image>
     </screenshot>
   </screenshots>
 

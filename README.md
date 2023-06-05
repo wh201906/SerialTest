@@ -1,6 +1,7 @@
 # SerialTest
 [![downloads](https://img.shields.io/github/downloads/wh201906/SerialTest/total?label=GitHub%20release%20downloads)](https://github.com/wh201906/SerialTest/releases)  [![downloads](https://img.shields.io/sourceforge/dt/serialtest.svg?label=SourceForge%20downloads)](https://sourceforge.net/projects/serialtest/)  [![translation](https://hosted.weblate.org/widgets/serialtest/-/svg-badge.svg)](https://hosted.weblate.org/engage/serialtest/)  
-A versatile test tool running on Windows/Linux/Android.  
+[![Windows CI(MinGW-w64)](https://github.com/wh201906/SerialTest/actions/workflows/build-windows.yml/badge.svg)](https://github.com/wh201906/SerialTest/actions/workflows/build-windows.yml)  [![macOS CI](https://github.com/wh201906/SerialTest/actions/workflows/build-macos.yml/badge.svg)](https://github.com/wh201906/SerialTest/actions/workflows/build-macos.yml)  
+A versatile test tool running on Windows/Linux/macOS/Android.  
 Works as data transceiver/realtime plotter/shortcut/file transceiver.  
 Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP client/server, UDP.  
 
@@ -17,8 +18,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 <details>
 <summary>Cross-platform</summary>
 
-+ Runs on Windows/Linux/Android
-+ Maybe supports MacOS?
++ Runs on Windows/Linux/macOS/Android
 
 </details>
 
@@ -198,7 +198,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 You can write programs on MCU according to the demos in the [demo/](https://github.com/wh201906/SerialTest/tree/master/demo) folder  
 [Demo README](demo/README.md)  
 
-## Binaries for Windows and Android
+## Binaries for Windows, Android and macOS
 You can download pre-built binaries and Android APK in [release](https://github.com/wh201906/SerialTest/releases) page.  
 
 You can also download them in SourceForge  
@@ -210,6 +210,10 @@ The Android app is available on [F-Droid](https://f-droid.org/packages/priv.wh20
      height="80">](https://f-droid.org/packages/priv.wh201906.serialtest/)  
 
 ## Build on Linux
+
+<details>
+<summary>Steps</summary>
+
 ### 1. Install depencencies
 ```bash
 sudo apt-get update
@@ -241,6 +245,8 @@ qmake ../src
 make -j4 && make clean
 ./SerialTest 
 ```
+
+</details>
 
 ## Install from the Linux software repository
 

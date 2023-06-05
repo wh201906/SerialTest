@@ -1,4 +1,4 @@
-name: Windows CI(MinGW-w64)
+name: Windows CI (MinGW-w64, MSYS2)
 
 on: [ workflow_dispatch, push ]
 
