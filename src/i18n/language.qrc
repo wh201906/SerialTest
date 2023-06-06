@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/i18n">
         <file>SerialTest_zh_CN.qm</file>
+        <file>SerialTest_zh_TW.qm</file>
+        <file>SerialTest_nb_NO.qm</file>
     </qresource>
 </RCC>

@@ -1,0 +1,56 @@
+name: macOS CI
+
+# Based on the workflow file of QGroundControl repo
+
+on: [ workflow_dispatch, push ]
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  SOURCE_DIR:   ${{ github.workspace }}/SerialTest
+  QCP_VERSION:  2.1.1
+  ARTIFACT:     SerialTest.dmg
+
+jobs:
+  build:
+    runs-on:  macos-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          path: SerialTest
+
+      - name: Download QCustomPlot
+        run: |
+          wget https://www.qcustomplot.com/release/${{ env.QCP_VERSION }}/QCustomPlot-source.tar.gz
+          tar -xzf QCustomPlot-source.tar.gz
+          cp qcustomplot-source/qcustomplot.* ${{ env.SOURCE_DIR }}/src
+
+      - name: Install Qt
+        run: |
+          brew update
+          brew install qt@5
+          brew link qt5 --force
+
+      - name: Create build directory
+        run:  mkdir ${{ runner.temp }}/shadow_build_dir
+
+      - name: Build
+        working-directory: ${{ runner.temp }}/shadow_build_dir
+        run:  |
+          export JOBS=$((`sysctl -n hw.ncpu`+1))
+          qmake -r ${{ env.SOURCE_DIR }}/src/SerialTest.pro CONFIG+=app_bundle
+          make -j$JOBS
+
+      - name: Generate DMG file
+        run: |
+          macdeployqt ${{ runner.temp }}/shadow_build_dir/SerialTest.app -dmg -verbose=2
+
+      - name: Save artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ runner.temp }}/shadow_build_dir/**/${{ env.ARTIFACT }}

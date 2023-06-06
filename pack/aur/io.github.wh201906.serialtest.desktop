@@ -3,7 +3,8 @@ Version=1.0
 Type=Application
 
 Name=SerialTest
-Comment=SerialTest
+Comment=A cross-platform test tool for serial port, Bluetooth, TCP and UDP
+Comment[zh_CN]=跨平台串口，蓝牙，网络调试助手
 Categories=Development;Electronics;
 
 Icon=serialtest

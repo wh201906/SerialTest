@@ -1,5 +1,6 @@
-A versatile test tool running on Windows/Linux/Android.  
+A versatile test tool running on Windows/Linux/macOS/Android.  
 Works as data transceiver/realtime plotter/shortcut/file transceiver.  
 Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP client/server, UDP.  
-(Serial port is not supported on Android now)  
+(Supports hardware serial port on Android, like "/dev/ttyXXX")  
+(Please refer to this workaround for USB serial devices: https://github.com/wh201906/SerialTest/discussions/11#discussioncomment-5892063)
 (You can download/build the PC version in https://github.com/wh201906/SerialTest)  
