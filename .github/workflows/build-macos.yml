@@ -10,7 +10,6 @@ defaults:
 
 env:
   SOURCE_DIR:   ${{ github.workspace }}/SerialTest
-  QT_VERSION:   5.15.9
   QCP_VERSION:  2.1.1
   ARTIFACT:     SerialTest.dmg
 
@@ -30,41 +29,11 @@ jobs:
           tar -xzf QCustomPlot-source.tar.gz
           cp qcustomplot-source/qcustomplot.* ${{ env.SOURCE_DIR }}/src
 
-    #   # This step works for Qt 5.15.1/5.15.2
-    #   # For Qt 5.15.3 or higher, use "Build Qt"
-    #   - name: Install Qt
-    #     uses: jurplel/install-qt-action@v3
-    #     with:
-    #       version:      ${{ env.QT_VERSION }}
-    #       host:         mac
-    #       target:       desktop
-    #       dir:          ${{ runner.temp }}
-    #       setup-python: false
-      - name: Prepare Qt source
+      - name: Install Qt
         run: |
-          wget -cq https://download.qt.io/official_releases/qt/5.15/${{ env.QT_VERSION }}/single/qt-everywhere-opensource-src-${{ env.QT_VERSION }}.tar.xz
-          tar -xkf qt-everywhere-opensource-src-${{ env.QT_VERSION }}.tar.xz
-          mkdir qt5
-          mkdir build-qt5
-          cd build-qt5
-          ../qt-everywhere-src-${{ env.QT_VERSION }}/configure --disable-rpath \
-            -no-warnings-are-errors -prefix $(pwd)/../qt5 -opensource -confirm-license \
-            -release -nomake examples -nomake tests -no-compile-examples -no-feature-testlib \
-            -skip qt3d -skip qtactiveqt -skip qtcanvas3d -skip qttranslations \
-            -skip qtcharts -skip qtdatavis3d -skip qtdeclarative -skip qtdoc \
-            -skip qtgamepad -skip qtgraphicaleffects -skip qtmacextras -skip qtmultimedia \
-            -skip qtnetworkauth -skip qtpurchasing -skip qtquickcontrols -skip qtquickcontrols2 \
-            -skip qtremoteobjects -skip qtscxml -skip qtspeech -skip qtwayland -skip qtwebview \
-            -skip qtwinextras -skip qtx11extras -skip qtwebengine -skip qtlocation -skip \
-            qtlottie -skip qtquick3d -skip qtquicktimeline -skip qtscript -skip qtsensors \
-            -skip qtxmlpatterns -skip qtwebglplugin -skip qtwebchannel -skip qtvirtualkeyboard
-
-      - name: Build Qt
-        run: |
-          cd build-qt5
-          export JOBS=$((`sysctl -n hw.ncpu`+1))
-          make -j$JOBS
-          sudo make -j1 install
+          brew update
+          brew install qt@5
+          brew link qt5 --force
 
       - name: Create build directory
         run:  mkdir ${{ runner.temp }}/shadow_build_dir
@@ -72,13 +41,13 @@ jobs:
       - name: Build
         working-directory: ${{ runner.temp }}/shadow_build_dir
         run:  |
-              export JOBS=$((`sysctl -n hw.ncpu`+1))
-              ${{ github.workspace }}/qt5/bin/qmake -r ${{ env.SOURCE_DIR }}/src/SerialTest.pro CONFIG+=app_bundle
-              make -j$JOBS
+          export JOBS=$((`sysctl -n hw.ncpu`+1))
+          qmake -r ${{ env.SOURCE_DIR }}/src/SerialTest.pro CONFIG+=app_bundle
+          make -j$JOBS
 
       - name: Generate DMG file
         run: |
-          ${{ github.workspace }}/qt5/bin/macdeployqt ${{ runner.temp }}/shadow_build_dir/SerialTest.app -dmg -verbose=2
+          macdeployqt ${{ runner.temp }}/shadow_build_dir/SerialTest.app -dmg -verbose=2
 
       - name: Save artifact
         uses: actions/upload-artifact@master
