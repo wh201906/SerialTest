@@ -1,0 +1,6 @@
+V0.3.2
++ Fix 2 bugs in the Control Panel  
++ Fix a bug in the timestamp (commit c73e12c30ad)  
++ Add support for changing the theme without restarting the app  
++ Add the ability to merge timestamps with short interval (split packets based on timeout)  
++ Android: Add support for sharing a file to SerialTest then send it (requires Qt 5.15.10 or a higher version)  

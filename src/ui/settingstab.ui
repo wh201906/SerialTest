@@ -434,7 +434,7 @@ If no config file is detected, This app will create one in the current working d
             <item>
              <widget class="QCheckBox" name="Data_mergeTimestampBox">
               <property name="text">
-               <string>Merge Timestamps With Short Intervals</string>
+               <string>Merge Timestamps With Short Intervals:</string>
               </property>
              </widget>
             </item>

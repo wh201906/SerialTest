@@ -55,54 +55,65 @@
   </screenshots>
 
   <releases>
-   <release version="0.3.1" date="2023-05-14">
-     <description>
-         <ul>
-           <li>Fix a build error (commit 9e9cdc1837)</li>
-         </ul>
-     </description>
-   </release>
-   <release version="0.3" date="2023-05-13">
-     <description>
-         <ul>
-           <li>(Deprecated, please use V0.3.1 or higher)</li>
-           <li>Support Rx timestamp</li>
-           <li>Support hardware serial port on Android (commit 47de23b11a)</li>
-         </ul>
-     </description>
-   </release>
-   <release version="0.2.4" date="2023-05-10">
-     <description>
-         <ul>
-           <li>Show the version number properly (commit 7b235fe40e)</li>
-         </ul>
-     </description>
-   </release>
-   <release version="0.2.3" date="2023-05-09">
-     <description>
-         <ul>
-           <li>Fix a crash (commit 40b6394681)</li>
-           <li>Fix notify state in AsyncCRC (commit de1933f5ee)</li>
-           <li>Show serial port VID and PID in Hex and Dec (commit b00aebd7bd)</li>
-           <li>Backward compatible to Qt 5.9</li>
-           <li>Refactor serial port history logic</li>
-           <li>More details when failed to open a serial port (commit b6dbd88b54)</li>
-           <li>Update QCustomPlot version to 2.1.1</li>
-           <li>Fix #22: Ignore close event of floating windows (commit c723e319fe)</li>
-           <li>Sync DTR and RTS from UI to serial port (commit ce576e45ed)</li>
-         </ul>
-     </description>
-   </release>
-   <release version="0.2.2" date="2022-10-28">
-     <description>
-       <p>Highlights:</p>
-         <ul>
-           <li>Add dark theme</li>
-           <li>Add single orientation pinch gesture on plotter</li>
-           <li>Add some useful snippets for control panel</li>
-           <li>Support dragging config file to control panel</li>
-         </ul>
-     </description>
-   </release>
+    <release version="0.3.2" date="2023-06-07">
+      <description>
+        <ul>
+          <li>Fix 2 bugs in the Control Panel</li>
+          <li>Fix a bug in the timestamp (commit c73e12c30ad)</li>
+          <li>Add support for changing the theme without restarting the app</li>
+          <li>Add the ability to merge timestamps with short interval (split packets based on timeout)</li>
+          <li>Android: Add support for sharing a file to SerialTest then send it (requires Qt 5.15.10 or a higher version)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.3.1" date="2023-05-14">
+      <description>
+        <ul>
+          <li>Fix a build error (commit 9e9cdc1837)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.3" date="2023-05-13">
+      <description>
+        <ul>
+          <li>(Deprecated, please use V0.3.1 or higher)</li>
+          <li>Support Rx timestamp</li>
+          <li>Support hardware serial port on Android (commit 47de23b11a)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.2.4" date="2023-05-10">
+      <description>
+        <ul>
+          <li>Show the version number properly (commit 7b235fe40e)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.2.3" date="2023-05-09">
+      <description>
+        <ul>
+          <li>Fix a crash (commit 40b6394681)</li>
+          <li>Fix notify state in AsyncCRC (commit de1933f5ee)</li>
+          <li>Show serial port VID and PID in Hex and Dec (commit b00aebd7bd)</li>
+          <li>Backward compatible to Qt 5.9</li>
+          <li>Refactor serial port history logic</li>
+          <li>More details when failed to open a serial port (commit b6dbd88b54)</li>
+          <li>Update QCustomPlot version to 2.1.1</li>
+          <li>Fix #22: Ignore close event of floating windows (commit c723e319fe)</li>
+          <li>Sync DTR and RTS from UI to serial port (commit ce576e45ed)</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.2.2" date="2022-10-28">
+      <description>
+        <p>Highlights:</p>
+        <ul>
+          <li>Add dark theme</li>
+          <li>Add single orientation pinch gesture on plotter</li>
+          <li>Add some useful snippets for control panel</li>
+          <li>Support dragging config file to control panel</li>
+        </ul>
+      </description>
+    </release>
   </releases>
 </component>
