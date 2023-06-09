@@ -250,8 +250,7 @@ void Connection::open()
     else if(m_type == BT_Client)
     {
         changeState(Connecting);
-        // TODO: add user defined UUID support
-        m_BTSocket->connectToService(m_currBTArgument.deviceAddress, QBluetoothUuid::SerialPort);
+        m_BTSocket->connectToService(m_currBTArgument.deviceAddress, m_currBTArgument.RxServiceUUID);
     }
     else if(m_type == BT_Server)
     {

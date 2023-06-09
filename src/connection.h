@@ -58,8 +58,10 @@ public:
         // for Bluetooth classic server
         QString serverServiceName;
         QBluetoothAddress localAdapterAddress;
+        // for BLE(RxServiceUUID) and Bluetooth classic(serviceUUID)
+        QBluetoothUuid RxServiceUUID;
         // for BLE only
-        QBluetoothUuid RxServiceUUID, RxCharacteristicUUID;
+        QBluetoothUuid RxCharacteristicUUID;
         QBluetoothUuid TxServiceUUID, TxCharacteristicUUID;
     };
 

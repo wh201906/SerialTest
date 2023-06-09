@@ -17,6 +17,7 @@
 const QMap<QString, QString> DeviceTab::m_historyPrefix =
 {
     {QLatin1String("SP"), QLatin1String("SerialTest_History_SerialPort")},
+    {QLatin1String("BTClient"), QLatin1String("SerialTest_History_BT_Client")},
     {QLatin1String("BTServer"), QLatin1String("SerialTest_History_BT_Server")},
     {QLatin1String("BLEC"), QLatin1String("SerialTest_History_BLE_Central")},
     {QLatin1String("TCPServer"), QLatin1String("SerialTest_History_TCP_Server")},
@@ -130,8 +131,14 @@ void DeviceTab::initSettings()
         loadSPPreference(m_SPArgHistory.last());
 
     // TCP client preference(last connected) is loaded in on_typeBox_currentIndexChanged()
+    // because TCP client/TCP server/UDP share the same widgets
 
     // non-arrays
+    settings->beginGroup(m_historyPrefix["BTClient"]);
+    ui->BTClient_serviceUUIDBox->setChecked(settings->value("UserSpecifiedServiceUUID", false).toBool());
+    ui->BTClient_serviceUUIDEdit->setText(settings->value("ServiceUUID").toString());
+    settings->endGroup();
+    on_BTClient_serviceUUIDBox_clicked();
     settings->beginGroup(m_historyPrefix["BTServer"]);
     ui->BTServer_serviceNameEdit->setText(settings->value("LastServiceName", "SerialTest_BT").toString());
     settings->endGroup();
@@ -617,8 +624,20 @@ void DeviceTab::on_openButton_clicked()
         Connection::BTArgument arg;
         arg.localAdapterAddress = QBluetoothAddress(ui->BTClient_adapterBox->currentData().toString());
         arg.deviceAddress = QBluetoothAddress(ui->BTClient_targetAddrBox->currentText());
+        if(ui->BTClient_serviceUUIDBox->isChecked() && !ui->BTClient_serviceUUIDEdit->text().isEmpty())
+            arg.RxServiceUUID = String2UUID(ui->BTClient_serviceUUIDEdit->text());
+        else
+            arg.RxServiceUUID = QBluetoothUuid::SerialPort;
         m_connection->setArgument(arg);
         m_connection->open();
+
+        settings->beginGroup(m_historyPrefix["BTClient"]);
+        if(arg.RxServiceUUID != QBluetoothUuid::SerialPort)
+        {
+            settings->setValue("UserSpecifiedServiceUUID", ui->BTClient_serviceUUIDBox->isChecked());
+            settings->setValue("ServiceUUID", arg.RxServiceUUID);
+        }
+        settings->endGroup();
     }
     else if(currType == Connection::BT_Server)
     {
@@ -1640,3 +1659,11 @@ DeviceTab::SP_ID::operator bool() const
 {
     return (m_vid != 0 || m_pid != 0 || !m_serialNumber.isEmpty());
 }
+
+void DeviceTab::on_BTClient_serviceUUIDBox_clicked()
+{
+    bool userSpecifiedUUID = ui->BTClient_serviceUUIDBox->isChecked();
+    ui->BTClient_serviceUUIDEdit->setVisible(userSpecifiedUUID);
+    ui->BTClient_tipLabel->setVisible(!userSpecifiedUUID);
+}
+

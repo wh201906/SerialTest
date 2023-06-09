@@ -828,6 +828,32 @@ margin-bottom:3em;
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="BTClient_serviceUUIDBox">
+            <property name="text">
+             <string>Service UUID</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="BTClient_serviceUUIDEdit"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="BTClient_tipLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>If Service UUID is not specified, the SerialPort service UUID(0x1101) will be used.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="verticalSpacer_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -926,7 +952,7 @@ margin-bottom:3em;
                <x>0</x>
                <y>0</y>
                <width>267</width>
-               <height>334</height>
+               <height>335</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -1086,7 +1112,7 @@ margin-bottom:3em;
                <x>0</x>
                <y>0</y>
                <width>159</width>
-               <height>351</height>
+               <height>352</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_16">
