@@ -11,9 +11,15 @@ import android.net.Uri;
 import android.bluetooth.*;
 import android.os.Process;
 
-import java.util.Set;
 import java.lang.String;
+import java.util.Set;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+import java.net.NetworkInterface;
+import java.net.InetAddress;
+import java.net.Inet6Address;
+import java.net.SocketException;
 
 public class MainActivity extends QtActivity
 {
@@ -109,6 +115,26 @@ public class MainActivity extends QtActivity
                 list.add(bt.getAddress() + " " + bt.getName());
             else if (isBLE && (deviceType == BluetoothDevice.DEVICE_TYPE_LE || deviceType == BluetoothDevice.DEVICE_TYPE_DUAL))
                 list.add(bt.getAddress() + " " + bt.getName());
+        }
+        String[] result = (String[]) list.toArray(new String[list.size()]);
+        return result;
+    }
+
+    public String[] getIPv6Addresses()
+    {
+        ArrayList<String> list = new ArrayList<String>();
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                for (InetAddress addr : addrs) {
+                    if (addr instanceof Inet6Address) {
+                        list.add(addr.getHostAddress()); // maybe with scope id
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
         String[] result = (String[]) list.toArray(new String[list.size()]);
         return result;

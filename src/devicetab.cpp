@@ -221,7 +221,7 @@ void DeviceTab::refreshTargetList()
 #ifdef Q_OS_ANDROID
 void DeviceTab::getBondedTarget(bool isBLE)
 {
-    QAndroidJniEnvironment env;
+    QAndroidJniEnvironment androidEnv;
     QtAndroid::PermissionResult r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
     if(r == QtAndroid::PermissionResult::Denied)
     {
@@ -234,13 +234,13 @@ void DeviceTab::getBondedTarget(bool isBLE)
     }
     qDebug() << "has permission";
     QAndroidJniObject array = QtAndroid::androidActivity().callObjectMethod("getBondedDevices", "(Z)[Ljava/lang/String;", isBLE);
-    int arraylen = env->GetArrayLength(array.object<jarray>());
-    qDebug() << "arraylen:" << arraylen;
+    int arrayLen = androidEnv->GetArrayLength(array.object<jarray>());
+    qDebug() << "arrayLen:" << arrayLen;
     QTableWidget* deviceList = isBLE ? ui->BLEC_deviceList : ui->BTClient_deviceList;
-    deviceList->setRowCount(arraylen);
-    for(int i = 0; i < arraylen; i++)
+    deviceList->setRowCount(arrayLen);
+    for(int i = 0; i < arrayLen; i++)
     {
-        QString info = QAndroidJniObject::fromLocalRef(env->GetObjectArrayElement(array.object<jobjectArray>(), i)).toString();
+        QString info = QAndroidJniObject::fromLocalRef(androidEnv->GetObjectArrayElement(array.object<jobjectArray>(), i)).toString();
         QString address = info.left(info.indexOf(' '));
         QString name = info.right(info.length() - info.indexOf(' ') - 1);
         qDebug() << address << name;
@@ -418,6 +418,7 @@ qint64 DeviceTab::updateNetInterfaceList()
 {
     Connection::Type currType = ui->typeBox->currentData().value<Connection::Type>();
     QHostAddress currNetLocalAddr;
+    QList<QHostAddress> shownAddresses;
 
     if(currType == Connection::UDP)
     {
@@ -432,7 +433,27 @@ qint64 DeviceTab::updateNetInterfaceList()
         ui->Net_localAddrBox->addItem(m_anyLocalAddress);
     auto netInterfaceList = QNetworkInterface::allAddresses();
     for(auto it = netInterfaceList.cbegin(); it != netInterfaceList.cend(); ++it)
-        ui->Net_localAddrBox->addItem((*it).toString());
+    {
+        shownAddresses.append(*it);
+        ui->Net_localAddrBox->addItem(it->toString());
+    }
+#ifdef Q_OS_ANDROID
+    QAndroidJniEnvironment androidEnv;
+    QAndroidJniObject array = QtAndroid::androidActivity().callObjectMethod("getIPv6Addresses", "()[Ljava/lang/String;");
+    int arrayLen = androidEnv->GetArrayLength(array.object<jarray>());
+    qDebug() << "arraylen:" << arrayLen;
+    for(int i = 0; i < arrayLen; i++)
+    {
+        QString addressStr = QAndroidJniObject::fromLocalRef(androidEnv->GetObjectArrayElement(array.object<jobjectArray>(), i)).toString();
+        QHostAddress address(addressStr);
+        // QHostAddress has operator==(), so QList::contains() works
+        if(!shownAddresses.contains(address))
+        {
+            shownAddresses.append(address);
+            ui->Net_localAddrBox->addItem(addressStr);
+        }
+    }
+#endif
 
     if(currType == Connection::UDP && currNetLocalAddr.isMulticast())
         ui->Net_localAddrBox->setCurrentText(currNetLocalAddr.toString());
