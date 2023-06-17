@@ -219,20 +219,42 @@ void DeviceTab::refreshTargetList()
 }
 
 #ifdef Q_OS_ANDROID
+bool DeviceTab::getPermission(const QString& permission)
+{
+    QtAndroid::PermissionResult result = QtAndroid::checkPermission(permission);
+    if(result == QtAndroid::PermissionResult::Denied)
+    {
+        QtAndroid::requestPermissionsSync(QStringList() << permission);
+        result = QtAndroid::checkPermission(permission);
+        if(result == QtAndroid::PermissionResult::Denied)
+            return false;
+    }
+    return true;
+}
+
 void DeviceTab::getBondedTarget(bool isBLE)
 {
     QAndroidJniEnvironment androidEnv;
-    QtAndroid::PermissionResult r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
-    if(r == QtAndroid::PermissionResult::Denied)
+    QStringList permissionList =
     {
-        QtAndroid::requestPermissionsSync(QStringList() << "android.permission.ACCESS_FINE_LOCATION");
-        r = QtAndroid::checkPermission("android.permission.ACCESS_FINE_LOCATION");
-        if(r == QtAndroid::PermissionResult::Denied)
-        {
-            qDebug() << "failed to request";
-        }
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.BLUETOOTH_ADMIN"
+    };
+    if(QtAndroid::androidSdkVersion() >= 31)
+    {
+        permissionList += "android.permission.BLUETOOTH_SCAN";
+        permissionList += "android.permission.BLUETOOTH_CONNECT";
     }
-    qDebug() << "has permission";
+    else
+    {
+        permissionList += "android.permission.BLUETOOTH";
+    }
+    for(const QString& permission : permissionList)
+    {
+        if(!getPermission(permission))
+            qDebug() << "Failed to request permission" << permission;
+    }
+
     QAndroidJniObject array = QtAndroid::androidActivity().callObjectMethod("getBondedDevices", "(Z)[Ljava/lang/String;", isBLE);
     int arrayLen = androidEnv->GetArrayLength(array.object<jarray>());
     qDebug() << "arrayLen:" << arrayLen;
