@@ -99,6 +99,7 @@ void SettingsTab::initSettings()
     connect(ui->Android_dockBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     // Android_HWSerialBox will handle the preference itself.
     connect(ui->Opacity_Box, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
+    connect(ui->Data_recordDataBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Data_mergeTimestampBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Data_mergeTimestampIntervalBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
 }
@@ -181,6 +182,7 @@ void SettingsTab::savePreference()
     m_settings->endGroup();
     // Android_HWSerialBox will handle the preference itself.
     m_settings->beginGroup("SerialTest_Data");
+    m_settings->setValue("RecordData", ui->Data_recordDataBox->isChecked());
     m_settings->setValue("MergeTimestamp", ui->Data_mergeTimestampBox->isChecked());
     m_settings->setValue("TimestampInterval", ui->Data_mergeTimestampIntervalBox->value());
     m_settings->endGroup();
@@ -231,6 +233,7 @@ void SettingsTab::loadPreference()
 #endif
     m_settings->endGroup();
     m_settings->beginGroup("SerialTest_Data");
+    ui->Data_recordDataBox->setChecked(m_settings->value("RecordData", false).toBool());
     ui->Data_mergeTimestampBox->setChecked(m_settings->value("MergeTimestamp", true).toBool());
     ui->Data_mergeTimestampIntervalBox->setValue(m_settings->value("TimestampInterval", 10).toInt());
     m_settings->endGroup();
@@ -245,6 +248,7 @@ void SettingsTab::loadPreference()
     on_Opacity_Box_valueChanged(ui->Opacity_Box->value());
 #endif
     on_Theme_setButton_clicked();
+    on_Data_recordDataBox_clicked();
     on_Data_mergeTimestampBox_clicked();
     on_Data_mergeTimestampIntervalBox_valueChanged(ui->Data_mergeTimestampIntervalBox->value());
 
@@ -358,6 +362,12 @@ void SettingsTab::on_Theme_setButton_clicked()
     m_settings->setValue("Theme_Name", themeName);
     m_settings->endGroup();
     emit themeChanged(themeName);
+}
+
+
+void SettingsTab::on_Data_recordDataBox_clicked()
+{
+    emit recordDataChanged(ui->Data_recordDataBox->isChecked());
 }
 
 

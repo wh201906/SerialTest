@@ -40,6 +40,7 @@ public:
 public slots:
     void onConnTypeChanged(Connection::Type type);
     void onConnEstablished();
+    void onRecordDataChanged(bool enabled);
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void showEvent(QShowEvent *ev) override;
@@ -74,6 +75,7 @@ private slots:
 
     void on_receivedTimestampBox_stateChanged(int arg1);
 
+    void recordDataToBeSent();
 private:
     Ui::DataTab *ui;
 

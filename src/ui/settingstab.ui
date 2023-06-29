@@ -40,7 +40,7 @@
         <x>0</x>
         <y>0</y>
         <width>506</width>
-        <height>626</height>
+        <height>789</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -426,6 +426,13 @@ If no config file is detected, This app will create one in the current working d
            <widget class="QCheckBox" name="Android_HWSerialBox">
             <property name="text">
              <string>Enable Hardware Serial Port</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="Data_recordDataBox">
+            <property name="text">
+             <string>Remember data to be sent in DataTab</string>
             </property>
            </widget>
           </item>

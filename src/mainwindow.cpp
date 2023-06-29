@@ -84,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(settingsTab, &SettingsTab::fullScreenStateChanged, this, &MainWindow::setFullScreen);
     connect(settingsTab, &SettingsTab::updateAvailableDeviceTypes, deviceTab, &DeviceTab::getAvailableTypes);
     connect(settingsTab, &SettingsTab::themeChanged, plotTab, &PlotTab::onThemeChanged);
+    connect(settingsTab, &SettingsTab::recordDataChanged, dataTab, &DataTab::onRecordDataChanged);
     connect(settingsTab, &SettingsTab::mergeTimestampChanged, this, &MainWindow::onMergeTimestampChanged);
     connect(settingsTab, &SettingsTab::timestampIntervalChanged, this, &MainWindow::onTimestampIntervalChanged);
     ui->funcTab->insertTab(5, settingsTab, tr("Settings"));

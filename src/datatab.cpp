@@ -197,6 +197,7 @@ void DataTab::loadPreference()
     ui->data_flowDTRBox->setChecked(settings->value("Flow_DTR", false).toBool());
     ui->data_flowRTSBox->setChecked(settings->value("Flow_RTS", false).toBool());
     ui->data_encodingNameBox->setCurrentText(settings->value("Encoding_Name", "UTF-8").toString());
+    ui->sendEdit->setText(settings->value("Data", "").toString());
     settings->endGroup();
     on_data_encodingSetButton_clicked();
 }
@@ -504,7 +505,7 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
             {
                 dataItem = data.mid(offset, item.len);
                 offset += item.len;
-                ui->receivedEdit->appendPlainText(stringWithTimestamp(dataItem.toHex(' '), item.timestamp));
+                ui->receivedEdit->appendPlainText(stringWithTimestamp(dataItem.toHex(' ') + ' ', item.timestamp));
             }
         }
 
@@ -612,6 +613,29 @@ void DataTab::showUpTabHelper(int tabID)
 inline QString DataTab::stringWithTimestamp(const QString& str, qint64 timestamp)
 {
     return ('[' + QDateTime::fromMSecsSinceEpoch(timestamp).toString(Qt::ISODateWithMs) + "] " + str);
+}
+
+void DataTab::onRecordDataChanged(bool enabled)
+{
+    if(enabled)
+    {
+        connect(ui->sendEdit, &QLineEdit::editingFinished, this, &DataTab::recordDataToBeSent);
+        recordDataToBeSent();
+    }
+    else
+    {
+        disconnect(ui->sendEdit, &QLineEdit::editingFinished, this, &DataTab::recordDataToBeSent);
+        settings->beginGroup("SerialTest_Data");
+        settings->remove("Data");
+        settings->endGroup();
+    }
+}
+
+void DataTab::recordDataToBeSent()
+{
+    settings->beginGroup("SerialTest_Data");
+    settings->setValue("Data", ui->sendEdit->text());
+    settings->endGroup();
 }
 
 #ifdef Q_OS_ANDROID
