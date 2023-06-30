@@ -54,7 +54,9 @@ jobs:
           rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtQml.framework
           rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtQmlModels.framework
           rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtQuick.framework
+          rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtPdf.framework
           rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/PlugIns/virtualkeyboard
+          rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/PlugIns/platforminputcontexts
           # Create dmg file 
           macdeployqt ${{ runner.temp }}/shadow_build_dir/SerialTest.app -no-plugins -dmg -verbose=2
 
