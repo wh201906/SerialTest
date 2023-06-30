@@ -47,7 +47,16 @@ jobs:
 
       - name: Generate DMG file
         run: |
-          macdeployqt ${{ runner.temp }}/shadow_build_dir/SerialTest.app -dmg -verbose=2
+          # Copy all files
+          macdeployqt ${{ runner.temp }}/shadow_build_dir/SerialTest.app -verbose=2
+          # Remove unnecessary module
+          rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtVirtualKeyboard.framework
+          rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtQml.framework
+          rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtQmlModels.framework
+          rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/Frameworks/QtQuick.framework
+          rm -rf ${{ runner.temp }}/shadow_build_dir/SerialTest.app/Contents/PlugIns/virtualkeyboard
+          # Create dmg file 
+          macdeployqt ${{ runner.temp }}/shadow_build_dir/SerialTest.app -no-plugins -dmg -verbose=2
 
       - name: Save artifact
         uses: actions/upload-artifact@master
