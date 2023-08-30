@@ -1,0 +1,101 @@
+name: linux multi-arch CI
+
+# Based on the workflow file of QGroundControl repo
+
+on: [ workflow_dispatch, push ]
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  SOURCE_DIR:   ${{ github.workspace }}/SerialTest
+  QCP_VERSION:  2.1.1
+  ARTIFACT:     SerialTest
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
+
+    strategy:
+      matrix:
+        include:
+          - arch: armv7
+            distro: ubuntu20.04
+          - arch: aarch64
+            distro: ubuntu20.04
+          - arch: riscv64
+            distro: ubuntu20.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          path: SerialTest
+
+      - name: Download QCustomPlot
+        run: |
+          wget https://www.qcustomplot.com/release/${{ env.QCP_VERSION }}/QCustomPlot-source.tar.gz
+          tar -xzf QCustomPlot-source.tar.gz
+          cp qcustomplot-source/qcustomplot.* ${{ env.SOURCE_DIR }}/src
+
+      - name: Install Qt
+        run: |
+          sudo apt-get -q -y update
+          sudo apt-get -q -y install git build-essential
+          sudo apt-get -q -y install qt5-default libqt5serialport5-dev qtconnectivity5-dev 
+
+      - name: Create build directory
+        run: |
+          mkdir ${{ runner.temp }}/shadow_build_dir
+
+      - name: Build
+        uses: uraimo/run-on-arch-action@v2.5.1
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+
+          # Create an artifacts directory
+          # setup: |
+          #   mkdir -p "${PWD}/artifacts"
+
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "${{ env.SOURCE_DIR }}:/shadow_src_dir"
+            --volume "${{ runner.temp }}/shadow_build_dir:/shadow_build_dir"
+
+          # Pass some environment variables to the container
+          # env: | # YAML, but pipe character is necessary
+          #   artifact_name: git-${{ matrix.distro }}_${{ matrix.arch }}
+
+          # The shell to run commands with in the container
+          shell: /bin/sh
+
+          # Install some dependencies in the container. This speeds up builds if
+          # you are also using githubToken. Any dependencies installed here will
+          # be part of the container image that gets cached, so subsequent
+          # builds don't have to re-install them. The image layer is cached
+          # publicly in your project's package repository, so it is vital that
+          # no secrets are present in the container state or logs.
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y git build-essential
+            apt-get install -q -y qt5-default libqt5serialport5-dev qtconnectivity5-dev 
+
+          # Produce a binary artifact and place it in the mounted volume
+          run: |
+            cd /shadow_build_dir
+            export JOBS=$(nproc)
+            qmake -r /shadow_src_dir/src/SerialTest.pro
+            make -j$JOBS && make clean
+
+      - name: Save artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ env.ARTIFACT }}_${{ matrix.arch }}
+          path: ${{ runner.temp }}/shadow_build_dir/**/${{ env.ARTIFACT }}
