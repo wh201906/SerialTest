@@ -88,6 +88,7 @@ private:
     void initUI();
 #ifdef Q_OS_ANDROID
     bool getPermission(const QString& permission);
+    void getRequiredPermission();
     void getBondedTarget(bool isBLE);
 #endif
     void setBTClientDiscoveryAgent(QBluetoothAddress adapterAddress = QBluetoothAddress());

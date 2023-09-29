@@ -232,9 +232,8 @@ bool DeviceTab::getPermission(const QString& permission)
     return true;
 }
 
-void DeviceTab::getBondedTarget(bool isBLE)
+void DeviceTab::getRequiredPermission()
 {
-    QAndroidJniEnvironment androidEnv;
     QStringList permissionList =
     {
         "android.permission.ACCESS_FINE_LOCATION",
@@ -254,7 +253,12 @@ void DeviceTab::getBondedTarget(bool isBLE)
         if(!getPermission(permission))
             qDebug() << "Failed to request permission" << permission;
     }
+}
 
+void DeviceTab::getBondedTarget(bool isBLE)
+{
+    QAndroidJniEnvironment androidEnv;
+    getRequiredPermission();
     QAndroidJniObject array = QtAndroid::androidActivity().callObjectMethod("getBondedDevices", "(Z)[Ljava/lang/String;", isBLE);
     int arrayLen = androidEnv->GetArrayLength(array.object<jarray>());
     qDebug() << "arrayLen:" << arrayLen;
@@ -409,6 +413,8 @@ void DeviceTab::getAvailableTypes(bool useFirstValid)
 
 qint64 DeviceTab::updateBTAdapterList()
 {
+    // Apps can only get a dummy MAC address 02:00:00:00:00:00 since Android 6.0
+    // https://developer.android.com/about/versions/marshmallow/android-6.0-changes#behavior-hardware-id
     qint64 adapterID = 0;
 
     ui->BTClient_adapterBox->clear();
@@ -416,8 +422,7 @@ qint64 DeviceTab::updateBTAdapterList()
     ui->BLEC_adapterBox->clear();
 #ifdef Q_OS_ANDROID
     // need modify
-    if(QtAndroid::checkPermission("android.permission.BLUETOOTH_CONNECT") == QtAndroid::PermissionResult::Denied)
-        QtAndroid::requestPermissionsSync({"android.permission.BLUETOOTH_CONNECT"}, 10000);
+    getRequiredPermission();
 #endif
     auto BTAdapterList = QBluetoothLocalDevice::allDevices();
     for(auto it = BTAdapterList.cbegin(); it != BTAdapterList.cend(); ++it)
@@ -433,7 +438,7 @@ qint64 DeviceTab::updateBTAdapterList()
             adapterID++;
         }
     }
-    return adapterID;
+    return adapterID; // adapter count
 }
 
 qint64 DeviceTab::updateNetInterfaceList()
