@@ -216,9 +216,10 @@ The Android app is available on [F-Droid](https://f-droid.org/packages/priv.wh20
 
 ### 1. Install depencencies
 ```bash
+# sudo add-apt-repository universe
 sudo apt-get update
 # sudo apt-get install git build-essential
-sudo apt-get install qt5-default libqt5serialport5-dev qtconnectivity5-dev 
+sudo apt-get install qtbase5-dev qt5-qmake libqt5serialport5-dev qtconnectivity5-dev 
 ```
 ### 2. Get the source code
 ```bash
@@ -241,6 +242,7 @@ cp qcustomplot-source/qcustomplot.* ../src
 If the qcustomplot.cpp doesn't exist in the src/ folder, the qmake will try to find the library file(xxx.so/xxx.dll) in the building directory(where you call the qmake command) and the default library directory.  
 ### 4. Build and run
 ```bash
+export QT_SELECT=qt5
 qmake ../src
 make -j4 && make clean
 ./SerialTest 
