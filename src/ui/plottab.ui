@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1208</width>
-    <height>59</height>
+    <height>61</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -349,13 +349,29 @@
        <widget class="QLineEdit" name="plot_clearFlagEdit"/>
       </item>
       <item>
-       <widget class="QCheckBox" name="plot_scatterBox"/>
-      </item>
-      <item>
        <widget class="QLabel" name="label_11">
         <property name="text">
-         <string>Scatter</string>
+         <string>Style:</string>
         </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="plot_plotStyleBox">
+        <item>
+         <property name="text">
+          <string>Line</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Point</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Both</string>
+         </property>
+        </item>
        </widget>
       </item>
       <item>

@@ -48,7 +48,7 @@ private slots:
     void on_plot_advancedBox_stateChanged(int arg1);
     void on_plot_frameSpTypeBox_currentIndexChanged(int index);
     void on_plot_dataSpTypeBox_currentIndexChanged(int index);
-    void on_plot_scatterBox_stateChanged(int arg1);
+    void on_plot_plotStyleBox_currentIndexChanged(int index);
     void on_plot_frameSpEdit_editingFinished();
     void on_plot_dataSpEdit_editingFinished();
     void on_plot_clearFlagTypeBox_currentIndexChanged(int index);
@@ -57,6 +57,7 @@ private slots:
     void savePlotPreference();
     void loadPreference();
     void processData();
+
 private:
     Ui::PlotTab *ui;
 

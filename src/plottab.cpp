@@ -37,7 +37,7 @@ void PlotTab::initSettings()
     connect(ui->plot_dataSpEdit, &QLineEdit::editingFinished, this, &PlotTab::savePlotPreference);
     connect(ui->plot_clearFlagTypeBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
     connect(ui->plot_clearFlagEdit, &QLineEdit::editingFinished, this, &PlotTab::savePlotPreference);
-    connect(ui->plot_scatterBox, &QCheckBox::clicked, this, &PlotTab::savePlotPreference);
+    connect(ui->plot_plotStyleBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &PlotTab::savePlotPreference);
 
 }
 
@@ -388,17 +388,35 @@ void PlotTab::on_plot_XTypeBox_currentIndexChanged(int index)
     }
 }
 
-void PlotTab::on_plot_scatterBox_stateChanged(int arg1)
+
+void PlotTab::on_plot_plotStyleBox_currentIndexChanged(int index)
 {
-    if(arg1 == Qt::Checked)
+    if(index == 0)
     {
+        // line only
         for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
-            ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
-    }
-    else
-    {
-        for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
+        {
+            ui->qcpWidget->graph(i)->setLineStyle(QCPGraph::lsLine);
             ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssNone));
+        }
+    }
+    else if(index == 1)
+    {
+        // point only
+        for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
+        {
+            ui->qcpWidget->graph(i)->setLineStyle(QCPGraph::lsNone);
+            ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+        }
+    }
+    else if(index == 2)
+    {
+        // line with point
+        for(int i = 0; i < ui->qcpWidget->graphCount(); i++)
+        {
+            ui->qcpWidget->graph(i)->setLineStyle(QCPGraph::lsLine);
+            ui->qcpWidget->graph(i)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle));
+        }
     }
 }
 
@@ -447,7 +465,7 @@ void PlotTab::savePlotPreference()
     settings->setValue("DataSp_Context", ui->plot_dataSpEdit->text());
     settings->setValue("ClearF_Type", ui->plot_clearFlagTypeBox->currentIndex());
     settings->setValue("ClearF_Context", ui->plot_clearFlagEdit->text());
-    settings->setValue("Scatter", ui->plot_scatterBox->isChecked());
+    settings->setValue("PlotStyle", ui->plot_plotStyleBox->currentIndex());
     settings->endGroup();
 }
 
@@ -480,7 +498,7 @@ void PlotTab::loadPreference()
     ui->plot_dataSpEdit->setText(settings->value("DataSp_Context", defaultDataSp).toString());
     ui->plot_clearFlagTypeBox->setCurrentIndex(settings->value("ClearF_Type", 1).toInt());
     ui->plot_clearFlagEdit->setText(settings->value("ClearF_Context", "cls").toString());
-    ui->plot_scatterBox->setChecked(settings->value("Scatter", false).toBool());
+    ui->plot_plotStyleBox->setCurrentIndex(settings->value("PlotStyle", 0).toInt());
     colorList = settings->value("GraphColor", QStringList()).toStringList();
     nameList = settings->value("GraphName", QStringList()).toStringList();
     settings->endGroup();
