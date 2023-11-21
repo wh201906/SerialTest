@@ -19,7 +19,10 @@
 <details>
 <summary>跨平台</summary>
 
-+ 支持Windows/Linux/macOS/Android
++ 支持Windows 7及更高版本
++ 支持[大多数Linux发行版](https://flathub.org/zh-Hans/setup)
++ 支持macOS 10.13 (High Sierra)及更高版本
++ 支持Android 5.0 (Lollipop)及更高版本
 
 </details>
 

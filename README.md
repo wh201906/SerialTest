@@ -18,7 +18,10 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 <details>
 <summary>Cross-platform</summary>
 
-+ Runs on Windows/Linux/macOS/Android
++ Supports Windows 7 and later
++ Supports [most Linux distros](https://flathub.org/setup)
++ Supports macOS 10.13 (High Sierra) and later
++ Supports Android 5.0 (Lollipop) and later
 
 </details>
 
