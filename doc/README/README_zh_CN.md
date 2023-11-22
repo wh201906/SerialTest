@@ -219,9 +219,10 @@ Android版本还可以在[F-Droid](https://f-droid.org/packages/priv.wh201906.se
 
 ### 1. 安装依赖
 ```bash
+# sudo add-apt-repository universe
 sudo apt-get update
 # sudo apt-get install git build-essential
-sudo apt-get install qt5-default libqt5serialport5-dev qtconnectivity5-dev  
+sudo apt-get install qtbase5-dev qt5-qmake libqt5serialport5-dev qtconnectivity5-dev  
 ```
 ### 2. 获取项目源码
 ```bash
@@ -244,6 +245,7 @@ cp qcustomplot-source/qcustomplot.* ../src
 如果src/目录中没有qcustomplot.cpp，项目在编译时会尝试在生成文件夹和库文件的默认文件夹当中寻找QCustomPlot的库文件(xxx.so/xxx.dll)。
 ### 4. 编译并运行
 ```bash
+export QT_SELECT=qt5
 qmake ../src
 make -j4 && make clean
 ./SerialTest 
