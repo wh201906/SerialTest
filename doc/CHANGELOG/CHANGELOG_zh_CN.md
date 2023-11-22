@@ -2,6 +2,15 @@
 
 [English](../../CHANGELOG.md)  
 
+## V0.3.3
++ 支持在蓝牙客户端模式中指定目标服务UUID (commit 1bd23bf4e0)
++ 支持在Android端显示IPv6地址 (commit 03a0e7938c)
++ 支持记住数据界面中的待发送数据 (commit 00eb0e2e36)
++ 支持同时清除接收到的数据和图表 (commit a4779028d2)
++ 改进Android上的权限请求过程
++ 添加单独绘制点的功能 (commit daf34607c9)
++ 修复接收带时间戳的十六进制数据时缺少分隔符的问题 (commit 00eb0e2e36)
+
 ## V0.3.2
 + 修复控制面板中的2处BUG  
 + 修复时间戳中的一处错误  

@@ -55,6 +55,19 @@
   </screenshots>
 
   <releases>
+    <release version="0.3.3" date="2023-11-22">
+      <description>
+        <ul>
+          <li>Add support for specifying service UUID in Bluetooth client mode (commit 1bd23bf4e0)</li>
+          <li>Add support for showing IPv6 addresses on Android (commit 03a0e7938c)</li>
+          <li>Add option for remembering the data to be sent in DataTab (commit 00eb0e2e36)</li>
+          <li>Add option for clearing both received data and graph at the same time (commit a4779028d2)</li>
+          <li>Improve the permission request process on Android</li>
+          <li>Add point-only mode for plotting (commit daf34607c9)</li>
+          <li>Fix the missing separator when appending hex data with timestamp (commit 00eb0e2e36)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.2" date="2023-06-07">
       <description>
         <ul>

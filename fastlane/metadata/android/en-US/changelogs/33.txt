@@ -1,0 +1,8 @@
+V0.3.3
++ Add support for specifying service UUID in Bluetooth client mode (commit 1bd23bf4e0)
++ Add support for showing IPv6 addresses on Android (commit 03a0e7938c)
++ Add option for remembering the data to be sent in DataTab (commit 00eb0e2e36)
++ Add option for clearing both received data and graph at the same time (commit a4779028d2)
++ Improve the permission request process on Android
++ Add point-only mode for plotting (commit daf34607c9)
++ Fix the missing separator when appending hex data with timestamp (commit 00eb0e2e36)
