@@ -60,6 +60,8 @@ private slots:
 
     void on_Data_mergeTimestampIntervalBox_valueChanged(int arg1);
 
+    void on_General_simultaneousClearBox_clicked();
+
 private:
     Ui::SettingsTab *ui;
     MySettings* m_settings;
@@ -74,6 +76,7 @@ signals:
     void recordDataChanged(bool enabled);
     void mergeTimestampChanged(bool enabled);
     void timestampIntervalChanged(int interval);
+    void clearBehaviorChanged(bool clearBoth);
 };
 
 #endif // SETTINGSTAB_H

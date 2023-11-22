@@ -480,6 +480,13 @@ If no config file is detected, This app will create one in the current working d
             </item>
            </layout>
           </item>
+          <item>
+           <widget class="QCheckBox" name="General_simultaneousClearBox">
+            <property name="text">
+             <string>Clear received data in DataTab and graph in PlotTab simultaneously</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

@@ -28,7 +28,10 @@ public slots:
     void newData(const QByteArray &data);
     void setDecoder(QTextDecoder* decoder);
     void onThemeChanged(const QString& themeName);
+    void onClearBehaviorChanged(bool clearBoth);
+    void onClearSignalReceived();
 signals:
+    void clearRxData();
 
 private slots:
     void onQCPLegendDoubleClick(QCPLegend *legend, QCPAbstractLegendItem *item, QMouseEvent* event);
@@ -84,12 +87,15 @@ private:
     QTimer* m_dataProcessTimer;
     std::default_random_engine* m_randEngine;
 
+    bool acceptClearSignal = false;
+
     void updateTracer(double x);
     QCPAbstractLegendItem *getLegendItemByPos(const QPointF &pos);
     void setGraphProperty(QCPAbstractLegendItem *item);
     inline double toDouble(const QString& str); // find valid value then convert
     void saveGraphProperty();
     void changeGraphNum(int newNum);
+    void clearGraph();
 };
 
 #endif // PLOTTAB_H

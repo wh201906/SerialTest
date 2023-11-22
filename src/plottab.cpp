@@ -206,6 +206,12 @@ void PlotTab::changeGraphNum(int newNum)
 
 void PlotTab::on_plot_clearButton_clicked()
 {
+    clearGraph();
+    emit clearRxData();
+}
+
+void PlotTab::clearGraph()
+{
     int num;
     plotCounter = 0;
     plotTime = QTime::currentTime();
@@ -547,7 +553,7 @@ void PlotTab::processData()
         plotCounter++;
         if(!plotClearFlag.isEmpty() && dataList[0] == plotClearFlag)
         {
-            on_plot_clearButton_clicked();
+            clearGraph();
         }
         else if(ui->plot_XTypeBox->currentIndex() == 0)
         {
@@ -602,6 +608,19 @@ void PlotTab::onThemeChanged(const QString &themeName)
     const QStringList darkThemeList = {"qdss_dark"};
     bool isDarkTheme = darkThemeList.contains(themeName);
     ui->qcpWidget->setDarkStyle(isDarkTheme);
+}
+
+void PlotTab::onClearBehaviorChanged(bool clearBoth)
+{
+    acceptClearSignal = clearBoth;
+}
+
+void PlotTab::onClearSignalReceived()
+{
+    if(acceptClearSignal)
+    {
+        clearGraph();
+    }
 }
 
 QCPAbstractLegendItem* PlotTab::getLegendItemByPos(const QPointF &pos)

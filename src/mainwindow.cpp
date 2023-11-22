@@ -66,6 +66,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     plotTab = new PlotTab();
     connect(dataTab, &DataTab::setPlotDecoder, plotTab, &PlotTab::setDecoder);
+    connect(dataTab, &DataTab::clearGraph, plotTab, &PlotTab::onClearSignalReceived);
+    connect(plotTab, &PlotTab::clearRxData, dataTab, &DataTab::onRxClearSignalReceived);
     ui->funcTab->insertTab(2, plotTab, tr("Plot"));
 
     ctrlTab = new CtrlTab();
@@ -87,6 +89,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(settingsTab, &SettingsTab::recordDataChanged, dataTab, &DataTab::onRecordDataChanged);
     connect(settingsTab, &SettingsTab::mergeTimestampChanged, this, &MainWindow::onMergeTimestampChanged);
     connect(settingsTab, &SettingsTab::timestampIntervalChanged, this, &MainWindow::onTimestampIntervalChanged);
+    connect(settingsTab, &SettingsTab::clearBehaviorChanged, dataTab, &DataTab::onClearBehaviorChanged);
+    connect(settingsTab, &SettingsTab::clearBehaviorChanged, plotTab, &PlotTab::onClearBehaviorChanged);
     ui->funcTab->insertTab(5, settingsTab, tr("Settings"));
 
     deviceTab->getAvailableTypes(true);

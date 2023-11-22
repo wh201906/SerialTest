@@ -200,6 +200,7 @@ void SettingsTab::loadPreference()
     ui->Android_forceLandscapeBox->setChecked(m_settings->value("Android_ForceLandscape", true).toBool());
     ui->Android_dockBox->setChecked(m_settings->value("Android_Dock", false).toBool());
     ui->Opacity_Box->setValue(m_settings->value("Opacity", 100).toInt());
+    ui->General_simultaneousClearBox->setChecked(m_settings->value("ClearBothRxDataAndGraph", false).toBool());
     int themeId = ui->Theme_nameBox->findData(m_settings->value("Theme_Name", "(none)").toString());
     ui->Theme_nameBox->setCurrentIndex((themeId == -1) ? 0 : themeId);
 
@@ -251,6 +252,7 @@ void SettingsTab::loadPreference()
     on_Data_recordDataBox_clicked();
     on_Data_mergeTimestampBox_clicked();
     on_Data_mergeTimestampIntervalBox_valueChanged(ui->Data_mergeTimestampIntervalBox->value());
+    on_General_simultaneousClearBox_clicked();
 
     if(fontValid)
         on_Font_setButton_clicked();
@@ -380,5 +382,15 @@ void SettingsTab::on_Data_mergeTimestampBox_clicked()
 void SettingsTab::on_Data_mergeTimestampIntervalBox_valueChanged(int arg1)
 {
     emit timestampIntervalChanged(arg1);
+}
+
+
+void SettingsTab::on_General_simultaneousClearBox_clicked()
+{
+    bool clearBoth = ui->General_simultaneousClearBox->isChecked();
+    m_settings->beginGroup("SerialTest");
+    m_settings->setValue("ClearBothRxDataAndGraph", clearBoth);
+    m_settings->endGroup();
+    emit clearBehaviorChanged(clearBoth);
 }
 

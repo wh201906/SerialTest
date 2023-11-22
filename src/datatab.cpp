@@ -241,6 +241,12 @@ void DataTab::on_receivedTimestampBox_stateChanged(int arg1)
 
 void DataTab::on_receivedClearButton_clicked()
 {
+    clearRxData();
+    emit clearGraph();
+}
+
+void DataTab::clearRxData()
+{
     lastReceivedByte = '\0'; // anything but '\r'
     emit clearReceivedData();
     syncReceivedEditWithData();
@@ -628,6 +634,19 @@ void DataTab::onRecordDataChanged(bool enabled)
         settings->beginGroup("SerialTest_Data");
         settings->remove("Data");
         settings->endGroup();
+    }
+}
+
+void DataTab::onClearBehaviorChanged(bool clearBoth)
+{
+    acceptClearSignal = clearBoth;
+}
+
+void DataTab::onRxClearSignalReceived()
+{
+    if(acceptClearSignal)
+    {
+        on_receivedClearButton_clicked();
     }
 }
 
