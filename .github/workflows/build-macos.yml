@@ -41,9 +41,8 @@ jobs:
       - name: Build
         working-directory: ${{ runner.temp }}/shadow_build_dir
         run:  |
-          export JOBS=$((`sysctl -n hw.ncpu`+1))
           qmake -r ${{ env.SOURCE_DIR }}/src/SerialTest.pro CONFIG+=app_bundle
-          make -j$JOBS
+          make -j$((`sysctl -n hw.ncpu` + 1))
 
       - name: Generate DMG file
         run: |

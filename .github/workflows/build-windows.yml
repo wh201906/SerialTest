@@ -48,7 +48,7 @@ jobs:
       - name: Build
         run:  |
           qmake -r ./src/SerialTest.pro
-          make -j $(nproc)
+          make -j $((`nproc` + 1))
           make clean
 
       - name: Copy DLLs

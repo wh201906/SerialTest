@@ -1,4 +1,4 @@
-name: linux multi-arch CI
+name: Linux CI (Ubuntu, Multi Arch)
 
 # Based on the workflow file of QGroundControl repo
 
@@ -15,18 +15,18 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
 
     strategy:
       matrix:
         include:
           - arch: armv7
-            distro: ubuntu20.04
+            distro: ubuntu22.04
           - arch: aarch64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
           - arch: riscv64
-            distro: ubuntu20.04
+            distro: ubuntu22.04
 
     steps:
       - name: Checkout repo
@@ -40,25 +40,16 @@ jobs:
           tar -xzf QCustomPlot-source.tar.gz
           cp qcustomplot-source/qcustomplot.* ${{ env.SOURCE_DIR }}/src
 
-      - name: Install Qt
-        run: |
-          sudo apt-get -q -y update
-          sudo apt-get -q -y install git build-essential
-          sudo apt-get -q -y install qt5-default libqt5serialport5-dev qtconnectivity5-dev 
-
       - name: Create build directory
         run: |
           mkdir ${{ runner.temp }}/shadow_build_dir
 
       - name: Build
-        uses: uraimo/run-on-arch-action@v2.5.1
+        uses: uraimo/run-on-arch-action@v2.6.0
         id: build
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
-
-          # Not required, but speeds up builds
-          githubToken: ${{ github.token }}
 
           # Create an artifacts directory
           # setup: |
@@ -85,14 +76,14 @@ jobs:
           install: |
             apt-get update -q -y
             apt-get install -q -y git build-essential
-            apt-get install -q -y qt5-default libqt5serialport5-dev qtconnectivity5-dev 
+            apt-get install -q -y qtbase5-dev qt5-qmake libqt5serialport5-dev qtconnectivity5-dev 
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
             cd /shadow_build_dir
-            export JOBS=$(nproc)
+            export QT_SELECT=qt5
             qmake -r /shadow_src_dir/src/SerialTest.pro
-            make -j$JOBS && make clean
+            make -j$((`nproc` + 1)) && make clean
 
       - name: Save artifact
         uses: actions/upload-artifact@master
