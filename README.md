@@ -46,6 +46,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 + Supports client mode and server mode
 + The server can be connected by multiple devices. You can enable/disable the Tx/Rx function of them.
 + Supports multiple local Bluetooth adapters (Experimental)
++ Client: Supports specifying service UUID
 
 </details>
 
@@ -93,6 +94,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 
 + Show data in hexadecimal
 + Show timestamp of received data
++ Show packets split by timeout with timestamp
 + Export raw data or selected text
 + Add suffix behind each sending(\r, \r\n, string, hex data)
 + Repeat
@@ -122,7 +124,7 @@ Supports serial port, Bluetooth SPP client/server, Bluetooth LE client, TCP clie
 </details>
 
 <details>
-<summary>Controll(shortcut) panel</summary>
+<summary>Control(shortcut) panel</summary>
 
 + Send spedified data by one click
 + Send a number quickly by slider
