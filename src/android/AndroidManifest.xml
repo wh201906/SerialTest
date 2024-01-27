@@ -1,5 +1,10 @@
 ﻿<?xml version="1.0"?>
-<manifest package="priv.wh201906.serialtest" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="V0.3.3" android:versionCode="33" android:installLocation="auto">
+<manifest
+    package="priv.wh201906.serialtest"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:versionName="V0.3.3"
+    android:versionCode="33"
+    android:installLocation="auto">
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
          Remove the comment if you do not require these default permissions. -->
     <!-- %%INSERT_PERMISSIONS -->
@@ -8,9 +13,25 @@
          Remove the comment if you do not require these default features. -->
     <!-- %%INSERT_FEATURES -->
 
-    <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
-    <application android:hardwareAccelerated="true" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="SerialTest" android:extractNativeLibs="true" android:largeHeap="true" android:icon="@drawable/icon">
-        <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="priv.wh201906.serialtest.MainActivity" android:label="SerialTest" android:launchMode="singleTask" android:screenOrientation="unspecified">
+    <supports-screens
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:anyDensity="true"
+        android:smallScreens="true"/>
+    <application
+        android:hardwareAccelerated="true"
+        android:name="org.qtproject.qt5.android.bindings.QtApplication"
+        android:label="SerialTest"
+        android:extractNativeLibs="true"
+        android:largeHeap="true"
+        android:icon="@mipmap/icon"
+        android:roundIcon="@mipmap/icon">
+        <activity
+            android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density"
+            android:name="priv.wh201906.serialtest.MainActivity"
+            android:label="SerialTest"
+            android:launchMode="singleTask"
+            android:screenOrientation="unspecified">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
