@@ -1,0 +1,2 @@
+V0.3.4
++ Android: Use adaptive launcher icon (commit da9f2caaf1)

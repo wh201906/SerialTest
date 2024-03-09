@@ -94,7 +94,7 @@ qnx {
 }
 
 # Remember to change version in AndroidManifest.xml
-VERSION = 0.3.3
+VERSION = 0.3.4
 QMAKE_TARGET_PRODUCT = "SerialTest"
 QMAKE_TARGET_DESCRIPTION = "SerialTest"
 QMAKE_TARGET_COMPANY = "wh201906"

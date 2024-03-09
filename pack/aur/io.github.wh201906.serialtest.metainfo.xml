@@ -55,6 +55,13 @@
   </screenshots>
 
   <releases>
+    <release version="0.3.4" date="2024-03-09">
+      <description>
+        <ul>
+          <li>Android: Use adaptive launcher icon (commit da9f2caaf1)</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.3.3" date="2023-11-22">
       <description>
         <ul>

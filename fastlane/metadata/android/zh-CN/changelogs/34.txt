@@ -1,0 +1,2 @@
+V0.3.4
++ Android: 使用自适应启动器图标 (commit da9f2caaf1)

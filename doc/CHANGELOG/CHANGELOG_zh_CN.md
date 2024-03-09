@@ -2,6 +2,9 @@
 
 [English](../../CHANGELOG.md)  
 
+## V0.3.4
++ Android: 使用自适应启动器图标 (commit da9f2caaf1)
+
 ## V0.3.3
 + 支持在蓝牙客户端模式中指定目标服务UUID (commit 1bd23bf4e0)
 + 支持在Android端显示IPv6地址 (commit 03a0e7938c)

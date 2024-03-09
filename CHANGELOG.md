@@ -2,6 +2,9 @@
 
 [中文](doc/CHANGELOG/CHANGELOG_zh_CN.md)  
 
+## V0.3.4
++ Android: Use adaptive launcher icon (commit da9f2caaf1)
+
 ## V0.3.3
 + Add support for specifying service UUID in Bluetooth client mode (commit 1bd23bf4e0)
 + Add support for showing IPv6 addresses on Android (commit 03a0e7938c)
