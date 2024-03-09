@@ -502,17 +502,27 @@ void Connection::updateSignalSlot()
 void Connection::BTServer_initServiceInfo()
 {
     // call it once
+
+    // Reference:
+    // https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/host/service-discovery-protocol--sdp--specification.html
+    // https://doc.qt.io/qt-5/qbluetoothserver.html#listen-1
+
+    const QBluetoothUuid serviceUuid(QLatin1String("4de17a00-52cb-11e6-bdf4-0800200c9a66"));
+
+    // Configure service attribute: BluetoothProfileDescriptorList(0x0009)
     QBluetoothServiceInfo::Sequence profileSequence;
     QBluetoothServiceInfo::Sequence classId;
     classId << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::SerialPort));
-    classId << QVariant::fromValue(quint16(0x100));
+    classId << QVariant::fromValue(quint16(0x100)); // profile version number: 1.0(initial version)
     profileSequence.append(QVariant::fromValue(classId));
     m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::BluetoothProfileDescriptorList, profileSequence);
 
     classId.clear();
-    // Add user defined UUID there
+    // "The UUIDs should be listed in order from the most specific class to the most general class unless otherwise specified by the profile specifications defining the service classes."
+    // Android requires custom uuid to be set as service class
     // classId << QVariant::fromValue(QBluetoothUuid(serialServiceUuid));
-    classId << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::SerialPort));
+    classId << QVariant::fromValue(serviceUuid);
+//    classId << QVariant::fromValue(QBluetoothUuid(QBluetoothUuid::SerialPort));
 
     m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::ServiceClassIds, classId);
 
@@ -525,7 +535,7 @@ void Connection::BTServer_initServiceInfo()
     //! [Service UUID set]
     // use QBluetoothUuid::SerialPort there
     // m_RfcommServiceInfo.setServiceUuid(QBluetoothUuid(serialServiceUuid));
-    m_RfcommServiceInfo.setServiceUuid(QBluetoothUuid::SerialPort);
+    m_RfcommServiceInfo.setServiceUuid(serviceUuid);
     //! [Service UUID set]
 
     //! [Service Discoverability]
@@ -534,6 +544,7 @@ void Connection::BTServer_initServiceInfo()
     m_RfcommServiceInfo.setAttribute(QBluetoothServiceInfo::BrowseGroupList,
                                      publicBrowse);
     //! [Service Discoverability]
+    m_Bt
 }
 
 void Connection::BTServer_updateServicePort()
