@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: SerialTest
 
@@ -45,7 +45,7 @@ jobs:
           mkdir ${{ runner.temp }}/shadow_build_dir
 
       - name: Build
-        uses: uraimo/run-on-arch-action@v2.6.0
+        uses: uraimo/run-on-arch-action@v2.7.1
         id: build
         with:
           arch: ${{ matrix.arch }}
@@ -86,7 +86,7 @@ jobs:
             make -j$((`nproc` + 1)) && make clean
 
       - name: Save artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT }}_${{ matrix.arch }}
           path: ${{ runner.temp }}/shadow_build_dir/**/${{ env.ARTIFACT }}
