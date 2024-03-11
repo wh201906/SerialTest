@@ -39,6 +39,9 @@ jobs:
       - name: Create build directory
         run:  mkdir ${{ runner.temp }}/shadow_build_dir
 
+      - name: Switch Xcode version
+        run: sudo xcode-select --switch "/Applications/Xcode_14.0.1.app"
+
       - name: Build
         working-directory: ${{ runner.temp }}/shadow_build_dir
         run:  |
