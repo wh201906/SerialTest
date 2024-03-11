@@ -32,7 +32,8 @@ jobs:
       - name: Install Qt
         run: |
           brew update
-          brew install qt@5
+          brew upgrade || echo '::warning::"brew upgrade" failed. Please check the log to see if the artifact is valid.'
+          brew install qt@5 || echo '::warning::"brew install qt@5" failed. Please check the log to see if the artifact is valid.'
           brew link qt5 --force
 
       - name: Create build directory
