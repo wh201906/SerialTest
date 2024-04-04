@@ -1323,17 +1323,17 @@ void Connection::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState 
             if(service == m_BLERxTxService) // characteristic not found
             {
                 m_BLERxTxService = nullptr;
-                onDisconnected();
             }
             else if(service == m_BLETxService) // characteristic not found
             {
                 m_BLETxService = nullptr;
-                onDisconnected();
             }
             service->deleteLater();
             // all root services and included services are handled
             if(m_BLEDiscoveredServices.isEmpty() && m_BLEController->state() == QLowEnergyController::DiscoveredState)
-                onDisconnected();
+            {
+                close();
+            }
         }
     }
 }
