@@ -469,7 +469,8 @@ void DataTab::appendSendedData(const QByteArray& data)
 // void MainWindow::syncEditWithData()
 void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>& metadata)
 {
-    int cursorPos;
+    // Record cursor position and selection
+    QTextCursor textCursor = ui->receivedEdit->textCursor();
     int sliderPos;
 
     if(!ui->receivedLatestBox->isChecked())
@@ -478,7 +479,6 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
         sliderPos = RxSlider->sliderPosition();
     }
 
-    cursorPos = ui->receivedEdit->textCursor().position();
     ui->receivedEdit->moveCursor(QTextCursor::End);
     if(isReceivedDataHex)
     {
@@ -533,7 +533,7 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
             ui->receivedEdit->insertPlainText(RxDecoder->toUnicode(dataItem));
         lastReceivedByte = *dataItem.crbegin();
     }
-    ui->receivedEdit->textCursor().setPosition(cursorPos);
+    ui->receivedEdit->setTextCursor(textCursor);
     if(!ui->receivedLatestBox->isChecked())
     {
         // Restore slider position
