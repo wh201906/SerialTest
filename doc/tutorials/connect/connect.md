@@ -7,7 +7,7 @@ This program will automatically display the currently available serial ports at 
 ![1](1_zh_CN.png)  
 Double click the target device item on the left or manually enter/select the port name on the right, then enter or select the baud rate and click the "Open" button to connect.  
 ![2](2_zh_CN.png)  
-When the "Status" button below changes to √, the device is connected successfully.
+When the "Status" button below changes to OK, the device is connected successfully.
 ![3](3_zh_CN.png)  
 Before connecting to a device, you can click the "Advanced" checkbox to configure more parameters.  
 ![4](4_zh_CN.png)  
@@ -20,5 +20,5 @@ Each time a device is successfully opened, the program will save the parameters 
 You can only connect to "Bonded" devices. For new devices, you need to pair them in the system Bluetooth settings first, then click the device you want to connect to and click the "Open" button on the right to connect  
 The "Bonded" devices in the list include devices that have been paired before but are not in the connection range, which might not be connectable.  
 ![7](7_zh_CN.jpg)  
-Click the "Open" button. When the "Status" button below changes to √, the device is connected successfully.  
+Click the "Open" button. When the "Status" button below changes to OK, the device is connected successfully.  
 The Android version can also quickly disconnect/reconnect the last connected device by clicking the "Status" button in the status bar.  

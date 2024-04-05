@@ -334,7 +334,7 @@ void MainWindow::updateStatusBar()
     connArgsLabel->setText(connArgsText);
     Connection::State currState = IOConnection->state();
     if(currState == Connection::Connected)
-        stateButton->setText(tr("State") + ": √");
+        stateButton->setText(tr("State") + ": OK");
     else if(currState == Connection::Bound || currState == Connection::Connecting)
         stateButton->setText(tr("State") + ": ...");
     else
