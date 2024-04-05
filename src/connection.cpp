@@ -1120,6 +1120,8 @@ QBluetoothAddress Connection::BT_localAddress()
         return m_BTSocket->localAddress();
     else if(m_type == BT_Server && m_BTServer != nullptr)
         return m_BTServer->serverAddress();
+    else if(m_type == BLE_Central && m_BLEController != nullptr)
+        return m_BLEController->localAddress();
     return QBluetoothAddress();
 }
 
