@@ -38,8 +38,6 @@ DataTab::DataTab(QByteArray* RxBuf, QVector<Metadata>* RxMetadataBuf, QByteArray
 
     connect(ui->sendEdit, &QLineEdit::returnPressed, this, &DataTab::on_sendButton_clicked);
     connect(repeatTimer, &QTimer::timeout, this, &DataTab::on_sendButton_clicked);
-    connect(RxSlider, &QScrollBar::valueChanged, this, &DataTab::onRxSliderValueChanged);
-    connect(RxSlider, &QScrollBar::sliderMoved, this, &DataTab::onRxSliderMoved);
 }
 
 DataTab::~DataTab()
@@ -183,7 +181,7 @@ void DataTab::loadPreference()
     // setChecked() will trigger on_xxx_stateChanged(), but on_xxx_clicked() will not be triggered
     settings->beginGroup("SerialTest_Data");
     ui->receivedHexBox->setChecked(settings->value("Recv_Hex", false).toBool());
-    ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", false).toBool());
+    ui->receivedLatestBox->setChecked(settings->value("Recv_Latest", true).toBool());
     ui->receivedTimestampBox->setChecked(settings->value("Recv_Timestamp", false).toBool());
     ui->receivedRealtimeBox->setChecked(settings->value("Recv_Realtime", true).toBool());
     ui->sendedHexBox->setChecked(settings->value("Send_Hex", false).toBool());
@@ -206,18 +204,6 @@ void DataTab::on_data_suffixTypeBox_currentIndexChanged(int index)
 {
     ui->data_suffixEdit->setVisible(index != 2 && index != 3);
     ui->data_suffixEdit->setPlaceholderText(tr("Suffix") + ((index == 1) ? "(Hex)" : ""));
-}
-void DataTab::onRxSliderValueChanged(int value)
-{
-    // qDebug() << "valueChanged" << value;
-    currRxSliderPos = value;
-}
-
-void DataTab::onRxSliderMoved(int value)
-{
-    // slider is moved by user
-    // qDebug() << "sliderMoved" << value;
-    userRequiredRxSliderPos = value;
 }
 
 void DataTab::on_sendedHexBox_stateChanged(int arg1)
@@ -486,18 +472,11 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
     int cursorPos;
     int sliderPos;
 
-    if(ui->receivedLatestBox->isChecked())
+    if(!ui->receivedLatestBox->isChecked())
     {
-        userRequiredRxSliderPos = RxSlider->maximum();
-        RxSlider->setSliderPosition(RxSlider->maximum());
+        // Record slider position
+        sliderPos = RxSlider->sliderPosition();
     }
-    else
-    {
-        userRequiredRxSliderPos = currRxSliderPos;
-        RxSlider->setSliderPosition(currRxSliderPos);
-    }
-
-    sliderPos = RxSlider->sliderPosition();
 
     cursorPos = ui->receivedEdit->textCursor().position();
     ui->receivedEdit->moveCursor(QTextCursor::End);
@@ -555,7 +534,16 @@ void DataTab::appendReceivedData(const QByteArray &data, const QVector<Metadata>
         lastReceivedByte = *dataItem.crbegin();
     }
     ui->receivedEdit->textCursor().setPosition(cursorPos);
-    RxSlider->setSliderPosition(sliderPos);
+    if(!ui->receivedLatestBox->isChecked())
+    {
+        // Restore slider position
+        RxSlider->setSliderPosition(sliderPos);
+    }
+    else
+    {
+        // Sometimes the slider position is a few lines above the maximum position
+        RxSlider->setSliderPosition(RxSlider->maximum());
+    }
 }
 
 void DataTab::on_data_flowDTRBox_clicked(bool checked)

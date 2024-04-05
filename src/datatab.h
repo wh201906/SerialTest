@@ -62,8 +62,6 @@ private slots:
     void on_receivedExportButton_clicked();
     void on_sendedExportButton_clicked();
     void on_data_suffixTypeBox_currentIndexChanged(int index);
-    void onRxSliderValueChanged(int value);
-    void onRxSliderMoved(int value);
     void on_receivedUpdateButton_clicked();
     void on_data_flowDTRBox_clicked(bool checked);
     void on_data_flowRTSBox_clicked(bool checked);
@@ -87,8 +85,6 @@ private:
     QTimer* repeatTimer;
 
     QScrollBar* RxSlider;
-    int currRxSliderPos = 0;
-    int userRequiredRxSliderPos = 0;
 
     bool isReceivedDataHex = false;
     bool isSendedDataHex = false;
