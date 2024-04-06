@@ -65,6 +65,7 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
     void keyReleaseEvent(QKeyEvent* e) override;
+    void closeEvent(QCloseEvent* event) override;
 private slots:
     void readData();
     void onStateButtonClicked();

@@ -180,6 +180,15 @@ void MainWindow::keyReleaseEvent(QKeyEvent* e)
         QMainWindow::keyReleaseEvent(e);
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    Q_UNUSED(event);
+    const QString windowStateData = QString::fromLatin1(saveState().toBase64());
+    settings->beginGroup("SerialTest");
+    settings->setValue("WindowState", windowStateData);
+    settings->endGroup();
+}
+
 void MainWindow::onStateButtonClicked()
 {
     if(IOConnection->state() != Connection::Unconnected)
@@ -216,7 +225,9 @@ void MainWindow::initUI()
     bool dockEnabled = settings->value("Android_Dock", false).toBool();
     settings->endGroup();
     if(dockEnabled)
+    {
         dockInit();
+    }
 #else
     onTopBox = new QCheckBox(tr("On Top"));
     connect(onTopBox, &QCheckBox::clicked, this, &MainWindow::onTopBoxClicked);
@@ -589,6 +600,8 @@ void MainWindow::dockInit()
         dock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         widget = ui->funcTab->widget(0);
         dock->setWidget(widget);
+        // For saveState()/restoreState()
+        dock->setObjectName(widget->objectName() + "DockWidget");
         connect(dock, &QDockWidget::topLevelChanged, this, &MainWindow::onDockTopLevelChanged);
         dock->installEventFilter(this);
         addDockWidget(Qt::BottomDockWidgetArea, dock);
@@ -600,6 +613,15 @@ void MainWindow::dockInit()
     ui->centralwidget->hide();
     dockList[0]->setVisible(true);
     dockList[0]->raise();
+
+    // Restore the geometry and the state of dock widgets
+    settings->beginGroup("SerialTest");
+    const QByteArray windowStateData = QByteArray::fromBase64(settings->value("WindowState", "").toString().toLatin1());
+    settings->endGroup();
+    if(!windowStateData.isEmpty())
+    {
+        restoreState(windowStateData);
+    }
 }
 
 
