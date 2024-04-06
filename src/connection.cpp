@@ -781,9 +781,13 @@ qint64 Connection::write(const char *data, qint64 len)
     else if(m_type == BLE_Central)
     {
         if(m_BLERxTxMode == BLE_2S2C)
-            m_BLETxService->writeCharacteristic(m_BLETxCharacteristic, QByteArray::fromRawData(data, len));
+        {
+            m_BLETxService->writeCharacteristic(m_BLETxCharacteristic, QByteArray::fromRawData(data, len), m_BLETxWriteMode);
+        }
         else
-            m_BLERxTxService->writeCharacteristic(m_BLETxCharacteristic, QByteArray::fromRawData(data, len));
+        {
+            m_BLERxTxService->writeCharacteristic(m_BLETxCharacteristic, QByteArray::fromRawData(data, len), m_BLETxWriteMode);
+        }
         return len; // no feedback
     }
     else if(m_type == TCP_Client)
@@ -1250,11 +1254,18 @@ void Connection::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState 
         {
             for(auto it = chars.cbegin(); it != chars.cend(); ++it)
             {
-                if(!m_BLERxCharacteristicValid && it->uuid() == m_currBTArgument.RxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Notify) && it->properties().testFlag(QLowEnergyCharacteristic::Write))
+                if(!m_BLERxCharacteristicValid && it->uuid() == m_currBTArgument.RxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Notify))
                 {
-                    m_BLERxCharacteristicValid = true;
-                    m_BLETxCharacteristicValid = true;
-                    deleteService = false;
+                    const bool hasWriteProperty = it->properties().testFlag(QLowEnergyCharacteristic::Write);
+                    const bool hasWriteNoResponseProperty = it->properties().testFlag(QLowEnergyCharacteristic::WriteNoResponse);
+                    if(hasWriteProperty || hasWriteNoResponseProperty)
+                    {
+                        // Use WRITE if both properties are supported
+                        m_BLETxWriteMode = hasWriteProperty ? QLowEnergyService::WriteWithResponse : QLowEnergyService::WriteWithoutResponse;
+                        m_BLERxCharacteristicValid = true;
+                        m_BLETxCharacteristicValid = true;
+                        deleteService = false;
+                    }
                 }
             }
         }
@@ -1267,10 +1278,17 @@ void Connection::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState 
                     m_BLERxCharacteristicValid = true;
                     deleteService = false;
                 }
-                if(!m_BLETxCharacteristicValid && it->uuid() == m_currBTArgument.TxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Write))
+                if(!m_BLETxCharacteristicValid && it->uuid() == m_currBTArgument.TxCharacteristicUUID)
                 {
-                    m_BLETxCharacteristicValid = true;
-                    deleteService = false;
+                    const bool hasWriteProperty = it->properties().testFlag(QLowEnergyCharacteristic::Write);
+                    const bool hasWriteNoResponseProperty = it->properties().testFlag(QLowEnergyCharacteristic::WriteNoResponse);
+                    if(hasWriteProperty || hasWriteNoResponseProperty)
+                    {
+                        // Use WRITE if both properties are supported
+                        m_BLETxWriteMode = hasWriteProperty ? QLowEnergyService::WriteWithResponse : QLowEnergyService::WriteWithoutResponse;
+                        m_BLETxCharacteristicValid = true;
+                        deleteService = false;
+                    }
                 }
             }
         }
@@ -1289,10 +1307,17 @@ void Connection::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState 
         {
             for(auto it = chars.cbegin(); it != chars.cend(); ++it)
             {
-                if(!m_BLETxCharacteristicValid && it->uuid() == m_currBTArgument.TxCharacteristicUUID && it->properties().testFlag(QLowEnergyCharacteristic::Write))
+                if(!m_BLETxCharacteristicValid && it->uuid() == m_currBTArgument.TxCharacteristicUUID)
                 {
-                    m_BLETxCharacteristicValid = true;
-                    deleteService = false;
+                    const bool hasWriteProperty = it->properties().testFlag(QLowEnergyCharacteristic::Write);
+                    const bool hasWriteNoResponseProperty = it->properties().testFlag(QLowEnergyCharacteristic::WriteNoResponse);
+                    if(hasWriteProperty || hasWriteNoResponseProperty)
+                    {
+                        // Use WRITE if both properties are supported
+                        m_BLETxWriteMode = hasWriteProperty ? QLowEnergyService::WriteWithResponse : QLowEnergyService::WriteWithoutResponse;
+                        m_BLETxCharacteristicValid = true;
+                        deleteService = false;
+                    }
                 }
             }
         }
@@ -1334,6 +1359,7 @@ void Connection::BLEC_onServiceDetailDiscovered(QLowEnergyService::ServiceState 
             // all root services and included services are handled
             if(m_BLEDiscoveredServices.isEmpty() && m_BLEController->state() == QLowEnergyController::DiscoveredState)
             {
+                qDebug() << "Cannot find Tx/Rx Characteristic matching the requirement.";
                 close();
             }
         }

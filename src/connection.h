@@ -176,6 +176,7 @@ private:
     bool m_BLERxCharacteristicValid = false;
     bool m_BLETxCharacteristicValid = false;
     QLowEnergyCharacteristic m_BLETxCharacteristic;
+    QLowEnergyService::WriteMode m_BLETxWriteMode;
     QTcpServer* m_TCPServer = nullptr;
     QTcpSocket* m_TCPSocket = nullptr;
     QUdpSocket* m_UDPSocket = nullptr;
