@@ -692,8 +692,13 @@ void DeviceTab::on_openButton_clicked()
         m_connection->open();
 
         settings->beginGroup(m_historyPrefix["BTClient"]);
-        if(arg.RxServiceUUID != QBluetoothUuid::SerialPort)
+        if(arg.RxServiceUUID == QBluetoothUuid::SerialPort)
         {
+            settings->setValue("UserSpecifiedServiceUUID", false);
+        }
+        else
+        {
+            // Update "ServiceUUID" only if the service UUID is not SerialPort
             settings->setValue("UserSpecifiedServiceUUID", ui->BTClient_serviceUUIDBox->isChecked());
             settings->setValue("ServiceUUID", arg.RxServiceUUID);
         }
