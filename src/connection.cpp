@@ -605,8 +605,12 @@ void Connection::onErrorOccurred()
             m_errorStringList += m_serialPort->errorString();
         qDebug() << "SerialPort Error:" << error << m_serialPort->errorString();
 
+        if(m_SP_ignoredErrorList.contains(error))
+        {
+            qDebug() << error << "ignored";
+        }
         // no error
-        if(error == QSerialPort::NoError)
+        else if(error == QSerialPort::NoError)
             ;
         // serialport still works
         else if(error == QSerialPort::FramingError || error == QSerialPort::ParityError || error == QSerialPort::BreakConditionError || error == QSerialPort::UnsupportedOperationError || error == QSerialPort::TimeoutError || error == QSerialPort::ReadError || error == QSerialPort::WriteError)
@@ -1106,6 +1110,16 @@ bool Connection::SP_setFlowControl(QSerialPort::FlowControl flowControl)
     if(isConnected() && m_lastSPArgumentValid)
         m_lastSPArgument.flowControl = flowControl;
     return true;
+}
+
+void Connection::SP_setIgnoredErrorList(const QList<QSerialPort::SerialPortError> &errorList)
+{
+    m_SP_ignoredErrorList = errorList;
+}
+
+QList<QSerialPort::SerialPortError> Connection::SP_getIgnoredErrorList()
+{
+    return m_SP_ignoredErrorList;
 }
 
 QString Connection::BT_remoteName()

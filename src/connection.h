@@ -118,6 +118,8 @@ public:
     bool SP_setStopBits(QSerialPort::StopBits stopBits);
     bool SP_setParity(QSerialPort::Parity parity);
     bool SP_setFlowControl(QSerialPort::FlowControl flowControl);
+    void SP_setIgnoredErrorList(const QList<QSerialPort::SerialPortError>& errorList);
+    QList<QSerialPort::SerialPortError> SP_getIgnoredErrorList();
 
     // Bluetooth
     QString BT_remoteName();
@@ -196,6 +198,7 @@ private:
 
     //
     QSerialPort::PinoutSignals m_SP_lastSignals;
+    QList<QSerialPort::SerialPortError> m_SP_ignoredErrorList;
 
     QByteArray m_buf;
 

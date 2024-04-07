@@ -426,10 +426,21 @@ void DataTab::onConnEstablished()
         // ui->data_flowDTRBox->setChecked(m_connection->SP_isDataTerminalReady());
 
         // sync states from UI to serial
+        //
+        // Some devices, such as Quectel EC200U/EC600U/EG912U, may not support getting or setting the DTR/RTS signals.
+        // When attempting these operations on such devices, they may report QSerialPort::UnknownError instead of QSerialPort::UnsupportedOperationError.
+        // This can cause the Connection class to close the device unexpectedly.
+        // These errors should be ignored when syncing the DTR/RTS state with the device.
+
+        const auto oldErrorList = m_connection->SP_getIgnoredErrorList();
+        auto errorList = oldErrorList;
+        errorList.append(QSerialPort::UnknownError);
+        m_connection->SP_setIgnoredErrorList(errorList);
         if(ui->data_flowDTRBox->isChecked() != m_connection->SP_isDataTerminalReady())
             on_data_flowDTRBox_clicked(ui->data_flowDTRBox->isChecked());
         if(ui->data_flowRTSBox->isChecked() != m_connection->SP_isRequestToSend())
             on_data_flowRTSBox_clicked(ui->data_flowRTSBox->isChecked());
+        m_connection->SP_setIgnoredErrorList(oldErrorList);
     }
 }
 
