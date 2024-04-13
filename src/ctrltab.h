@@ -20,6 +20,7 @@ public:
 
 public slots:
     void setDataCodec(QTextCodec *codec);
+    void setTouchScroll(bool enabled);
 protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;

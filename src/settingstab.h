@@ -19,6 +19,8 @@ public:
     ~SettingsTab();
 
     void initSettings();
+public slots:
+    void setTouchScroll(bool enabled);
 private slots:
     void on_Opacity_Box_valueChanged(int arg1);
 
@@ -62,6 +64,8 @@ private slots:
 
     void on_General_simultaneousClearBox_clicked();
 
+    void on_General_touchScrollBox_clicked();
+
 private:
     Ui::SettingsTab *ui;
     MySettings* m_settings;
@@ -71,6 +75,7 @@ signals:
     void opacityChanged(qreal value);
     void fontChanged(QFont font);
     void fullScreenStateChanged(bool isFullScreen);
+    void TouchScrollStateChanged(bool enabled);
     // keep the default parameter the same as DeviceTab::getAvailableTypes()
     void updateAvailableDeviceTypes(bool useFirstValid = false);
     void recordDataChanged(bool enabled);

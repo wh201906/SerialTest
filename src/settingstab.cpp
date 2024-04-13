@@ -44,8 +44,6 @@ SettingsTab::SettingsTab(QWidget *parent) :
 
     // APP_VERSION is defined in the .pro file
     ui->versionLabel->setText(APP_VERSION);
-
-    QScroller::grabGesture(ui->scrollArea);
 }
 
 SettingsTab::~SettingsTab()
@@ -97,6 +95,7 @@ void SettingsTab::initSettings()
     connect(ui->Android_fullScreenBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_forceLandscapeBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     connect(ui->Android_dockBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
+    connect(ui->General_touchScrollBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
     // Android_HWSerialBox will handle the preference itself.
     connect(ui->Opacity_Box, QOverload<int>::of(&QSpinBox::valueChanged), this, &SettingsTab::savePreference);
     connect(ui->Data_recordDataBox, &QCheckBox::clicked, this, &SettingsTab::savePreference);
@@ -167,6 +166,12 @@ void SettingsTab::on_Android_fullScreenBox_clicked()
     emit fullScreenStateChanged(ui->Android_fullScreenBox->isChecked());
 }
 
+
+void SettingsTab::on_General_touchScrollBox_clicked()
+{
+    emit TouchScrollStateChanged(ui->General_touchScrollBox->isChecked());
+}
+
 void SettingsTab::savePreference()
 {
     if(m_settings->group() != "")
@@ -179,6 +184,7 @@ void SettingsTab::savePreference()
 #else
     m_settings->setValue("Opacity", ui->Opacity_Box->value());
 #endif
+    m_settings->setValue("TouchScroll", ui->General_touchScrollBox->isChecked());
     m_settings->endGroup();
     // Android_HWSerialBox will handle the preference itself.
     m_settings->beginGroup("SerialTest_Data");
@@ -199,6 +205,7 @@ void SettingsTab::loadPreference()
     ui->Android_fullScreenBox->setChecked(m_settings->value("Android_FullScreen", false).toBool());
     ui->Android_forceLandscapeBox->setChecked(m_settings->value("Android_ForceLandscape", true).toBool());
     ui->Android_dockBox->setChecked(m_settings->value("Android_Dock", false).toBool());
+    ui->General_touchScrollBox->setChecked(m_settings->value("TouchScroll", true).toBool());
     ui->Opacity_Box->setValue(m_settings->value("Opacity", 100).toInt());
     ui->General_simultaneousClearBox->setChecked(m_settings->value("ClearBothRxDataAndGraph", false).toBool());
     int themeId = ui->Theme_nameBox->findData(m_settings->value("Theme_Name", "(none)").toString());
@@ -248,6 +255,7 @@ void SettingsTab::loadPreference()
 #else
     on_Opacity_Box_valueChanged(ui->Opacity_Box->value());
 #endif
+    on_General_touchScrollBox_clicked();
     on_Theme_setButton_clicked();
     on_Data_recordDataBox_clicked();
     on_Data_mergeTimestampBox_clicked();
@@ -394,3 +402,15 @@ void SettingsTab::on_General_simultaneousClearBox_clicked()
     emit clearBehaviorChanged(clearBoth);
 }
 
+
+void SettingsTab::setTouchScroll(bool enabled)
+{
+    if(enabled)
+    {
+        QScroller::grabGesture(ui->scrollArea);
+    }
+    else
+    {
+        QScroller::ungrabGesture(ui->scrollArea);
+    }
+}

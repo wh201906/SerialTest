@@ -56,6 +56,7 @@ public slots:
     void Net_onDeleteButtonClicked();
     void syncUDPPreference();
     void syncTCPClientPreference();
+    void setTouchScroll(bool enabled);
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 private:

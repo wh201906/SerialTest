@@ -84,6 +84,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(settingsTab, &SettingsTab::themeChanged, this, &MainWindow::onThemeChanged);
     connect(settingsTab, &SettingsTab::opacityChanged, this, &MainWindow::onOpacityChanged); // not a slot function, but works fine.
     connect(settingsTab, &SettingsTab::fullScreenStateChanged, this, &MainWindow::setFullScreen);
+    connect(settingsTab, &SettingsTab::TouchScrollStateChanged, deviceTab, &DeviceTab::setTouchScroll);
+    connect(settingsTab, &SettingsTab::TouchScrollStateChanged, ctrlTab, &CtrlTab::setTouchScroll);
+    connect(settingsTab, &SettingsTab::TouchScrollStateChanged, settingsTab, &SettingsTab::setTouchScroll);
     connect(settingsTab, &SettingsTab::updateAvailableDeviceTypes, deviceTab, &DeviceTab::getAvailableTypes);
     connect(settingsTab, &SettingsTab::themeChanged, plotTab, &PlotTab::onThemeChanged);
     connect(settingsTab, &SettingsTab::recordDataChanged, dataTab, &DataTab::onRecordDataChanged);

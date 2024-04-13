@@ -322,15 +322,6 @@ void DeviceTab::initUI()
 
     ui->Net_localPortEdit->setValidator(m_netPortValidator);
     ui->Net_remotePortEdit->setValidator(m_netPortValidator);
-
-    QScroller::grabGesture(ui->BLEC_argsScrollArea);
-    QScroller::grabGesture(ui->Net_argsScrollArea);
-    QScroller::grabGesture(ui->SP_portList);
-    QScroller::grabGesture(ui->BTServer_deviceList);
-    QScroller::grabGesture(ui->BTClient_deviceList);
-    QScroller::grabGesture(ui->BLEC_deviceList);
-    QScroller::grabGesture(ui->BLEC_UUIDList);
-    QScroller::grabGesture(ui->Net_addrPortList);
 }
 
 void DeviceTab::getAvailableTypes(bool useFirstValid)
@@ -1736,3 +1727,31 @@ void DeviceTab::on_BTClient_serviceUUIDBox_clicked()
     ui->BTClient_tipLabel->setVisible(!userSpecifiedUUID);
 }
 
+void DeviceTab::setTouchScroll(bool enabled)
+{
+    if(enabled)
+    {
+
+        QScroller::grabGesture(ui->BLEC_argsScrollArea);
+        QScroller::grabGesture(ui->Net_argsScrollArea);
+        QScroller::grabGesture(ui->SP_portList);
+        QScroller::grabGesture(ui->BTServer_deviceList);
+        QScroller::grabGesture(ui->BTClient_deviceList);
+        QScroller::grabGesture(ui->BLEC_deviceList);
+        QScroller::grabGesture(ui->BLEC_UUIDList);
+        QScroller::grabGesture(ui->Net_addrPortList);
+    }
+    else
+    {
+
+        QScroller::ungrabGesture(ui->BLEC_argsScrollArea);
+        QScroller::ungrabGesture(ui->Net_argsScrollArea);
+        QScroller::ungrabGesture(ui->SP_portList);
+        QScroller::ungrabGesture(ui->BTServer_deviceList);
+        QScroller::ungrabGesture(ui->BTClient_deviceList);
+        QScroller::ungrabGesture(ui->BLEC_deviceList);
+        QScroller::ungrabGesture(ui->BLEC_UUIDList);
+        QScroller::ungrabGesture(ui->Net_addrPortList);
+
+    }
+}

@@ -31,7 +31,6 @@ CtrlTab::CtrlTab(QWidget *parent) :
     commentRegExp->optimize();
 
     ui->ctrl_dataEdit->hide();
-    QScroller::grabGesture(ui->ctrl_itemArea);
 }
 
 CtrlTab::~CtrlTab()
@@ -236,5 +235,17 @@ void CtrlTab::dropEvent(QDropEvent *event)
         file.open(QFile::ReadOnly | QFile::Text);
         loadCtrlPanel(QString::fromUtf8(file.readAll()));
         file.close();
+    }
+}
+
+void CtrlTab::setTouchScroll(bool enabled)
+{
+    if(enabled)
+    {
+        QScroller::grabGesture(ui->ctrl_itemArea);
+    }
+    else
+    {
+        QScroller::ungrabGesture(ui->ctrl_itemArea);
     }
 }

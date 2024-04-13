@@ -487,6 +487,13 @@ If no config file is detected, This app will create one in the current working d
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="General_touchScrollBox">
+            <property name="text">
+             <string>Respond to Touch Scroll Events</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
