@@ -27,17 +27,18 @@ FileTab::FileTab(QWidget *parent) :
     m_checksumCalc->setNotify(true);
     m_checksumCalc->setParam(32, 0x04C11DB7ULL, 0xFFFFFFFFULL, true, true, 0xFFFFFFFFULL); // CRC-32
     m_checksumCalc->moveToThread(m_checksumThread);
-    m_checksumThread->start();
     connect(m_checksumCalc, &AsyncCRC::result, this, &FileTab::onChecksumUpdated);
     connect(m_checksumCalc, &AsyncCRC::fileError, this, &FileTab::onChecksumError);
+    connect(m_checksumThread, &QThread::finished, m_checksumCalc, &QObject::deleteLater);
+    m_checksumThread->start();
 
     m_fileXceiver->moveToThread(m_fileXceiverThread);
-    m_fileXceiverThread->start();
     connect(m_fileXceiver, &FileXceiver::startResult, this, &FileTab::onStartResultArrived);
     connect(m_fileXceiver, &FileXceiver::dataTransmitted, this, &FileTab::onDataTransmitted);
     connect(m_fileXceiver, &FileXceiver::dataReceived, this, &FileTab::onDataReceived);
     connect(m_fileXceiver, &FileXceiver::finished, this, &FileTab::onFinished);
-
+    connect(m_fileXceiverThread, &QThread::finished, m_fileXceiver, &QObject::deleteLater);
+    m_fileXceiverThread->start();
 
     m_currInstance = this;
 
@@ -77,12 +78,10 @@ FileTab::~FileTab()
 {
     QMetaObject::invokeMethod(m_fileXceiver, "stop", Qt::QueuedConnection);
     delete ui;
-    delete m_checksumCalc;
-    m_checksumThread->terminate();
-    m_checksumThread->wait(1000);
-    delete m_fileXceiver;
-    m_fileXceiverThread->terminate();
-    m_fileXceiverThread->wait(2000);
+    m_checksumThread->quit();
+    m_fileXceiverThread->quit();
+    m_checksumThread->wait();
+    m_fileXceiverThread->wait();
 }
 
 void FileTab::initSettings()
