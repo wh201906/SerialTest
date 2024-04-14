@@ -6,6 +6,7 @@
 #include <winrt/Windows.Devices.Radios.h>
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QElapsedTimer>
 
 using namespace winrt::Windows::Foundation;
@@ -76,8 +77,13 @@ QList<QBluetoothHostInfo> WinRTBluetooth::allLocalDevices(bool PoweredOnOnly)
         for(const auto &devInfo : deviceInfoCollection)
         {
             BluetoothAdapter adapter(nullptr);
+            Radio radio(nullptr);
             const bool res = await(BluetoothAdapter::FromIdAsync(devInfo.Id()), adapter);
-            if(res && adapter && (!PoweredOnOnly || getRadioFromAdapterId(devInfo.Id()).State() == RadioState::On))
+            if(!res || !adapter)
+            {
+                continue;
+            }
+            if(!PoweredOnOnly || ((radio = getRadioFromAdapterId(devInfo.Id())) && radio.State() == RadioState::On))
             {
                 QBluetoothHostInfo info;
                 info.setName(QString::fromStdString(winrt::to_string(devInfo.Name())));
