@@ -1,0 +1,72 @@
+name: Windows CI (MSVC)
+
+on: [ workflow_dispatch, push ]
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ win64, win32 ]
+    runs-on:  windows-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+      
+      - name: Detect Qt Arch
+        id: detect-qt-arch
+        run: |
+          $BUILD_ARCH="${{ matrix.arch }}"
+          switch ($BUILD_ARCH) {
+            "win64" { $QT_ARCH = "win64_msvc2019_64" }
+            "win32" { $QT_ARCH = "win32_msvc2019" }
+          }
+          echo $QT_ARCH
+          echo "QT_ARCH=$QT_ARCH" >> $env:GITHUB_ENV
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          target: 'desktop'
+          arch: ${{ env.QT_ARCH }}
+          cache: true
+
+      - name: Set up Visual Studio shell
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+          toolset: '14.2'
+
+      - name: Download QCustomPlot
+        run: |
+          Invoke-WebRequest -Uri "https://www.qcustomplot.com/release/2.1.1/QCustomPlot-source.tar.gz" -OutFile "QCustomPlot-source.tar.gz"
+          tar -xvzf QCustomPlot-source.tar.gz
+          Copy-Item -Path "qcustomplot-source/qcustomplot.*" -Destination "./src"
+
+      - name: Build
+        shell: cmd
+        run:  |
+          qmake -r ./src/SerialTest.pro -spec win32-msvc
+          nmake -f Makefile.Release
+          nmake clean
+
+      - name: Copy DLLs
+        run: |
+          cd ./release
+          windeployqt ./SerialTest.exe
+          python ../pack/find_dlls.py ./SerialTest.exe
+          dir
+
+      - name: Save artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SerialTest-${{ matrix.arch }}
+          path: ./release/*
