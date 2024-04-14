@@ -2,6 +2,16 @@
 
 [English](../../CHANGELOG.md)  
 
+## V0.3.5
++ 改进蓝牙BLE连接兼容性，支持WriteNoResponse操作 (commit 0e5c82ea6c)
++ 改进串口连接兼容性，在建立连接并尝试设置DTR/RTS信号时忽略设置失败的错误 (commit cae854bcdd)
++ 在MSVC编译器生成的程序中添加蓝牙支持 (commit 9760cccda8)
++ 支持自动保存窗口布局 (commit c88b47e1b0)
++ 支持配置触摸滚动手势 (commit fda6389c31)
++ 将状态栏中的"√"(U+221A)替换为"OK"以确保不同平台上的显示效果一致 (commit 574360343e)
++ 数据面板: 在新增已接收数据时保持已选中状态不被清除 (commit 86508ff76b)
++ 修复若干BUG
+
 ## V0.3.4
 + Android: 使用自适应启动器图标 (commit da9f2caaf1)
 

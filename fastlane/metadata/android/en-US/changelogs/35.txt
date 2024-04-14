@@ -1,0 +1,9 @@
+V0.3.5
++ Improve BLE compatibility by adding support for WriteNoResponse operation (commit 0e5c82ea6c)
++ Improve serial port compatibility by allowing non-fatal errors when setting DTR/RTS in the connecting process (commit cae854bcdd)
++ Add Windows MSVC support for Bluetooth (commit 9760cccda8)
++ Add support for restoring dock widgets status (commit c88b47e1b0)
++ Add an option for enabling/disabling touch scrolling gesture (commit fda6389c31)
++ Replace "√"(U+221A) with "OK" in the status bar for the visual consistency across all platforms (commit 574360343e)
++ DataTab: Keep selection unchanged when appending received data (commit 86508ff76b)
++ Fix a few bugs

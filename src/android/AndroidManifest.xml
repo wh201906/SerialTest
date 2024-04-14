@@ -2,8 +2,8 @@
 <manifest
     package="priv.wh201906.serialtest"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionName="V0.3.4"
-    android:versionCode="34"
+    android:versionName="V0.3.5"
+    android:versionCode="35"
     android:installLocation="auto">
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
          Remove the comment if you do not require these default permissions. -->

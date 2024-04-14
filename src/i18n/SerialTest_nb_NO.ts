@@ -4,82 +4,82 @@
 <context>
     <name>Connection</name>
     <message>
-        <location filename="../connection.cpp" line="260"/>
+        <location filename="../connection.cpp" line="259"/>
         <source>Failed to listen on adapter</source>
         <translation>Kunne ikke lytte på adapteren</translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="268"/>
+        <location filename="../connection.cpp" line="267"/>
         <source>Failed to register service on adapter</source>
         <translation>Kunne ikke registrere tjenesten på adapteren</translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="308"/>
+        <location filename="../connection.cpp" line="307"/>
         <source>Failed to listen to </source>
         <translation type="unfinished">Klarte ikke å lytte til </translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="326"/>
+        <location filename="../connection.cpp" line="325"/>
         <source>(Multicast)Failed to listen to port </source>
         <translation>(Multicast)Kunne ikke lytte til port </translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="332"/>
+        <location filename="../connection.cpp" line="331"/>
         <source>(Multicast)Failed to join </source>
         <translation>(Multicast)Kunne ikke bli med </translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="522"/>
+        <location filename="../connection.cpp" line="521"/>
         <source>Bluetooth SPP Service</source>
         <translation>Bluetooth SPP-tjeneste</translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="664"/>
+        <location filename="../connection.cpp" line="667"/>
         <source>Controller Error: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="686"/>
+        <location filename="../connection.cpp" line="689"/>
         <source>Service Error: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1358"/>
+        <location filename="../connection.cpp" line="1399"/>
         <source>SerialPort</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1359"/>
+        <location filename="../connection.cpp" line="1400"/>
         <source>Bluetooth Client</source>
         <translation>Bluetooth-klient</translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1360"/>
+        <location filename="../connection.cpp" line="1401"/>
         <source>Bluetooth Server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1361"/>
+        <location filename="../connection.cpp" line="1402"/>
         <source>BLE Central</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1362"/>
+        <location filename="../connection.cpp" line="1403"/>
         <source>BLE Peripheral</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1363"/>
+        <location filename="../connection.cpp" line="1404"/>
         <source>TCP Client</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1364"/>
+        <location filename="../connection.cpp" line="1405"/>
         <source>TCP Server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../connection.cpp" line="1365"/>
+        <location filename="../connection.cpp" line="1406"/>
         <source>UDP</source>
         <translation type="unfinished"></translation>
     </message>
@@ -189,89 +189,89 @@
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="70"/>
-        <location filename="../ctrltab.cpp" line="87"/>
-        <location filename="../ctrltab.cpp" line="110"/>
+        <location filename="../ctrltab.cpp" line="86"/>
+        <location filename="../ctrltab.cpp" line="109"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/ctrltab.ui" line="77"/>
-        <location filename="../ctrltab.cpp" line="154"/>
-        <location filename="../ctrltab.cpp" line="188"/>
+        <location filename="../ctrltab.cpp" line="153"/>
+        <location filename="../ctrltab.cpp" line="187"/>
         <source>Export</source>
         <translation>Eksport</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="90"/>
+        <location filename="../ctrltab.cpp" line="89"/>
         <source>Paste the exported data in the box.</source>
         <translation>Lim inn de eksporterte dataene i boksen.</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="94"/>
-        <location filename="../ctrltab.cpp" line="174"/>
+        <location filename="../ctrltab.cpp" line="93"/>
+        <location filename="../ctrltab.cpp" line="173"/>
         <source>Done</source>
         <translation>Ferdig</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="121"/>
+        <location filename="../ctrltab.cpp" line="120"/>
         <source>Import Control Panel</source>
         <translation>Importer kontrollpanel</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="121"/>
-        <location filename="../ctrltab.cpp" line="205"/>
+        <location filename="../ctrltab.cpp" line="120"/>
+        <location filename="../ctrltab.cpp" line="204"/>
         <source>Config files</source>
         <translation>Konfigurasjonsfiler</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="121"/>
-        <location filename="../ctrltab.cpp" line="205"/>
+        <location filename="../ctrltab.cpp" line="120"/>
+        <location filename="../ctrltab.cpp" line="204"/>
         <source>All files</source>
         <translation>Alle filer</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="128"/>
-        <location filename="../ctrltab.cpp" line="158"/>
-        <location filename="../ctrltab.cpp" line="199"/>
-        <location filename="../ctrltab.cpp" line="217"/>
+        <location filename="../ctrltab.cpp" line="127"/>
+        <location filename="../ctrltab.cpp" line="157"/>
+        <location filename="../ctrltab.cpp" line="198"/>
+        <location filename="../ctrltab.cpp" line="216"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="128"/>
-        <location filename="../ctrltab.cpp" line="217"/>
+        <location filename="../ctrltab.cpp" line="127"/>
+        <location filename="../ctrltab.cpp" line="216"/>
         <source>Successed!</source>
         <translation>Vellykket!</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="128"/>
-        <location filename="../ctrltab.cpp" line="217"/>
+        <location filename="../ctrltab.cpp" line="127"/>
+        <location filename="../ctrltab.cpp" line="216"/>
         <source>Failed!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="158"/>
-        <location filename="../ctrltab.cpp" line="199"/>
+        <location filename="../ctrltab.cpp" line="157"/>
+        <location filename="../ctrltab.cpp" line="198"/>
         <source>Please add item first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="162"/>
+        <location filename="../ctrltab.cpp" line="161"/>
         <source>Copy all text in this box and save it to somewhere.</source>
         <translation>Kopier all tekst i denne boksen og lagre den et sted.</translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="163"/>
+        <location filename="../ctrltab.cpp" line="162"/>
         <source>To import, click the Import button, then paste the text back.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="175"/>
+        <location filename="../ctrltab.cpp" line="174"/>
         <source>Copied to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ctrltab.cpp" line="205"/>
+        <location filename="../ctrltab.cpp" line="204"/>
         <source>Export Control Panel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -313,16 +313,16 @@
     <message>
         <location filename="../ui/datatab.ui" line="128"/>
         <location filename="../ui/datatab.ui" line="229"/>
-        <location filename="../datatab.cpp" line="582"/>
-        <location filename="../datatab.cpp" line="597"/>
+        <location filename="../datatab.cpp" line="588"/>
+        <location filename="../datatab.cpp" line="603"/>
         <source>Export</source>
         <translation type="unfinished">Eksport</translation>
     </message>
     <message>
         <location filename="../ui/datatab.ui" line="135"/>
         <location filename="../ui/datatab.ui" line="236"/>
-        <location filename="../datatab.cpp" line="583"/>
-        <location filename="../datatab.cpp" line="598"/>
+        <location filename="../datatab.cpp" line="589"/>
+        <location filename="../datatab.cpp" line="604"/>
         <source>Copy All</source>
         <translation type="unfinished"></translation>
     </message>
@@ -350,7 +350,7 @@
     <message>
         <location filename="../ui/datatab.ui" line="304"/>
         <location filename="../ui/datatab.ui" line="361"/>
-        <location filename="../datatab.cpp" line="207"/>
+        <location filename="../datatab.cpp" line="206"/>
         <source>Suffix</source>
         <translation type="unfinished">Suffiks</translation>
     </message>
@@ -401,48 +401,48 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="141"/>
-        <location filename="../datatab.cpp" line="310"/>
-        <location filename="../datatab.cpp" line="333"/>
+        <location filename="../datatab.cpp" line="139"/>
+        <location filename="../datatab.cpp" line="303"/>
+        <location filename="../datatab.cpp" line="326"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="141"/>
+        <location filename="../datatab.cpp" line="139"/>
         <source>is not a valid encoding.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="294"/>
+        <location filename="../datatab.cpp" line="287"/>
         <source>Export received data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="310"/>
-        <location filename="../datatab.cpp" line="333"/>
+        <location filename="../datatab.cpp" line="303"/>
+        <location filename="../datatab.cpp" line="326"/>
         <source>Successed!</source>
         <translation type="unfinished">Vellykket!</translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="310"/>
-        <location filename="../datatab.cpp" line="333"/>
+        <location filename="../datatab.cpp" line="303"/>
+        <location filename="../datatab.cpp" line="326"/>
         <source>Failed!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="317"/>
+        <location filename="../datatab.cpp" line="310"/>
         <source>Export sended data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="577"/>
-        <location filename="../datatab.cpp" line="592"/>
+        <location filename="../datatab.cpp" line="583"/>
+        <location filename="../datatab.cpp" line="598"/>
         <source>Export Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../datatab.cpp" line="578"/>
-        <location filename="../datatab.cpp" line="593"/>
+        <location filename="../datatab.cpp" line="584"/>
+        <location filename="../datatab.cpp" line="599"/>
         <source>Copy Selected</source>
         <translation type="unfinished"></translation>
     </message>
@@ -451,8 +451,8 @@
     <name>DeviceTab</name>
     <message>
         <location filename="../ui/devicetab.ui" line="62"/>
-        <location filename="../devicetab.cpp" line="1026"/>
-        <location filename="../devicetab.cpp" line="1202"/>
+        <location filename="../devicetab.cpp" line="1101"/>
+        <location filename="../devicetab.cpp" line="1277"/>
         <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
@@ -489,8 +489,8 @@
     <message>
         <location filename="../ui/devicetab.ui" line="462"/>
         <location filename="../ui/devicetab.ui" line="577"/>
-        <location filename="../devicetab.cpp" line="1357"/>
-        <location filename="../devicetab.cpp" line="1393"/>
+        <location filename="../devicetab.cpp" line="1436"/>
+        <location filename="../devicetab.cpp" line="1472"/>
         <source>Connect</source>
         <translation type="unfinished"></translation>
     </message>
@@ -527,7 +527,7 @@
     <message>
         <location filename="../ui/devicetab.ui" line="179"/>
         <location filename="../ui/devicetab.ui" line="367"/>
-        <location filename="../ui/devicetab.ui" line="862"/>
+        <location filename="../ui/devicetab.ui" line="888"/>
         <source>Local Adapter:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -546,13 +546,13 @@
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="297"/>
-        <location filename="../devicetab.cpp" line="1151"/>
+        <location filename="../devicetab.cpp" line="1226"/>
         <source>Receive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="302"/>
-        <location filename="../devicetab.cpp" line="1152"/>
+        <location filename="../devicetab.cpp" line="1227"/>
         <source>Send</source>
         <translation type="unfinished"></translation>
     </message>
@@ -613,90 +613,100 @@
     </message>
     <message>
         <location filename="../ui/devicetab.ui" line="816"/>
-        <location filename="../ui/devicetab.ui" line="948"/>
+        <location filename="../ui/devicetab.ui" line="974"/>
         <source>Target Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="965"/>
+        <location filename="../ui/devicetab.ui" line="833"/>
+        <source>Service UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="849"/>
+        <source>If Service UUID is not specified, the SerialPort service UUID(0x1101) will be used.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/devicetab.ui" line="991"/>
         <source>Rx Service UUID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="985"/>
+        <location filename="../ui/devicetab.ui" line="1011"/>
         <source>Rx Characteristic UUID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1005"/>
+        <location filename="../ui/devicetab.ui" line="1031"/>
         <source>Tx Service UUID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1025"/>
+        <location filename="../ui/devicetab.ui" line="1051"/>
         <source>Tx Characteristic UUID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1108"/>
+        <location filename="../ui/devicetab.ui" line="1134"/>
         <source>Local Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1122"/>
+        <location filename="../ui/devicetab.ui" line="1148"/>
         <source>Local Port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1136"/>
-        <location filename="../devicetab.cpp" line="1181"/>
+        <location filename="../ui/devicetab.ui" line="1162"/>
+        <location filename="../devicetab.cpp" line="1256"/>
         <source>Remote Address:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1146"/>
+        <location filename="../ui/devicetab.ui" line="1172"/>
         <source>Remote Port:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1156"/>
+        <location filename="../ui/devicetab.ui" line="1182"/>
         <source>Set local port to 0 to use a random and available port.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1172"/>
+        <location filename="../ui/devicetab.ui" line="1198"/>
         <source>In UDP mode, 
 you can change the remote address and port on the fly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="879"/>
+        <location filename="../ui/devicetab.ui" line="905"/>
         <source>Service Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1241"/>
+        <location filename="../devicetab.cpp" line="1320"/>
         <source>SerialTest_BT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1209"/>
+        <location filename="../ui/devicetab.ui" line="1235"/>
         <source>Open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/devicetab.ui" line="1219"/>
+        <location filename="../ui/devicetab.ui" line="1245"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="194"/>
-        <location filename="../devicetab.cpp" line="206"/>
+        <location filename="../devicetab.cpp" line="204"/>
+        <location filename="../devicetab.cpp" line="216"/>
         <source>Searching...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="242"/>
+        <location filename="../devicetab.cpp" line="278"/>
         <source>Bonded</source>
         <translation type="unfinished"></translation>
     </message>
@@ -715,189 +725,189 @@ you can change the remote address and port on the fly.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="268"/>
+        <location filename="../devicetab.cpp" line="304"/>
         <source>NoFlowControl</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="269"/>
+        <location filename="../devicetab.cpp" line="305"/>
         <source>HardwareControl</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="270"/>
+        <location filename="../devicetab.cpp" line="306"/>
         <source>SoftwareControl</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="272"/>
+        <location filename="../devicetab.cpp" line="308"/>
         <source>NoParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="273"/>
+        <location filename="../devicetab.cpp" line="309"/>
         <source>EvenParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="274"/>
+        <location filename="../devicetab.cpp" line="310"/>
         <source>OddParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="275"/>
+        <location filename="../devicetab.cpp" line="311"/>
         <source>SpaceParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="276"/>
+        <location filename="../devicetab.cpp" line="312"/>
         <source>MarkParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="452"/>
-        <location filename="../devicetab.cpp" line="484"/>
-        <location filename="../devicetab.cpp" line="1361"/>
+        <location filename="../devicetab.cpp" line="510"/>
+        <location filename="../devicetab.cpp" line="542"/>
+        <location filename="../devicetab.cpp" line="1440"/>
         <source>Disconnect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="587"/>
-        <location filename="../devicetab.cpp" line="609"/>
-        <location filename="../devicetab.cpp" line="627"/>
-        <location filename="../devicetab.cpp" line="644"/>
+        <location filename="../devicetab.cpp" line="645"/>
         <location filename="../devicetab.cpp" line="667"/>
-        <location filename="../devicetab.cpp" line="690"/>
-        <location filename="../devicetab.cpp" line="710"/>
-        <location filename="../devicetab.cpp" line="1089"/>
-        <location filename="../devicetab.cpp" line="1091"/>
+        <location filename="../devicetab.cpp" line="702"/>
+        <location filename="../devicetab.cpp" line="719"/>
+        <location filename="../devicetab.cpp" line="742"/>
+        <location filename="../devicetab.cpp" line="765"/>
+        <location filename="../devicetab.cpp" line="785"/>
+        <location filename="../devicetab.cpp" line="1164"/>
+        <location filename="../devicetab.cpp" line="1166"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="587"/>
+        <location filename="../devicetab.cpp" line="645"/>
         <source>The port has been opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="627"/>
-        <location filename="../devicetab.cpp" line="690"/>
+        <location filename="../devicetab.cpp" line="702"/>
+        <location filename="../devicetab.cpp" line="765"/>
         <source>The server is already running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="609"/>
-        <location filename="../devicetab.cpp" line="644"/>
+        <location filename="../devicetab.cpp" line="667"/>
+        <location filename="../devicetab.cpp" line="719"/>
         <source>The device has already connected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="165"/>
+        <location filename="../devicetab.cpp" line="175"/>
         <source>Yes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="165"/>
+        <location filename="../devicetab.cpp" line="175"/>
         <source>No</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="667"/>
+        <location filename="../devicetab.cpp" line="742"/>
         <source>The client has already connected to the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="710"/>
+        <location filename="../devicetab.cpp" line="785"/>
         <source>The socket has already bound to a port.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1016"/>
+        <location filename="../devicetab.cpp" line="1091"/>
         <source>Delete</source>
         <translation type="unfinished">Slett</translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1049"/>
+        <location filename="../devicetab.cpp" line="1124"/>
         <source>Discovered</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1089"/>
+        <location filename="../devicetab.cpp" line="1164"/>
         <source>Please close the current connection first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1091"/>
+        <location filename="../devicetab.cpp" line="1166"/>
         <source>Unsupported interface.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1132"/>
+        <location filename="../devicetab.cpp" line="1207"/>
         <source>Remote Address/Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1409"/>
+        <location filename="../devicetab.cpp" line="1488"/>
         <source>Service</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1431"/>
+        <location filename="../devicetab.cpp" line="1510"/>
         <source>Characteristic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1450"/>
+        <location filename="../devicetab.cpp" line="1529"/>
         <source>Descriptor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1487"/>
+        <location filename="../devicetab.cpp" line="1566"/>
         <source>Broadcast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1488"/>
+        <location filename="../devicetab.cpp" line="1567"/>
         <source>Read</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1489"/>
+        <location filename="../devicetab.cpp" line="1568"/>
         <source>WriteNoResponse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1490"/>
+        <location filename="../devicetab.cpp" line="1569"/>
         <source>Write</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1491"/>
+        <location filename="../devicetab.cpp" line="1570"/>
         <source>Notify</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1492"/>
+        <location filename="../devicetab.cpp" line="1571"/>
         <source>Indicate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1493"/>
+        <location filename="../devicetab.cpp" line="1572"/>
         <source>WriteSigned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.cpp" line="1494"/>
+        <location filename="../devicetab.cpp" line="1573"/>
         <source>ExtendedProperty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.h" line="75"/>
+        <location filename="../devicetab.h" line="76"/>
         <source>(Auto)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../devicetab.h" line="76"/>
+        <location filename="../devicetab.h" line="77"/>
         <source>(Any)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -911,13 +921,13 @@ you can change the remote address and port on the fly.</source>
     </message>
     <message>
         <location filename="../ui/filetab.ui" line="69"/>
-        <location filename="../filetab.cpp" line="226"/>
+        <location filename="../filetab.cpp" line="225"/>
         <source>Receive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/filetab.ui" line="92"/>
-        <location filename="../filetab.cpp" line="327"/>
+        <location filename="../filetab.cpp" line="326"/>
         <source>Start</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1006,53 +1016,53 @@ In Receive mode, turn off &quot;Realtime&quot; in DataTab, and disable Plot.</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="58"/>
+        <location filename="../filetab.cpp" line="59"/>
         <source>Raw</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="150"/>
+        <location filename="../filetab.cpp" line="149"/>
         <source>Calculating...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="163"/>
+        <location filename="../filetab.cpp" line="162"/>
         <source>Failed to open file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="165"/>
+        <location filename="../filetab.cpp" line="164"/>
         <source>Failed to read file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="226"/>
+        <location filename="../filetab.cpp" line="225"/>
         <source>File already exists
 Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="263"/>
+        <location filename="../filetab.cpp" line="262"/>
         <source>Stopped</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="301"/>
+        <location filename="../filetab.cpp" line="300"/>
         <source>Finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="313"/>
+        <location filename="../filetab.cpp" line="312"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="314"/>
+        <location filename="../filetab.cpp" line="313"/>
         <source>Started</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../filetab.cpp" line="318"/>
+        <location filename="../filetab.cpp" line="317"/>
         <source>Failed to start.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1083,73 +1093,73 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="69"/>
+        <location filename="../mainwindow.cpp" line="71"/>
         <source>Plot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="74"/>
+        <location filename="../mainwindow.cpp" line="76"/>
         <source>Control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="216"/>
+        <location filename="../mainwindow.cpp" line="235"/>
         <source>On Top</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="104"/>
+        <location filename="../mainwindow.cpp" line="112"/>
         <source>Dock all windows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="115"/>
+        <location filename="../mainwindow.cpp" line="123"/>
         <source>Ver: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="116"/>
+        <location filename="../mainwindow.cpp" line="124"/>
         <source>Check Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="291"/>
-        <location filename="../mainwindow.cpp" line="316"/>
+        <location filename="../mainwindow.cpp" line="310"/>
+        <location filename="../mainwindow.cpp" line="335"/>
         <source>Connected Clients</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="445"/>
+        <location filename="../mainwindow.cpp" line="464"/>
         <source>Cannot open the serial port.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="247"/>
+        <location filename="../mainwindow.cpp" line="266"/>
         <source>NoParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="247"/>
+        <location filename="../mainwindow.cpp" line="266"/>
         <source>EvenParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="247"/>
+        <location filename="../mainwindow.cpp" line="266"/>
         <source>OddParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="247"/>
+        <location filename="../mainwindow.cpp" line="266"/>
         <source>SpaceParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="247"/>
+        <location filename="../mainwindow.cpp" line="266"/>
         <source>MarkParity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="246"/>
+        <location filename="../mainwindow.cpp" line="265"/>
         <source>OneStop</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1159,133 +1169,133 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="79"/>
+        <location filename="../mainwindow.cpp" line="81"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="89"/>
+        <location filename="../mainwindow.cpp" line="97"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="165"/>
+        <location filename="../mainwindow.cpp" line="173"/>
         <source>Press Back again to exit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="169"/>
+        <location filename="../mainwindow.cpp" line="177"/>
         <source>Closing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="188"/>
+        <location filename="../mainwindow.cpp" line="205"/>
         <source>Please connect to something first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="246"/>
+        <location filename="../mainwindow.cpp" line="265"/>
         <source>TwoStop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="246"/>
+        <location filename="../mainwindow.cpp" line="265"/>
         <source>OneAndHalfStop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="251"/>
+        <location filename="../mainwindow.cpp" line="270"/>
         <source>BaudRate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="252"/>
+        <location filename="../mainwindow.cpp" line="271"/>
         <source>DataBits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="253"/>
+        <location filename="../mainwindow.cpp" line="272"/>
         <source>StopBits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="254"/>
+        <location filename="../mainwindow.cpp" line="273"/>
         <source>Parity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="264"/>
-        <location filename="../mainwindow.cpp" line="304"/>
-        <location filename="../mainwindow.cpp" line="327"/>
+        <location filename="../mainwindow.cpp" line="283"/>
+        <location filename="../mainwindow.cpp" line="323"/>
+        <location filename="../mainwindow.cpp" line="346"/>
         <source>Remote</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="273"/>
-        <location filename="../mainwindow.cpp" line="288"/>
-        <location filename="../mainwindow.cpp" line="303"/>
-        <location filename="../mainwindow.cpp" line="314"/>
-        <location filename="../mainwindow.cpp" line="325"/>
+        <location filename="../mainwindow.cpp" line="292"/>
+        <location filename="../mainwindow.cpp" line="307"/>
+        <location filename="../mainwindow.cpp" line="322"/>
+        <location filename="../mainwindow.cpp" line="333"/>
+        <location filename="../mainwindow.cpp" line="344"/>
         <source>Local</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="332"/>
-        <location filename="../mainwindow.cpp" line="334"/>
-        <location filename="../mainwindow.cpp" line="336"/>
+        <location filename="../mainwindow.cpp" line="351"/>
+        <location filename="../mainwindow.cpp" line="353"/>
+        <location filename="../mainwindow.cpp" line="355"/>
         <source>State</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="250"/>
+        <location filename="../mainwindow.cpp" line="269"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="394"/>
+        <location filename="../mainwindow.cpp" line="413"/>
         <source>Rx</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="396"/>
+        <location filename="../mainwindow.cpp" line="415"/>
         <source>Tx</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="188"/>
-        <location filename="../mainwindow.cpp" line="461"/>
-        <location filename="../mainwindow.cpp" line="501"/>
+        <location filename="../mainwindow.cpp" line="205"/>
+        <location filename="../mainwindow.cpp" line="480"/>
+        <location filename="../mainwindow.cpp" line="520"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="266"/>
+        <location filename="../mainwindow.cpp" line="285"/>
         <source>Remote Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="313"/>
-        <location filename="../mainwindow.cpp" line="324"/>
+        <location filename="../mainwindow.cpp" line="332"/>
+        <location filename="../mainwindow.cpp" line="343"/>
         <source>Any</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="449"/>
+        <location filename="../mainwindow.cpp" line="468"/>
         <source>Cannot establish the connection.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="453"/>
+        <location filename="../mainwindow.cpp" line="472"/>
         <source>Cannot start the server.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="457"/>
+        <location filename="../mainwindow.cpp" line="476"/>
         <source>Cannot bind to the specified address and port.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="501"/>
+        <location filename="../mainwindow.cpp" line="520"/>
         <source>No port is opened.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1368,6 +1378,26 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../ui/plottab.ui" line="354"/>
+        <source>Style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/plottab.ui" line="362"/>
+        <source>Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/plottab.ui" line="367"/>
+        <source>Point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/plottab.ui" line="372"/>
+        <source>Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../ui/plottab.ui" line="259"/>
         <location filename="../ui/plottab.ui" line="296"/>
         <location filename="../ui/plottab.ui" line="338"/>
@@ -1389,11 +1419,6 @@ Continue?</source>
     <message>
         <location filename="../ui/plottab.ui" line="333"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/plottab.ui" line="357"/>
-        <source>Scatter</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1525,32 +1550,47 @@ If no config file is detected, This app will create one in the current working d
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="437"/>
+        <location filename="../ui/settingstab.ui" line="435"/>
+        <source>Remember data to be sent in DataTab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingstab.ui" line="444"/>
         <source>Merge Timestamps With Short Intervals:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="457"/>
+        <location filename="../ui/settingstab.ui" line="464"/>
         <source>ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="482"/>
+        <location filename="../ui/settingstab.ui" line="486"/>
+        <source>Clear received data in DataTab and graph in PlotTab simultaneously</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingstab.ui" line="493"/>
+        <source>Respond to Touch Scroll Events</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/settingstab.ui" line="503"/>
         <source>Restart the app to make settings with &quot;*&quot; take effect.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="491"/>
+        <location filename="../ui/settingstab.ui" line="512"/>
         <source>Version:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="512"/>
+        <location filename="../ui/settingstab.ui" line="533"/>
         <source>Latest Release:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/settingstab.ui" line="542"/>
+        <location filename="../ui/settingstab.ui" line="563"/>
         <source>Report Bugs:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1600,14 +1640,14 @@ If no config file is detected, This app will create one in the current working d
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="83"/>
-        <location filename="../settingstab.cpp" line="301"/>
-        <location filename="../settingstab.cpp" line="321"/>
+        <location filename="../settingstab.cpp" line="81"/>
+        <location filename="../settingstab.cpp" line="315"/>
+        <location filename="../settingstab.cpp" line="335"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="83"/>
+        <location filename="../settingstab.cpp" line="81"/>
         <source>All configurations and history will be deleted!
 And this app will be closed!
 Continue?</source>
@@ -1646,56 +1686,56 @@ Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="301"/>
+        <location filename="../settingstab.cpp" line="315"/>
         <source>All history will be deleted!
 Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="321"/>
+        <location filename="../settingstab.cpp" line="335"/>
         <source>This app will be closed after import!
 Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="325"/>
+        <location filename="../settingstab.cpp" line="339"/>
         <source>Import config from file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="325"/>
-        <location filename="../settingstab.cpp" line="347"/>
+        <location filename="../settingstab.cpp" line="339"/>
+        <location filename="../settingstab.cpp" line="361"/>
         <source>Config files</source>
         <translation type="unfinished">Konfigurasjonsfiler</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="325"/>
-        <location filename="../settingstab.cpp" line="347"/>
+        <location filename="../settingstab.cpp" line="339"/>
+        <location filename="../settingstab.cpp" line="361"/>
         <source>All files</source>
         <translation type="unfinished">Alle filer</translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="333"/>
+        <location filename="../settingstab.cpp" line="347"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="333"/>
+        <location filename="../settingstab.cpp" line="347"/>
         <source>Unsupported file format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="341"/>
+        <location filename="../settingstab.cpp" line="355"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="341"/>
+        <location filename="../settingstab.cpp" line="355"/>
         <source>Imported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../settingstab.cpp" line="347"/>
+        <location filename="../settingstab.cpp" line="361"/>
         <source>Export config to file</source>
         <translation>Eksporter konfigurasjon til fil</translation>
     </message>
