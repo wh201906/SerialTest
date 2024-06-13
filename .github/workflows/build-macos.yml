@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    runs-on:  macos-latest
+    runs-on:  macos-12
 
     steps:
       - name: Checkout repo
@@ -34,7 +34,7 @@ jobs:
           brew update
           brew upgrade || echo '::warning::"brew upgrade" failed. Please check the log to see if the artifact is valid.'
           brew install qt@5 || echo '::warning::"brew install qt@5" failed. Please check the log to see if the artifact is valid.'
-          brew link qt5 --force
+          brew link qt@5 --force
 
       - name: Create build directory
         run:  mkdir ${{ runner.temp }}/shadow_build_dir
