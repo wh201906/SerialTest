@@ -52,7 +52,7 @@ ControlItem::~ControlItem()
 
 void ControlItem::on_slider_valueChanged(int value)
 {
-    ui->sliderEdit->setText(QString::number(value));
+    ui->sliderEdit->setText(QString::number(value, 16));
     if(m_sliderPageChanged)
     {
         m_sliderPageChanged = false;
@@ -83,7 +83,7 @@ void ControlItem::on_minEdit_editingFinished()
     if(type == SpinBox)
         ui->spinBox->setMinimum(ui->minEdit->text().toDouble());
     else if(type == Slider)
-        ui->slider->setMinimum(ui->minEdit->text().toInt());
+        ui->slider->setMinimum(ui->minEdit->text().toInt(nullptr, 16));
 }
 
 
@@ -92,7 +92,7 @@ void ControlItem::on_maxEdit_editingFinished()
     if(type == SpinBox)
         ui->spinBox->setMaximum(ui->maxEdit->text().toDouble());
     else if(type == Slider)
-        ui->slider->setMaximum(ui->maxEdit->text().toInt());
+        ui->slider->setMaximum(ui->maxEdit->text().toInt(nullptr, 16));
 }
 
 
@@ -101,7 +101,7 @@ void ControlItem::on_stepEdit_editingFinished()
     if(type == SpinBox)
         ui->spinBox->setSingleStep(ui->stepEdit->text().toDouble());
     else if(type == Slider)
-        ui->slider->setSingleStep(ui->stepEdit->text().toInt());
+        ui->slider->setSingleStep(ui->stepEdit->text().toInt(nullptr, 16));
 }
 
 
@@ -211,7 +211,7 @@ void ControlItem::on_sendButton_clicked()
     }
     else if(type == Slider)
     {
-        data += dataCodec->fromUnicode(QString::number(ui->slider->value()));
+        data += QByteArray::fromHex(QString::number(ui->slider->value(), 16).toLatin1());
     }
     else if(type == CheckBox)
     {
@@ -245,12 +245,12 @@ void ControlItem::on_sendButton_clicked()
 
 void ControlItem::on_sliderEdit_editingFinished()
 {
-    int val = ui->sliderEdit->text().toInt();
+    int val = ui->sliderEdit->text().toInt(nullptr, 16);
     if(val < ui->slider->minimum())
         val = ui->slider->minimum();
     else if(val > ui->slider->maximum())
         val = ui->slider->maximum();
-    ui->sliderEdit->setText(QString::number(val));
+    ui->sliderEdit->setText(QString::number(val, 16));
 
     if(val == ui->slider->value())
         return;
@@ -298,7 +298,7 @@ bool ControlItem::load(const QJsonObject& dict)
     else if(type == Slider)
     {
         ui->slider->setValue(dict["content"].toInt());
-        ui->sliderEdit->setText(QString::number(ui->slider->value()));
+        ui->sliderEdit->setText(QString::number(ui->slider->value(), 16));
     }
     else if(type == CheckBox)
     {
